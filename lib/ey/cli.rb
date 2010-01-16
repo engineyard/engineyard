@@ -17,10 +17,10 @@ module EY
         exit(1)
       end
     end
-
+    
     def self.usage
       $stderr << <<-EOF
-      usage: ey <command> <args>
+usage: ey <command> <args>
       EOF
       COMMANDS.values.each do |cmd|
         if cmd.respond_to?(:short_usage)
