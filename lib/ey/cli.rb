@@ -1,4 +1,3 @@
-require 'cli/setup'
 require 'cli/help'
 
 module EY
@@ -6,7 +5,6 @@ module EY
     class CommandNotFound < StandardError; end
 
     COMMANDS = {
-      "setup" => EY::CLI::Setup,
       "help" => EY::CLI::Help,
     }
 
