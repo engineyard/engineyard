@@ -1,4 +1,5 @@
 require 'cli/help'
+require 'cli/deploy'
 
 module EY
   module CLI
@@ -6,6 +7,7 @@ module EY
 
     COMMANDS = {
       "help" => EY::CLI::Help,
+      "deploy" => EY::CLI::Deploy,
     }
 
     def self.command_to_class(command)
