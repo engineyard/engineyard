@@ -4,6 +4,11 @@ module EY
       def self.run(args)
         cmd = args.shift
         
+        unless cmd
+          EY::CLI.usage
+          exit
+        end
+
         begin
           klass = CLI.command_to_class(cmd)
         rescue CLI::CommandNotFound
