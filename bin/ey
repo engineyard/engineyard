@@ -1,0 +1,15 @@
+#!/usr/bin/env ruby
+
+$LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
+
+require 'ey'
+require 'ey/cli'
+
+args = ARGV.dup
+
+begin
+  EY::CLI.command_to_class(args.shift).run(args)
+rescue EY::CLI::CommandNotFound
+  EY::CLI.usage
+  exit(1)
+end

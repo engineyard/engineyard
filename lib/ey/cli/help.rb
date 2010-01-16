@@ -1,5 +1,5 @@
 module EY
-  module Cloud
+  module CLI
     class Help
       def self.run(args)
         cmd = args.shift
@@ -19,7 +19,7 @@ module EY
       end
       
       def self.short_usage
-        "cloud help <command>: show full usage information for a specific command"
+        "ey help <command>: show full usage information for a specific command"
       end
     end
   end
