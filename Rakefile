@@ -5,13 +5,12 @@ begin
   require 'jeweler'
   Jeweler::Tasks.new do |gem|
     gem.name = "engineyard"
-    gem.summary = %Q{TODO: one-line summary of your gem}
-    gem.description = %Q{TODO: longer description of your gem}
+    gem.summary = %Q{Command-line deployment for the Engine Yard cloud}
+    gem.description = %Q{This gem allows you to deploy your rails application to the Engine Yard cloud directly from the command line.}
     gem.email = "adelcambre@engineyard.com"
-    gem.homepage = "http://github.com/engineyard/cloud"
-    gem.authors = ["Andy Delcambre"]
+    gem.homepage = "http://github.com/engineyard/engineyard"
+    gem.authors = ["Andy Delcambre", "Andre Arko", "Ezra Zygmuntowicz"]
     gem.add_development_dependency "rspec", ">= 1.2.9"
-    # gem is a Gem::Specification... see http://www.rubygems.org/read/chapter/20 for additional settings
   end
   Jeweler::GemcutterTasks.new
 rescue LoadError
@@ -35,11 +34,10 @@ task :spec => :check_dependencies
 task :default => :spec
 
 require 'rake/rdoctask'
+require 'lib/version.rb'
 Rake::RDocTask.new do |rdoc|
-  version = File.exist?('VERSION') ? File.read('VERSION') : ""
-
   rdoc.rdoc_dir = 'rdoc'
-  rdoc.title = "engineyard #{version}"
+  rdoc.title = "engineyard #{EY::VERSION}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
 end
