@@ -34,7 +34,7 @@ task :spec => :check_dependencies
 task :default => :spec
 
 require 'rake/rdoctask'
-require 'lib/version.rb'
+require 'lib/engineyard/version.rb'
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title = "engineyard #{EY::VERSION}"
