@@ -2,8 +2,8 @@
 
 $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
 
-require 'ey'
-require 'ey/cli'
+require 'engineyard'
+require 'engineyard/cli'
 
 args = ARGV.dup
 

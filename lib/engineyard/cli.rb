@@ -12,21 +12,21 @@ module EY
 
     def self.command_to_class(command)
       if klass = COMMANDS[command]
-        klass 
+        klass
       else
         raise CommandNotFound
         usage
         exit(1)
       end
     end
-    
+
     def self.usage
       $stderr << <<-EOF
 usage: ey <command> <args>
       EOF
       COMMANDS.values.each do |cmd|
         if cmd.respond_to?(:short_usage)
-          $stderr << "\n\t#{cmd.short_usage}\n"
+          $stderr << "  #{cmd.short_usage}\n"
         end
       end
     end
