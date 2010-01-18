@@ -7,7 +7,7 @@ begin
     gem.name = "engineyard"
     gem.summary = %Q{Command-line deployment for the Engine Yard cloud}
     gem.description = %Q{This gem allows you to deploy your rails application to the Engine Yard cloud directly from the command line.}
-    gem.email = "adelcambre@engineyard.com"
+    gem.email = "awsmdev@engineyard.com"
     gem.homepage = "http://github.com/engineyard/engineyard"
     gem.authors = ["Andy Delcambre", "Andre Arko", "Ezra Zygmuntowicz"]
     gem.add_development_dependency "rspec", ">= 1.2.9"
