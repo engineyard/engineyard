@@ -1,7 +1,7 @@
-require File.expand_path(File.dirname(__FILE__) + '/spec_helper')
+require 'spec_helper'
 
-describe "Cloud" do
-  it "fails" do
-    fail "hey buddy, you should probably rename this file and start specing for real"
+describe EY do
+  it "has a version number" do
+    VERSION.should be
   end
 end
