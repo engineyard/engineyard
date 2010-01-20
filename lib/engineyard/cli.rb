@@ -15,16 +15,12 @@ module EY
         klass
       else
         raise CommandNotFound
-        usage
-        exit(1)
       end
     end
 
     def self.usage
-      $stderr << <<-EOF
-usage: ey <command> <args>
-      EOF
-      COMMANDS.values.each do |cmd|
+      $stderr << %{usage: ey <command> <args>\n}
+      %w(deploy help).map{|n| COMMANDS[n] }.each do |cmd|
         if cmd.respond_to?(:short_usage)
           $stderr << "  #{cmd.short_usage}\n"
         end
