@@ -1,5 +1,4 @@
-require 'cli/help'
-require 'cli/deploy'
+Dir[File.dirname(__FILE__)+"/cli/*.rb"].each{|f| require f }
 
 module EY
   module CLI
@@ -8,6 +7,8 @@ module EY
     COMMANDS = {
       "help" => EY::CLI::Help,
       "deploy" => EY::CLI::Deploy,
+      "environments" => EY::CLI::Environments,
+      "envs" => EY::CLI::Environments
     }
 
     def self.command_to_class(command)
@@ -20,7 +21,7 @@ module EY
 
     def self.usage
       $stderr << %{usage: ey <command> <args>\n}
-      %w(deploy help).map{|n| COMMANDS[n] }.each do |cmd|
+      %w(environments deploy help).map{|n| COMMANDS[n] }.each do |cmd|
         if cmd.respond_to?(:short_usage)
           $stderr << "  #{cmd.short_usage}\n"
         end

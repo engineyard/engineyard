@@ -1,6 +1,6 @@
 module EY
   module CLI
-    class Help
+    class Help < Command
       def self.run(args)
         cmd = args.shift
 

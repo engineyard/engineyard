@@ -1,6 +1,6 @@
 module EY
   module CLI
-    class Deploy
+    class Deploy < Command
       def self.run(args)
         puts "Deploy"
       end
