@@ -2,7 +2,7 @@ module EY
   module CLI
     class Command
       def self.token
-        @token ||= EY::CLI::Authentication.get_token
+        @token ||= EY::CLI.authenticate
       end
 
       def self.run(args)
