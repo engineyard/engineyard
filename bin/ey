@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 
 $LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
+require 'vendor/gems/environment'
 
 require 'engineyard'
 require 'engineyard/cli'

@@ -1,7 +1,9 @@
+require 'pp'
 module EY
   module CLI
     class Deploy < Command
       def self.run(args)
+        pp token.request("/check_token")
         puts "Deploy"
       end
 
