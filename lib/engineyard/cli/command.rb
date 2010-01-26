@@ -1,6 +1,10 @@
 module EY
   module CLI
     class Command
+      def self.token
+        @token ||= EY::CLI::Authentication.get_token
+      end
+
       def self.run(args)
         raise "#{self.inspect} does not implement the run method."
       end

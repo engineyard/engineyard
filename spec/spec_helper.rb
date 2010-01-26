@@ -12,3 +12,5 @@ require 'support/capture_stdout'
 Spec::Runner.configure do |config|
 
 end
+
+FakeWeb.allow_net_connect = false
