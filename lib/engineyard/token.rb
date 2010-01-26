@@ -21,22 +21,25 @@ module EY
         false
       end
     end
-    
-    def self.fetch(email, password, file = File.expand_path("~/.eyrc"))
-      response = EY::Request.request("/authenticate", 
+
+    def self.to_file(token, file = File.expand_path("~/.eyrc"))
+      File.open(file, "w") do |fp|
+        fp.write YAML.dump({"api_token" => token})
+      end
+    end
+
+    def self.fetch(email, password)
+      response = EY::Request.request("/authenticate",
                                      :method => "post",
                                      :params => {
-                                       :email    => email, 
+                                       :email    => email,
                                        :password => password
                                      })
-                                  
-      token = response["api_token"]
-      if file && !File.exists?(file)
-        File.open(file, "w") do |fp|
-          fp.write YAML.dump({"api_token" => token})
-        end
+      if response
+        token = response["api_token"]
+        to_file(token)
+        new(token)
       end
-      new(token)
     rescue RestClient::Unauthorized
       raise InvalidCredentials
     end

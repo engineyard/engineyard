@@ -4,7 +4,8 @@ module EY
   module CLI
     module Authentication
       def self.get_token
-        unless token = EY::Token.from_file
+        token = EY::Token.from_file
+        unless token
           # Ask for user input
           hl = HighLine.new
           hl.say("We need to fetch your API token, please login")
