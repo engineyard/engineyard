@@ -7,24 +7,36 @@ describe EY::Token do
         fp.write(YAML.dump({"api_token" => "asdf"}))
       end
     end
-    
+
     it "gets the api token" do
       EY::Token.from_file.token.should == "asdf"
     end
   end
-  
+
   context "without a .eyrc" do
-    it "gets the api token from the cloud api" do
-      FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/authenticate", :body => %|{"api_token": "asdf"}|)
-      EY::Token.fetch("a@b.com", "foo").token.should == "asdf"
-    end
-    
-    it "raises InvalidCredentials if the username and password are wrong" do
-      FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/authenticate", :status => 401)
+    context "with valid credentials" do
+      before(:each) do
+        FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|)
+        @token = EY::Token.fetch("a@b.com", "foo")
+      end
       
-      lambda {
-        EY::Token.fetch("a@b.com", "foo")
-      }.should raise_error(EY::Token::InvalidCredentials)
+      it "gets the api token from the cloud api" do
+        @token.token.should == "asdf"
+      end
+      
+      it "puts the api token into .eyrc" do
+        YAML.load_file(File.expand_path("~/.eyrc"))["api_token"].should == "asdf"
+      end
+    end
+
+    context "with invalid credentials" do
+      it "raises InvalidCredentials" do
+        FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :status => 401)
+
+        lambda {
+          EY::Token.fetch("a@b.com", "foo")
+          }.should raise_error(EY::Token::InvalidCredentials)
+        end
+      end
     end
   end
-end

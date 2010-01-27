@@ -14,3 +14,4 @@ Spec::Runner.configure do |config|
 end
 
 FakeWeb.allow_net_connect = false
+ENV["CLOUD_URL"] = "https://cloud.engineyard.com"
