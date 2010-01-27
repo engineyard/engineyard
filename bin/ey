@@ -13,4 +13,7 @@ begin
 rescue EY::CLI::CommandNotFound
   EY::CLI.usage
   exit(1)
+rescue EY::CLI::Exit => e
+  puts "Sorry, something went wrong."
+  exit(e.code)
 end

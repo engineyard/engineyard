@@ -16,4 +16,12 @@ module Kernel
   ensure
     $stderr = org_stderr
   end
+
+  def capture_stdio(&block)
+    stderr, stdout = "", ""
+    stderr = capture_stderr do
+      stdout = capture_stdout(&block)
+    end
+    return [stdout, stderr]
+  end
 end

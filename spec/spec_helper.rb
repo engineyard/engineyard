@@ -10,7 +10,9 @@ require 'spec/autorun'
 require 'support/capture_stdout'
 
 Spec::Runner.configure do |config|
-
+  config.before(:each) do
+    FakeFS::FileSystem.clear
+  end
 end
 
 FakeWeb.allow_net_connect = false

@@ -8,6 +8,13 @@ require 'cli/help'
 module EY
   module CLI
     class CommandNotFound < StandardError; end
+    class Exit < StandardError
+      attr_reader :code
+
+      def initialize(code = 1)
+        @code = code
+      end
+    end
 
     COMMANDS = {
       "help" => EY::CLI::Help,
@@ -33,10 +40,10 @@ module EY
       end
     end
 
-    def self.authenticate
+    def self.authenticate(input = $stdin)
       unless token = EY::Token.from_file
         # Ask for user input
-        hl = HighLine.new
+        hl = HighLine.new(input)
         hl.say("We need to fetch your API token, please login")
         email = hl.ask("Email: ")
         password = hl.ask("Password: ") {|q| q.echo = "*" }
@@ -45,7 +52,7 @@ module EY
       token
     rescue EY::Token::InvalidCredentials
       puts "Bad username or password"
-      exit(1)
+      raise Exit
     end
   end
 end
