@@ -12,6 +12,7 @@ end
 gem 'highline'
 gem 'rest-client', :require_as => 'rest_client'
 gem 'json'
+gem 'grit'
 
 disable_system_gems
 bin_path "gbin"
