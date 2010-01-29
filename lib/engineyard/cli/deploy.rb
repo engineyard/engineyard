@@ -16,18 +16,45 @@ module EY
         branch      = commands[1]
 
         environment ||= config.default_environment
-        branch      ||= (config.default_branch(environment) || repo.current_branch)
+        default_branch = config.default_branch(environment)
+        branch      ||= (default_branch || repo.current_branch)
 
-        migrate = true
-        OptionParser.new do |opts|
-          opts.on("-m", "--[no-]migrate", "Run migrations") do |m|
-            migrate = m
-          end
-        end.parse!(args)
+        options = parse_args(args)
+
+        if !options[:force] && !check_default_branch(branch, default_branch)
+          $stderr << %|You are trying to deploy branch "#{branch}", but your deploy branch is set to "#{default_branch}". if you are sure, use —-force\n|
+          raise EY::CLI::Exit
+        end
 
         pp environment
         pp branch
-        pp migrate
+        pp options[:migrate]
+      end
+
+      def self.parse_args(args)
+        # Defaults
+        options = {
+          :migrate => true,
+          :force => false,
+        }
+
+        OptionParser.new do |opts|
+          opts.on("-m", "--[no-]migrate", "Run migrations") do |migrate|
+            options[:migrate] = migrate
+          end
+
+          opts.on("-f", "--[no-]force", "Force a deploy of the specified branch") do |force|
+            options[:force] = force
+          end
+        end.parse!(args)
+
+        options
+      end
+
+      def self.check_default_branch(branch, default_branch)
+        return true unless default_branch
+        return false unless branch == default_branch
+        true
       end
 
       def self.short_usage
