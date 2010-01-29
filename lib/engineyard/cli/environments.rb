@@ -1,15 +1,15 @@
 module EY
   module CLI
     class Environments < Command
-      def self.run(args)
-        envs = token.request('/environments', :method => :get)
+      def self.run(args = [])
+        envs = token.request('/environments', :method => :get)["environments"]
 
         if envs.empty?
           puts "You have no cloud environments."
         else
           puts "Cloud environments:"
           envs.each do |e|
-            icount = e["instances"].size
+            icount = e["instances_count"]
             iname = (icount == 1) ? "instance" : "instances"
             puts "  #{e["name"]}, #{icount} #{iname}"
           end
