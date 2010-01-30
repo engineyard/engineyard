@@ -1,30 +1,41 @@
 module EY
   module CLI
     class Command
-      def self.token
-        @token ||= EY::CLI.authenticate
-      end
+      class << self
+        def run(args)
+          raise "#{self.inspect} does not implement the run method."
+        end
 
-      def self.run(args)
-        raise "#{self.inspect} does not implement the run method."
-      end
+        def short_usage
+          raise "#{self.inspect} does not implement the short_usage method."
+        end
 
-      def self.short_usage
-        raise "#{self.inspect} does not implement the short_usage method."
-      end
+        # def self.usage
+        #   "More elaborate instructions for using this command"
+        # end
 
-      # def self.usage
-      #   "More elaborate instructions for using this command"
-      # end
+      private
+        def token
+          @token ||= EY::CLI.authenticate
+        end
 
-      def self.inherited(subclass)
-        superclass.inherited(subclass) if superclass.respond_to? :inherited
-        @subclasses ||= []
-        @subclasses << subclass
-      end
+        def repo_url
+          @repo_url ||= EY::Repo.new.repo_url
+        end
 
-      def self.subclasses
-        @subclasses
+        def config
+          @config ||= EY::Config.new
+        end
+
+        def inherited(subclass)
+          superclass.inherited(subclass) if superclass.respond_to? :inherited
+          @subclasses ||= []
+          @subclasses << subclass
+        end
+
+        def subclasses
+          @subclasses
+        end
       end
     end
   end

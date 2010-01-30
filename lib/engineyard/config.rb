@@ -4,6 +4,8 @@ module EY
 
     def initialize(file=CONFIG_FILE)
       @config = YAML.load_file(file)
+    rescue Errno::ENOENT # no cloud.yml
+      @config = {"environments" => {}}
     end
 
     def method_missing(meth, *args, &blk)
@@ -21,9 +23,10 @@ module EY
     end
 
     def default_environment
-      environments.detect do |name, env|
+      d = environments.find do |name, env|
         env["default"]
-      end.first
+      end
+      d && d.first
     end
 
     def default_branch(environment = default_environment)

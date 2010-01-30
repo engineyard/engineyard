@@ -9,5 +9,9 @@ module EY
     def current_branch
       @repo.head.name
     end
+
+    def repo_url
+      @repo.config["remote.origin.url"]
+    end
   end
 end

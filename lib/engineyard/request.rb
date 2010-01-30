@@ -24,6 +24,7 @@ module EY
         end
       rescue RestClient::RequestFailed => e
         $stderr.puts "Request failed: #{e.message}"
+        raise EY::CLI::Exit
       end
 
       JSON.parse(resp) if resp
