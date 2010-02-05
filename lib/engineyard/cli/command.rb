@@ -14,6 +14,10 @@ module EY
         #   "More elaborate instructions for using this command"
         # end
 
+        def commands
+          @subclasses
+        end
+
       private
         def token
           @token ||= EY::CLI.authenticate
@@ -33,9 +37,6 @@ module EY
           @subclasses << subclass
         end
 
-        def subclasses
-          @subclasses
-        end
       end
     end
   end

@@ -6,7 +6,7 @@ describe EY::CLI::Command do
 
   it "should track a list of its descendents" do
     class Foo < EY::CLI::Command; end
-    @c.subclasses.should include(Foo)
+    @c.commands.should include(Foo)
     Object.send(:remove_const, :Foo)
   end
 
