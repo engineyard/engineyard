@@ -22,19 +22,19 @@ describe EY::Repo do
     end
   end # current_branch
 
-  describe "repo_url method" do
+  describe "url method" do
     it "returns the url of the origin remote" do
       origin_url = "git@github.com/engineyard/engineyard.git"
-      set_repo_url origin_url
-      @r.repo_url.should == origin_url
+      set_url origin_url
+      @r.url.should == origin_url
     end
 
     it "returns nil if there is no origin remote" do
-      set_repo_url nil
-      @r.repo_url.should be_nil
+      set_url nil
+      @r.url.should be_nil
     end
 
-    def set_repo_url(url)
+    def set_url(url)
       @config_path = @path+"config"
       # This has to all shell out because FakeFS is enabled
       if url
@@ -44,6 +44,6 @@ describe EY::Repo do
         system("rm -rf #{@config_path}")
       end
     end
-  end # repo_url
+  end # url
 
 end # EY::Repo

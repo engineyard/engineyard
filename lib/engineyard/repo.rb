@@ -13,7 +13,7 @@ module EY
       end
     end
 
-    def repo_url
+    def url
       config = `git config -f #{@path}/.git/config remote.origin.url`.strip
       config.empty? ? nil : config
     end

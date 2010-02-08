@@ -1,38 +1,42 @@
 require 'spec_helper'
-require 'cli'
+require 'engineyard/cli'
 
 describe EY::CLI do
-  it "has a CommandNotFound error" do
-    EY::CLI::CommandNotFound.ancestors.should include(Exception)
+
+  context "with a valid token" do
+    before(:each) do
+      File.open(File.expand_path("~/.eyrc"), "w") do |fp|
+        fp.write(YAML.dump({"api_token" => "asdf"}))
+      end
+      app_json = JSON.dump({"apps" => [{
+        "name" => "engineyard",
+        "repository_uri" => "git://github.com/foo/bar",
+        "environments" => [{
+          "name" => "engineyard_production",
+          "app_master" => {"status" => "running", "ip_address" => "174.129.254.251"},
+          "instances_count" => 1
+        }, {
+          "name" => "engineyard_staging",
+          "app_master" => {"status" => "running", "ip_address" => "174.129.254.252"},
+          "instances_count" => 3
+        }]
+      }]})
+      FakeWeb.register_uri(
+        :get, "https://cloud.engineyard.com/api/v2/apps",
+        :body => app_json)
+      @repo = mock("repo", :url => "git://github.com/foo/bar")
+      EY::CLI::Environments.stub!(:repo).and_return(@repo)
+    end
+
+    it "prints the environments on the commmand line" do
+      out = capture_stdout do
+        EY::CLI.invoke(:environments)
+      end
+
+      out.should include("engineyard_staging, 3 instances")
+      out.should include("engineyard_production, 1 instance")
+    end
   end
 
-  describe "command_to_class method" do
-    context "given a command with a class" do
-      it "returns that class" do
-        EY::CLI.command_to_class("help").should == EY::CLI::Help
-      end
-    end
-
-    context "given a command without a class" do
-      it "raises CommandNotFound" do
-        lambda {
-          EY::CLI.command_to_class("frobnick")
-        }.should raise_error(EY::CLI::CommandNotFound)
-      end
-    end
-  end
-
-  describe "usage method" do
-    it "prints usage instructions" do
-      capture_stderr { EY::CLI.usage }.should include("usage")
-    end
-
-    it "prints usage for each command" do
-      usage = capture_stderr { EY::CLI.usage }
-      EY::CLI::COMMANDS.values.each do |c|
-        usage.should include(c.short_usage)
-      end
-    end
-  end
 
 end # EY::CLI

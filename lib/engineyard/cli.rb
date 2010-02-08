@@ -1,60 +1,88 @@
-$:.unshift File.expand_path('../../vendor/thor/lib', __FILE__)
+$:.unshift File.expand_path('../../vendor', __FILE__)
 require 'thor'
-require 'highline'
-
-require 'cli/command'
-require 'cli/deploy'
-require 'cli/environments'
-require 'cli/help'
+require 'engineyard'
 
 module EY
-  module CLI
-    class CommandNotFound < StandardError; end
-    class Exit < StandardError
-      attr_reader :code
-
-      def initialize(code = 1)
-        @code = code
-      end
+  class CLI < Thor
+    class UI < Thor::Base.shell; end
+    def self.ui
+      @ui ||= EY::CLI::UI.new
     end
 
-    COMMANDS = {
-      "help" => EY::CLI::Help,
-      "deploy" => EY::CLI::Deploy,
-      "environments" => EY::CLI::Environments,
-      "envs" => EY::CLI::Environments
-    }
+    include Thor::Actions
 
-    def self.command_to_class(command)
-      if klass = COMMANDS[command]
-        klass
+    desc "deploy [ENVIRONMENT] [BRANCH]", "Deploy [BRANCH] of the app in the current directory to [ENVIRONMENT]"
+    method_option :force, :type => :boolean, :aliases => %w(-f), :desc => "Force a deploy of the specified branch"
+    method_option :migrate, :type => :boolean, :default => true, :aliases => %w(-m), :desc => "Run migrations after deploy"
+    def deploy(environment = nil, branch = nil)
+      environment ||= config.default_environment
+      default_branch = config.default_branch(environment)
+      branch ||= (default_branch || repo.current_branch)
+
+      if default_branch && (branch != default_branch) && !options[:force]
+        ui.say_status "Branch mismatch",
+          %{Your deploy branch is set to "#{default_branch}".\n} +
+          %{If you want to deploy branch "#{branch}", use --force.},
+          :red
+        raise Exit
+      end
+
+      require 'pp'
+      pp environment
+      pp branch
+      pp default_branch
+    end
+
+    desc "targets", "List environments that are deploy targets for the app in the current directory"
+    def targets
+      envs = account.environments_for_url(repo.url)
+      if envs.empty?
+        ui.say %{You have no cloud environments set up for the repository "#{repo.url}".}
       else
-        raise CommandNotFound
+        ui.say %{Cloud environments for #{app["name"]}:}
+        print_envs(envs)
       end
     end
 
-    def self.usage
-      $stderr << %{usage: ey <command> <args>\n}
-      %w(environments deploy help).map{|n| COMMANDS[n] }.each do |cmd|
-        if cmd.respond_to?(:short_usage)
-          $stderr << "  #{cmd.short_usage}\n"
-        end
+    desc "environments", "All cloud environments"
+    def environments
+      envs = account.environments
+      if envs.empty?
+        ui.say %{You do not have any cloud environments.}
+      else
+        ui.say %{Cloud environments:}
+        print_envs(envs)
       end
     end
 
-    def self.authenticate(input = $stdin)
-      unless token = EY::Token.from_file
-        # Ask for user input
-        hl = HighLine.new(input)
-        hl.say("We need to fetch your API token, please login")
-        email = hl.ask("Email: ")
-        password = hl.ask("Password: ") {|q| q.echo = "*" }
-        token = EY::Token.fetch(email, password)
-      end
-      token
-    rescue EY::Token::InvalidCredentials
-      puts "Bad username or password"
-      raise Exit
+    class Exit < StandardError; end
+  private
+
+    def account
+      @account ||= EY::Account.new(EY::Token.authenticate)
     end
-  end
-end
+
+    def repo
+      @repo ||= EY::Repo.new
+    end
+
+    def config
+      @config ||= EY::Config.new
+    end
+
+    def ui
+      self.class.ui
+    end
+
+    def print_envs(envs)
+      # this should be a method of EY::Account::Environments or something eventually
+      envs.each do |e|
+        icount = e["instances_count"]
+        iname = (icount == 1) ? "instance" : "instances"
+        env = "  #{e["name"]}, #{icount} #{iname}"
+        env << " (default)" if e["name"] == config.default_environment
+        ui.say env
+      end
+    end
+  end # CLI
+end # EY

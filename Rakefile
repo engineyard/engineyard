@@ -1,6 +1,6 @@
 require 'jeweler'
 require 'bundler'
-require 'lib/engineyard/version'
+require 'lib/engineyard'
 
 Jeweler::Tasks.new do |gem|
   gem.name = "engineyard"
@@ -36,7 +36,6 @@ task :spec => :check_dependencies
 task :default => :spec
 
 require 'rake/rdoctask'
-require 'lib/engineyard/version.rb'
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
   rdoc.title = "engineyard #{EY::VERSION}"

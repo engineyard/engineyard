@@ -3,6 +3,7 @@ module EY
     CONFIG_FILE = "cloud.yml"
 
     def initialize(file=CONFIG_FILE)
+      require 'yaml'
       @config = YAML.load_file(file)
     rescue Errno::ENOENT # no cloud.yml
       @config = {"environments" => {}}
@@ -30,7 +31,8 @@ module EY
     end
 
     def default_branch(environment = default_environment)
-      environments[environment]["branch"]
+      env = environments[environment]
+      env && env["branch"]
     end
   end
 end

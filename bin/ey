@@ -1,16 +1,14 @@
 #!/usr/bin/env ruby
-require 'rubygems' rescue LoadError nil
 $LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require 'engineyard/cli'
 
-args = ARGV.dup
-
 begin
-  EY::CLI.command_to_class(args.shift).run(args)
-rescue EY::CLI::CommandNotFound
-  EY::CLI.usage
-  exit(1)
+  EY::CLI.start
 rescue EY::CLI::Exit => e
-  puts "Sorry, something went wrong."
-  exit(e.code)
+  if ENV["DEBUG"]
+    message = (e.message == e.class.to_s) ? nil : e.message
+    EY.ui.say_status e.class, message, :red
+    e.backtrace.each{|l| EY.ui.say(l) }
+  end
+  exit(1)
 end
