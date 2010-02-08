@@ -1,3 +1,5 @@
+$:.unshift File.expand_path('../../vendor/thor/lib', __FILE__)
+require 'thor'
 require 'highline'
 
 require 'cli/command'

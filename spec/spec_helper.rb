@@ -7,7 +7,7 @@ Bundler.require_env :test
 require 'spec'
 require 'spec/autorun'
 
-require 'support/capture_stdout'
+require 'support/helpers'
 
 Spec::Runner.configure do |config|
   config.before(:each) do

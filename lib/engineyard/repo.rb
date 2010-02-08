@@ -1,17 +1,21 @@
-require 'grit'
-
 module EY
   class Repo
     def initialize(path=File.expand_path('.'))
-      @repo = Grit::Repo.new(path)
+      @path = path
     end
 
     def current_branch
-      @repo.head.name
+      head = File.read(File.join(@path, ".git/HEAD")).chomp
+      if head.gsub!("ref: refs/heads/", "")
+        head
+      else
+        nil
+      end
     end
 
     def repo_url
-      @repo.config["remote.origin.url"]
+      config = `git config -f #{@path}/.git/config remote.origin.url`.strip
+      config.empty? ? nil : config
     end
-  end
-end
+  end # Repo
+end # EY

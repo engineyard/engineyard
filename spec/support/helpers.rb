@@ -25,3 +25,15 @@ module Kernel
     return [stdout, stderr]
   end
 end
+
+def ey(cmd = nil, options = {})
+  require "open3"
+  args = options.map { |k,v| " --#{k} #{v}"}.join
+  eybin = File.expand_path('../../../bin/ey', __FILE__)
+  @in, @out, @err = Open3.popen3("#{eybin} #{cmd}#{args}")
+  @err = @err.read.strip
+
+  puts @err unless @err.empty?
+
+  @out = @out.read.strip
+end
