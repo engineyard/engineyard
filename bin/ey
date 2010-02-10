@@ -1,9 +1,6 @@
 #!/usr/bin/env ruby
-
-$LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
-require 'vendor/gems/environment'
-
-require 'engineyard'
+require 'rubygems' rescue LoadError nil
+$LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
 require 'engineyard/cli'
 
 args = ARGV.dup

@@ -9,8 +9,10 @@ group :rake do
   gem "jeweler"
 end
 
-gem 'highline'
-gem 'rest-client', :require => 'rest_client'
-gem 'json'
+group :runtime do
+  gem "highline"
+  gem "rest-client", :require => "rest_client"
+  gem "json"
+end
 
 source :gemcutter
