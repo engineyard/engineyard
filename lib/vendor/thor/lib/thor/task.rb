@@ -1,3 +1,5 @@
+require 'thor/group'
+
 class Thor
   class Task < Struct.new(:name, :description, :usage, :options)
     FILE_REGEXP = /^#{Regexp.escape(File.dirname(__FILE__))}/
@@ -38,7 +40,7 @@ class Thor
       parse_no_method_error(instance, e)
     end
 
-    # Returns the formatted usage by injecting given required arguments 
+    # Returns the formatted usage by injecting given required arguments
     # and required options into the given usage.
     def formatted_usage(klass, namespace=true)
       namespace = klass.namespace unless namespace == false
@@ -91,7 +93,7 @@ class Thor
             raise e, "'#{name}' was called incorrectly. Are you sure it has arity equals to 0?"
           else
             raise InvocationError, "'#{name}' was called incorrectly. Call as " <<
-                                   "'#{formatted_usage(instance.class)}'"
+                                   "'#{formatted_usage(instance.class, false)}'"
           end
         else
           raise e
