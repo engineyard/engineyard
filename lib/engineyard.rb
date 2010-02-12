@@ -4,6 +4,8 @@ require 'thor'
 module EY
   VERSION = "0.1"
 
+  class Error < StandardError; end
+
   autoload :Account, 'engineyard/account'
   autoload :API,     'engineyard/api'
   autoload :Config,  'engineyard/config'

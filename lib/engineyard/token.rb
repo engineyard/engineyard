@@ -29,7 +29,7 @@ module EY
         2.retries do
           EY.ui.warn "Invalid username or password, please try again"
         end
-        raise EY::CLI::Exit, "Could not authenticate after three tries, sorry"
+        raise EY::Error, "Could not authenticate after three tries, sorry"
       end
 
       token = auth_response["api_token"]

@@ -37,14 +37,11 @@ module EY
       rescue RestClient::Unauthorized
         raise InvalidCredentials
       rescue Errno::ECONNREFUSED
-        puts "Could not reach the cloud API"
-        raise EY::CLI::Exit
+        raise EY::Error, "Could not reach the cloud API"
       rescue RestClient::ResourceNotFound
-        puts "The requested resource could not be found"
-        raise EY::CLI::Exit
+        raise EY::Error, "The requested resource could not be found"
       rescue RestClient::RequestFailed => e
-        puts "Request failed: #{e.message}"
-        raise EY::CLI::Exit
+        raise EY::Error, "Request failed: #{e.message}"
       end
 
       JSON.parse(resp) if resp

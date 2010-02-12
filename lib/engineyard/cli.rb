@@ -2,8 +2,6 @@ require 'engineyard'
 
 module EY
   class CLI < Thor
-    class Exit < StandardError; end
-
     include Thor::Actions
 
     desc "deploy [ENVIRONMENT] [BRANCH]", "Deploy [BRANCH] of the app in the current directory to [ENVIRONMENT]"

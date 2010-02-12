@@ -4,7 +4,7 @@ require 'engineyard/cli'
 
 begin
   EY::CLI.start
-rescue EY::CLI::Exit => e
+rescue EY::Error => e
   EY.ui.print_exception(e)
   exit(1)
 end
