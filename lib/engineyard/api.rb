@@ -27,6 +27,7 @@ module EY
       headers["Accept"] ||= "application/json"
 
       begin
+        EY.ui.debug("Requesting", url)
         case method
         when :get
           url += "?#{RestClient::Payload::UrlEncoded.new(params)}"

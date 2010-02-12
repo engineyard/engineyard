@@ -24,6 +24,16 @@ module EY
       end
     end
 
+    def debug(name, message = nil)
+      return unless ENV["DEBUG"]
+
+      if message
+        say_status name, message, :blue
+      else
+        say name, :cyan
+      end
+    end
+
     def ask(message, password = false, input = $stdin)
       unless password
         super(message)
@@ -35,16 +45,17 @@ module EY
     end
 
     def print_exception(e)
-      if ENV["DEBUG"]
-        if e.message == e.class.to_s
-          error(e.class)
-        else
-          error(e.class, e.message)
-        end
+      if e.message.empty? || (e.message == e.class.to_s)
+        message = nil
+      else
+        message = e.message
+      end
 
+      if ENV["DEBUG"]
+        error(e.class, message)
         e.backtrace.each{|l| EY.ui.say(" "*3 + l) }
-      elsif e.message != e.class.to_s
-        error(e.message)
+      else
+        error(message)
       end
     end
 

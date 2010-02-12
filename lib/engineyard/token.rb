@@ -14,7 +14,7 @@ module EY
       EY.api.request(url, opts)
     end
 
-    def self.authenticate(email = nil, password = nil, input = $stdin)
+    def self.authenticate(email = nil, password = nil)
       token = from_file
       return new(token) if token
 
