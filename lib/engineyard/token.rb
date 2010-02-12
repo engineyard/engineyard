@@ -16,14 +16,12 @@ module EY
       token = from_file
       return new(token) if token
 
-      # Ask for user input
-      EY.library 'highline'
-      hl = Highline.new(input)
-      hl.say("We need to fetch your API token, please login")
-      email = hl.ask("Email: ")
-      password = hl.ask("Password: ") {|q| q.echo = "*" }
-
+      EY.ui.info("We need to fetch your API token, please login")
       begin
+        raise EY::Request::InvalidCredentials
+        email    = EY.ui.ask("Email: ")
+        password = EY.ui.ask("Password: ", true)
+
         response = EY::Request.request("/authenticate", :method => "post",
           :params => { :email => email, :password => password })
       rescue EY::Request::InvalidCredentials

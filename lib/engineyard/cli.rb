@@ -4,10 +4,7 @@ require 'engineyard'
 
 module EY
   class CLI < Thor
-    class UI < Thor::Base.shell; end
-    def self.ui
-      @ui ||= EY::CLI::UI.new
-    end
+    class Exit < StandardError; end
 
     include Thor::Actions
 
@@ -55,7 +52,6 @@ module EY
       end
     end
 
-    class Exit < StandardError; end
   private
 
     def account
@@ -71,7 +67,7 @@ module EY
     end
 
     def ui
-      self.class.ui
+      EY.ui
     end
 
     def print_envs(envs)

@@ -5,10 +5,6 @@ require 'engineyard/cli'
 begin
   EY::CLI.start
 rescue EY::CLI::Exit => e
-  if ENV["DEBUG"]
-    message = (e.message == e.class.to_s) ? nil : e.message
-    EY.ui.say_status e.class, message, :red
-    e.backtrace.each{|l| EY.ui.say(l) }
-  end
+  EY.ui.print_exception(e)
   exit(1)
 end
