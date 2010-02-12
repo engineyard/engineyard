@@ -102,8 +102,7 @@ class Thor
 
       def parse_no_method_error(instance, e) #:nodoc:
         if e.message =~ /^undefined method `#{name}' for #{Regexp.escape(instance.to_s)}$/
-          raise UndefinedTaskError, "The #{instance.class.namespace} namespace " <<
-                                    "doesn't have a '#{name}' task"
+          raise UndefinedTaskError, "There is no '#{name}' task"
         else
           raise e
         end
