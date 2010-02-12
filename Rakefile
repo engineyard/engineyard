@@ -13,8 +13,11 @@ Jeweler::Tasks.new do |gem|
 
   bundle = Bundler::Definition.from_gemfile('Gemfile')
   bundle.dependencies.each do |dep|
-    next unless dep.groups.include?(:runtime)
-    gem.add_dependency(dep.name, dep.version_requirements.to_s)
+    if dep.groups.include?(:runtime)
+      gem.add_dependency(dep.name, dep.version_requirements.to_s)
+    elsif dep.groups.include?(:development)
+      gem.add_development_dependency(dep.name, dep.version_requirements.to_s)
+    end
   end
 end
 Jeweler::GemcutterTasks.new
@@ -25,14 +28,7 @@ Spec::Rake::SpecTask.new(:spec) do |spec|
   spec.spec_files = FileList['spec/**/*_spec.rb']
 end
 
-Spec::Rake::SpecTask.new(:rcov) do |spec|
-  spec.libs << 'lib' << 'spec'
-  spec.pattern = 'spec/**/*_spec.rb'
-  spec.rcov = true
-end
-
 task :spec => :check_dependencies
-
 task :default => :spec
 
 require 'rake/rdoctask'
@@ -41,4 +37,5 @@ Rake::RDocTask.new do |rdoc|
   rdoc.title = "engineyard #{EY::VERSION}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
+  rdoc.rdoc_files.exclude('lib/vendor/**/*.rb')
 end

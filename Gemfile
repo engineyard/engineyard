@@ -1,13 +1,4 @@
-group :test do
-  gem "rspec", :require => "spec"
-  gem "fakeweb"
-  gem "fakefs"
-end
-
-group :rake do
-  gem "rake"
-  gem "jeweler"
-end
+source :gemcutter
 
 group :runtime do
   gem "rest-client", :require => "rest_client"
@@ -15,4 +6,10 @@ group :runtime do
   gem "json"
 end
 
-source :gemcutter
+group :development do
+  gem "rspec", :require => "spec"
+  gem "rake"
+  gem "jeweler"
+  gem "fakeweb"
+  gem "fakefs"
+end
