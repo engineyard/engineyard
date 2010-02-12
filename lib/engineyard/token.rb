@@ -11,7 +11,7 @@ module EY
     def request(url, opts={})
       opts[:headers] ||= {}
       opts[:headers]["X-EY-Cloud-Token"] = token
-      EY::Request.request(url, opts)
+      EY.api.request(url, opts)
     end
 
     def self.authenticate(email = nil, password = nil, input = $stdin)
@@ -23,7 +23,7 @@ module EY
         email    = EY.ui.ask("Email: ")
         password = EY.ui.ask("Password: ", true)
 
-        response = EY::Request.request("/authenticate", :method => "post",
+        auth_response = EY.api.request("/authenticate", :method => "post",
           :params => { :email => email, :password => password })
       rescue EY::Request::InvalidCredentials
         2.retries do
@@ -32,15 +32,21 @@ module EY
         raise EY::CLI::Exit, "Could not authenticate after three tries, sorry"
       end
 
-      token = response["api_token"]
+      token = auth_response["api_token"]
       to_file(token)
       new(token)
     end
 
     def self.from_file(file = File.expand_path("~/.eyrc"))
       require 'yaml'
+
       if File.exists?(file)
-        YAML.load_file(file)["api_token"]
+        data = YAML.load_file(file)
+        if EY.api.default_endpoint?
+          data["api_token"]
+        else
+          (data[EY.api.endpoint] || {})["api_token"]
+        end
       else
         false
       end
@@ -48,9 +54,15 @@ module EY
 
     def self.to_file(token, file = File.expand_path("~/.eyrc"))
       require 'yaml'
-      File.open(file, "w") do |fp|
-        fp.write YAML.dump({"api_token" => token})
+
+      data = File.exists?(file) ? YAML.load_file(file) : {}
+      if EY.api.default_endpoint?
+        data.merge!("api_token" => token)
+      else
+        data.merge!(EY.api.endpoint => {"api_token" => token})
       end
+
+      File.open(file, "w"){|f| YAML.dump(data, f) }
     end
 
   end

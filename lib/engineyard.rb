@@ -1,16 +1,23 @@
+$:.unshift File.expand_path('../vendor', __FILE__)
+require 'thor'
+
 module EY
   VERSION = "0.1"
 
   autoload :Account, 'engineyard/account'
+  autoload :API,     'engineyard/api'
   autoload :Config,  'engineyard/config'
   autoload :Repo,    'engineyard/repo'
-  autoload :Request, 'engineyard/request'
   autoload :Token,   'engineyard/token'
   autoload :UI,      'engineyard/ui'
 
   class << self
     def ui
       @ui ||= UI.new
+    end
+
+    def api
+      @api ||= API.new(ENV["CLOUD_URL"])
     end
 
     def library(libname)
@@ -20,5 +27,6 @@ module EY
       end
       require libname
     end
+
   end
 end
