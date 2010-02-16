@@ -1,5 +1,3 @@
-require 'retries'
-
 module EY
   class Token
     attr_reader :token
@@ -26,11 +24,9 @@ module EY
         auth_response = EY.api.request("/authenticate", :method => "post",
           :params => { :email => email, :password => password })
       rescue EY::Request::InvalidCredentials
-        2.retries do
           EY.ui.warn "Invalid username or password, please try again"
+          retry
         end
-        raise EY::Error, "Could not authenticate after three tries, sorry"
-      end
 
       token = auth_response["api_token"]
       to_file(token)
