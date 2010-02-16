@@ -28,7 +28,7 @@ module EY
       headers["Accept"] ||= "application/json"
 
       begin
-        EY.ui.debug("Requesting", url)
+        EY.ui.debug("Request", method.to_s.upcase + " " + url)
         case method
         when :get
           url += "?#{RestClient::Payload::UrlEncoded.new(params)}"
@@ -46,7 +46,14 @@ module EY
         raise RequestFailed, "#{e.message}"
       end
 
-      JSON.parse(resp) if resp
+      begin
+        resp = JSON.parse(resp) if resp
+        EY.ui.debug("Response", resp.inspect)
+      rescue JSON::ParserError
+        raise RequestFailed, "Response was not valid JSON."
+      end
+
+      resp
     end
 
   end
