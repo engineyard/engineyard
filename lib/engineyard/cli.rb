@@ -51,7 +51,7 @@ module EY
   private
 
     def account
-      @account ||= EY::Account.new(EY::Token.authenticate)
+      @account ||= EY::Account.new(EY::Token.saved_token)
     end
 
     def repo

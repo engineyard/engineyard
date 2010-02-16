@@ -9,7 +9,7 @@ module EY
     end
 
     def apps
-      @apps ||= @token.request('/apps', :method => :get)["apps"]
+      @apps ||= @token.request('/apps', :method => :get)["apps"] || {}
     end
 
     def app_for_url(url)
