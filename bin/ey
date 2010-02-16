@@ -7,4 +7,7 @@ begin
 rescue EY::Error => e
   EY.ui.print_exception(e)
   exit(1)
+rescue Interrupt
+  EY.ui.error("\nQuitting...")
+  exit(1)
 end

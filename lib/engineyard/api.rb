@@ -1,6 +1,7 @@
 module EY
   class API
-    class InvalidCredentials < StandardError; end
+    class InvalidCredentials < EY::Error; end
+    class RequestFailed < EY::Error; end
 
     def self.default_endpoint
       "https://cloud.engineyard.com"
@@ -42,7 +43,7 @@ module EY
       rescue RestClient::ResourceNotFound
         raise EY::Error, "The requested resource could not be found"
       rescue RestClient::RequestFailed => e
-        raise EY::Error, "Request failed: #{e.message}"
+        raise RequestFailed, "#{e.message}"
       end
 
       JSON.parse(resp) if resp
