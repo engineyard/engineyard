@@ -25,8 +25,8 @@ class Thor::Group
     # Start works differently in Thor::Group, it simply invokes all tasks
     # inside the class.
     #
-    def start(given_args=ARGV, config={})
-      super do
+    def start(original_args=ARGV, config={})
+      super do |given_args|
         if Thor::HELP_MAPPINGS.include?(given_args.first)
           help(config[:shell])
           return
@@ -219,14 +219,16 @@ class Thor::Group
       [item]
     end
 
+    def handle_argument_error(task, error) #:nodoc:
+      raise error, "#{task.name.inspect} was called incorrectly. Are you sure it has arity equals to 0?"
+    end
+
     protected
 
       # The banner for this class. You can customize it if you are invoking the
       # thor class by another ways which is not the Thor::Runner.
-      #
       def banner
-        base = $thor_runner ? "thor" : File.basename($0.split(" ").first)
-        "#{base} #{self_task.formatted_usage(self, false)}"
+        "#{banner_base} #{self_task.formatted_usage(self, false)}"
       end
 
       # Represents the whole class as a task.

@@ -11,10 +11,11 @@ class Thor
       end
 
       def run(instance, args=[])
-        unless (instance.methods & [name.to_s, name.to_sym]).empty?
-          raise Error, "could not find Thor class or task '#{name}'"
+        if (instance.methods & [name.to_s, name.to_sym]).empty?
+          super
+        else
+          instance.class.handle_no_task_error(name)
         end
-        super
       end
     end
 
@@ -30,14 +31,14 @@ class Thor
     # By default, a task invokes a method in the thor class. You can change this
     # implementation to create custom tasks.
     def run(instance, args=[])
-      raise UndefinedTaskError, "the '#{name}' task of #{instance.class} is private" unless public_method?(instance)
-      instance.send(name, *args)
+      public_method?(instance) ?
+        instance.send(name, *args) : instance.class.handle_no_task_error(name)
     rescue ArgumentError => e
-      raise e if instance.class.respond_to?(:debugging) && instance.class.debugging
-      parse_argument_error(instance, e, caller)
+      handle_argument_error?(instance, e, caller) ?
+        instance.class.handle_argument_error(self, e) : (raise e)
     rescue NoMethodError => e
-      raise e if instance.class.respond_to?(:debugging) && instance.class.debugging
-      parse_no_method_error(instance, e)
+      handle_no_method_error?(instance, e, caller) ?
+        instance.class.handle_no_task_error(name) : (raise e)
     end
 
     # Returns the formatted usage by injecting given required arguments
@@ -70,6 +71,10 @@ class Thor
 
     protected
 
+      def not_debugging?(instance)
+        !(instance.class.respond_to?(:debugging) && instance.class.debugging)
+      end
+
       def required_options
         @required_options ||= options.map{ |_, o| o.usage if o.required? }.compact.sort.join(" ")
       end
@@ -85,27 +90,14 @@ class Thor
         saned -= caller
       end
 
-      def parse_argument_error(instance, e, caller) #:nodoc:
-        backtrace = sans_backtrace(e.backtrace, caller)
-
-        if backtrace.empty? && e.message =~ /wrong number of arguments/
-          if instance.is_a?(Thor::Group)
-            raise e, "'#{name}' was called incorrectly. Are you sure it has arity equals to 0?"
-          else
-            raise InvocationError, "'#{name}' was called incorrectly. Call as " <<
-                                   "'#{formatted_usage(instance.class, false)}'"
-          end
-        else
-          raise e
-        end
+      def handle_argument_error?(instance, error, caller)
+        not_debugging?(instance) && error.message =~ /wrong number of arguments/ &&
+          sans_backtrace(error.backtrace, caller).empty?
       end
 
-      def parse_no_method_error(instance, e) #:nodoc:
-        if e.message =~ /^undefined method `#{name}' for #{Regexp.escape(instance.to_s)}$/
-          raise UndefinedTaskError, "There is no '#{name}' task"
-        else
-          raise e
-        end
+      def handle_no_method_error?(instance, error, caller)
+        not_debugging?(instance) &&
+          error.message =~ /^undefined method `#{name}' for #{Regexp.escape(instance.to_s)}$/
       end
 
   end

@@ -1,20 +1,22 @@
-require 'fileutils'
+require 'thor'
+require 'thor/group'
 require 'thor/core_ext/file_binary_read'
+
+require 'fileutils'
 require 'open-uri'
 require 'yaml'
 require 'digest/md5'
 require 'pathname'
 
 class Thor::Runner < Thor #:nodoc:
-  map "-T" => :list, "-i" => :install, "-u" => :update
+  map "-T" => :list, "-i" => :install, "-u" => :update, "-v" => :version
 
   # Override Thor#help so it can give information about any class and any method.
   #
   def help(meth=nil)
     if meth && !self.respond_to?(meth)
       initialize_thorfiles(meth)
-      klass, task = Thor::Util.namespace_to_thor_class_and_task(meth)
-      # Send mapping -h because it works with Thor::Group too
+      klass, task = Thor::Util.find_class_and_task_by_namespace!(meth)
       klass.start(["-h", task].compact, :shell => self.shell)
     else
       super
@@ -27,9 +29,9 @@ class Thor::Runner < Thor #:nodoc:
   def method_missing(meth, *args)
     meth = meth.to_s
     initialize_thorfiles(meth)
-    klass, task = Thor::Util.namespace_to_thor_class_and_task(meth)
+    klass, task = Thor::Util.find_class_and_task_by_namespace!(meth)
     args.unshift(task) if task
-    klass.start(args, :shell => shell)
+    klass.start(args, :shell => self.shell)
   end
 
   desc "install NAME", "Install an optionally named Thor file into your system tasks"
@@ -94,6 +96,12 @@ class Thor::Runner < Thor #:nodoc:
     end
 
     thor_yaml[as][:filename] # Indicate success
+  end
+
+  desc "version", "Show Thor version"
+  def version
+    require 'thor/version'
+    say "Thor #{Thor::VERSION}"
   end
 
   desc "uninstall NAME", "Uninstall a named Thor module"
