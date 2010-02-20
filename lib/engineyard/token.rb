@@ -19,62 +19,60 @@ module EY
       end
     end
 
-    class << self
-      def saved_token
-        api_token = from_file
-        if api_token
-          new(api_token)
-        else
-          EY.ui.info("We need to fetch your API token, please login")
-          new(authenticate)
-        end
+    def self.saved_token
+      api_token = from_file
+      if api_token
+        new(api_token)
+      else
+        EY.ui.info("We need to fetch your API token, please login")
+        new(authenticate)
+      end
+    end
+
+    def self.authenticate(email = nil, password = nil)
+      begin
+        email    ||= EY.ui.ask("Email: ")
+        password ||= EY.ui.ask("Password: ", true)
+
+        auth_response = EY.api.request("/authenticate", :method => "post",
+          :params => { :email => email, :password => password })
+      rescue EY::API::InvalidCredentials
+        EY.ui.warn "Invalid username or password, please try again"
+        retry
       end
 
-      def authenticate(email = nil, password = nil)
-        begin
-          email    = EY.ui.ask("Email: ")
-          password = EY.ui.ask("Password: ", true)
+      api_token = auth_response["api_token"]
+      to_file(api_token)
+      api_token
+    end
 
-          auth_response = EY.api.request("/authenticate", :method => "post",
-            :params => { :email => email, :password => password })
-        rescue EY::API::InvalidCredentials
-          EY.ui.warn "Invalid username or password, please try again"
-          retry
-        end
+    def self.from_file(file = File.expand_path("~/.eyrc"))
+      require 'yaml'
 
-        api_token = auth_response["api_token"]
-        to_file(api_token)
-        api_token
-      end
-
-      def from_file(file = File.expand_path("~/.eyrc"))
-        require 'yaml'
-
-        if File.exists?(file)
-          data = YAML.load_file(file)
-          if EY.api.default_endpoint?
-            data["api_token"]
-          else
-            (data[EY.api.endpoint] || {})["api_token"]
-          end
-        else
-          false
-        end
-      end
-
-      def to_file(token, file = File.expand_path("~/.eyrc"))
-        require 'yaml'
-
-        data = File.exists?(file) ? YAML.load_file(file) : {}
+      if File.exists?(file)
+        data = YAML.load_file(file)
         if EY.api.default_endpoint?
-          data.merge!("api_token" => token)
+          data["api_token"]
         else
-          data.merge!(EY.api.endpoint => {"api_token" => token})
+          (data[EY.api.endpoint] || {})["api_token"]
         end
-
-        File.open(file, "w"){|f| YAML.dump(data, f) }
+      else
+        false
       end
-    end # class methods
+    end
+
+    def self.to_file(token, file = File.expand_path("~/.eyrc"))
+      require 'yaml'
+
+      data = File.exists?(file) ? YAML.load_file(file) : {}
+      if EY.api.default_endpoint?
+        data.merge!("api_token" => token)
+      else
+        data.merge!(EY.api.endpoint => {"api_token" => token})
+      end
+
+      File.open(file, "w"){|f| YAML.dump(data, f) }
+    end
 
   end # Token
 end # EY
