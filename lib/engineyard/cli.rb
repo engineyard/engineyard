@@ -2,12 +2,20 @@ require 'engineyard'
 
 module EY
   class CLI < Thor
+    autoload :Token,   'engineyard/cli/token'
+    autoload :UI, 'engineyard/cli/ui'
+
     include Thor::Actions
+
+    def self.start
+      EY.ui = EY::CLI::UI.new
+      super
+    end
 
     desc "deploy [ENVIRONMENT] [BRANCH]", "Deploy [BRANCH] of the app in the current directory to [ENVIRONMENT]"
     method_option :force, :type => :boolean, :aliases => %w(-f), :desc => "Force a deploy of the specified branch"
     method_option :migrate, :type => :boolean, :default => true, :aliases => %w(-m), :desc => "Run migrations after deploy"
-    def deploy(environment = nil, branch = nil)
+    def deploy(env_name = nil, branch = nil)
       env_name ||= config.default_environment
       default_branch = config.default_branch(env_name)
       branch ||= (default_branch || repo.current_branch)
@@ -32,9 +40,9 @@ module EY
     def targets
       envs = account.environments_for_url(repo.url)
       if envs.empty?
-        ui.say %{You have no cloud environments set up for the repository "#{repo.url}".}
+        EY.ui.say %{You have no cloud environments set up for the repository "#{repo.url}".}
       else
-        ui.say %{Cloud environments for #{app["name"]}:}
+        EY.ui.say %{Cloud environments for #{app["name"]}:}
         print_envs(envs)
       end
     end
@@ -44,9 +52,9 @@ module EY
     def environments
       envs = account.environments
       if envs.empty?
-        ui.say %{You do not have any cloud environments.}
+        EY.ui.say %{You do not have any cloud environments.}
       else
-        ui.say %{Cloud environments:}
+        EY.ui.say %{Cloud environments:}
         print_envs(envs)
       end
     end
@@ -54,7 +62,7 @@ module EY
   private
 
     def account
-      @account ||= EY::Account.new(EY::Token.saved_token)
+      @account ||= EY::Account.new(Token.new)
     end
 
     def repo
@@ -63,10 +71,6 @@ module EY
 
     def config
       @config ||= EY::Config.new
-    end
-
-    def ui
-      EY.ui
     end
 
     def print_envs(envs)
@@ -78,9 +82,9 @@ module EY
         e["name"] << " (default)" if e["name"] == config.default_environment
         env = [e["name"]]
         env << "#{icount} #{iname}"
-        env << e["apps"].map{|a| a["name"] }.join(", ")
+        env << e["apps"].inspect#map{|a| a["name"] }.join(", ")
       end
-      ui.print_table(printable_envs, :ident => 2)
+      EY.ui.print_table(printable_envs, :ident => 2)
     end
   end # CLI
 end # EY

@@ -2,46 +2,22 @@ module EY
   class Token
     attr_reader :token
 
-    def initialize(token)
-      @token = token
+    def initialize(token = nil)
+      @token ||= token
+      @token ||= self.class.from_file
+      raise ArgumentError, "EY Cloud API token required" unless @token
     end
 
     def request(url, opts={})
-      begin
-        opts[:headers] ||= {}
-        opts[:headers]["X-EY-Cloud-Token"] = token
-        EY.ui.debug("Token", token)
-        EY.api.request(url, opts)
-      rescue EY::API::InvalidCredentials
-        EY.ui.warn "Credentials rejected, please authenticate again"
-        @token = self.class.authenticate
-        retry
-      end
+      opts[:headers] ||= {}
+      opts[:headers]["X-EY-Cloud-Token"] = token
+      EY.ui.debug("Token", token)
+      EY.api.request(url, opts)
     end
 
-    def self.saved_token
-      api_token = from_file
-      if api_token
-        new(api_token)
-      else
-        EY.ui.info("We need to fetch your API token, please login")
-        new(authenticate)
-      end
-    end
-
-    def self.authenticate(email = nil, password = nil)
-      begin
-        email    ||= EY.ui.ask("Email: ")
-        password ||= EY.ui.ask("Password: ", true)
-
-        auth_response = EY.api.request("/authenticate", :method => "post",
-          :params => { :email => email, :password => password })
-      rescue EY::API::InvalidCredentials
-        EY.ui.warn "Invalid username or password, please try again"
-        retry
-      end
-
-      api_token = auth_response["api_token"]
+    def self.from_cloud(email, password)
+      api_token = EY.api.request("/authenticate", :method => "post",
+        :params => { :email => email, :password => password })["api_token"]
       to_file(api_token)
       api_token
     end
@@ -72,6 +48,7 @@ module EY
       end
 
       File.open(file, "w"){|f| YAML.dump(data, f) }
+      true
     end
 
   end # Token

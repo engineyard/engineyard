@@ -17,6 +17,8 @@ module EY
   autoload :UI,      'engineyard/ui'
 
   class << self
+    attr_writer :ui
+
     def ui
       @ui ||= UI.new
     end
