@@ -3,7 +3,7 @@ class EY::CLI::UI < EY::UI
   def error(name, message = nil)
     if message
       say_status name, message, :red
-    else
+    elsif name
       say name, :red
     end
   end
@@ -11,7 +11,7 @@ class EY::CLI::UI < EY::UI
   def warn(name, message = nil)
     if message
       say_status name, message, :yellow
-    else
+    elsif name
       say name, :yellow
     end
   end
@@ -19,7 +19,7 @@ class EY::CLI::UI < EY::UI
   def info(name, message = nil)
     if message
       say_status name, message, :green
-    else
+    elsif name
       say name, :green
     end
   end
@@ -49,7 +49,7 @@ class EY::CLI::UI < EY::UI
       error(e.class, message)
       e.backtrace.each{|l| say(" "*3 + l) }
     else
-      error(message)
+      error(message || e.class.to_s)
     end
   end
 

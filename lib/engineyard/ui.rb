@@ -18,7 +18,7 @@ module EY
 
       if message
         say_status name, message, :blue
-      else
+      elsif name
         say name, :cyan
       end
     end
