@@ -6,6 +6,9 @@ module EY
 
   class Error < StandardError; end
 
+  class EnvironmentError < Error; end
+  class BranchMismatch < Error; end
+
   autoload :Account, 'engineyard/account'
   autoload :API,     'engineyard/api'
   autoload :Config,  'engineyard/config'
