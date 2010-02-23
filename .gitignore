@@ -17,10 +17,7 @@ tmtags
 coverage
 rdoc
 pkg
-gbin
-vendor/gems/ruby/1.8/*
-!vendor/gems/ruby/1.8/cache
-vendor/gems/environment.rb
+.bundle
 
 ## PROJECT::SPECIFIC
 cloud.yml

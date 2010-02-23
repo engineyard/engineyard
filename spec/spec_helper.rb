@@ -1,7 +1,12 @@
+begin
+  require File.expand_path('../.bundle/environment', __FILE__)
+rescue LoadError
+  require "rubygems"; require "bundler"; Bundler.setup
+end
+
 # Bundled gems
-require 'rubygems'
-require 'bundler'
-Bundler.require(:default, :development)
+require 'fakeweb'
+require 'fakefs'
 
 # Engineyard gem
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
