@@ -24,11 +24,15 @@ module EY
     end
 
     def library(libname)
-      unless @tried_gems
-        require 'rubygems' rescue LoadError nil
-        @tried_gems = true
+      begin
+        require libname
+      rescue LoadError
+        unless @tried_rubygems
+          require 'rubygems' rescue LoadError nil
+          @tried_rubygems = true
+          retry
+        end
       end
-      require libname
     end
 
   end
