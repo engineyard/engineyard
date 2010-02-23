@@ -1,9 +1,11 @@
+$:.unshift File.expand_path('../../vendor', __FILE__)
+require 'thor'
 require 'engineyard'
 
 module EY
   class CLI < Thor
-    autoload :Token,   'engineyard/cli/token'
-    autoload :UI, 'engineyard/cli/ui'
+    autoload :Token,  'engineyard/cli/token'
+    autoload :UI,     'engineyard/cli/ui'
 
     include Thor::Actions
 

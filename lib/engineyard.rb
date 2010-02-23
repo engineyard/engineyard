@@ -1,11 +1,7 @@
-$:.unshift File.expand_path('../vendor', __FILE__)
-require 'thor'
-
 module EY
   VERSION = "0.1"
 
   class Error < StandardError; end
-
   class EnvironmentError < Error; end
   class BranchMismatch < Error; end
 

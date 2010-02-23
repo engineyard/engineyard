@@ -1,5 +1,5 @@
 module EY
-  class UI < Thor::Base.shell
+  class UI
 
     def error(name, message = nil)
       raise RuntimeError, "NO YUO"
@@ -14,13 +14,7 @@ module EY
     end
 
     def debug(name, message = nil)
-      return unless ENV["DEBUG"]
-
-      if message
-        say_status name, message, :blue
-      elsif name
-        say name, :cyan
-      end
+      raise RuntimeError, "NO YUO"
     end
 
     def print_exception(e)
