@@ -30,8 +30,10 @@ module EY
         return unless ENV["DEBUG"]
 
         if message
+          message = message.inspect unless message.is_a?(String)
           say_status name, message, :blue
         elsif name
+          name = name.inspect unless name.is_a?(String)
           say name, :cyan
         end
       end
