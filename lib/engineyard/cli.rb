@@ -34,18 +34,23 @@ module EY
       app_master = env["app_master"] != "null" && env["app_master"]
       raise EnvironmentError, "Your environment isn't running" unless app_master
 
-      puts "ssh #{env["app_master"]} eysd deploy #{branch}"
+      puts "ssh #{env["app_master"]} eysd update --app --branch #{branch}"
     end
 
 
     desc "targets", "List environments that are deploy targets for the app in the current directory"
     def targets
-      envs = account.environments_for_url(repo.url)
-      if envs.empty?
-        EY.ui.say %{You have no cloud environments set up for the repository "#{repo.url}".}
+      app = account.app_for_url(repo.url)
+      if !app
+        EY.ui.warn %{You have no cloud applications configured for the repository "#{repo.url}".}
       else
-        EY.ui.say %{Cloud environments for #{app["name"]}:}
-        print_envs(envs)
+        envs = app["environments"]
+        if envs.empty?
+          EY.ui.warn %{You have no cloud environments set up for the application "#{app["name"]}".}
+        else
+          EY.ui.say %{Cloud environments for #{app["name"]}:}
+          print_envs(envs)
+        end
       end
     end
 
@@ -84,7 +89,7 @@ module EY
         e["name"] << " (default)" if e["name"] == config.default_environment
         env = [e["name"]]
         env << "#{icount} #{iname}"
-        env << e["apps"].inspect#map{|a| a["name"] }.join(", ")
+        env << e["apps"].map{|a| a["name"] }.join(", ")
       end
       EY.ui.print_table(printable_envs, :ident => 2)
     end

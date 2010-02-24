@@ -16,14 +16,5 @@ module EY
       apps.find{|a| a["repository_uri"] == url }
     end
 
-    def environments_for_url(url)
-      app = app_for_url(url)
-      if app
-        app["environments"]
-      else
-        []
-      end
-    end
-
   end # Account
 end # EY
