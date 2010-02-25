@@ -15,9 +15,12 @@ module EY
     end
 
     desc "deploy [ENVIRONMENT] [BRANCH]", "Deploy [BRANCH] of the app in the current directory to [ENVIRONMENT]"
-    method_option :force, :type => :boolean, :aliases => %w(-f), :desc => "Force a deploy of the specified branch"
-    method_option :migrate, :type => :boolean, :default => true, :aliases => %w(-m), :desc => "Run migrations after deploy"
-    method_option :install_eysd, :type => :boolean, :aliases => %(-s), :desc => "Force remote install of eysd"
+    method_option :force, :type => :boolean, :aliases => %w(-f),
+      :desc => "Force a deploy of the specified branch"
+    method_option :migrate, :type => :string, :aliases => %w(-m),
+      :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'"
+    method_option :install_eysd, :type => :boolean, :aliases => %(-s),
+      :desc => "Force remote install of eysd"
     def deploy(env_name = nil, branch = nil)
       env_name ||= config.default_environment
       raise RequiredArgumentMissingError, "[ENVIRONMENT] not provided" unless env_name
@@ -57,10 +60,13 @@ module EY
       end
 
       deploy_cmd = "eysd update --app #{app["name"]} --branch #{branch}"
-      if options[:migrate]
+      case options[:migrate]
+      when nil
+        deploy_cmd << " --no-migrate"
+      when "migrate"
         deploy_cmd << " --migrate"
       else
-        deploy_cmd << " --no-migration-command"
+        deploy_cmd << " --migrate='#{options[:migrate]}'"
       end
 
       EY.ui.info "Running deploy on server..."
