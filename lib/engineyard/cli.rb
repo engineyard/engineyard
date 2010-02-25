@@ -50,13 +50,7 @@ module EY
 
       if !eysd_installed || options[:install_eysd]
         EY.ui.info "Installing ey-deploy gem..."
-        gem_file = Dir["ey-deploy*.gem"].first
-        if gem_file
-          scp(ip, gem_file)
-        else
-          raise EY::Error, "Could not find ey-deploy gem file in the current directory"
-        end
-        ssh(ip, "gem install #{gem_file}")
+        ssh(ip, "gem install ey-deploy")
       end
 
       deploy_cmd = "eysd update --app #{app["name"]} --branch #{branch}"
