@@ -32,8 +32,9 @@ module EY
       end
 
       app = account.app_for_url(repo.url)
+      raise EnvironmentError, "No cloud application configured for repository at '#{repo.url}'" unless app
       env = app["environments"].find{|e| e["name"] == env_name }
-      raise EnvironmentError, "No environment named '#{env_name}' running this app" unless env
+      raise EnvironmentError, "No cloud environment named '#{env_name}' running this app" unless env
 
       # OMG EY cloud quotes nulls when it returns JSON :(
       app_master = env["app_master"] != "null" && env["app_master"]
