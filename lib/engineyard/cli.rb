@@ -80,7 +80,7 @@ module EY
           EY.ui.warn %{You have no cloud environments set up for the application "#{app["name"]}".}
         else
           EY.ui.say %{Cloud environments for #{app["name"]}:}
-          print_envs(envs)
+          EY.ui.print_envs(envs, config.default_environment)
         end
       end
     end
@@ -93,7 +93,7 @@ module EY
         EY.ui.say %{You do not have any cloud environments.}
       else
         EY.ui.say %{Cloud environments:}
-        print_envs(envs)
+        EY.ui.print_envs(envs, config.default_environment)
       end
     end
 
@@ -122,18 +122,6 @@ module EY
       system cmd
     end
 
-    def print_envs(envs)
-      # this should be a method of EY::Account::Environments or something eventually
-      printable_envs = envs.map do |e|
-        icount = e["instances_count"]
-        iname = (icount == 1) ? "instance" : "instances"
-
-        e["name"] << " (default)" if e["name"] == config.default_environment
-        env = [e["name"]]
-        env << "#{icount} #{iname}"
-        env << e["apps"].map{|a| a["name"] }.join(", ")
-      end
-      EY.ui.print_table(printable_envs, :ident => 2)
     end
   end # CLI
 end # EY
