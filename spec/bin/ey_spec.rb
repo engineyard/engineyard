@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "ey binary" do
+describe "ey" do
   context "run without arguments" do
     it "prints usage information" do
       ey.should include "Tasks:"

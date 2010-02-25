@@ -10,10 +10,18 @@ module EY
   autoload :Config,  'engineyard/config'
   autoload :Repo,    'engineyard/repo'
   autoload :Token,   'engineyard/token'
-  autoload :UI,      'engineyard/ui'
+
+  class UI
+    # stub debug outside of the CLI
+    def debug(*); end
+  end
 
   class << self
     attr_accessor :ui
+
+    def ui
+      @ui ||= UI.new
+    end
 
     def api
       @api ||= API.new(ENV["CLOUD_URL"])

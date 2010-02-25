@@ -9,7 +9,7 @@ module EY
 
     include Thor::Actions
 
-    def self.start
+    def self.start(*)
       EY.ui = EY::CLI::UI.new
       super
     end

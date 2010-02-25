@@ -8,6 +8,11 @@ module EY
       raise ArgumentError, "EY Cloud API token required" unless @token
     end
 
+    def ==(other)
+      raise ArgumentError unless other.is_a?(self.class)
+      self.token == other.token
+    end
+
     def request(url, opts={})
       opts[:headers] ||= {}
       opts[:headers]["X-EY-Cloud-Token"] = token

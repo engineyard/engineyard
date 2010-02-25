@@ -38,13 +38,13 @@ module EY
         end
       end
 
-      def ask(message, password = false, input = $stdin)
+      def ask(message, password = false)
         unless password
           super(message)
         else
           EY.library 'highline'
-          hl = HighLine.new(input)
-          hl.ask(message) {|q| q.echo = "*" }
+          @hl ||= HighLine.new($stdin)
+          @hl.ask(message) {|q| q.echo = "*" }
         end
       end
 
