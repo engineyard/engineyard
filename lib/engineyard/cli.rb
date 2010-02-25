@@ -49,9 +49,9 @@ module EY
         EY.ui.info "Installing ey-deploy gem..."
         gem_file = Dir["ey-deploy*.gem"].first
         if gem_file
-          system %{scp #{gem_file} root@#{ip}:~/}
+          scp(ip, gem_file)
         else
-          raise EY::Error "Could not find ey-deploy gem file in the current directory"
+          raise EY::Error, "Could not find ey-deploy gem file in the current directory"
         end
         ssh(ip, "gem install #{gem_file}")
       end
@@ -119,10 +119,19 @@ module EY
     def ssh(ip, remote_cmd, output = true)
       cmd = %{ssh root@#{ip} "#{remote_cmd}"}
       cmd << %{ &> /dev/null} unless output
-      puts cmd if output
-      system cmd
+      if ENV["DEBUG"]
+        EY.ui.debug(cmd)
+      else
+        puts cmd if output
+      end
+      system cmd unless ENV["STAY_LOCAL"]
     end
 
+    def scp(ip, file)
+      cmd = %{scp #{file} root@#{ip}:~/}
+      EY.ui.debug(cmd) if ENV["DEBUG"]
+      system cmd unless ENV["STAY_LOCAL"]
     end
+
   end # CLI
 end # EY
