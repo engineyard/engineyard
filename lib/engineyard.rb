@@ -13,11 +13,7 @@ module EY
   autoload :UI,      'engineyard/ui'
 
   class << self
-    attr_writer :ui
-
-    def ui
-      @ui ||= UI.new
-    end
+    attr_accessor :ui
 
     def api
       @api ||= API.new(ENV["CLOUD_URL"])
