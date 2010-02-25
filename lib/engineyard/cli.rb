@@ -127,16 +127,20 @@ module EY
       cmd << %{ &> /dev/null} unless output
       if ENV["DEBUG"]
         EY.ui.debug(cmd)
-      else
-        puts cmd if output
+      elsif output
+        puts cmd
       end
-      system cmd unless ENV["STAY_LOCAL"]
+      system cmd unless ENV["NO_SSH"]
     end
 
-    def scp(ip, file)
+    def scp(ip, file, output = true)
       cmd = %{scp #{file} root@#{ip}:~/}
-      EY.ui.debug(cmd) if ENV["DEBUG"]
-      system cmd unless ENV["STAY_LOCAL"]
+      if ENV["DEBUG"]
+        EY.ui.debug(cmd)
+      elsif output
+        puts cmd
+      end
+      system cmd unless ENV["NO_SSH"]
     end
 
   end # CLI
