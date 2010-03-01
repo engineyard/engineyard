@@ -98,6 +98,13 @@ module EY
       end
     end
 
+
+    desc "version", "Print the version of the engineyard gem"
+    def version
+      EY.ui.say %{engineyard version #{EY::VERSION}}
+    end
+    map "-v" => :version
+
   private
 
     def account
