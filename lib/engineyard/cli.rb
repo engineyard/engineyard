@@ -4,6 +4,8 @@ require 'engineyard'
 
 module EY
   class CLI < Thor
+    EYSD_VERSION = "~>0.1.3"
+
     autoload :Token,  'engineyard/cli/token'
     autoload :UI,     'engineyard/cli/ui'
 
@@ -45,12 +47,20 @@ module EY
       ip = app_master["ip_address"]
 
       EY.ui.info "Connecting to the server..."
-      eysd_installed = ssh(ip, "which eysd", false)
-      raise EnvironmentError, "SSH connection to #{ip} failed" if $?.exitstatus == 255
+      ssh(ip, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'")
+      case $?.exitstatus
+      when 255
+        raise EnvironmentError, "SSH connection to #{ip} failed"
+      when 127
+        eysd_installed = false
+      when 0
+      else
+        raise EnvironmentError, "ey-deploy version not compatible"
+      end
 
       if !eysd_installed || options[:install_eysd]
         EY.ui.info "Installing ey-deploy gem..."
-        ssh(ip, "gem install ey-deploy")
+        ssh(ip, "gem install ey-deploy -v '#{EYSD_VERSION}'")
       end
 
       deploy_cmd = "eysd update --app #{app["name"]} --branch #{branch}"
@@ -126,22 +136,15 @@ module EY
     def ssh(ip, remote_cmd, output = true)
       cmd = %{ssh root@#{ip} "#{remote_cmd}"}
       cmd << %{ &> /dev/null} unless output
-      if ENV["DEBUG"]
-        EY.ui.debug(cmd)
-      elsif output
-        puts cmd
-      end
+      EY.ui.debug(cmd)
+      puts cmd if output
       system cmd unless ENV["NO_SSH"]
     end
 
-    def scp(ip, file, output = true)
-      cmd = %{scp #{file} root@#{ip}:~/}
-      if ENV["DEBUG"]
-        EY.ui.debug(cmd)
-      elsif output
-        puts cmd
-      end
-      system cmd unless ENV["NO_SSH"]
+    def ssh_run(ip, remote_cmd)
+      cmd = %{ssh root@#{ip} "#{remote_cmd}"}
+      EY.ui.debug(cmd)
+      ENV["NO_SSH"] ? `#{remote_cmd}` : `#{cmd}`
     end
 
   end # CLI
