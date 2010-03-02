@@ -1,27 +1,33 @@
 module EY
   class API
+    attr_reader :token
+
+    def initialize(token = nil)
+      @token ||= token
+      @token ||= self.class.from_file
+      raise ArgumentError, "EY Cloud API token required" unless @token
+    end
+
+    def ==(other)
+      raise ArgumentError unless other.is_a?(self.class)
+      self.token == other.token
+    end
+
+    def request(url, opts={})
+      opts[:headers] ||= {}
+      opts[:headers]["X-EY-Cloud-Token"] = token
+      EY.ui.debug("Token", token)
+      self.class.request(url, opts)
+    end
+
     class InvalidCredentials < EY::Error; end
     class RequestFailed < EY::Error; end
 
-    def self.default_endpoint
-      "https://cloud.engineyard.com"
-    end
-
-    attr_reader :endpoint
-
-    def initialize(endpoint)
-      @endpoint = (endpoint || self.class.default_endpoint)
-    end
-
-    def default_endpoint?
-      endpoint == self.class.default_endpoint
-    end
-
-    def request(path, opts={})
+    def self.request(path, opts={})
       EY.library 'rest_client'
       EY.library 'json'
 
-      url = endpoint.chomp('/') + "/api/v2" + path
+      url = EY.config.endpoint + "/api/v2" + path
       method = ((meth = opts.delete(:method)) && meth.to_s || "get").downcase.to_sym
       params = opts.delete(:params) || {}
       headers = opts.delete(:headers) || {}
@@ -39,9 +45,9 @@ module EY
       rescue RestClient::Unauthorized
         raise InvalidCredentials
       rescue Errno::ECONNREFUSED
-        raise EY::Error, "Could not reach the cloud API"
+        raise RequestFailed, "Could not reach the cloud API"
       rescue RestClient::ResourceNotFound
-        raise EY::Error, "The requested resource could not be found"
+        raise RequestFailed, "The requested resource could not be found"
       rescue RestClient::RequestFailed => e
         raise RequestFailed, "#{e.message}"
       end
@@ -56,5 +62,39 @@ module EY
       resp
     end
 
-  end
-end
+    def self.from_cloud(email, password)
+      api_token = request("/authenticate", :method => "post",
+        :params => { :email => email, :password => password })["api_token"]
+      to_file(api_token)
+      api_token
+    end
+
+    def self.from_file(file = File.expand_path("~/.eyrc"))
+      return false unless File.exists?(file)
+
+      require 'yaml'
+
+      data = YAML.load_file(file)
+      if EY.config.default_endpoint?
+        data["api_token"]
+      else
+        (data[EY.config.endpoint] || {})["api_token"]
+      end
+    end
+
+    def self.to_file(token, file = File.expand_path("~/.eyrc"))
+      require 'yaml'
+
+      data = File.exists?(file) ? YAML.load_file(file) : {}
+      if EY.config.default_endpoint?
+        data.merge!("api_token" => token)
+      else
+        data.merge!(EY.config.endpoint => {"api_token" => token})
+      end
+
+      File.open(file, "w"){|f| YAML.dump(data, f) }
+      true
+    end
+
+  end # API
+end # EY

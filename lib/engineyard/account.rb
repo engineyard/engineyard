@@ -1,15 +1,15 @@
 module EY
   class Account
-    def initialize(token)
-      @token = token
+    def initialize(api)
+      @api = api
     end
 
     def environments
-      @environments ||= @token.request('/environments', :method => :get)["environments"] || {}
+      @environments ||= @api.request('/environments', :method => :get)["environments"] || {}
     end
 
     def apps
-      @apps ||= @token.request('/apps', :method => :get)["apps"] || {}
+      @apps ||= @api.request('/apps', :method => :get)["apps"] || {}
     end
 
     def app_for_url(url)

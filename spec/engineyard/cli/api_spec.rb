@@ -1,9 +1,13 @@
 require 'spec_helper'
 require 'engineyard/cli'
 
-describe EY::CLI::Token do
+describe EY::CLI::API do
   before(:all) do
     EY.ui = EY::CLI::UI.new
+  end
+
+  after(:all) do
+    EY.ui = EY::UI.new
   end
 
   it "gets the api token from ~/.eyrc if possible" do
@@ -11,7 +15,7 @@ describe EY::CLI::Token do
       YAML.dump({"api_token" => "asdf"}, fp)
     end
 
-    EY::CLI::Token.new.should == EY::CLI::Token.new("asdf")
+    EY::CLI::API.new.should == EY::CLI::API.new("asdf")
   end
 
   context "without saved api token" do
@@ -19,7 +23,7 @@ describe EY::CLI::Token do
       FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|)
 
       capture_stdout("\n\n") do
-        @token = EY::CLI::Token.new
+        @token = EY::CLI::API.new
       end
     end
 
@@ -29,7 +33,7 @@ describe EY::CLI::Token do
     end
 
     it "gets the api token" do
-      @token.should == EY::CLI::Token.new("asdf")
+      @token.should == EY::CLI::API.new("asdf")
     end
 
     it "saves the api token to ~/.eyrc" do

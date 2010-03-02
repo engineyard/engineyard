@@ -1,21 +1,21 @@
 require 'spec_helper'
 
-describe EY::Token do
+describe EY::API do
   it "gets the api token from ~/.eyrc if possible" do
     File.open(File.expand_path("~/.eyrc"), "w") do |fp|
       YAML.dump({"api_token" => "asdf"}, fp)
     end
 
-    EY::Token.new.should == EY::Token.new("asdf")
+    EY::API.new.should == EY::API.new("asdf")
   end
 
   context "fetching the token from EY cloud" do
     before(:each) do
       FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|)
-      @token = EY::Token.from_cloud("a@b.com", "foo")
+      @token = EY::API.from_cloud("a@b.com", "foo")
     end
 
-    it "returns an EY::Token" do
+    it "returns an EY::API" do
       @token.should == "asdf"
     end
 
@@ -28,7 +28,7 @@ describe EY::Token do
     FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :status => 401)
 
     lambda {
-      EY::Token.from_cloud("a@b.com", "foo")
+      EY::API.from_cloud("a@b.com", "foo")
     }.should raise_error(EY::Error)
   end
 

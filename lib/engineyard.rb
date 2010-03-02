@@ -9,7 +9,6 @@ module EY
   autoload :API,     'engineyard/api'
   autoload :Config,  'engineyard/config'
   autoload :Repo,    'engineyard/repo'
-  autoload :Token,   'engineyard/token'
 
   class UI
     # stub debug outside of the CLI
@@ -23,8 +22,8 @@ module EY
       @ui ||= UI.new
     end
 
-    def api
-      @api ||= API.new(ENV["CLOUD_URL"])
+    def config
+      @config ||= EY::Config.new
     end
 
     def library(libname)

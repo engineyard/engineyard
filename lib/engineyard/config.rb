@@ -23,6 +23,18 @@ module EY
       @config.key?(key) || super
     end
 
+    def endpoint
+      @endpoint ||= (@config["endpoint"] || ENV["CLOUD_URL"]).chomp("/")
+    end
+
+    def default_endpoint
+      "https://cloud.engineyard.com"
+    end
+
+    def default_endpoint?
+      default_endpoint == endpoint
+    end
+
     def default_environment
       d = environments.find do |name, env|
         env["default"]

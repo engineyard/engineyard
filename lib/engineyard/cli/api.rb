@@ -1,6 +1,6 @@
 module EY
   class CLI
-    class Token < EY::Token
+    class API < EY::API
 
       def initialize(token = nil)
         @token = token

@@ -5,8 +5,8 @@ module EY
   class CLI < Thor
     EYSD_VERSION = "~>0.1.2"
 
-    autoload :Token,  'engineyard/cli/token'
-    autoload :UI,     'engineyard/cli/ui'
+    autoload :API, 'engineyard/cli/api'
+    autoload :UI,  'engineyard/cli/ui'
 
     include Thor::Actions
 
@@ -23,10 +23,10 @@ module EY
     method_option :install_eysd, :type => :boolean, :aliases => %(-s),
       :desc => "Force remote install of eysd"
     def deploy(env_name = nil, branch = nil)
-      env_name ||= config.default_environment
+      env_name ||= EY.config.default_environment
       raise RequiredArgumentMissingError, "[ENVIRONMENT] not provided" unless env_name
 
-      default_branch = config.default_branch(env_name)
+      default_branch = EY.config.default_branch(env_name)
       branch ||= (default_branch || repo.current_branch)
       raise RequiredArgumentMissingError, "[BRANCH] not provided" unless branch
 
@@ -90,7 +90,7 @@ module EY
           EY.ui.warn %{You have no cloud environments set up for the application "#{app["name"]}".}
         else
           EY.ui.say %{Cloud environments for #{app["name"]}:}
-          EY.ui.print_envs(envs, config.default_environment)
+          EY.ui.print_envs(envs, EY.config.default_environment)
         end
       end
     end
@@ -103,7 +103,7 @@ module EY
         EY.ui.say %{You do not have any cloud environments.}
       else
         EY.ui.say %{Cloud environments:}
-        EY.ui.print_envs(envs, config.default_environment)
+        EY.ui.print_envs(envs, EY.config.default_environment)
       end
     end
 
@@ -117,15 +117,11 @@ module EY
   private
 
     def account
-      @account ||= EY::Account.new(Token.new)
+      @account ||= EY::Account.new(API.new)
     end
 
     def repo
       @repo ||= EY::Repo.new
-    end
-
-    def config
-      @config ||= EY::Config.new
     end
 
     def debug(*args)
