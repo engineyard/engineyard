@@ -19,7 +19,7 @@ require 'support/helpers'
 Spec::Runner.configure do |config|
   config.before(:all) do
     FakeWeb.allow_net_connect = false
-    ENV["CLOUD_URL"] = "https://cloud.engineyard.com"
+    ENV["CLOUD_URL"] = nil
     ENV["NO_SSH"] = "true"
   end
 

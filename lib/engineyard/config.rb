@@ -6,7 +6,9 @@ module EY
       require 'yaml'
       @config = YAML.load_file(file)
     rescue Errno::ENOENT # no cloud.yml
-      @config = {"environments" => {}}
+      @config = {}
+    ensure
+      @config.merge!("environments" => {}) unless @config["environments"]
     end
 
     def method_missing(meth, *args, &blk)
@@ -24,7 +26,11 @@ module EY
     end
 
     def endpoint
-      @endpoint ||= (@config["endpoint"] || ENV["CLOUD_URL"]).chomp("/")
+      @endpoint ||= (
+        @config["endpoint"] ||
+        ENV["CLOUD_URL"] ||
+        default_endpoint
+      ).chomp("/")
     end
 
     def default_endpoint
