@@ -1,10 +1,9 @@
 $:.unshift File.expand_path('../../vendor', __FILE__)
 require 'thor'
-require 'engineyard'
 
 module EY
   class CLI < Thor
-    EYSD_VERSION = "~>0.1.3"
+    EYSD_VERSION = "~>0.1.2"
 
     autoload :Token,  'engineyard/cli/token'
     autoload :UI,     'engineyard/cli/ui'

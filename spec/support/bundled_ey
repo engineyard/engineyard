@@ -5,4 +5,5 @@ rescue LoadError
   require "rubygems"; require "bundler"; Bundler.setup
 end
 
+$LOAD_PATH.unshift File.expand_path("../../../lib", __FILE__)
 load File.expand_path('../../../bin/ey', __FILE__)
