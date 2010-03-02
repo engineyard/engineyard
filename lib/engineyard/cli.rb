@@ -18,7 +18,7 @@ module EY
     desc "deploy [ENVIRONMENT] [BRANCH]", "Deploy [BRANCH] of the app in the current directory to [ENVIRONMENT]"
     method_option :force, :type => :boolean, :aliases => %w(-f),
       :desc => "Force a deploy of the specified branch"
-    method_option :migrate, :type => :string, :aliases => %w(-m),
+    method_option :migrate, :type => :string, :aliases => %w(-m), :default => 'rake db:migrate',
       :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'"
     method_option :install_eysd, :type => :boolean, :aliases => %(-s),
       :desc => "Force remote install of eysd"
@@ -65,13 +65,10 @@ module EY
       end
 
       deploy_cmd = "eysd update --app #{app["name"]} --branch #{branch}"
-      case options[:migrate]
-      when nil
-        deploy_cmd << " --no-migrate"
-      when "migrate"
-        deploy_cmd << " --migrate"
-      else
+      if options[:migrate]
         deploy_cmd << " --migrate='#{options[:migrate]}'"
+      else
+        deploy_cmd << " --no-migrate"
       end
 
       EY.ui.info "Running deploy on server..."
