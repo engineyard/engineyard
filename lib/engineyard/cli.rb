@@ -46,13 +46,15 @@ module EY
       ip = app_master["ip_address"]
 
       EY.ui.info "Connecting to the server..."
-      ssh(ip, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'")
+      ssh(ip, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", false)
       case $?.exitstatus
       when 255
         raise EnvironmentError, "SSH connection to #{ip} failed"
       when 127
+        EY.ui.warn "Server does not have ey-deploy gem installed"
         eysd_installed = false
       when 0
+        eysd_installed = true
       else
         raise EnvironmentError, "ey-deploy version not compatible"
       end
@@ -73,9 +75,13 @@ module EY
       end
 
       EY.ui.info "Running deploy on server..."
-      ssh(ip, deploy_cmd)
+      deployed = ssh(ip, deploy_cmd)
 
-      EY.ui.info "Deploy complete."
+      if deployed
+        EY.ui.info "Deploy complete"
+      else
+        raise EY::Error, "Deploy failed"
+      end
     end
 
 
