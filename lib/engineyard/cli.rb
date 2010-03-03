@@ -66,6 +66,8 @@ module EY
       end
 
       deploy_cmd = "eysd update --app #{app["name"]} --branch #{branch}"
+      deploy_cmd << " --config '#{env.config.to_json}'" if env.config
+
       if options[:migrate]
         deploy_cmd << " --migrate='#{options[:migrate]}'"
       else

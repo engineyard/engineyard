@@ -35,6 +35,11 @@ module EY
       def self.from_array(array)
         array.map{|n| from_hash(n) } if array && array != "null"
       end
+
+      def configuration
+        EY.config.environments[self.name]
+      end
+      alias_method :config, :configuration
     end
 
     class App < Struct.new(:name, :repository_uri, :environments)
