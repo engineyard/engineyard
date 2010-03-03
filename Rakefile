@@ -14,9 +14,9 @@ Jeweler::Tasks.new do |gem|
   bundle = Bundler::Definition.from_gemfile('Gemfile')
   bundle.dependencies.each do |dep|
     if dep.groups.include?(:runtime)
-      gem.add_dependency(dep.name, dep.version_requirements.to_s)
+      gem.add_dependency(dep.name, dep.requirement.to_s)
     elsif dep.groups.include?(:development)
-      gem.add_development_dependency(dep.name, dep.version_requirements.to_s)
+      gem.add_development_dependency(dep.name, dep.requirement.to_s)
     end
   end
 end
