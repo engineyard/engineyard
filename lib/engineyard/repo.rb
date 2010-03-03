@@ -13,9 +13,10 @@ module EY
       end
     end
 
-    def url
+    def uri
       config = `git config -f #{@path}/.git/config remote.origin.url`.strip
       config.empty? ? nil : config
     end
+    alias_method :url, :uri
   end # Repo
 end # EY

@@ -35,15 +35,16 @@ module EY
         %{If you want to deploy branch "#{branch}", use --force.}
       end
 
-      app = account.app_for_url(repo.url)
+      app = account.app_for_repo(repo)
       raise EnvironmentError, "No cloud application configured for repository at '#{repo.url}'" unless app
-      env = app["environments"].find{|e| e["name"] == env_name }
+
+      env = app.environments.find{|e| e.name == env_name }
       raise EnvironmentError, "No cloud environment named '#{env_name}' running this app" unless env
 
-      # OMG EY cloud quotes nulls when it returns JSON :(
-      app_master = env["app_master"] != "null" && env["app_master"]
-      raise EnvironmentError, "No running app master" unless app_master && app_master["status"] == "running"
-      ip = app_master["ip_address"]
+      running = env.app_master && env.app_master.status == "running"
+      raise EnvironmentError, "No running app master for environment #{env.name}" unless running
+
+      ip = app_master.ip_address
 
       EY.ui.info "Connecting to the server..."
       ssh(ip, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", false)
@@ -84,11 +85,11 @@ module EY
 
     desc "targets", "List environments that are deploy targets for the app in the current directory"
     def targets
-      app = account.app_for_url(repo.url)
+      app = account.app_for_repo(repo)
       if !app
         EY.ui.warn %{You have no cloud applications configured for the repository "#{repo.url}".}
       else
-        envs = app["environments"]
+        envs = app.environments
         if envs.empty?
           EY.ui.warn %{You have no cloud environments set up for the application "#{app["name"]}".}
         else
@@ -137,12 +138,6 @@ module EY
       EY.ui.debug(cmd)
       puts cmd if output
       system cmd unless ENV["NO_SSH"]
-    end
-
-    def ssh_run(ip, remote_cmd)
-      cmd = %{ssh root@#{ip} "#{remote_cmd}"}
-      EY.ui.debug(cmd)
-      ENV["NO_SSH"] ? `#{remote_cmd}` : `#{cmd}`
     end
 
   end # CLI
