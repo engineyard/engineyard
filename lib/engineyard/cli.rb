@@ -3,7 +3,7 @@ require 'thor'
 
 module EY
   class CLI < Thor
-    EYSD_VERSION = "~>0.1.2"
+    EYSD_VERSION = "~>0.1.3"
 
     autoload :API, 'engineyard/cli/api'
     autoload :UI,  'engineyard/cli/ui'
