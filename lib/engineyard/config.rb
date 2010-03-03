@@ -1,13 +1,11 @@
 module EY
   class Config
-    CONFIG_FILE = "cloud.yml"
+    CONFIG_FILES = ["config/ey.yml", "ey.yml"]
 
-    def initialize(file=CONFIG_FILE)
+    def initialize(file = nil)
       require 'yaml'
-      @config = YAML.load_file(file)
-    rescue Errno::ENOENT # no cloud.yml
-      @config = {}
-    ensure
+      file ||= CONFIG_FILES.find{|f| File.exists?(f) }
+      @config = file ? YAML.load_file(file) : {}
       @config.merge!("environments" => {}) unless @config["environments"]
     end
 
