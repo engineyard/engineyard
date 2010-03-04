@@ -1,7 +1,7 @@
 source :gemcutter
 
 group :runtime do
-  gem "rest-client", :require => "rest_client"
+  gem "rest-client", "~>1.4", :require => "rest_client"
   gem "highline"
   gem "json"
 end

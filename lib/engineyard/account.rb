@@ -11,14 +11,22 @@ module EY
       @environments = Environment.from_array(data || [])
     end
 
+    def environment_named(name)
+      environments.find{|e| e.name == name }
+    end
+
     def apps
       return @apps if @apps
       data  = @api.request('/apps', :method => :get)["apps"]
       @apps = App.from_array(data || [])
     end
 
+    def app_named(name)
+      apps.find{|a| a.name == name }
+    end
+
     def app_for_repo(repo)
-      apps.find{|a| a.repository_uri == repo.uri }
+      apps.find{|a| a.repository_uri == repo.uri } if repo.uri
     end
 
     # Classes to represent the returned data

@@ -1,7 +1,0 @@
----
-environments:
-  production:
-    branch: deploy
-
-  staging:
-    default: true

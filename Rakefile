@@ -10,6 +10,7 @@ Jeweler::Tasks.new do |gem|
   gem.homepage = "http://github.com/engineyard/engineyard"
   gem.authors = ["Andy Delcambre", "Andre Arko", "Ezra Zygmuntowicz"]
   gem.version = EY::VERSION
+  gem.files = FileList["README.rdoc", "LICENSE", "{bin,lib}/**/*"]
 
   bundle = Bundler::Definition.from_gemfile('Gemfile')
   bundle.dependencies.each do |dep|

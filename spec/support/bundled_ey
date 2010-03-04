@@ -2,7 +2,11 @@
 begin
   require File.expand_path('../.bundle/environment', __FILE__)
 rescue LoadError
-  require "rubygems"; require "bundler"; Bundler.setup
+  Dir.chdir(File.dirname(__FILE__)) do
+    require "rubygems"
+    require "bundler"
+    Bundler.setup
+  end
 end
 
 $LOAD_PATH.unshift File.expand_path("../../../lib", __FILE__)

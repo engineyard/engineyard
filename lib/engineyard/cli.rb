@@ -36,13 +36,17 @@ module EY
       end
 
       app = account.app_for_repo(repo)
-      raise EnvironmentError, "No cloud application configured for repository at '#{repo.url}'" unless app
+      raise EnvironmentError, "No application with repository '#{repo.url}'\nYou can add it at cloud.engineyard.com" unless app
 
       env = app.environments.find{|e| e.name == env_name }
-      raise EnvironmentError, "No cloud environment named '#{env_name}' running this app" unless env
+      if !env && account.environment_named(env_name)
+        raise EnvironmentError, "Environment '#{env_name}' doesn't run this application\nYou can add it at cloud.engineyard.com"
+      elsif !env
+        raise EnvironmentError, "No environment named '#{env_name}'\nYou can create one at cloud.engineyard.com"
+      end
 
       running = env.app_master && env.app_master.status == "running"
-      raise EnvironmentError, "No running app master for environment #{env.name}" unless running
+      raise EnvironmentError, "No running instances for environment #{env.name}\nStart one at cloud.engineyard.com" unless running
 
       ip = app_master.ip_address
 
@@ -85,33 +89,35 @@ module EY
     end
 
 
-    desc "targets", "List environments that are deploy targets for the app in the current directory"
-    def targets
-      app = account.app_for_repo(repo)
-      if !app
-        EY.ui.warn %{You have no cloud applications configured for the repository "#{repo.url}".}
+    desc "environments [--all]", "List cloud environments for this app, or all environments"
+    method_option :all, :type => :boolean, :aliases => %(-a)
+    def environments
+      if options[:all] || !account.app_for_repo(repo)
+        envs = account.environments
+        if envs.empty?
+          EY.ui.say %|You do not have any cloud environments.|
+        else
+          EY.ui.say %|Cloud environments:|
+          EY.ui.print_envs(envs, EY.config.default_environment)
+        end
+
+        if repo.url
+          EY.ui.warn %|You have no application configured for the repository "#{repo.url}"|
+          EY.ui.warn %|You can add one at cloud.engineyard.com|
+        end
       else
+        app = account.app_for_repo(repo)
         envs = app.environments
         if envs.empty?
-          EY.ui.warn %{You have no cloud environments set up for the application "#{app["name"]}".}
+          EY.ui.warn %|You have no environments set up for the application "#{app.name}"|
+          EY.ui.warn %|You can make one at cloud.engineyard.com|
         else
-          EY.ui.say %{Cloud environments for #{app["name"]}:}
+          EY.ui.say %|Cloud environments for #{app.name}:|
           EY.ui.print_envs(envs, EY.config.default_environment)
         end
       end
     end
-
-
-    desc "environments", "All cloud environments"
-    def environments
-      envs = account.environments
-      if envs.empty?
-        EY.ui.say %{You do not have any cloud environments.}
-      else
-        EY.ui.say %{Cloud environments:}
-        EY.ui.print_envs(envs, EY.config.default_environment)
-      end
-    end
+    map "envs" => :environments
 
 
     desc "version", "Print the version of the engineyard gem"

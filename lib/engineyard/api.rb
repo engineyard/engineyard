@@ -51,15 +51,17 @@ module EY
       rescue RestClient::RequestFailed => e
         raise RequestFailed, "#{e.message}"
       end
+      raise RequestFailed, "Response body was empty" if resp.body.empty?
 
       begin
-        resp = JSON.parse(resp) if resp
-        EY.ui.debug("Response", resp.inspect)
+        data = JSON.parse(resp.body)
+        EY.ui.debug("Response", data)
       rescue JSON::ParserError
+        EY.ui.debug("Raw response", resp.body)
         raise RequestFailed, "Response was not valid JSON."
       end
 
-      resp
+      data
     end
 
     def self.from_cloud(email, password)
