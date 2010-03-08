@@ -1,6 +1,9 @@
 $:.unshift File.expand_path('../../vendor', __FILE__)
 require 'thor'
 
+require 'engineyard'
+require 'engineyard/cli/error'
+
 module EY
   class CLI < Thor
     EYSD_VERSION = "~>0.1.3"
@@ -24,16 +27,14 @@ module EY
       :desc => "Force remote install of eysd"
     def deploy(env_name = nil, branch = nil)
       env_name ||= EY.config.default_environment
-      raise RequiredArgumentMissingError, "[ENVIRONMENT] not provided" unless env_name
+      raise DeployArgumentError unless env_name
 
       default_branch = EY.config.default_branch(env_name)
       branch ||= (default_branch || repo.current_branch)
-      raise RequiredArgumentMissingError, "[BRANCH] not provided" unless branch
+      raise DeployArgumentError unless branch
 
-      if default_branch && (branch != default_branch) && !options[:force]
-        raise BranchMismatch, %{Your deploy branch is set to "#{default_branch}".\n} +
-        %{If you want to deploy branch "#{branch}", use --force.}
-      end
+      invalid_branch = default_branch && (branch != default_branch) && !options[:force]
+      raise BranchMismatch.new(default_branch, branch) if invalid_branch
 
       app = account.app_for_repo(repo)
       raise EnvironmentError, "No application with repository '#{repo.url}'\nYou can add it at cloud.engineyard.com" unless app

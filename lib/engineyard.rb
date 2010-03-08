@@ -1,14 +1,12 @@
 module EY
   VERSION = "0.0.3.pre"
 
-  class Error < StandardError; end
-  class EnvironmentError < Error; end
-  class BranchMismatch < Error; end
-
   autoload :Account, 'engineyard/account'
   autoload :API,     'engineyard/api'
   autoload :Config,  'engineyard/config'
   autoload :Repo,    'engineyard/repo'
+
+  class Error < RuntimeError; end
 
   class UI
     # stub debug outside of the CLI
