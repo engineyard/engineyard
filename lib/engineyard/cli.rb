@@ -49,7 +49,7 @@ module EY
       running = env.app_master && env.app_master.status == "running"
       raise EnvironmentError, "No running instances for environment #{env.name}\nStart one at cloud.engineyard.com" unless running
 
-      ip = app_master.ip_address
+      ip = env.app_master.ip_address
 
       EY.ui.info "Connecting to the server..."
       ssh(ip, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", false)
@@ -70,7 +70,7 @@ module EY
         ssh(ip, "gem install ey-deploy -v '#{EYSD_VERSION}'")
       end
 
-      deploy_cmd = "eysd update --app #{app["name"]} --branch #{branch}"
+      deploy_cmd = "eysd deploy --app #{app["name"]} --branch #{branch}"
       deploy_cmd << " --config '#{env.config.to_json}'" if env.config
 
       if options[:migrate]
