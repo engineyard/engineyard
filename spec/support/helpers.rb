@@ -32,7 +32,7 @@ end
 
 def ey(cmd = nil, options = {})
   require "open3"
-  silence_err = options.delete(:err)
+  silence_err = options.delete(:hide_err)
 
   args = options.map { |k,v| "--#{k} #{v}"}.join(" ")
   eybin = File.expand_path('../bundled_ey', __FILE__)
