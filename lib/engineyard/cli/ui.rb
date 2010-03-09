@@ -3,10 +3,15 @@ module EY
     class UI < Thor::Base.shell
 
       def error(name, message = nil)
-        if message
-          say_status name, message, :red
-        elsif name
-          say name, :red
+        begin
+          orig_out, $stdout = $stdout, $stderr
+          if message
+            say_status name, message, :red
+          elsif name
+            say name, :red
+          end
+        ensure
+          $stdout = orig_out
         end
       end
 
