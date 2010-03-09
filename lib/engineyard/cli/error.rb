@@ -2,6 +2,19 @@ module EY
   class CLI < Thor
     class EnvironmentError < EY::Error; end
 
+    class NoAppError < EY::Error
+      def initialize(repo)
+        @repo = repo
+      end
+
+      def message
+        error = [%|There is no application configured for any of the following remotes:|]
+        @repo.urls.each{|url| error << %|\t#{url}| }
+        error << %|You can add this application at cloud.engineyard.com|
+        error.join("\n")
+      end
+    end
+
     class BranchMismatch < EY::Error
       def initialize(default_branch, branch)
         super(nil)

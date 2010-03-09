@@ -1,5 +1,6 @@
 module EY
   class Repo
+
     def initialize(path=File.expand_path('.'))
       @path = path
     end
@@ -13,10 +14,11 @@ module EY
       end
     end
 
-    def uri
-      config = `git config -f #{@path}/.git/config remote.origin.url`.strip
-      config.empty? ? nil : config
+    def urls
+      `git config -f #{@path}/.git/config --get-regex 'remote.*.url'`.split(/\n/).map do |c|
+        c.split.last
+      end
     end
-    alias_method :url, :uri
+
   end # Repo
 end # EY

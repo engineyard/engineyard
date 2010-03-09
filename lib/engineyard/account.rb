@@ -26,7 +26,7 @@ module EY
     end
 
     def app_for_repo(repo)
-      apps.find{|a| a.repository_uri == repo.uri } if repo.uri
+      apps.find{|a| repo.urls.include?(a.repository_url) }
     end
 
     # Classes to represent the returned data
@@ -50,11 +50,11 @@ module EY
       alias_method :config, :configuration
     end
 
-    class App < Struct.new(:name, :repository_uri, :environments)
+    class App < Struct.new(:name, :repository_url, :environments)
       def self.from_hash(hash)
         new(
           hash["name"],
-          hash["repository_uri"],
+          hash["repository_uri"], # We use url canonically in the ey gem
           Environment.from_array(hash["environments"])
         ) if hash && hash != "null"
       end

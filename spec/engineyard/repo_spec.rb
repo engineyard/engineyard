@@ -22,24 +22,27 @@ describe EY::Repo do
     end
   end # current_branch
 
-  describe "url method" do
-    it "returns the url of the origin remote" do
-      origin_url = "git@github.com/engineyard/engineyard.git"
+  describe "urls method" do
+    it "returns the urls of the remotes" do
+      origin_url = "git://github.com/engineyard/engineyard.git"
+      other_url = "git@github.com:engineyard/engineyard.git"
       set_url origin_url
-      @r.url.should == origin_url
+      set_url other_url, "other"
+      @r.urls.should include(origin_url)
+      @r.urls.should include(other_url)
     end
 
     it "returns nil if there is no origin remote" do
       set_url nil
-      @r.url.should be_nil
+      @r.urls.should be_empty
     end
 
-    def set_url(url)
+    def set_url(url, remote="origin")
       @config_path = @path+"config"
       # This has to all shell out because FakeFS is enabled
       if url
         system("mkdir -p #{@path} && cd #{@path} && git init -q")
-        system("git config -f #{@config_path} remote.origin.url #{url}")
+        system("git config -f #{@config_path} remote.#{remote}.url #{url}")
       else
         system("rm -rf #{@config_path}")
       end

@@ -37,7 +37,7 @@ module EY
       raise BranchMismatch.new(default_branch, branch) if invalid_branch
 
       app = account.app_for_repo(repo)
-      raise EnvironmentError, "No application with repository '#{repo.url}'\nYou can add it at cloud.engineyard.com" unless app
+      raise NoAppError.new(repo) unless app
 
       env = app.environments.find{|e| e.name == env_name }
       if !env && account.environment_named(env_name)
@@ -102,10 +102,7 @@ module EY
           EY.ui.print_envs(envs, EY.config.default_environment)
         end
 
-        if repo.url
-          EY.ui.warn %|You have no application configured for the repository "#{repo.url}"|
-          EY.ui.warn %|You can add one at cloud.engineyard.com|
-        end
+        EY.ui.warn(NoAppError.new(repo).message) unless repo.urls.empty?
       else
         app = account.app_for_repo(repo)
         envs = app.environments
