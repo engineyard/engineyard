@@ -64,11 +64,11 @@ module EY
       end
     end
 
-    class AppMaster < Struct.new(:status, :ip_address)
+    class AppMaster < Struct.new(:status, :public_hostname)
       def self.from_hash(hash)
         new(
           hash["status"],
-          hash["ip_address"]
+          hash["public_hostname"]
         ) if hash && hash != "null"
       end
     end
