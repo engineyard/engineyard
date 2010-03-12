@@ -55,13 +55,13 @@ module EY
 
       def print_envs(envs, default_env = nil)
         printable_envs = envs.map do |e|
-          icount = e["instances_count"]
+          icount = e.instances_count
           iname = (icount == 1) ? "instance" : "instances"
 
-          e["name"] << " (default)" if e["name"] == default_env
-          env = [e["name"]]
+          e.name << " (default)" if e.name == default_env
+          env = [e.name]
           env << "#{icount} #{iname}"
-          env << e["apps"].map{|a| a["name"] }.join(", ")
+          env << e.apps.map{|a| a.name }.join(", ")
         end
         print_table(printable_envs, :ident => 2)
       end

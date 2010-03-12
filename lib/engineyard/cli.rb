@@ -70,7 +70,7 @@ module EY
         ssh(hostname, "gem install ey-deploy -v '#{EYSD_VERSION}'")
       end
 
-      deploy_cmd = "eysd deploy --app #{app["name"]} --branch #{branch}"
+      deploy_cmd = "eysd deploy --app #{app.name} --branch #{branch}"
       deploy_cmd << " --config '#{env.config.to_json}'" if env.config
 
       if options[:migrate]
