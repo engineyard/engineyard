@@ -30,13 +30,14 @@ module EY
     end
 
     # Classes to represent the returned data
-    class Environment < Struct.new(:name, :instances_count, :apps, :app_master)
+    class Environment < Struct.new(:name, :instances_count, :apps, :app_master, :username)
       def self.from_hash(hash)
         new(
           hash["name"],
           hash["instances_count"],
           App.from_array(hash["apps"]),
-          AppMaster.from_hash(hash["app_master"])
+          AppMaster.from_hash(hash["app_master"]),
+          hash["ssh_username"]
         ) if hash && hash != "null"
       end
 

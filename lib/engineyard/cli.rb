@@ -50,9 +50,10 @@ module EY
       raise EnvironmentError, "No running instances for environment #{env.name}\nStart one at cloud.engineyard.com" unless running
 
       hostname = env.app_master.public_hostname
+      username = env.username
 
       EY.ui.info "Connecting to the server..."
-      ssh(hostname, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", false)
+      ssh(hostname, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", username, false)
       case $?.exitstatus
       when 255
         raise EnvironmentError, "SSH connection to #{hostname} failed"
@@ -67,7 +68,9 @@ module EY
 
       if !eysd_installed || options[:install_eysd]
         EY.ui.info "Installing ey-deploy gem..."
-        ssh(hostname, "gem install ey-deploy -v '#{EYSD_VERSION}'")
+        ssh(hostname,
+            "gem install ey-deploy -v '#{EYSD_VERSION}'",
+            username)
       end
 
       deploy_cmd = "eysd deploy --app #{app.name} --branch #{branch}"
@@ -80,7 +83,7 @@ module EY
       end
 
       EY.ui.info "Running deploy on server..."
-      deployed = ssh(hostname, deploy_cmd)
+      deployed = ssh(hostname, deploy_cmd, username)
 
       if deployed
         EY.ui.info "Deploy complete"
@@ -138,9 +141,8 @@ module EY
       EY.ui.debug(*args)
     end
 
-    def ssh(hostname, remote_cmd, output = true)
-      # FIXME: Use the user from the environment, don't assume deploy
-      cmd = %{ssh deploy@#{hostname} "#{remote_cmd}"}
+    def ssh(hostname, remote_cmd, user, output = true)
+      cmd = %{ssh #{user}@#{hostname} "#{remote_cmd}"}
       cmd << %{ &> /dev/null} unless output
       EY.ui.debug(cmd)
       puts cmd if output
