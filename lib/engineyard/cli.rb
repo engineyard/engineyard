@@ -142,7 +142,7 @@ module EY
     end
 
     def ssh(hostname, remote_cmd, user, output = true)
-      cmd = %{ssh #{user}@#{hostname} "#{remote_cmd}"}
+      cmd = %{ssh -q #{user}@#{hostname} "#{remote_cmd}"}
       cmd << %{ &> /dev/null} unless output
       EY.ui.debug(cmd)
       puts cmd if output
