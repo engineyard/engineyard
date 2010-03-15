@@ -69,7 +69,7 @@ module EY
       if !eysd_installed || options[:install_eysd]
         EY.ui.info "Installing ey-deploy gem..."
         ssh(hostname,
-            "gem install ey-deploy -v '#{EYSD_VERSION}'",
+            "sudo gem install ey-deploy -v '#{EYSD_VERSION}'",
             username)
       end
 
