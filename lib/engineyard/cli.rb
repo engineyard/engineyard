@@ -26,8 +26,11 @@ module EY
     method_option :install_eysd, :type => :boolean, :aliases => %(-s),
       :desc => "Force remote install of eysd"
     def deploy(env_name = nil, branch = nil)
+      app = account.app_for_repo(repo)
+      raise NoAppError.new(repo) unless app
+
       env_name ||= EY.config.default_environment
-      raise DeployArgumentError unless env_name
+      raise DeployArgumentError if !env_name && app.environments.size > 1
 
       default_branch = EY.config.default_branch(env_name)
       branch ||= (default_branch || repo.current_branch)
@@ -36,10 +39,12 @@ module EY
       invalid_branch = default_branch && (branch != default_branch) && !options[:force]
       raise BranchMismatch.new(default_branch, branch) if invalid_branch
 
-      app = account.app_for_repo(repo)
-      raise NoAppError.new(repo) unless app
+      if env_name
+        env = app.environments.find{|e| e.name == env_name }
+      else
+        env = app.environments.first
+      end
 
-      env = app.environments.find{|e| e.name == env_name }
       if !env && account.environment_named(env_name)
         raise EnvironmentError, "Environment '#{env_name}' doesn't run this application\nYou can add it at cloud.engineyard.com"
       elsif !env
