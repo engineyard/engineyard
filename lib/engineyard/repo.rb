@@ -15,7 +15,7 @@ module EY
     end
 
     def urls
-      `git config -f #{@path}/.git/config --get-regex 'remote.*.url'`.split(/\n/).map do |c|
+      `git config -f #{@path}/.git/config --get-regexp 'remote.*.url'`.split(/\n/).map do |c|
         c.split.last
       end
     end
