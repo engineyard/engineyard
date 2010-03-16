@@ -36,9 +36,9 @@ module EY
       begin
         EY.ui.debug("Request", method.to_s.upcase + " " + url)
         case method
-        when :get
+        when :get, :delete, :head
           url += "?#{RestClient::Payload::UrlEncoded.new(params)}"
-          resp = RestClient.get(url, headers)
+          resp = RestClient.send(method, url, headers)
         else
           resp = RestClient.send(method, url, params, headers)
         end
