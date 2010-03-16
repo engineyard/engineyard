@@ -1,7 +1,7 @@
 require 'stringio'
 
 module Kernel
-  def capture_stdout(input = nil, &block)
+  def capture_stdio(input = nil, &block)
     org_stdin, $stdin = $stdin, StringIO.new(input) if input
     org_stdout, $stdout = $stdout, StringIO.new
     yield
@@ -10,24 +10,7 @@ module Kernel
     $stdout = org_stdout
     $stdin = org_stdin
   end
-
-  def capture_stderr(&block)
-    org_stderr, $stderr = $stderr, StringIO.new
-    yield
-    return @err = $stderr.string
-  ensure
-    $stderr = org_stderr
-  end
-
-  def capture_stdio(input = nil, &block)
-    stderr, stdout = "", ""
-    stderr = capture_stderr do
-      stdout = capture_stdout(input, &block)
-    end
-    @out = stdout
-    @err = stderr
-    return [stdout, stderr]
-  end
+  alias capture_stdout capture_stdio
 end
 
 def ey(cmd = nil, options = {})
