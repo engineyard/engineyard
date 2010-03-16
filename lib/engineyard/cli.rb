@@ -101,7 +101,8 @@ module EY
     desc "environments [--all]", "List cloud environments for this app, or all environments"
     method_option :all, :type => :boolean, :aliases => %(-a)
     def environments
-      if options[:all] || !account.app_for_repo(repo)
+      app = account.app_for_repo(repo)
+      if options[:all] || !app
         envs = account.environments
         if envs.empty?
           EY.ui.say %|You do not have any cloud environments.|
@@ -110,7 +111,7 @@ module EY
           EY.ui.print_envs(envs, EY.config.default_environment)
         end
 
-        EY.ui.warn(NoAppError.new(repo).message) unless repo.urls.empty?
+        EY.ui.warn(NoAppError.new(repo).message) unless app || options[:all]
       else
         app = account.app_for_repo(repo)
         envs = app.environments
