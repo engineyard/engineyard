@@ -12,4 +12,5 @@ group :development do
   gem "jeweler"
   gem "fakeweb"
   gem "fakefs"
+  gem "bundler"
 end
