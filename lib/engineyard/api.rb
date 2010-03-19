@@ -4,7 +4,7 @@ module EY
 
     def initialize(token = nil)
       @token ||= token
-      @token ||= self.class.from_file
+      @token ||= self.class.read_token
       raise ArgumentError, "EY Cloud API token required" unless @token
     end
 
@@ -64,14 +64,14 @@ module EY
       data
     end
 
-    def self.from_cloud(email, password)
+    def self.fetch_token(email, password)
       api_token = request("/authenticate", :method => "post",
         :params => { :email => email, :password => password })["api_token"]
-      to_file(api_token)
+      save_token(api_token)
       api_token
     end
 
-    def self.from_file(file = File.expand_path("~/.eyrc"))
+    def self.read_token(file = File.expand_path("~/.eyrc"))
       return false unless File.exists?(file)
 
       require 'yaml'
@@ -84,7 +84,7 @@ module EY
       end
     end
 
-    def self.to_file(token, file = File.expand_path("~/.eyrc"))
+    def self.save_token(token, file = File.expand_path("~/.eyrc"))
       require 'yaml'
 
       data = File.exists?(file) ? YAML.load_file(file) : {}

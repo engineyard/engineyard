@@ -4,8 +4,8 @@ module EY
 
       def initialize(token = nil)
         @token = token
-        @token ||= self.class.from_file
-        @token ||= self.class.from_cloud
+        @token ||= self.class.read_token
+        @token ||= self.class.fetch_token
         raise EY::Error, "Sorry, we couldn't get your API token." unless @token
       end
 
@@ -20,10 +20,10 @@ module EY
       end
 
       def refresh
-        @token = self.class.from_cloud
+        @token = self.class.fetch_token
       end
 
-      def self.from_cloud
+      def self.fetch_token
         EY.ui.info("We need to fetch your API token, please login")
         begin
           email    ||= EY.ui.ask("Email: ")

@@ -12,7 +12,7 @@ describe EY::API do
   context "fetching the token from EY cloud" do
     before(:each) do
       FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|)
-      @token = EY::API.from_cloud("a@b.com", "foo")
+      @token = EY::API.fetch_token("a@b.com", "foo")
     end
 
     it "returns an EY::API" do
@@ -28,7 +28,7 @@ describe EY::API do
     FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :status => 401)
 
     lambda {
-      EY::API.from_cloud("a@b.com", "foo")
+      EY::API.fetch_token("a@b.com", "foo")
     }.should raise_error(EY::Error)
   end
 
