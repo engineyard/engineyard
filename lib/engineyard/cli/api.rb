@@ -26,8 +26,8 @@ module EY
       def self.fetch_token
         EY.ui.info("We need to fetch your API token, please login")
         begin
-          email    ||= EY.ui.ask("Email: ")
-          password ||= EY.ui.ask("Password: ", true)
+          email    = EY.ui.ask("Email: ")
+          password = EY.ui.ask("Password: ", true)
           super(email, password)
         rescue EY::API::InvalidCredentials
           EY.ui.warn "Invalid username or password, please try again"
