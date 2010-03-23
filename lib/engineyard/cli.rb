@@ -6,7 +6,7 @@ require 'engineyard/cli/error'
 
 module EY
   class CLI < Thor
-    EYSD_VERSION = "~>0.2.3"
+    EYSD_VERSION = "~>0.2.4.pre"
 
     autoload :API, 'engineyard/cli/api'
     autoload :UI,  'engineyard/cli/ui'
@@ -58,7 +58,7 @@ module EY
       username = env.username
 
       EY.ui.info "Connecting to the server..."
-      ssh(hostname, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", username, false)
+      ssh(hostname, "sudo eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", username, false)
       case $?.exitstatus
       when 255
         raise EnvironmentError, "SSH connection to #{hostname} failed"

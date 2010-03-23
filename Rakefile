@@ -6,9 +6,9 @@ Jeweler::Tasks.new do |gem|
   gem.name = "engineyard"
   gem.summary = %Q{Command-line deployment for the Engine Yard cloud}
   gem.description = %Q{This gem allows you to deploy your rails application to the Engine Yard cloud directly from the command line.}
-  gem.email = "awsmdev@engineyard.com"
-  gem.homepage = "http://github.com/engineyard/engineyard"
-  gem.authors = ["Andy Delcambre", "Andre Arko", "Ezra Zygmuntowicz"]
+  gem.email = "cloud@engineyard.com"
+  gem.homepage = "http://engineyard.com"
+  gem.author = "EY Cloud Team"
   gem.version = EY::VERSION
   gem.files = FileList["README.rdoc", "LICENSE", "{bin,lib}/**/*"]
 
