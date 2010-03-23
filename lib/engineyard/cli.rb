@@ -58,7 +58,7 @@ module EY
       username = env.username
 
       EY.ui.info "Connecting to the server..."
-      ssh(hostname, "sudo eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", username, false)
+      ssh(hostname, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", username, false)
       case $?.exitstatus
       when 255
         raise EnvironmentError, "SSH connection to #{hostname} failed"
