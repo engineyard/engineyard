@@ -1,7 +1,5 @@
 module EY
   class CLI < Thor
-    class EnvironmentError < EY::Error; end
-
     class NoAppError < EY::Error
       def initialize(repo)
         @repo = repo
@@ -12,6 +10,15 @@ module EY
         @repo.urls.each{|url| error << %|\t#{url}| }
         error << %|You can add this application at cloud.engineyard.com|
         error.join("\n")
+      end
+    end
+
+    class EnvironmentError < EY::Error
+    end
+
+    class NoEnvironmentError < EnvironmentError
+      def message
+        "No environment named '#{env_name}'\nYou can create one at cloud.engineyard.com"
       end
     end
 

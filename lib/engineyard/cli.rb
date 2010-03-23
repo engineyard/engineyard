@@ -30,7 +30,7 @@ module EY
       raise NoAppError.new(repo) unless app
 
       env_name ||= EY.config.default_environment
-      raise DeployArgumentError if !env_name && app.environments.size > 1
+      raise DeployArgumentError if !env_name && app.environments.size != 1
 
       default_branch = EY.config.default_branch(env_name)
       branch ||= (default_branch || repo.current_branch)
@@ -48,7 +48,7 @@ module EY
       if !env && account.environment_named(env_name)
         raise EnvironmentError, "Environment '#{env_name}' doesn't run this application\nYou can add it at cloud.engineyard.com"
       elsif !env
-        raise EnvironmentError, "No environment named '#{env_name}'\nYou can create one at cloud.engineyard.com"
+        raise NoEnvironmentError
       end
 
       running = env.app_master && env.app_master.status == "running"

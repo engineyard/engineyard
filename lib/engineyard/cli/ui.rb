@@ -44,12 +44,20 @@ module EY
       end
 
       def ask(message, password = false)
-        unless password
-          super(message)
-        else
-          EY.library 'highline'
-          @hl ||= HighLine.new($stdin)
-          @hl.ask(message) {|q| q.echo = "*" }
+        begin
+          unless password
+            super(message)
+          else
+            EY.library 'highline'
+            @hl ||= HighLine.new($stdin)
+            if $stdin.tty?
+              @hl.ask(message) {|q| q.echo = "*" }
+            else
+              @hl.ask(message)
+            end
+          end
+        rescue EOFError
+          return ''
         end
       end
 
@@ -79,6 +87,10 @@ module EY
         else
           error(message || e.class.to_s)
         end
+      end
+
+      def set_color(string, color, bold=false)
+        $stdout.tty? ? super : string
       end
 
     end

@@ -6,7 +6,7 @@ end
 
 # Bundled gems
 require 'fakeweb'
-require 'fakefs'
+require 'fakefs/safe'
 
 # Engineyard gem
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
@@ -19,6 +19,7 @@ require 'support/helpers'
 Spec::Runner.configure do |config|
   config.before(:all) do
     FakeWeb.allow_net_connect = false
+    FakeFS.activate!
     ENV["CLOUD_URL"] = nil
     ENV["NO_SSH"] = "true"
   end

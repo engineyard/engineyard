@@ -3,6 +3,7 @@ source :gemcutter
 group :runtime do
   gem "rest-client", "~>1.4", :require => "rest_client"
   gem "highline"
+  gem "termios"
   gem "json"
 end
 

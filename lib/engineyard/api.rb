@@ -71,7 +71,8 @@ module EY
       api_token
     end
 
-    def self.read_token(file = File.expand_path("~/.eyrc"))
+    def self.read_token(file = nil)
+      file ||= ENV['EYRC'] || File.expand_path("~/.eyrc")
       return false unless File.exists?(file)
 
       require 'yaml'
@@ -84,7 +85,8 @@ module EY
       end
     end
 
-    def self.save_token(token, file = File.expand_path("~/.eyrc"))
+    def self.save_token(token, file = nil)
+      file ||= ENV['EYRC'] || File.expand_path("~/.eyrc")
       require 'yaml'
 
       data = File.exists?(file) ? YAML.load_file(file) : {}
