@@ -79,7 +79,10 @@ module EY
       end
 
       deploy_cmd = "eysd deploy --app #{app.name} --branch #{branch}"
-      deploy_cmd << " --config '#{env.config.to_json.gsub(/"/, "\\\"")}'" if env.config
+      if env.config
+        escaped_config_option = env.config.to_json.gsub(/"/, "\\\"")
+        deploy_cmd << " --config '#{escaped_config_option}'"
+      end
 
       if options.key(:migrate)
         if options[:migrate]
