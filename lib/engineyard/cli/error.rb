@@ -8,7 +8,7 @@ module EY
       def message
         error = [%|There is no application configured for any of the following remotes:|]
         @repo.urls.each{|url| error << %|\t#{url}| }
-        error << %|You can add this application at cloud.engineyard.com|
+        error << %|You can add this application at #{EY.config.endpoint}|
         error.join("\n")
       end
     end
@@ -18,7 +18,7 @@ module EY
 
     class NoEnvironmentError < EnvironmentError
       def message
-        "No environment named '#{env_name}'\nYou can create one at cloud.engineyard.com"
+        "No environment named '#{env_name}'\nYou can create one at #{EY.config.endpoint}"
       end
     end
 

@@ -27,20 +27,20 @@ module EY
       EY.library 'rest_client'
       EY.library 'json'
 
-      url = EY.config.endpoint + "/api/v2" + path
+      url = EY.config.endpoint + "api/v2#{path}"
       method = ((meth = opts.delete(:method)) && meth.to_s || "get").downcase.to_sym
       params = opts.delete(:params) || {}
       headers = opts.delete(:headers) || {}
       headers["Accept"] ||= "application/json"
 
       begin
-        EY.ui.debug("Request", method.to_s.upcase + " " + url)
+        EY.ui.debug("Request", "#{method.to_s.upcase} #{url}")
         case method
         when :get, :delete, :head
-          url += "?#{RestClient::Payload::UrlEncoded.new(params)}"
-          resp = RestClient.send(method, url, headers)
+          url.query = RestClient::Payload::UrlEncoded.new(params).to_s
+          resp = RestClient.send(method, url.to_s, headers)
         else
-          resp = RestClient.send(method, url, params, headers)
+          resp = RestClient.send(method, url.to_s, params, headers)
         end
       rescue RestClient::Unauthorized
         raise InvalidCredentials

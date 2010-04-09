@@ -1,5 +1,6 @@
 require 'spec_helper'
 require 'yaml'
+require 'uri'
 
 describe EY::Config do
   def write_config(data, file = "ey.yml")
@@ -13,7 +14,7 @@ describe EY::Config do
     end
 
     it "are present when the config file has no environments key" do
-      write_config("endpoint" => "localhost")
+      write_config("endpoint" => "http://localhost/")
       EY::Config.new.environments.should == {}
     end
   end
@@ -24,31 +25,37 @@ describe EY::Config do
     end
 
     it "gets loaded from the config file" do
-      write_config("endpoint" => "localhost")
-      EY::Config.new.endpoint.should == "localhost"
+      write_config("endpoint" => "http://localhost/")
+      EY::Config.new.endpoint.should == URI.parse("http://localhost/")
+    end
+
+    it "raises on an invalid endpoint" do
+      write_config("endpoint" => "non/absolute")
+      lambda { EY::Config.new.endpoint }.
+        should raise_error(EY::Config::ConfigurationError)
     end
   end
 
   it "provides default_endpoint?" do
-    write_config("endpoint" => "localhost")
+    write_config("endpoint" => "http://localhost/")
     EY::Config.new.default_endpoint?.should_not be_true
   end
 
   describe "files" do
     it "looks for config/ey.yml" do
-      write_config({"endpoint" => "something"}, "ey.yml")
-      write_config({"endpoint" => "localhost"}, "config/ey.yml")
-      EY::Config.new.endpoint.should == "localhost"
+      write_config({"endpoint" => "http://something/"}, "ey.yml")
+      write_config({"endpoint" => "http://localhost/"}, "config/ey.yml")
+      EY::Config.new.endpoint.should == URI.parse("http://localhost/")
     end
 
     it "looks for ey.yml" do
-      write_config({"endpoint" => "foo"}, "ey.yml")
-      EY::Config.new.endpoint.should == "foo"
+      write_config({"endpoint" => "http://foo/"}, "ey.yml")
+      EY::Config.new.endpoint.should == URI.parse("http://foo/")
     end
 
     it "looks for the file given" do
-      write_config({"endpoint" => "bar"}, "summat.yml")
-      EY::Config.new("summat.yml").endpoint.should == "bar"
+      write_config({"endpoint" => "http://bar/"}, "summat.yml")
+      EY::Config.new("summat.yml").endpoint.should == URI.parse("http://bar/")
     end
   end
 

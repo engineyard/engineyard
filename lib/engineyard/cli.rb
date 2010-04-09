@@ -46,13 +46,13 @@ module EY
       end
 
       if !env && account.environment_named(env_name)
-        raise EnvironmentError, "Environment '#{env_name}' doesn't run this application\nYou can add it at cloud.engineyard.com"
+        raise EnvironmentError, "Environment '#{env_name}' doesn't run this application\nYou can add it at #{EY.config.endpoint}"
       elsif !env
         raise NoEnvironmentError
       end
 
       running = env.app_master && env.app_master.status == "running"
-      raise EnvironmentError, "No running instances for environment #{env.name}\nStart one at cloud.engineyard.com" unless running
+      raise EnvironmentError, "No running instances for environment #{env.name}\nStart one at #{EY.config.endpoint}" unless running
 
       hostname = env.app_master.public_hostname
       username = env.username
@@ -122,7 +122,7 @@ module EY
         envs = app.environments
         if envs.empty?
           EY.ui.warn %|You have no environments set up for the application "#{app.name}"|
-          EY.ui.warn %|You can make one at cloud.engineyard.com|
+          EY.ui.warn %|You can make one at #{EY.config.endpoint}|
         else
           EY.ui.say %|Cloud environments for #{app.name}:|
           EY.ui.print_envs(envs, EY.config.default_environment)
