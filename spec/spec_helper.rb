@@ -15,6 +15,7 @@ require 'engineyard'
 # Spec stuff
 require 'spec/autorun'
 require 'support/helpers'
+require 'yaml'
 
 Spec::Runner.configure do |config|
   config.before(:all) do
@@ -25,6 +26,15 @@ Spec::Runner.configure do |config|
   end
 
   config.before(:each) do
+    EY.config = nil
     FakeFS::FileSystem.clear
+  end
+
+  def load_config(file="ey.yml")
+    YAML.load_file(File.expand_path(file))
+  end
+
+  def write_config(data, file = "ey.yml")
+    File.open(file, "w"){|f| YAML.dump(data, f) }
   end
 end

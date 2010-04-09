@@ -24,6 +24,10 @@ module EY
       @config ||= EY::Config.new
     end
 
+    def config=(config)
+      @config = config
+    end
+
     def library(libname)
       begin
         require libname

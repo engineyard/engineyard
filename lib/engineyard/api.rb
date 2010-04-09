@@ -93,7 +93,7 @@ module EY
       if EY.config.default_endpoint?
         data.merge!("api_token" => token)
       else
-        data.merge!(EY.config.endpoint => {"api_token" => token})
+        data.merge!(EY.config.endpoint.to_s => {"api_token" => token})
       end
 
       File.open(file, "w"){|f| YAML.dump(data, f) }

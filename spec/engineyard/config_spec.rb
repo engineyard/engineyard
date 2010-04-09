@@ -1,12 +1,7 @@
 require 'spec_helper'
-require 'yaml'
 require 'uri'
 
 describe EY::Config do
-  def write_config(data, file = "ey.yml")
-    File.open(file, "w"){|f| YAML.dump(data, f) }
-  end
-
   describe "environments" do
     it "get loaded from the config file" do
       write_config("environments" => {"production" => {"default" => true}})
