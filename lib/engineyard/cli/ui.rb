@@ -45,16 +45,14 @@ module EY
 
       def ask(message, password = false)
         begin
-          unless password
-            super(message)
+          EY.library 'highline'
+          @hl ||= HighLine.new($stdin)
+          if not $stdin.tty?
+            @hl.ask(message)
+          elsif password
+            @hl.ask(message) {|q| q.echo = "*" }
           else
-            EY.library 'highline'
-            @hl ||= HighLine.new($stdin)
-            if $stdin.tty?
-              @hl.ask(message) {|q| q.echo = "*" }
-            else
-              @hl.ask(message)
-            end
+            @hl.ask(message) {|q| q.readline = true }
           end
         rescue EOFError
           return ''
