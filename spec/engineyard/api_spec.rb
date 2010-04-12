@@ -32,11 +32,15 @@ describe EY::API do
     context "with a custom endpoint" do
       before do
         write_config({"endpoint" => "http://localhost/"}, 'ey.yml')
+        EY::API.save_token("asdf")
       end
 
-      it "saves the api token nested under the endpoint url" do
-        EY::API.save_token("asdf")
+      it "saves the api token" do
         load_config('~/.eyrc').should == {"http://localhost/" => {"api_token" => "asdf"}}
+      end
+
+      it "reads the api token" do
+        EY::API.read_token.should == "asdf"
       end
     end
   end

@@ -81,7 +81,7 @@ module EY
       if EY.config.default_endpoint?
         data["api_token"]
       else
-        (data[EY.config.endpoint] || {})["api_token"]
+        (data[EY.config.endpoint.to_s] || {})["api_token"]
       end
     end
 
