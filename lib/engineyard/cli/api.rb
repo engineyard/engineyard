@@ -24,6 +24,8 @@ module EY
       end
 
       def self.fetch_token
+        EY.ui.warn("The engineyard gem is prerelease software. Please do not use")
+        EY.ui.warn("this tool to deploy to mission-critical environments, yet.")
         EY.ui.info("We need to fetch your API token, please login")
         begin
           email    = EY.ui.ask("Email: ")
