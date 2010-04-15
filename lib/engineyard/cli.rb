@@ -58,7 +58,7 @@ module EY
       username = env.username
 
       EY.ui.info "Connecting to the server..."
-      ssh(hostname, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", username, false)
+      ssh_to(hostname, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", username, false)
       case $?.exitstatus
       when 255
         raise EnvironmentError, "SSH connection to #{hostname} failed"
@@ -73,7 +73,7 @@ module EY
 
       if !eysd_installed || options[:install_eysd]
         EY.ui.info "Installing ey-deploy gem..."
-        ssh(hostname,
+        ssh_to(hostname,
             "sudo gem install ey-deploy -v '#{EYSD_VERSION}'",
             username)
       end
@@ -93,7 +93,7 @@ module EY
       end
 
       EY.ui.info "Running deploy on server..."
-      deployed = ssh(hostname, deploy_cmd, username)
+      deployed = ssh_to(hostname, deploy_cmd, username)
 
       if deployed
         EY.ui.info "Deploy complete"
@@ -131,6 +131,15 @@ module EY
     end
     map "envs" => :environments
 
+    desc "ssh ENV", "Open an ssh session to the environment's application server"
+    def ssh(name)
+      env = account.environment_named(name)
+      if env
+        Kernel.exec "ssh", "#{env.username}@#{env.app_master.public_hostname}", *ARGV[2..-1]
+      else
+        EY.ui.warn %|Could not find an environment named "#{name}"|
+      end
+    end
 
     desc "version", "Print the version of the engineyard gem"
     def version
@@ -152,7 +161,7 @@ module EY
       EY.ui.debug(*args)
     end
 
-    def ssh(hostname, remote_cmd, user, output = true)
+    def ssh_to(hostname, remote_cmd, user, output = true)
       cmd = %{ssh -o StrictHostKeyChecking=no -q #{user}@#{hostname} "#{remote_cmd}"}
       cmd << %{ &> /dev/null} unless output
       EY.ui.debug(cmd)
