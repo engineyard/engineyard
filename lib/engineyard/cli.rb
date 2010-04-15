@@ -106,27 +106,15 @@ module EY
     desc "environments [--all]", "List cloud environments for this app, or all environments"
     method_option :all, :type => :boolean, :aliases => %(-a)
     def environments
-      app = account.app_for_repo(repo)
-      if options[:all] || !app
-        envs = account.environments
-        if envs.empty?
-          EY.ui.say %|You do not have any cloud environments.|
-        else
-          EY.ui.say %|Cloud environments:|
-          EY.ui.print_envs(envs, EY.config.default_environment)
-        end
-
-        EY.ui.warn(NoAppError.new(repo).message) unless app || options[:all]
+      app, envs = app_and_envs(options[:all])
+      if app
+        EY.ui.say %|Cloud environments for #{app.name}:|
+        EY.ui.print_envs(envs, EY.config.default_environment)
+      elsif envs
+        EY.ui.say %|Cloud environments:|
+        EY.ui.print_envs(envs, EY.config.default_environment)
       else
-        app = account.app_for_repo(repo)
-        envs = app.environments
-        if envs.empty?
-          EY.ui.warn %|You have no environments set up for the application "#{app.name}"|
-          EY.ui.warn %|You can make one at #{EY.config.endpoint}|
-        else
-          EY.ui.say %|Cloud environments for #{app.name}:|
-          EY.ui.print_envs(envs, EY.config.default_environment)
-        end
+        EY.ui.say %|You do not have any cloud environments.|
       end
     end
     map "envs" => :environments
@@ -148,6 +136,23 @@ module EY
     map "-v" => :version
 
   private
+
+    def app_and_envs(all_envs = false)
+      app = account.app_for_repo(repo)
+
+      if all_envs || !app
+        envs = account.environments
+        EY.ui.warn(NoAppError.new(repo).message) unless app || all_envs
+        [nil, envs]
+      else
+        envs = app.environments
+        if envs.empty?
+          EY.ui.warn %|You have no environments set up for the application "#{app.name}"|
+          EY.ui.warn %|You can make one at #{EY.config.endpoint}|
+        end
+        envs.empty? ? [app, nil] : [app, envs]
+      end
+    end
 
     def account
       @account ||= EY::Account.new(API.new)
