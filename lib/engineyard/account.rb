@@ -29,10 +29,16 @@ module EY
       apps.find{|a| repo.urls.include?(a.repository_url) }
     end
 
+    def logs_for_environment(env)
+      data = @api.request("/environments/#{env.id}/logs")["logs"]
+      Log.from_array(data || [])
+    end
+
     # Classes to represent the returned data
-    class Environment < Struct.new(:name, :instances_count, :apps, :app_master, :username)
+    class Environment < Struct.new(:id, :name, :instances_count, :apps, :app_master, :username)
       def self.from_hash(hash)
         new(
+          hash["id"],
           hash["name"],
           hash["instances_count"],
           App.from_array(hash["apps"]),
@@ -71,6 +77,25 @@ module EY
           hash["status"],
           hash["public_hostname"]
         ) if hash && hash != "null"
+      end
+    end
+
+    class Log < Struct.new(:id, :role, :main, :custom)
+      def self.from_hash(hash)
+        new(
+          hash["id"],
+          hash["role"],
+          hash["main"],
+          hash["custom"]
+        ) if hash && hash != "null"
+      end
+
+      def self.from_array(array)
+        array.map{|n| from_hash(n) } if array && array != "null"
+      end
+
+      def instance_name
+        "#{role} #{id}"
       end
     end
 

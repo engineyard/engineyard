@@ -126,6 +126,30 @@ module EY
       end
     end
 
+    desc "logs environment", "Retrieve the latest logs for an enviornment"
+    def logs(environment)
+      env = account.environment_named(environment)
+
+      if env.nil?
+        raise EnvironmentError, "Environment '#{env_name}' can't be found\n" +
+          "You can create it at #{EY.config.endpoint}"
+      else
+        account.logs_for_environment(env).each do |log|
+          EY.ui.info log.instance_name
+
+          if log.main
+            EY.ui.info "Main logs:"
+            EY.ui.say  log.main
+          end
+
+          if log.custom
+            EY.ui.info "Custom logs:"
+            EY.ui.say  log.custom
+          end
+        end # logs_for_environment(env).each
+      end # env.nil?
+    end
+
     desc "version", "Print the version of the engineyard gem"
     def version
       EY.ui.say %{engineyard version #{EY::VERSION}}

@@ -48,6 +48,10 @@ class FakeAwsm < Sinatra::Base
     {"environments" => @@scenario.environments}.to_json
   end
 
+  get "/api/v2/environments/:env_id/logs" do
+    {"logs" => @@scenario.logs(params[:env_id])}.to_json
+  end
+
   post "/api/v2/authenticate" do
     if valid_user?
       {"api_token" => "deadbeef", "ok" => true}.to_json
@@ -161,6 +165,15 @@ private
               "public_hostname" => "174.129.198.124",
               "status" => "running",
               "id" => 27220}}]
+      end
+
+      def self.logs(env_id)
+        [{
+          "id" => env_id,
+          "role" => "app_master",
+          "main" => "MAIN LOG OUTPUT",
+          "custom" => "CUSTOM LOG OUTPUT"
+        }]
       end
     end
 

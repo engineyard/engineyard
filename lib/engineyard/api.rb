@@ -50,6 +50,8 @@ module EY
         raise RequestFailed, "The requested resource could not be found"
       rescue RestClient::RequestFailed => e
         raise RequestFailed, "#{e.message}"
+      rescue OpenSSL::SSL::SSLError
+        raise RequestFailed, "SSL is misconfigured on your cloud"
       end
       raise RequestFailed, "Response body was empty" if resp.body.empty?
 
