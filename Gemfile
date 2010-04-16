@@ -4,6 +4,7 @@ gem "rest-client", "~>1.4", :require => "rest_client"
 gem "highline"
 gem "termios"
 gem "json"
+gem "thor"
 
 group :development do
   gem "rspec", :require => "spec"

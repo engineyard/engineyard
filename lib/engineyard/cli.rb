@@ -1,6 +1,4 @@
-$:.unshift File.expand_path('../../vendor', __FILE__)
 require 'thor'
-
 require 'engineyard'
 require 'engineyard/cli/error'
 
