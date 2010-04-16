@@ -134,7 +134,7 @@ module EY
         raise EnvironmentError, "Environment '#{env_name}' can't be found\n" +
           "You can create it at #{EY.config.endpoint}"
       else
-        account.logs_for_environment(env).each do |log|
+        env.logs.each do |log|
           EY.ui.info log.instance_name
 
           if log.main
