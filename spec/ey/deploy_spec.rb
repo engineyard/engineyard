@@ -18,9 +18,9 @@ describe "ey deploy" do
     end
 
     it "prompts for authentication" do
-      ey "deploy" do |input|
-        input.puts("test@test.test")
-        input.puts("test")
+      ey("deploy") do |input|
+        input.puts("aarko@engineyard.com")
+        input.puts("reversal")
       end
       @out.should include("We need to fetch your API token, please login")
       @out.should include("Email:")

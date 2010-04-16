@@ -157,10 +157,6 @@ module EY
       @repo ||= EY::Repo.new
     end
 
-    def debug(*args)
-      EY.ui.debug(*args)
-    end
-
     def ssh_to(hostname, remote_cmd, user, output = true)
       cmd = %{ssh -o StrictHostKeyChecking=no -q #{user}@#{hostname} "#{remote_cmd}"}
       cmd << %{ &> /dev/null} unless output
