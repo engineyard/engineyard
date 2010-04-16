@@ -22,7 +22,7 @@ describe EY::CLI::API do
     before(:each) do
       FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|)
 
-      capture_stdout("\n\n") do
+      capture_stdio("\n\n") do
         @token = EY::CLI::API.new
       end
     end

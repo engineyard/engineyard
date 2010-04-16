@@ -1,7 +1,9 @@
+EY_ROOT = File.expand_path("../..", __FILE__)
 begin
-  require File.expand_path('../../.bundle/environment', __FILE__)
+  require File.join(EY_ROOT, ".bundle/environment.rb")
 rescue LoadError
-  require "rubygems"; require "bundler"; Bundler.setup
+  puts "Can't load bundler environment. You need to run `bundle lock`."
+  exit
 end
 
 # Bundled gems
@@ -9,15 +11,20 @@ require 'fakeweb'
 require 'fakefs/safe'
 
 # Engineyard gem
-$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), '..', 'lib'))
+$LOAD_PATH.unshift(File.join(EY_ROOT, "lib"))
 require 'engineyard'
 
 # Spec stuff
 require 'spec/autorun'
-require 'support/helpers'
 require 'yaml'
+support = Dir[File.join(EY_ROOT,'/spec/support/*.rb')]
+support.each{|helper| require helper }
+
+EY.start_fake_awsm
 
 Spec::Runner.configure do |config|
+  config.include Spec::Helpers
+
   config.before(:all) do
     FakeWeb.allow_net_connect = false
     FakeFS.activate!
@@ -26,15 +33,7 @@ Spec::Runner.configure do |config|
   end
 
   config.before(:each) do
-    EY.config = nil
     FakeFS::FileSystem.clear
-  end
-
-  def load_config(file="ey.yml")
-    YAML.load_file(File.expand_path(file))
-  end
-
-  def write_config(data, file = "ey.yml")
-    File.open(file, "w"){|f| YAML.dump(data, f) }
+    EY.instance_eval{ @config = nil }
   end
 end

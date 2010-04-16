@@ -12,4 +12,6 @@ group :development do
   gem "fakeweb"
   gem "fakefs"
   gem "bundler"
+  gem "sinatra"
+  gem "realweb"
 end

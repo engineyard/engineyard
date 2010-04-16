@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe EY::API do
   it "gets the api token from ~/.eyrc if possible" do
-    write_config({"api_token" => "asdf"}, '~/.eyrc')
+    write_yaml({"api_token" => "asdf"}, '~/.eyrc')
     EY::API.new.should == EY::API.new("asdf")
   end
 
@@ -17,7 +17,7 @@ describe EY::API do
     end
 
     it "puts the api token into .eyrc" do
-      load_config('~/.eyrc')["api_token"].should == "asdf"
+      read_yaml('~/.eyrc')["api_token"].should == "asdf"
     end
   end
 
@@ -25,18 +25,18 @@ describe EY::API do
     context "without a custom endpoint" do
       it "saves the api token at the root of the data" do
         EY::API.save_token("asdf")
-        load_config('~/.eyrc')["api_token"].should == "asdf"
+        read_yaml('~/.eyrc')["api_token"].should == "asdf"
       end
     end
 
     context "with a custom endpoint" do
-      before do
-        write_config({"endpoint" => "http://localhost/"}, 'ey.yml')
+      before(:each) do
+        write_yaml({"endpoint" => "http://localhost/"}, 'ey.yml')
         EY::API.save_token("asdf")
       end
 
       it "saves the api token" do
-        load_config('~/.eyrc').should == {"http://localhost/" => {"api_token" => "asdf"}}
+        read_yaml('~/.eyrc').should == {"http://localhost/" => {"api_token" => "asdf"}}
       end
 
       it "reads the api token" do

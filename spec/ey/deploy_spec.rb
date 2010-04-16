@@ -2,9 +2,9 @@ require 'spec_helper'
 
 describe "ey deploy" do
   before(:all) do
-    ENV['EYRC'] = "/tmp/eyrc"
-    ENV['CLOUD_URL'] = "http://localhost:4000"
     FakeFS.deactivate!
+    ENV['EYRC'] = "/tmp/eyrc"
+    ENV['CLOUD_URL'] = EY.fake_awsm
   end
 
   after(:all) do
@@ -19,9 +19,10 @@ describe "ey deploy" do
 
     it "prompts for authentication" do
       ey("deploy") do |input|
-        input.puts("aarko@engineyard.com")
-        input.puts("reversal")
+        input.puts("test@test.test")
+        input.puts("test")
       end
+
       @out.should include("We need to fetch your API token, please login")
       @out.should include("Email:")
       @out.should include("Password:")
