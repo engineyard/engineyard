@@ -1,5 +1,5 @@
 module EY
-  VERSION = "0.2.9"
+  VERSION = "0.2.10.pre"
 
   autoload :Account, 'engineyard/account'
   autoload :API,     'engineyard/api'
