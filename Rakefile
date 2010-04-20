@@ -1,8 +1,3 @@
-task :bundle_check do
-  abort "You need to run `bundle install`" unless system("bundle check 2>&1 > /dev/null")
-end
-task :spec => :bundle_check
-
 require 'spec/rake/spectask'
 Spec::Rake::SpecTask.new(:spec) do |spec|
   spec.libs << 'lib' << 'spec'
