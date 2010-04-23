@@ -24,8 +24,8 @@ module EY
     class RequestFailed < EY::Error; end
 
     def self.request(path, opts={})
-      EY.library 'rest_client'
-      EY.library 'json'
+      require 'rest_client'
+      require 'json'
 
       url = EY.config.endpoint + "api/v2#{path}"
       method = ((meth = opts.delete(:method)) && meth.to_s || "get").downcase.to_sym

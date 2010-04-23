@@ -45,7 +45,7 @@ module EY
 
       def ask(message, password = false)
         begin
-          EY.library 'highline'
+          require 'highline'
           @hl ||= HighLine.new($stdin)
           if not $stdin.tty?
             @hl.ask(message)

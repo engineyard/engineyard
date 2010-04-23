@@ -24,17 +24,5 @@ module EY
       @config ||= EY::Config.new
     end
 
-    def library(libname)
-      begin
-        require libname
-      rescue LoadError
-        unless @tried_rubygems
-          require 'rubygems' rescue LoadError nil
-          @tried_rubygems = true
-          retry
-        end
-      end
-    end
-
   end
 end
