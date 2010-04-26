@@ -1,4 +1,5 @@
 require 'realweb'
+require "rest_client"
 
 module Spec
   module Helpers
@@ -20,6 +21,11 @@ module Spec
       @out
     end
 
+    def api_scenario(scenario)
+      response = ::RestClient.put(EY.fake_awsm + '/scenario', {"scenario" => scenario}, {})
+      raise "Setting scenario failed: #{response.inspect}" unless response.code == 200
+    end
+
     def read_yaml(file="ey.yml")
       YAML.load_file(File.expand_path(file))
     end
@@ -34,6 +40,9 @@ module EY
   class << self
     def fake_awsm
       @fake_awsm ||= begin
+        unless system("ruby -c spec/support/fake_awsm.ru")
+          raise SyntaxError, "found a syntax error in fake_awsm.ru! fix it!"
+        end
         config_ru = File.join(EY_ROOT, "spec/support/fake_awsm.ru")
         @server = RealWeb.start_server(config_ru)
         "http://localhost:#{@server.port}"

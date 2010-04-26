@@ -14,4 +14,5 @@ group :development do
   gem "bundler"
   gem "sinatra"
   gem "realweb"
+  gem "ruby-debug"
 end

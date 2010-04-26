@@ -17,7 +17,7 @@ module EY
 
     def apps
       return @apps if @apps
-      data  = @api.request('/apps', :method => :get)["apps"]
+      data = @api.request('/apps', :method => :get)["apps"]
       @apps = App.from_array(data || [])
     end
 

@@ -167,7 +167,11 @@ module EY
       cmd << %{ &> /dev/null} unless output
       EY.ui.debug(cmd)
       puts cmd if output
-      system cmd unless ENV["NO_SSH"]
+      unless ENV["NO_SSH"]
+        system cmd
+      else
+        true
+      end
     end
 
   end # CLI

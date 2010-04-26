@@ -5,11 +5,13 @@ describe "ey deploy" do
     FakeFS.deactivate!
     ENV['EYRC'] = "/tmp/eyrc"
     ENV['CLOUD_URL'] = EY.fake_awsm
+    FakeWeb.allow_net_connect = true
   end
 
   after(:all) do
     ENV['CLOUD_URL'] = nil
     FakeFS.activate!
+    FakeWeb.allow_net_connect = false
   end
 
   describe "without an eyrc file" do
@@ -18,7 +20,7 @@ describe "ey deploy" do
     end
 
     it "prompts for authentication" do
-      ey("deploy") do |input|
+      ey("deploy", :hide_err => true) do |input|
         input.puts("test@test.test")
         input.puts("test")
       end
@@ -37,30 +39,28 @@ describe "ey deploy" do
     end
 
     it "complains when there is no app" do
-      return pending "this should not hit a live app"
+      api_scenario "empty"
       ey "deploy", :hide_err => true
-      @err.should include %|no application configured|
+      @err.should include(%|no application configured|)
     end
 
-    it "complains when there is no environment" do
-      return pending
-      api_scenario :no_environments
-      ey "deploy"
-      @out.should match(/no environment/i)
+    it "complains when there is no environment for the app" do
+      api_scenario "one app, one environment, not linked"
+      ey "deploy giblets master", :hide_err => true
+      @err.should match(/doesn't run this application/i)
     end
 
     it "runs when environment is known" do
-      return pending
-      api_scenario :one_environment
-      ey "deploy"
-      @out.should match(/deploying/i)
+      api_scenario "one app, one environment"
+      ey "deploy", :hide_err => true
+      @out.should match(/running deploy/i)
+      @err.should be_empty
     end
 
     it "complains when environment is ambiguous" do
-      return pending
-      api_scenario :two_environments
-      ey "deploy"
-      @out.should match(/was called incorrectly/i)
+      api_scenario "one app, two environments"
+      ey "deploy", :hide_err => true
+      @err.should match(/was called incorrectly/i)
     end
   end
 end
