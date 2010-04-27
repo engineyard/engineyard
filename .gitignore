@@ -18,6 +18,7 @@ coverage
 rdoc
 pkg
 .bundle
+*.gem
 
 ## PROJECT::SPECIFIC
 cloud.yml
