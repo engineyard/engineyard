@@ -40,7 +40,7 @@ module EY
       invalid_branch = default_branch && (branch != default_branch) && !options[:force]
       raise BranchMismatch.new(default_branch, branch) if invalid_branch
 
-      if env_name
+      if env_name && app.environments
         env = app.environments.find{|e| e.name == env_name }
       else
         env = app.environments.first
