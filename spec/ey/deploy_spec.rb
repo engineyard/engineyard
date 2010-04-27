@@ -70,14 +70,14 @@ describe "ey deploy" do
 
       it "defaults to 'rake db:migrate'" do
         ey "deploy"
-        @ssh_commands.size.should == 1
-        @ssh_commands.first.should =~ /--migrate='rake db:migrate'/
+        @ssh_commands.last.should =~ /eysd deploy/
+        @ssh_commands.last.should =~ /--migrate='rake db:migrate'/
       end
 
       it "can be disabled with --no-migrate" do
         ey "deploy --no-migrate"
-        @ssh_commands.size.should == 1
-        @ssh_commands.first.should_not =~ /--migrate/
+        @ssh_commands.last.should =~ /eysd deploy/
+        @ssh_commands.last.should_not =~ /--migrate/
       end
     end
   end

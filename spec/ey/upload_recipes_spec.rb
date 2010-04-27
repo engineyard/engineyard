@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "ey logs" do
+describe "ey upload_recipes" do
   before(:all) do
     ENV['CLOUD_URL'] = EY.fake_awsm
     FakeWeb.allow_net_connect = true
@@ -18,11 +18,18 @@ describe "ey logs" do
     FakeWeb.allow_net_connect = false
   end
 
-  it "prints logs returned by awsm" do
+  it "posts the recipes to the correct url" do
     api_scenario "one app, one environment"
-    ey "logs giblets"
-    @out.should match(/MAIN LOG OUTPUT/)
-    @out.should match(/CUSTOM LOG OUTPUT/)
-    @err.should be_empty
+    dir = Pathname.new("/tmp/#{$$}")
+    dir.mkdir
+    Dir.chdir(dir) do
+      dir.join("cookbooks").mkdir
+      File.open(dir.join("cookbooks/file"), "w"){|f| f << "boo" }
+      `git init`
+      `git add .`
+      `git commit -m "OMG"`
+      ey "upload_recipes giblets", :debug => true
+    end
+    @out.should =~ /recipes uploaded successfully/i
   end
 end

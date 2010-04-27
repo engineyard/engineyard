@@ -52,6 +52,10 @@ class FakeAwsm < Sinatra::Base
     {"logs" => @@scenario.logs(params[:env_id])}.to_json
   end
 
+  post "/api/v2/environments/:env_id/recipes" do
+    {}.to_json
+  end
+
   post "/api/v2/authenticate" do
     if valid_user?
       {"api_token" => "deadbeef", "ok" => true}.to_json

@@ -11,10 +11,6 @@ module EY
       @api = api
     end
 
-    def request(path, options = { })
-      @api.request(path, {:method => :get}.merge(options))
-    end
-
     def environments
       @environments ||= begin
         data = @api.request('/environments')["environments"]

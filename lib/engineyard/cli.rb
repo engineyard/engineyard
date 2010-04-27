@@ -124,28 +124,30 @@ module EY
       end
     end
 
-    desc "logs environment", "Retrieve the latest logs for an enviornment"
-    def logs(environment)
-      env = account.environment_named(environment)
+    desc "logs ENV", "Retrieve the latest logs for an enviornment"
+    def logs(name)
+      env_named(name).logs.each do |log|
+        EY.ui.info log.instance_name
 
-      if env.nil?
-        raise EnvironmentError, "Environment '#{env_name}' can't be found\n" +
-          "You can create it at #{EY.config.endpoint}"
+        if log.main
+          EY.ui.info "Main logs:"
+          EY.ui.say  log.main
+        end
+
+        if log.custom
+          EY.ui.info "Custom logs:"
+          EY.ui.say  log.custom
+        end
+      end
+    end
+
+    desc "upload_recipes ENV", "Upload custom chef recipes from the current directory to ENV"
+    def upload_recipes(name)
+      if account.upload_recipes_for(env_named(name))
+        EY.ui.say "Recipes uploaded successfully"
       else
-        env.logs.each do |log|
-          EY.ui.info log.instance_name
-
-          if log.main
-            EY.ui.info "Main logs:"
-            EY.ui.say  log.main
-          end
-
-          if log.custom
-            EY.ui.info "Custom logs:"
-            EY.ui.say  log.custom
-          end
-        end # logs_for_environment(env).each
-      end # env.nil?
+        EY.ui.error "Recipes upload failed"
+      end
     end
 
     desc "version", "Print the version of the engineyard gem"
@@ -155,6 +157,17 @@ module EY
     map "-v" => :version
 
   private
+
+    def env_named(name)
+      env = account.environment_named(name)
+
+      if env.nil?
+        raise EnvironmentError, "Environment '#{env_name}' can't be found\n" +
+          "You can create it at #{EY.config.endpoint}"
+      else
+        env
+      end
+    end
 
     def app_and_envs(all_envs = false)
       app = account.app_for_repo(repo)
@@ -184,8 +197,7 @@ module EY
     def ssh_to(hostname, remote_cmd, user, output = true)
       cmd = %{ssh -o StrictHostKeyChecking=no -q #{user}@#{hostname} "#{remote_cmd}"}
       cmd << %{ &> /dev/null} unless output
-      EY.ui.debug(cmd)
-      puts cmd if output
+      output ? puts(cmd) : EY.ui.debug(cmd)
       unless ENV["NO_SSH"]
         system cmd
       else

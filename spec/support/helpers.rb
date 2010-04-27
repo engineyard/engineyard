@@ -6,7 +6,7 @@ module Spec
     def ey(cmd = nil, options = {})
       require "open3"
       hide_err = options.delete(:hide_err)
-      ENV['DEBUG'] = options.delete(:debug)
+      ENV['DEBUG'] = options.delete(:debug).to_s
 
       args = options.map { |k,v| "--#{k} #{v}"}.join(" ")
       eybin = File.expand_path('../bundled_ey', __FILE__)
