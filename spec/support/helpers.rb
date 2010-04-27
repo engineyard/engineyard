@@ -16,6 +16,11 @@ module Spec
       yield @in if block_given?
       @err = @err.read_available_bytes
       @out = @out.read_available_bytes
+      @ssh_commands = @out.split(/\n/).find_all do |line|
+        line =~ /^ssh/
+      end.map do |line|
+        line.sub(/^.*?\"/, '').sub(/\"$/, '')
+      end
 
       puts @err unless @err.empty? || hide_err
       @out
@@ -40,8 +45,8 @@ module EY
   class << self
     def fake_awsm
       @fake_awsm ||= begin
-        unless system("ruby -c spec/support/fake_awsm.ru")
-          raise SyntaxError, "found a syntax error in fake_awsm.ru! fix it!"
+        unless system("ruby -c spec/support/fake_awsm.ru > /dev/null")
+          raise SyntaxError, "There is a syntax error in fake_awsm.ru! fix it!"
         end
         config_ru = File.join(EY_ROOT, "spec/support/fake_awsm.ru")
         @server = RealWeb.start_server(config_ru)

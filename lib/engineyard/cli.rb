@@ -22,6 +22,7 @@ module EY
     method_option :force, :type => :boolean, :aliases => %w(-f),
       :desc => "Force a deploy of the specified branch"
     method_option :migrate, :type => :string, :aliases => %w(-m),
+      :default => 'rake db:migrate',
       :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'"
     method_option :install_eysd, :type => :boolean, :aliases => %(-s),
       :desc => "Force remote install of eysd"
@@ -84,12 +85,8 @@ module EY
         deploy_cmd << " --config '#{escaped_config_option}'"
       end
 
-      if options.key(:migrate)
-        if options[:migrate]
-          deploy_cmd << " --migrate='#{options[:migrate]}'"
-        else
-          deploy_cmd << " --no-migrate"
-        end
+      if options['migrate']
+        deploy_cmd << " --migrate='#{options[:migrate]}'"
       end
 
       EY.ui.info "Running deploy on server..."

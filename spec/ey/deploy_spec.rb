@@ -62,5 +62,23 @@ describe "ey deploy" do
       ey "deploy", :hide_err => true
       @err.should match(/was called incorrectly/i)
     end
+
+    context "migration command" do
+      before(:each) do
+        api_scenario "one app, one environment"
+      end
+
+      it "defaults to 'rake db:migrate'" do
+        ey "deploy"
+        @ssh_commands.size.should == 1
+        @ssh_commands.first.should =~ /--migrate='rake db:migrate'/
+      end
+
+      it "can be disabled with --no-migrate" do
+        ey "deploy --no-migrate"
+        @ssh_commands.size.should == 1
+        @ssh_commands.first.should_not =~ /--migrate/
+      end
+    end
   end
 end
