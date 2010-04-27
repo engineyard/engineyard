@@ -5,7 +5,7 @@ module EY
         new(
           hash["status"],
           hash["public_hostname"]
-        ) if hash && hash != "null"
+        ) if hash
       end
     end
   end

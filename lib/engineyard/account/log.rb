@@ -5,11 +5,15 @@ class Log < Struct.new(:id, :role, :main, :custom)
       hash["role"],
       hash["main"],
       hash["custom"]
-    ) if hash && hash != "null"
+    ) if hash
   end
 
   def self.from_array(array)
-    array.map{|n| from_hash(n) } if array && array != "null"
+    if array
+      array.map{|n| from_hash(n) }
+    else
+      []
+    end
   end
 
   def instance_name

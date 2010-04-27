@@ -10,16 +10,39 @@ module EY
           AppMaster.from_hash(hash["app_master"]),
           hash["ssh_username"],
           account
-        ) if hash && hash != "null"
+        ) if hash
       end
 
       def self.from_array(array, account)
-        array.map{|n| from_hash(n, account) } if array && array != "null"
+        if array
+          array.map{|n| from_hash(n, account) }
+        else
+          []
+        end
       end
 
       def logs
-        data = account.request("/environments/#{id}/logs")['logs']
-        Log.from_array(data || [])
+        account.logs_for(self)
+      end
+
+      def instances
+        account.instances_for(self)
+      end
+
+      def recipe_file
+        require 'tempfile'
+        unless File.exist?("cookbooks")
+          raise EY::Error, "Could not find chef recipes. Please run from the root of your recipes repo."
+        end
+
+        tmp = Tempfile.new("recipes")
+        cmd = "git archive --format=tar HEAD cookbooks | gzip > #{tmp.path}"
+
+        unless system(cmd)
+          raise EY::Error, "Could not archive recipes.\nCommand `#{cmd}` exited with an error."
+        end
+
+        tmp
       end
 
       def configuration

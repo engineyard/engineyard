@@ -2,6 +2,7 @@ require 'engineyard/account/app'
 require 'engineyard/account/app_master'
 require 'engineyard/account/environment'
 require 'engineyard/account/log'
+require 'engineyard/account/instance'
 
 module EY
   class Account
@@ -15,19 +16,37 @@ module EY
     end
 
     def environments
-      return @environments if @environments
-      data = request('/environments')["environments"]
-      @environments = Environment.from_array(data || [], self)
+      @environments ||= begin
+        data = @api.request('/environments')["environments"]
+        Environment.from_array(data, self)
+      end
+    end
+
+    def apps
+      @apps ||= App.from_array(@api.request('/apps')["apps"], self)
     end
 
     def environment_named(name)
       environments.find{|e| e.name == name }
     end
 
-    def apps
-      return @apps if @apps
-      data  = @api.request('/apps')["apps"]
-      @apps = App.from_array(data || [], self)
+    def logs_for(env)
+      data = @api.request("/environments/#{env.id}/logs")["logs"]
+      Log.from_array(data)
+    end
+
+    def instances_for(env)
+      @instances ||= begin
+        data = @api.request("/environments/#{env.id}/instances")["instances"]
+        Instance.from_array(data)
+      end
+    end
+
+    def upload_recipes_for(env)
+      @api.request("/environments/#{env.id}/recipes",
+        :method => :post,
+        :params => {:file => env.recipe_file}
+      )
     end
 
     def app_named(name)

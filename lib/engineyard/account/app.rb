@@ -7,11 +7,15 @@ module EY
           hash["repository_uri"], # We use url canonically in the ey gem
           Environment.from_array(hash["environments"], account),
           account
-        ) if hash && hash != "null"
+        ) if hash
       end
 
       def self.from_array(array, account)
-        array.map{|n| from_hash(n, account) } if array && array != "null"
+        if array
+          array.map{|n| from_hash(n, account) }
+        else
+          []
+        end
       end
     end
   end
