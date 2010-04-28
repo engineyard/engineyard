@@ -6,7 +6,7 @@ gem "termios"
 gem "json"
 gem "thor"
 
-group :development do
+group :test do
   gem "rspec", :require => "spec"
   gem "rake"
   gem "fakeweb"
