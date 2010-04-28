@@ -4,7 +4,7 @@ require 'engineyard/cli/error'
 
 module EY
   class CLI < Thor
-    EYSD_VERSION = "~>0.2.4"
+    EYSD_VERSION = "~>0.2.5"
 
     autoload :API, 'engineyard/cli/api'
     autoload :UI,  'engineyard/cli/ui'
