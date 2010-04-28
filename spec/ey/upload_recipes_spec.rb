@@ -30,6 +30,7 @@ describe "ey upload_recipes" do
       `git commit -m "OMG"`
       ey "upload_recipes giblets", :debug => true
     end
+
     @out.should =~ /recipes uploaded successfully/i
   end
 end

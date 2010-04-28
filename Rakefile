@@ -5,6 +5,7 @@ Spec::Rake::SpecTask.new(:spec) do |spec|
 end
 task :default => :spec
 
+$LOAD_PATH.unshift(File.join(File.dirname(__FILE__), 'lib'))
 require 'rake/rdoctask'
 require File.expand_path("../lib/engineyard", __FILE__)
 Rake::RDocTask.new do |rdoc|

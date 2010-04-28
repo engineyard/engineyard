@@ -1,22 +1,9 @@
-class Log < Struct.new(:id, :role, :main, :custom)
-  def self.from_hash(hash)
-    new(
-      hash["id"],
-      hash["role"],
-      hash["main"],
-      hash["custom"]
-    ) if hash
-  end
-
-  def self.from_array(array)
-    if array
-      array.map{|n| from_hash(n) }
-    else
-      []
+module EY
+  class Account
+    class Log < ApiStruct.new(:id, :role, :main, :custom)
+      def instance_name
+        "#{role} #{id}"
+      end
     end
-  end
-
-  def instance_name
-    "#{role} #{id}"
   end
 end

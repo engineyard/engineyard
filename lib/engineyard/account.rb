@@ -1,3 +1,4 @@
+require 'engineyard/account/api_struct'
 require 'engineyard/account/app'
 require 'engineyard/account/app_master'
 require 'engineyard/account/environment'
@@ -50,7 +51,7 @@ module EY
     end
 
     def app_for_repo(repo)
-      apps.find{|a| repo.urls.include?(a.repository_url) }
+      apps.find{|a| repo.urls.include?(a.repository_uri) }
     end
 
   end # Account

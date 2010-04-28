@@ -1,4 +1,6 @@
 module EY
+  require 'engineyard/ruby_ext'
+
   VERSION = "0.2.12.pre"
 
   autoload :Account, 'engineyard/account'

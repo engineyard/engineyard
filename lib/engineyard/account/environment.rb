@@ -1,23 +1,10 @@
 module EY
   class Account
-    class Environment < Struct.new(:id, :name, :instances_count, :apps, :app_master, :username, :account)
-      def self.from_hash(hash, account)
-        new(
-          hash["id"],
-          hash["name"],
-          hash["instances_count"],
-          App.from_array(hash["apps"], account),
-          AppMaster.from_hash(hash["app_master"]),
-          hash["ssh_username"],
-          account
-        ) if hash
-      end
-
-      def self.from_array(array, account)
-        if array
-          array.map{|n| from_hash(n, account) }
-        else
-          []
+    class Environment < ApiStruct.new(:id, :name, :instances_count, :apps, :app_master, :username, :account)
+      def self.from_hash(hash)
+        super.tap do |env|
+          env.apps = App.from_array(env.apps, env.account)
+          env.app_master = AppMaster.from_hash(env.app_master)
         end
       end
 
