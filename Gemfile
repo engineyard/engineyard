@@ -9,7 +9,6 @@ gem "thor"
 group :development do
   gem "rspec", :require => "spec"
   gem "rake"
-  gem "jeweler"
   gem "fakeweb"
   gem "fakefs"
   gem "bundler"
