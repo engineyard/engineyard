@@ -6,12 +6,30 @@ module Spec
     def ey(cmd = nil, options = {})
       require "open3"
       hide_err = options.delete(:hide_err)
-      ENV['DEBUG'] = options.delete(:debug).to_s
+      path_prepends = options.delete(:prepend_to_path)
 
-      args = options.map { |k,v| "--#{k} #{v}"}.join(" ")
+      ey_env = {
+        'DEBUG' => options[:debug].to_s
+      }
+
+      if path_prepends
+        tempdir = File.join(Dir.tmpdir, "ey_test_cmds_#{Time.now.tv_sec}_#{$$}")
+        Dir.mkdir(tempdir)
+        path_prepends.each do |name, contents|
+          File.open(File.join(tempdir, name), 'w') do |f|
+            f.write(contents)
+            f.chmod(0755)
+          end
+        end
+
+        ey_env['PATH'] = tempdir + ':' + ENV['PATH']
+      end
+
       eybin = File.expand_path('../bundled_ey', __FILE__)
 
-      @in, @out, @err = Open3.popen3("#{eybin} #{cmd} #{args}")
+      with_env(ey_env) do
+        @in, @out, @err = Open3.popen3("#{eybin} #{cmd}")
+      end
 
       yield @in if block_given?
       @err = @err.read_available_bytes
@@ -37,6 +55,28 @@ module Spec
 
     def write_yaml(data, file = "ey.yml")
       File.open(file, "w"){|f| YAML.dump(data, f) }
+    end
+
+    def with_env(new_env_vars)
+      raise ArgumentError, "with_env takes a block" unless block_given?
+      old_env_vars = {}
+      new_env_vars.each do |k, v|
+        if ENV.has_key?(k)
+          old_env_vars[k] = ENV[k]
+        end
+        ENV[k] = v
+      end
+
+      retval = yield
+
+      new_env_vars.keys.each do |k|
+        if old_env_vars.has_key?(k)
+          ENV[k] = old_env_vars[k]
+        else
+          ENV.delete(k)
+        end
+      end
+      retval
     end
   end
 end

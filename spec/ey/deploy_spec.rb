@@ -68,6 +68,11 @@ describe "ey deploy" do
         api_scenario "one app, one environment"
       end
 
+      it "finds eysd despite its being buried in the filesystem" do
+        ey "deploy"
+        @ssh_commands.last.should =~ %r{/usr/local/ey_resin/ruby/bin/eysd}
+      end
+
       it "defaults to 'rake db:migrate'" do
         ey "deploy"
         @ssh_commands.last.should =~ /eysd deploy/
@@ -80,5 +85,28 @@ describe "ey deploy" do
         @ssh_commands.last.should_not =~ /--migrate/
       end
     end
+
+    context "eysd install" do
+      before(:all) do
+        api_scenario "one app, one environment"
+      end
+
+      after(:all) do
+        ENV['NO_SSH'] = "true"
+      end
+
+      it "installs eysd if 'eysd check' fails" do
+        ENV.delete('NO_SSH')
+        fake_ssh_no_eysd = "#!/usr/bin/env ruby\n exit!(127) if ARGV.last =~ /eysd check/"
+
+        ey "deploy", :prepend_to_path => {'ssh' => fake_ssh_no_eysd}
+
+        gem_install_command = @ssh_commands.find do |command|
+          command =~ /gem install ey-deploy/
+        end
+        gem_install_command.should =~ %r{/usr/local/ey_resin/ruby/bin/gem install}
+      end
+    end
   end
+
 end

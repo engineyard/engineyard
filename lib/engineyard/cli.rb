@@ -57,7 +57,7 @@ module EY
       username = env.username
 
       EY.ui.info "Connecting to the server..."
-      ssh_to(hostname, "eysd check '#{EY::VERSION}' '#{EYSD_VERSION}'", username, false)
+      ssh_to(hostname, "#{eysd} check '#{EY::VERSION}' '#{EYSD_VERSION}'", username, false)
       case $?.exitstatus
       when 255
         raise EnvironmentError, "SSH connection to #{hostname} failed"
@@ -73,11 +73,11 @@ module EY
       if !eysd_installed || options[:install_eysd]
         EY.ui.info "Installing ey-deploy gem..."
         ssh_to(hostname,
-            "sudo gem install ey-deploy -v '#{EYSD_VERSION}'",
-            username)
+          "sudo #{gem} install ey-deploy -v '#{EYSD_VERSION}'",
+          username)
       end
 
-      deploy_cmd = "eysd deploy --app #{app.name} --branch #{branch}"
+      deploy_cmd = "#{eysd} deploy --app #{app.name} --branch #{branch}"
       if env.config
         escaped_config_option = env.config.to_json.gsub(/"/, "\\\"")
         deploy_cmd << " --config '#{escaped_config_option}'"
@@ -157,6 +157,14 @@ module EY
     map "-v" => :version
 
   private
+
+    def eysd
+      "/usr/local/ey_resin/ruby/bin/eysd"
+    end
+
+    def gem
+      "/usr/local/ey_resin/ruby/bin/gem"
+    end
 
     def env_named(name)
       env = account.environment_named(name)
