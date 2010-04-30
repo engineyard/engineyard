@@ -1,6 +1,8 @@
 require 'spec_helper'
 
 describe "ey deploy" do
+  # like the "an integration test" setup, but without the ~/.eyrc file
+  # so we can test creating it
   before(:all) do
     FakeFS.deactivate!
     ENV['EYRC'] = "/tmp/eyrc"
@@ -30,6 +32,10 @@ describe "ey deploy" do
       @out.should include("Password:")
     end
   end
+end
+
+describe "ey deploy" do
+  it_should_behave_like "an integration test"
 
   describe "with an eyrc file" do
     before(:each) do

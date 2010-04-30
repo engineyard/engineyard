@@ -37,3 +37,23 @@ Spec::Runner.configure do |config|
     EY.instance_eval{ @config = nil }
   end
 end
+
+# Use this in conjunction with the 'ey' helper method
+shared_examples_for "an integration test" do
+  before(:all) do
+    FakeFS.deactivate!
+    ENV['EYRC'] = "/tmp/eyrc"
+    ENV['CLOUD_URL'] = EY.fake_awsm
+    FakeWeb.allow_net_connect = true
+
+    token = { ENV['CLOUD_URL'] => {
+        "api_token" => "f81a1706ddaeb148cfb6235ddecfc1cf"} }
+    File.open(ENV['EYRC'], "w"){|f| YAML.dump(token, f) }
+  end
+
+  after(:all) do
+    ENV['CLOUD_URL'] = nil
+    FakeFS.activate!
+    FakeWeb.allow_net_connect = false
+  end
+end
