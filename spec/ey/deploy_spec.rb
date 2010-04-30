@@ -93,6 +93,17 @@ describe "ey deploy" do
       @ssh_commands.last.should =~ /eysd deploy/
       @ssh_commands.last.should_not =~ /--migrate/
     end
+
+    it "can be disabled with --no-migrate in the middle of the command line" do
+      ey "deploy --no-migrate giblets master"
+      @ssh_commands.last.should_not =~ /--migrate/
+    end
+
+    it "can be disabled with --no-migrate" do
+      ey "deploy --no-migrate"
+      @ssh_commands.last.should =~ /eysd deploy/
+      @ssh_commands.last.should_not =~ /--migrate/
+    end
   end
 
   context "eysd install" do

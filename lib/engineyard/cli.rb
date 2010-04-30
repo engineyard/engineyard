@@ -1,6 +1,7 @@
 require 'thor'
 require 'engineyard'
 require 'engineyard/error'
+require 'engineyard/cli/thor_fixes'
 
 module EY
   class CLI < Thor
