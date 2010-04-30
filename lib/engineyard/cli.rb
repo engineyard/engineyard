@@ -21,7 +21,7 @@ module EY
       :desc => "Force a deploy of the specified branch"
     method_option :migrate, :type => :string, :aliases => %w(-m),
       :default => 'rake db:migrate',
-      :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'"
+      :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations"
     method_option :install_eysd, :type => :boolean, :aliases => %(-s),
       :desc => "Force remote install of eysd"
     def deploy(env_name = nil, branch = nil)
