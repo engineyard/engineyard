@@ -6,9 +6,8 @@ module EY
   autoload :Account, 'engineyard/account'
   autoload :API,     'engineyard/api'
   autoload :Config,  'engineyard/config'
+  autoload :Error,   'engineyard/error'
   autoload :Repo,    'engineyard/repo'
-
-  class Error < RuntimeError; end
 
   class UI
     # stub debug outside of the CLI

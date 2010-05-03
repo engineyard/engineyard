@@ -13,7 +13,7 @@ module Spec
       }
 
       if path_prepends
-        tempdir = File.join(Dir.tmpdir, "ey_test_cmds_#{Time.now.tv_sec}_#{$$}")
+        tempdir = File.join(Dir.tmpdir, "ey_test_cmds_#{Time.now.tv_sec}#{Time.now.tv_usec}_#{$$}")
         Dir.mkdir(tempdir)
         path_prepends.each do |name, contents|
           File.open(File.join(tempdir, name), 'w') do |f|
