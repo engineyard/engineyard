@@ -39,30 +39,23 @@ end
 describe "ey deploy" do
   it_should_behave_like "an integration test"
 
-  describe "with an eyrc file" do
-    before(:each) do
-      token = { ENV['CLOUD_URL'] => {
-        "api_token" => "f81a1706ddaeb148cfb6235ddecfc1cf"} }
-      File.open(ENV['EYRC'], "w"){|f| YAML.dump(token, f) }
-    end
-
+  context "with invalid input" do
     it "complains when there is no app" do
       api_scenario "empty"
       ey "deploy", :hide_err => true, :expect_failure => true
       @err.should include(%|no application configured|)
     end
 
-    it "complains when there is no environment for the app" do
+    it "complains when you specify a nonexistent environment" do
+      api_scenario "one app, one environment"
+      ey "deploy typo-happens-here master", :hide_err => true, :expect_failure => true
+      @err.should match(/no environment named 'typo-happens-here'/i)
+    end
+
+    it "complains when the specified environment does not contain the app" do
       api_scenario "one app, one environment, not linked"
       ey "deploy giblets master", :hide_err => true, :expect_failure => true
       @err.should match(/doesn't run this application/i)
-    end
-
-    it "runs when environment is known" do
-      api_scenario "one app, one environment"
-      ey "deploy", :hide_err => true
-      @out.should match(/running deploy/i)
-      @err.should be_empty
     end
 
     it "complains when environment is ambiguous" do
@@ -70,51 +63,57 @@ describe "ey deploy" do
       ey "deploy", :hide_err => true, :expect_failure => true
       @err.should match(/was called incorrectly/i)
     end
+  end
 
-    context "migration command" do
-      before(:each) do
-        api_scenario "one app, one environment"
-      end
+  it "runs when environment is known" do
+    api_scenario "one app, one environment"
+    ey "deploy", :hide_err => true
+    @out.should match(/running deploy/i)
+    @err.should be_empty
+  end
 
-      it "finds eysd despite its being buried in the filesystem" do
-        ey "deploy"
-        @ssh_commands.last.should =~ %r{/usr/local/ey_resin/ruby/bin/eysd}
-      end
-
-      it "defaults to 'rake db:migrate'" do
-        ey "deploy"
-        @ssh_commands.last.should =~ /eysd deploy/
-        @ssh_commands.last.should =~ /--migrate='rake db:migrate'/
-      end
-
-      it "can be disabled with --no-migrate" do
-        ey "deploy --no-migrate"
-        @ssh_commands.last.should =~ /eysd deploy/
-        @ssh_commands.last.should_not =~ /--migrate/
-      end
+  context "migration command" do
+    before(:each) do
+      api_scenario "one app, one environment"
     end
 
-    context "eysd install" do
-      before(:all) do
-        api_scenario "one app, one environment"
-      end
+    it "finds eysd despite its being buried in the filesystem" do
+      ey "deploy"
+      @ssh_commands.last.should =~ %r{/usr/local/ey_resin/ruby/bin/eysd}
+    end
 
-      after(:all) do
-        ENV['NO_SSH'] = "true"
-      end
+    it "defaults to 'rake db:migrate'" do
+      ey "deploy"
+      @ssh_commands.last.should =~ /eysd deploy/
+      @ssh_commands.last.should =~ /--migrate='rake db:migrate'/
+    end
 
-      it "installs eysd if 'eysd check' fails" do
-        ENV.delete('NO_SSH')
-        fake_ssh_no_eysd = "#!/usr/bin/env ruby\n exit!(127) if ARGV.last =~ /eysd check/"
-
-        ey "deploy", :prepend_to_path => {'ssh' => fake_ssh_no_eysd}
-
-        gem_install_command = @ssh_commands.find do |command|
-          command =~ /gem install ey-deploy/
-        end
-        gem_install_command.should =~ %r{/usr/local/ey_resin/ruby/bin/gem install}
-      end
+    it "can be disabled with --no-migrate" do
+      ey "deploy --no-migrate"
+      @ssh_commands.last.should =~ /eysd deploy/
+      @ssh_commands.last.should_not =~ /--migrate/
     end
   end
 
+  context "eysd install" do
+    before(:all) do
+      api_scenario "one app, one environment"
+    end
+
+    after(:all) do
+      ENV['NO_SSH'] = "true"
+    end
+
+    it "installs eysd if 'eysd check' fails" do
+      ENV.delete('NO_SSH')
+      fake_ssh_no_eysd = "#!/usr/bin/env ruby\n exit!(127) if ARGV.last =~ /eysd check/"
+
+      ey "deploy", :prepend_to_path => {'ssh' => fake_ssh_no_eysd}
+
+      gem_install_command = @ssh_commands.find do |command|
+        command =~ /gem install ey-deploy/
+      end
+      gem_install_command.should =~ %r{/usr/local/ey_resin/ruby/bin/gem install}
+    end
+  end
 end

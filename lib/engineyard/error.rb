@@ -17,9 +17,13 @@ module EY
   class EnvironmentError < EY::Error
   end
 
-  class NoEnvironmentError < EnvironmentError
+  class NoEnvironmentError < EY::Error
+    def initialize(env_name=nil)
+      @env_name = env_name
+    end
+
     def message
-      "No environment named '#{env_name}'\nYou can create one at #{EY.config.endpoint}"
+      "No environment named '#{@env_name}'\nYou can create one at #{EY.config.endpoint}"
     end
   end
 
