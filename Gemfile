@@ -7,6 +7,7 @@ gem "json"
 gem "thor"
 
 group :test do
+  gem "open4"
   gem "rspec", :require => "spec"
   gem "rake"
   gem "fakeweb"

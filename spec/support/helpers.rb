@@ -1,9 +1,13 @@
 require 'realweb'
 require "rest_client"
+require 'open4'
 
 module Spec
   module Helpers
-    def ey(cmd = nil, options = {})
+    NonzeroExitStatus = Class.new(StandardError)
+    ZeroExitStatus = Class.new(StandardError)
+
+    def ey(cmd = nil, options = {}, &block)
       require "open3"
       hide_err = options.delete(:hide_err)
       path_prepends = options.delete(:prepend_to_path)
@@ -28,12 +32,19 @@ module Spec
       eybin = File.expand_path('../bundled_ey', __FILE__)
 
       with_env(ey_env) do
-        @in, @out, @err = Open3.popen3("#{eybin} #{cmd}")
+        exit_status = Open4::open4("#{eybin} #{cmd}") do |pid, stdin, stdout, stderr|
+          block.call(stdin) if block
+          @err = stderr.read_available_bytes
+          @out = stdout.read_available_bytes
+        end
+
+        if !exit_status.success? && !options[:expect_failure]
+          raise NonzeroExitStatus
+        elsif exit_status.success? && options[:expect_failure]
+          raise ZeroExitStatus
+        end
       end
 
-      yield @in if block_given?
-      @err = @err.read_available_bytes
-      @out = @out.read_available_bytes
       @ssh_commands = @out.split(/\n/).find_all do |line|
         line =~ /^ssh/
       end.map do |line|

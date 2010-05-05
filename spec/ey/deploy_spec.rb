@@ -19,9 +19,10 @@ describe "ey deploy" do
   describe "without an eyrc file" do
     before(:each) do
       FileUtils.rm_rf(ENV['EYRC'])
+      api_scenario "one app, one environment"
     end
 
-    it "prompts for authentication" do
+    it "prompts for authentication before continuing" do
       ey("deploy", :hide_err => true) do |input|
         input.puts("test@test.test")
         input.puts("test")
@@ -30,6 +31,7 @@ describe "ey deploy" do
       @out.should include("We need to fetch your API token, please login")
       @out.should include("Email:")
       @out.should include("Password:")
+      @ssh_commands.should_not be_empty
     end
   end
 end
@@ -46,13 +48,13 @@ describe "ey deploy" do
 
     it "complains when there is no app" do
       api_scenario "empty"
-      ey "deploy", :hide_err => true
+      ey "deploy", :hide_err => true, :expect_failure => true
       @err.should include(%|no application configured|)
     end
 
     it "complains when there is no environment for the app" do
       api_scenario "one app, one environment, not linked"
-      ey "deploy giblets master", :hide_err => true
+      ey "deploy giblets master", :hide_err => true, :expect_failure => true
       @err.should match(/doesn't run this application/i)
     end
 
@@ -65,7 +67,7 @@ describe "ey deploy" do
 
     it "complains when environment is ambiguous" do
       api_scenario "one app, two environments"
-      ey "deploy", :hide_err => true
+      ey "deploy", :hide_err => true, :expect_failure => true
       @err.should match(/was called incorrectly/i)
     end
 
