@@ -11,6 +11,7 @@ group :test do
   gem "rspec", :require => "spec"
   gem "rake"
   gem "fakeweb"
+  gem "fakeweb-matcher"
   gem "fakefs"
   gem "bundler"
   gem "sinatra"

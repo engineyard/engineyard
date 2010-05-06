@@ -1,10 +1,7 @@
 require 'spec_helper'
 
 describe EY::Account do
-  before(:each) do
-    write_yaml({"api_token" => "asdf"}, '~/.eyrc')
-    @account = EY::Account.new(EY::API.new)
-  end
+  it_should_behave_like "it has an account"
 
   it "returns instances" do
     @env = EY::Account::Environment.from_hash({

@@ -17,6 +17,10 @@ module EY
         account.instances_for(self)
       end
 
+      def rebuild
+        account.rebuild(self)
+      end
+
       def recipe_file
         require 'tempfile'
         unless File.exist?("cookbooks")

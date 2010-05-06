@@ -37,6 +37,11 @@ module EY
     end
     map "envs" => :environments
 
+    desc "rebuild [ENV]", "Rebuild environment (ensure configuration is up-to-date)"
+    def rebuild(name = nil)
+      require 'engineyard/action/rebuild'
+      EY::Action::Rebuild.call(name)
+    end
 
     desc "ssh ENV", "Open an ssh session to the environment's application server"
     def ssh(name)

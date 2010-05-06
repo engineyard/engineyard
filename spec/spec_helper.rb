@@ -1,3 +1,7 @@
+if self.class.const_defined?(:EY_ROOT)
+  raise "don't require the spec helper twice!"
+end
+
 EY_ROOT = File.expand_path("../..", __FILE__)
 begin
   require File.join(EY_ROOT, ".bundle/environment.rb")
@@ -8,6 +12,7 @@ end
 
 # Bundled gems
 require 'fakeweb'
+require 'fakeweb_matcher'
 require 'fakefs/safe'
 
 # Engineyard gem
@@ -55,5 +60,12 @@ shared_examples_for "an integration test" do
     ENV['CLOUD_URL'] = nil
     FakeFS.activate!
     FakeWeb.allow_net_connect = false
+  end
+end
+
+shared_examples_for "it has an account" do
+  before(:all) do
+    write_yaml({"api_token" => "asdf"}, "~/.eyrc")
+    @account = EY::Account.new(EY::API.new)
   end
 end

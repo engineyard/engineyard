@@ -46,6 +46,11 @@ module EY
       )
     end
 
+    def rebuild(env)
+      @api.request("/environments/#{env.id}/rebuild",
+        :method => :put)
+    end
+
     def app_named(name)
       apps.find{|a| a.name == name }
     end

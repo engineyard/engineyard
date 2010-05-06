@@ -56,6 +56,10 @@ class FakeAwsm < Sinatra::Base
     {}.to_json
   end
 
+  put "/api/v2/environments/:env_id/rebuild" do
+    {}.to_json
+  end
+
   post "/api/v2/authenticate" do
     if valid_user?
       {"api_token" => "deadbeef", "ok" => true}.to_json

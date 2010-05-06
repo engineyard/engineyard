@@ -4,8 +4,17 @@ require 'open4'
 
 module Spec
   module Helpers
-    NonzeroExitStatus = Class.new(StandardError)
-    ZeroExitStatus = Class.new(StandardError)
+    class UnexpectedExit < StandardError
+      def initialize(stdout, stderr)
+        @stdout, @stderr = stdout, stderr
+      end
+
+      def message
+        "Exited with an unexpected exit code\n---STDOUT---\n#{@stdout}\n---STDERR---\n#{@stderr}\n"
+      end
+    end
+    NonzeroExitStatus = Class.new(UnexpectedExit)
+    ZeroExitStatus = Class.new(UnexpectedExit)
 
     def ey(cmd = nil, options = {}, &block)
       require "open3"
@@ -39,9 +48,9 @@ module Spec
         end
 
         if !exit_status.success? && !options[:expect_failure]
-          raise NonzeroExitStatus
+          raise NonzeroExitStatus.new(@out, @err)
         elsif exit_status.success? && options[:expect_failure]
-          raise ZeroExitStatus
+          raise ZeroExitStatus.new(@out, @err)
         end
       end
 
