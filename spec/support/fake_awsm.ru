@@ -40,6 +40,14 @@ class FakeAwsm < Sinatra::Base
     end
   end
 
+  put "/git_remote" do
+    FindableGitRemote.remote = if (!params[:remote] || params[:remote].empty?)
+                                 nil
+                               else
+                                 params[:remote]
+                               end
+  end
+
   get "/api/v2/apps" do
     {"apps" => @@scenario.apps}.to_json
   end
@@ -77,11 +85,19 @@ private
   end
 
   module FindableGitRemote
+    class << self
+      attr_accessor :remote
+    end
+
+    def git_remote
+      FindableGitRemote.remote || local_git_remote
+    end
+
     # Since we have to find something in `git remote -v` that
     # corresponds to an app in cloud.ey in order to do anything, we
     # simulate this by faking out the API to have whatever git
     # remote we'll find anyway.
-    def git_remote
+    def local_git_remote
       remotes = []
       `git remote -v`.each_line do |line|
         parts = line.split(/\t/)

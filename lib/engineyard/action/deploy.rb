@@ -12,7 +12,7 @@ module EY
 
         app = fetch_app
         env = fetch_environment(env_name, app)
-        branch = fetch_branch(env_name)
+        branch = fetch_branch(env.name, branch, options[:force])
 
         running = env.app_master && env.app_master.status == "running"
         raise EnvironmentError, "No running instances for environment #{env.name}\nStart one at #{EY.config.endpoint}" unless running
@@ -76,14 +76,19 @@ module EY
         env
       end
 
-      def self.fetch_branch(env_name)
+      def self.fetch_branch(env_name, user_specified_branch, force)
         default_branch = EY.config.default_branch(env_name)
-        branch ||= (default_branch || repo.current_branch)
+
+        branch = if user_specified_branch
+                   if default_branch && (user_specified_branch != default_branch) && !force
+                     raise BranchMismatch.new(default_branch, user_specified_branch)
+                   end
+                   user_specified_branch
+                 else
+                   default_branch || repo.current_branch
+                 end
+
         raise DeployArgumentError unless branch
-
-        invalid_branch = default_branch && (branch != default_branch) && !options[:force]
-        raise BranchMismatch.new(default_branch, branch) if invalid_branch
-
         branch
       end
 

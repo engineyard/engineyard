@@ -106,6 +106,98 @@ describe "ey deploy" do
     end
   end
 
+  context "choosing something to deploy" do
+    before(:all) do
+      api_scenario "one app, one environment"
+      api_git_remote("user@git.host/path/to/repo.git")
+    end
+
+    after(:all) do
+      api_git_remote(nil)
+    end
+
+    before(:all) do
+      @local_git_dir = File.join(
+        Dir.tmpdir,
+        "ey_test_git_#{Time.now.tv_sec}_#{Time.now.tv_usec}_#{$$}")
+
+      Dir.mkdir(@local_git_dir)
+
+      Dir.chdir(@local_git_dir) do
+        [
+          # initial repo setup
+          'git init >/dev/null 2>&1',
+          'git remote add origin "user@git.host/path/to/repo.git"',
+
+          # we'll have one commit on master
+          "echo 'source :gemcutter' > Gemfile",
+          "git add Gemfile",
+          "git commit -m 'initial commit' >/dev/null 2>&1",
+
+          # and a tag
+          "git tag -a -m 'version one' v1",
+
+          # and we need a non-master branch
+          "git checkout -b current-branch >/dev/null 2>&1",
+        ].each do |cmd|
+          system("#{cmd}") or raise "#{cmd} failed"
+        end
+      end
+    end
+
+    before(:each) do
+      @original_dir = Dir.getwd
+      Dir.chdir(@local_git_dir)
+    end
+
+    after(:each) do
+      Dir.chdir(@original_dir)
+    end
+
+    context "without a configured default branch" do
+      it "defaults to the checked-out local branch" do
+        ey "deploy"
+        @ssh_commands.last.should =~ /--branch current-branch/
+      end
+
+      it "deploys another branch if given" do
+        ey "deploy giblets master"
+        @ssh_commands.last.should =~ /--branch master/
+      end
+
+      it "deploys a tag if given" do
+        ey "deploy giblets v1"
+        @ssh_commands.last.should =~ /--branch v1/
+      end
+    end
+
+    context "with a configured default branch" do
+      before(:all) do
+        write_yaml({"environments" => {"giblets" => {"branch" => "master"}}},
+          File.join(@local_git_dir, "ey.yml"))
+      end
+
+      after(:all) do
+        File.unlink(File.join(@local_git_dir, "ey.yml"))
+      end
+
+      it "deploys the default branch by default" do
+        ey "deploy"
+        @ssh_commands.last.should =~ /--branch master/
+      end
+
+      it "complains about a non-default branch without --force" do
+        ey "deploy giblets current-branch", :hide_err => true, :expect_failure => true
+        @err.should =~ /deploy branch is set to "master"/
+      end
+
+      it "deploys a non-default branch with --force" do
+        ey "deploy giblets current-branch --force"
+        @ssh_commands.last.should =~ /--branch current-branch/
+      end
+    end
+  end
+
   context "eysd install" do
     before(:all) do
       api_scenario "one app, one environment"

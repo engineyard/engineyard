@@ -69,6 +69,11 @@ module Spec
       raise "Setting scenario failed: #{response.inspect}" unless response.code == 200
     end
 
+    def api_git_remote(remote)
+      response = ::RestClient.put(EY.fake_awsm + '/git_remote', {"remote" => remote}, {})
+      raise "Setting git remote failed: #{response.inspect}" unless response.code == 200
+    end
+
     def read_yaml(file="ey.yml")
       YAML.load_file(File.expand_path(file))
     end
