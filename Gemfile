@@ -1,10 +1,10 @@
 source :gemcutter
 
 gem "rest-client", "~>1.4", :require => "rest_client"
-gem "highline"
+gem "highline",    '~>1.5.2'
 gem "termios"
-gem "json"
-gem "thor"
+gem "json",        '~>1.4.0'
+gem "thor",        '~>0.13.6'
 
 group :test do
   gem "open4"
