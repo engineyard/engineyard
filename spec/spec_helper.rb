@@ -23,6 +23,7 @@ require 'engineyard'
 # Spec stuff
 require 'spec/autorun'
 require 'yaml'
+require 'pp'
 support = Dir[File.join(EY_ROOT,'/spec/support/*.rb')]
 support.each{|helper| require helper }
 
@@ -73,8 +74,8 @@ shared_examples_for "an integration test" do
   end
 end
 
-shared_examples_for "it has an account" do
+shared_examples_for "it has an api" do
   before(:all) do
-    @account = EY::Account.new(EY::API.new('asdf'))
+    @api = EY::API.new('asdf')
   end
 end

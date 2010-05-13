@@ -14,7 +14,7 @@ module EY
       private
       def self.fetch_environment_by_name(name)
         if name
-          env = account.environment_named(name)
+          env = api.environment_named(name)
           return env if env
           raise NoEnvironmentError.new(name)
         end
@@ -22,7 +22,7 @@ module EY
 
       def self.fetch_environment_from_app
         repo = Repo.new
-        app = account.app_for_repo(repo) or raise NoAppError.new(repo)
+        app = api.app_for_repo(repo) or raise NoAppError.new(repo)
         env = app.one_and_only_environment or raise EnvironmentError, "Unable to determine a single environment for the current application (found #{app.environments.size} environments)"
         env
       end

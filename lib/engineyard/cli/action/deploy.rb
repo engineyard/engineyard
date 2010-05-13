@@ -36,7 +36,7 @@ module EY
         private
 
         def self.fetch_app
-          app = account.app_for_repo(repo)
+          app = api.app_for_repo(repo)
           raise NoAppError.new(repo) unless app
           app
         end
@@ -55,7 +55,7 @@ module EY
                 end
 
           # the environment exists, but doesn't have this app
-          if !env && account.environment_named(env_name)
+          if !env && api.environment_named(env_name)
             raise EnvironmentError, "Environment '#{env_name}' doesn't run this application\nYou can add it at #{EY.config.endpoint}"
           end
 

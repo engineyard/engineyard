@@ -1,3 +1,5 @@
+require 'engineyard/model'
+
 module EY
   class API
     attr_reader :token
@@ -20,8 +22,25 @@ module EY
       self.class.request(url, opts)
     end
 
+    def environments
+      @environments ||= EY::Model::Environment.from_array(request('/environments')["environments"], :api => self)
+    end
+
+    def apps
+      @apps ||= EY::Model::App.from_array(request('/apps')["apps"], :api => self)
+    end
+
+    def environment_named(name)
+      environments.find{|e| e.name == name }
+    end
+
+    def app_for_repo(repo)
+      apps.find{|a| repo.urls.include?(a.repository_uri) }
+    end
+
     class InvalidCredentials < EY::Error; end
     class RequestFailed < EY::Error; end
+
 
     def self.request(path, opts={})
       require 'rest_client'

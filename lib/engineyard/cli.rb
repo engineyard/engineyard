@@ -53,7 +53,7 @@ module EY
 
     desc "ssh ENV", "Open an ssh session to the environment's application server"
     def ssh(name)
-      env = account.environment_named(name)
+      env = api.environment_named(name)
       if env && env.app_master
         Kernel.exec "ssh", "#{env.username}@#{env.app_master.public_hostname}", *ARGV[2..-1]
       elsif env
@@ -82,7 +82,7 @@ module EY
 
     desc "upload_recipes ENV", "Upload custom chef recipes from the current directory to ENV"
     def upload_recipes(name)
-      if account.upload_recipes_for(env_named(name))
+      if env_named(name).upload_recipes
         EY.ui.say "Recipes uploaded successfully"
       else
         EY.ui.error "Recipes upload failed"
@@ -96,8 +96,8 @@ module EY
     map ["-v", "--version"] => :version
 
     private
-    def account
-      @account ||= EY::Account.new(EY::CLI::API.new)
+    def api
+      @api ||= EY::CLI::API.new
     end
 
     def repo
@@ -105,7 +105,7 @@ module EY
     end
 
     def env_named(env_name)
-      env = account.environment_named(env_name)
+      env = api.environment_named(env_name)
 
       if env.nil?
         raise EnvironmentError, "Environment '#{env_name}' can't be found\n" +
@@ -116,10 +116,10 @@ module EY
     end
 
     def app_and_envs(all_envs = false)
-      app = account.app_for_repo(repo)
+      app = api.app_for_repo(repo)
 
       if all_envs || !app
-        envs = account.environments
+        envs = api.environments
         EY.ui.warn(NoAppError.new(repo).message) unless app || all_envs
         [nil, envs]
       else

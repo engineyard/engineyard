@@ -4,10 +4,10 @@ module EY
 
     protected
 
-      def account
+      def api
         # XXX it stinks that we have to use EY::CLI::API explicitly
         # here; I don't want to have this lateral Action --> CLI reference
-        @account ||= EY::Account.new(EY::CLI::API.new)
+        @api ||= EY::CLI::API.new
       end
 
       def repo

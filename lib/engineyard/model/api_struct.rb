@@ -1,5 +1,5 @@
 module EY
-  class Account
+  module Model
     class ApiStruct < Struct
       def self.new(*args, &block)
         super(*args) do |*block_args|
@@ -20,6 +20,11 @@ module EY
 
         end
       end
+
+      def api_get(uri, options = {})
+        api.request(uri, options.merge(:method => :get))
+      end
+
     end
   end
 end

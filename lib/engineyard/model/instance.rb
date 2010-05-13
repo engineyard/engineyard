@@ -1,7 +1,7 @@
 require 'escape'
 
 module EY
-  class Account
+  module Model
     class Instance < ApiStruct.new(:id, :role, :status, :amazon_id, :public_hostname, :environment)
       EYSD_VERSION = "~>0.3.0"
 

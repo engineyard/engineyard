@@ -3,10 +3,10 @@ module EY
 
   VERSION = "0.3.1"
 
-  autoload :Account, 'engineyard/account'
   autoload :API,     'engineyard/api'
   autoload :Config,  'engineyard/config'
   autoload :Error,   'engineyard/error'
+  autoload :Model,   'engineyard/model'
   autoload :Repo,    'engineyard/repo'
 
   class UI

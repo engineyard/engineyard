@@ -1,24 +1,31 @@
 module EY
-  class Account
-    class Environment < ApiStruct.new(:id, :name, :instances_count, :apps, :app_master, :username, :account)
+  module Model
+    class Environment < ApiStruct.new(:id, :name, :instances_count, :apps, :app_master, :username, :api)
       def self.from_hash(hash)
         super.tap do |env|
           env.username = hash['ssh_username']
-          env.apps = App.from_array(env.apps, :account => env.account)
+          env.apps = App.from_array(env.apps, :api => env.api)
           env.app_master = Instance.from_hash(env.app_master.merge(:environment => env)) if env.app_master
         end
       end
 
       def logs
-        account.logs_for(self)
+        Log.from_array(api_get("/environments/#{id}/logs")["logs"])
       end
 
       def instances
-        account.instances_for(self)
+        Instance.from_array(api_get("/environments/#{id}/instances")["instances"], :environment => self)
       end
 
       def rebuild
-        account.rebuild(self)
+        api.request("/environments/#{id}/rebuild", :method => :put)
+      end
+
+      def upload_recipes(file_to_upload = recipe_file)
+        api.request("/environments/#{id}/recipes",
+          :method => :post,
+          :params => {:file => file_to_upload}
+          )
       end
 
       def recipe_file
