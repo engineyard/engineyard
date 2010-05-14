@@ -24,8 +24,8 @@ module EY
     method_option :install_eysd, :type => :boolean, :aliases => %(-s),
       :desc => "Force remote install of eysd"
     def deploy(env_name = nil, branch = nil)
-      require 'engineyard/action/deploy'
-      EY::Action::Deploy.call(env_name, branch, options)
+      require 'engineyard/cli/action/deploy'
+      EY::CLI::Action::Deploy.call(env_name, branch, options)
     end
 
 

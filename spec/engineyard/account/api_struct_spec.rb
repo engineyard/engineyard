@@ -1,8 +1,7 @@
 require 'spec_helper'
 
 describe EY::Account::ApiStruct do
-  class Foo < EY::Account::ApiStruct.new(:fruit); end
-  class FooWithAccount < EY::Account::ApiStruct.new(:fruit, :account); end
+  class Foo < EY::Account::ApiStruct.new(:fruit, :veggie); end
 
   it "acts like a normal struct" do
     f = Foo.new("banana")
@@ -28,9 +27,14 @@ describe EY::Account::ApiStruct do
       f.should == [Foo.new("banana")]
     end
 
-    it "handles an account as the second argument" do
-      f = FooWithAccount.from_array([:fruit => "banana"], "account")
-      f.should == [FooWithAccount.new("banana", "account")]
+    it "handles a common-arguments hash as the second argument" do
+      foos = Foo.from_array(
+        [{:fruit => "banana"}, {:fruit => 'apple'}],
+        :veggie => 'kale')
+      foos.should == [
+        Foo.new("banana", "kale"),
+        Foo.new("apple", "kale"),
+      ]
     end
   end
 

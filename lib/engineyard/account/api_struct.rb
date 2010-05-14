@@ -5,9 +5,9 @@ module EY
         super(*args) do |*block_args|
           block.call(*block_args) if block
 
-          def self.from_array(array, account = nil)
+          def self.from_array(array, common_values = {})
             array.map do |values|
-              from_hash(values.merge(:account => account))
+              from_hash(values.merge(common_values))
             end if array
           end
 

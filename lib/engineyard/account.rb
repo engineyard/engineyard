@@ -1,6 +1,5 @@
 require 'engineyard/account/api_struct'
 require 'engineyard/account/app'
-require 'engineyard/account/app_master'
 require 'engineyard/account/environment'
 require 'engineyard/account/log'
 require 'engineyard/account/instance'
@@ -15,12 +14,12 @@ module EY
     def environments
       @environments ||= begin
         data = @api.request('/environments')["environments"]
-        Environment.from_array(data, self)
+        Environment.from_array(data, :account => self)
       end
     end
 
     def apps
-      @apps ||= App.from_array(@api.request('/apps')["apps"], self)
+      @apps ||= App.from_array(@api.request('/apps')["apps"], :account => self)
     end
 
     def environment_named(name)
@@ -29,13 +28,13 @@ module EY
 
     def logs_for(env)
       data = @api.request("/environments/#{env.id}/logs")["logs"]
-      Log.from_array(data)
+      Log.from_array(data, :environment => env)
     end
 
     def instances_for(env)
       @instances ||= begin
         data = @api.request("/environments/#{env.id}/instances")["instances"]
-        Instance.from_array(data)
+        Instance.from_array(data, :environment => env)
       end
     end
 

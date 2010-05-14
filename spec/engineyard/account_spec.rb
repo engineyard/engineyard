@@ -13,6 +13,6 @@ describe EY::Account do
     FakeWeb.register_uri(:get, "https://cloud.engineyard.com/api/v2/environments/#{@env.id}/instances",
       :body => {"instances" => [@instance_data]}.to_json)
 
-    @account.instances_for(@env).first.should == EY::Account::Instance.from_hash(@instance_data)
+    @account.instances_for(@env).first.should == EY::Account::Instance.from_hash(@instance_data.merge(:environment => @env))
   end
 end

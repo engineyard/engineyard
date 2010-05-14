@@ -4,8 +4,8 @@ module EY
       def self.from_hash(hash)
         super.tap do |env|
           env.username = hash['ssh_username']
-          env.apps = App.from_array(env.apps, env.account)
-          env.app_master = AppMaster.from_hash(env.app_master)
+          env.apps = App.from_array(env.apps, :account => env.account)
+          env.app_master = Instance.from_hash(env.app_master.merge(:environment => env)) if env.app_master
         end
       end
 

@@ -4,7 +4,7 @@ module EY
 
       def self.from_hash(hash)
         super.tap do |app|
-          app.environments = Environment.from_array(app.environments, app.account)
+          app.environments = Environment.from_array(app.environments, :account => app.account)
         end
       end
 

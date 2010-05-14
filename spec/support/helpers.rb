@@ -54,10 +54,22 @@ module Spec
         end
       end
 
-      @ssh_commands = @out.split(/\n/).find_all do |line|
+      @raw_ssh_commands = @out.split(/\n/).find_all do |line|
         line =~ /^ssh/
-      end.map do |line|
-        line.sub(/^.*?\"/, '').sub(/\"$/, '')
+      end
+
+      @ssh_commands = @raw_ssh_commands.map do |cmd|
+        # Strip off everything up to and including user@host, leaving
+        # just the command that the remote system would run
+        ssh_prefix_removed = cmd.gsub(/^.*?\w+@\S*\s*/, '')
+
+        # Its arguments have been double-escaped: one layer is to get
+        # them through our local shell and into ssh, and the other
+        # layer is to get them through the remote system's shell.
+        #
+        # Strip off one layer by running it through the shell.
+        just_the_remote_command = ssh_prefix_removed.gsub(/>\s*\/dev\/null.*$/, '')
+        `echo #{just_the_remote_command}`.strip
       end
 
       puts @err unless @err.empty? || hide_err

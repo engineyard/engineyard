@@ -85,7 +85,7 @@ describe "ey deploy" do
     it "defaults to 'rake db:migrate'" do
       ey "deploy"
       @ssh_commands.last.should =~ /eysd deploy/
-      @ssh_commands.last.should =~ /--migrate='rake db:migrate'/
+      @ssh_commands.last.should =~ /--migrate 'rake db:migrate'/
     end
 
     it "can be disabled with --no-migrate" do
@@ -168,6 +168,22 @@ describe "ey deploy" do
       it "deploys a tag if given" do
         ey "deploy giblets v1"
         @ssh_commands.last.should =~ /--branch v1/
+      end
+    end
+
+    context "when there is extra configuration" do
+      before(:all) do
+        write_yaml({"environments" => {"giblets" => {"bert" => "ernie"}}},
+          File.join(@local_git_dir, "ey.yml"))
+      end
+
+      after(:all) do
+        File.unlink(File.join(@local_git_dir, "ey.yml"))
+      end
+
+      it "gets passed along to eysd" do
+        ey "deploy"
+        @ssh_commands.last.should =~ /--config '\{\"bert\":\"ernie\"\}'/
       end
     end
 
