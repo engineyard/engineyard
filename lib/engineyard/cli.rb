@@ -91,7 +91,7 @@ module EY
     def version
       EY.ui.say %{engineyard version #{EY::VERSION}}
     end
-    map "-v" => :version
+    map ["-v", "--version"] => :version
 
     private
     def account
