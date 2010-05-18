@@ -5,7 +5,7 @@ module EY
     class Deploy
       extend Util
 
-      EYSD_VERSION = "~>0.3.0"
+      EYSD_VERSION = "~>0.3.1"
 
       def self.call(env_name, branch, options)
         env_name ||= EY.config.default_environment
