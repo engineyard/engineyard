@@ -43,3 +43,27 @@ describe "EY::Model::Environment#instances" do
     env.instances.first.should == EY::Model::Instance.from_hash(instance_data.merge(:environment => env))
   end
 end
+
+describe "EY::Model::Environment#shorten_name_for(app)" do
+  def short(environment_name, app_name)
+    env = EY::Model::Environment.from_hash({:name => environment_name})
+    app = EY::Model::App.from_hash({:name => app_name})
+    env.shorten_name_for(app)
+  end
+
+  it "turns myapp+myapp_production to production" do
+    short('myapp_production', 'myapp').should == 'production'
+  end
+
+  it "turns product+production to product (leaves it alone)" do
+    short('production', 'product').should == 'production'
+  end
+
+  it "leaves the environment name alone when the app name appears in the middle" do
+    short('hattery', 'ate').should == 'hattery'
+  end
+
+  it "does not produce an empty string when the names are the same" do
+    short('dev', 'dev').should == 'dev'
+  end
+end

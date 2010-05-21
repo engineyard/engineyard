@@ -48,6 +48,10 @@ module EY
         EY.config.environments[self.name]
       end
       alias_method :config, :configuration
+
+      def shorten_name_for(app)
+        name.gsub(/^#{Regexp.quote(app.name)}_/, '')
+      end
     end
   end
 end

@@ -59,17 +59,26 @@ module EY
         end
       end
 
-      def print_envs(envs, default_env = nil)
-        printable_envs = envs.map do |e|
-          icount = e.instances_count
-          iname = (icount == 1) ? "instance" : "instances"
+      def print_envs(apps, default_env_name = nil)
+        apps.each do |app|
+          puts app.name
+          if app.environments.any?
+            app.environments.each do |env|
+              short_name = env.shorten_name_for(app)
 
-          e.name << " (default)" if e.name == default_env
-          env = [e.name]
-          env << "#{icount} #{iname}"
-          env << e.apps.map{|a| a.name }.join(", ")
+              icount = env.instances_count
+              iname = (icount == 1) ? "instance" : "instances"
+
+              default_text = env.name == default_env_name ? " [default]" : ""
+
+              puts "  #{short_name}#{default_text} (#{icount} #{iname})"
+            end
+          else
+            puts "  (This application is not in any environments; you can make one at #{EY.config.endpoint})"
+          end
+
+          puts ""
         end
-        print_table(printable_envs, :ident => 2)
       end
 
       def print_exception(e)

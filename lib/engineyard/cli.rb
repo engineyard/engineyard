@@ -32,16 +32,9 @@ module EY
     desc "environments [--all]", "List cloud environments for this app, or all environments"
     method_option :all, :type => :boolean, :aliases => %(-a)
     def environments
-      app, envs = app_and_envs(options[:all])
-      if app
-        EY.ui.say %|Cloud environments for #{app.name}:|
-          EY.ui.print_envs(envs, EY.config.default_environment)
-      elsif envs
-        EY.ui.say %|Cloud environments:|
-          EY.ui.print_envs(envs, EY.config.default_environment)
-      else
-        EY.ui.say %|You do not have any cloud environments.|
-      end
+      apps = get_apps(options[:all])
+      EY.ui.warn(NoAppError.new(repo).message) unless apps.any? || options[:all]
+      EY.ui.print_envs(apps, EY.config.default_environment)
     end
     map "envs" => :environments
 
@@ -125,20 +118,11 @@ module EY
       env
     end
 
-    def app_and_envs(all_envs = false)
-      app = api.app_for_repo(repo)
-
-      if all_envs || !app
-        envs = api.environments
-        EY.ui.warn(NoAppError.new(repo).message) unless app || all_envs
-        [nil, envs]
+    def get_apps(all_apps = false)
+      if all_apps
+        api.apps
       else
-        envs = app.environments
-        if envs.empty?
-          EY.ui.warn %|You have no environments set up for the application "#{app.name}"|
-            EY.ui.warn %|You can make one at #{EY.config.endpoint}|
-        end
-        envs.empty? ? [app, nil] : [app, envs]
+        [api.app_for_repo(repo)].compact
       end
     end
 
