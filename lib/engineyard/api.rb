@@ -30,8 +30,8 @@ module EY
       @apps ||= EY::Model::App.from_array(request('/apps')["apps"], :api => self)
     end
 
-    def environment_named(name)
-      environments.find{|e| e.name == name }
+    def environment_named(name, envs = self.environments)
+      envs.find{|e| e.name == name }
     end
 
     def app_for_repo(repo)

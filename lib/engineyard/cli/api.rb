@@ -23,6 +23,10 @@ module EY
         @token = self.class.fetch_token
       end
 
+      def environment_named(env_name, envs = self.environments)
+        super || find_environment_by_unambiguous_substring(env_name, envs)
+      end
+
       def self.fetch_token
         EY.ui.warn("The engineyard gem is prerelease software. Please do not use")
         EY.ui.warn("this tool to deploy to mission-critical environments, yet.")
@@ -35,6 +39,15 @@ module EY
           EY.ui.warn "Invalid username or password, please try again"
           retry
         end
+      end
+
+      private
+      def find_environment_by_unambiguous_substring(env_name, envs)
+        candidates = envs.find_all{|e| e.name[env_name] }
+        if candidates.size > 1
+          raise AmbiguousEnvironmentName.new(env_name, candidates.map {|e| e.name})
+        end
+        candidates.first
       end
 
     end

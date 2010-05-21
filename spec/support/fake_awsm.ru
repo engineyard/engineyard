@@ -30,6 +30,8 @@ class FakeAwsm < Sinatra::Base
                      Scenario::LinkedApp
                    when "one app, two environments"
                      Scenario::OneAppTwoEnvs
+                   when "one app, many similarly-named environments"
+                     Scenario::OneAppManySimilarlyNamedEnvs
                    end
     if new_scenario
       @@scenario = new_scenario
@@ -119,7 +121,7 @@ private
       def self.environments
         []
       end
-    end
+    end # Empty
 
     class UnlinkedApp
       extend FindableGitRemote
@@ -148,7 +150,7 @@ private
               "status" => "running",
               "id" => 27220}}]
       end
-    end
+    end # UnlinkedApp
 
     class LinkedApp
       extend FindableGitRemote
@@ -199,7 +201,7 @@ private
           "custom" => "CUSTOM LOG OUTPUT"
         }]
       end
-    end
+    end # LinkedApp
 
     class OneAppTwoEnvs
       extend FindableGitRemote
@@ -268,7 +270,140 @@ private
             "app_master" => nil,
           }]
       end
-    end
+    end # OneAppTwoEnvs
+
+    class OneAppManySimilarlyNamedEnvs
+      extend FindableGitRemote
+
+      def self.apps
+        apps = [{
+            "name" => "rails232app",
+            "repository_uri" => git_remote
+          }]
+
+        [{"name" => "rails232app",
+            "environments" => [{
+                "ssh_username" => "turkey",
+                "instances" => [{
+                    "public_hostname" => "174.129.198.124",
+                    "status" => "running",
+                    "id" => 27220}],
+                "name" => "railsapp_production",
+                "apps" => apps,
+                "instances_count" => 1,
+                "stack_name" => "nginx_mongrel",
+                "id" => 200,
+                "app_master" => {
+                  "public_hostname" => "174.129.198.124",
+                  "status" => "running",
+                  "id" => 27220,
+                },
+              }, {
+                "ssh_username" => "ham",
+                "instances" => [{
+                    "public_hostname" => '127.3.2.1',
+                    "status" => "running",
+                    "id" => 63066,
+                  }],
+                "name" => "railsapp_staging",
+                "apps" => apps,
+                "instances_count" => 1,
+                "stack_name" => "nginx_passenger",
+                "id" => 8371,
+                "app_master" => {
+                  "public_hostname" => '127.3.2.1',
+                  "status" => "running",
+                  "id" => 63066,
+                },
+              }, {
+                "ssh_username" => "ham",
+                "instances" => [{
+                    "public_hostname" => '127.44.55.66',
+                    "status" => "running",
+                    "id" => 59395,
+                  }],
+                "name" => "railsapp_staging_2",
+                "apps" => apps,
+                "instances_count" => 1,
+                "stack_name" => "nginx_passenger",
+                "id" => 8371,
+                "app_master" => {
+                  "public_hostname" => '127.44.55.66',
+                  "status" => "running",
+                  "id" => 59395,
+                },
+              }],
+            "repository_uri" => git_remote}]
+      end
+
+      def self.environments
+        [{
+            "ssh_username" => "turkey",
+            "instances" => [{
+                "public_hostname" => "174.129.198.124",
+                "status" => "running",
+                "id" => 27220}],
+            "name" => "railsapp_production",
+            "apps" => [{
+                "name" => "rails232app",
+                "repository_uri" => git_remote}],
+            "instances_count" => 1,
+            "stack_name" => "nginx_mongrel",
+            "id" => 200,
+            "app_master" => {
+              "public_hostname" => "174.129.198.124",
+              "status" => "running",
+              "id" => 27220}
+          }, {
+            "ssh_username" => "ham",
+            "instances" => [{
+                "public_hostname" => '127.3.2.1',
+                "status" => "running",
+                "id" => 63066,
+              }],
+            "name" => "railsapp_staging",
+            "apps" => [{
+                "name" => "rails232app",
+                "repository_uri" => git_remote}],
+            "instances_count" => 1,
+            "stack_name" => "nginx_passenger",
+            "id" => 8371,
+            "app_master" => {
+              "public_hostname" => '127.3.2.1',
+              "status" => "running",
+              "id" => 63066,
+            },
+          }, {
+            "ssh_username" => "chicken",
+            "instances" => [{
+                "public_hostname" => '127.44.55.66',
+                "status" => "running",
+                "id" => 59395,
+              }],
+            "name" => "railsapp_staging_2",
+            "apps" => [{
+                "name" => "rails232app",
+                "repository_uri" => git_remote}],
+            "instances_count" => 1,
+            "stack_name" => "nginx_passenger",
+            "id" => 8371,
+            "app_master" => {
+              "public_hostname" => '127.44.55.66',
+              "status" => "running",
+              "id" => 59395,
+            },
+          }]
+      end
+
+      def self.logs(env_id)
+        [{
+            "id" => env_id,
+            "role" => "app_master",
+            "main" => "MAIN LOG OUTPUT",
+            "custom" => "CUSTOM LOG OUTPUT"
+          }]
+      end
+    end  # OneAppManySimilarlyNamedEnvs
   end
 end
 

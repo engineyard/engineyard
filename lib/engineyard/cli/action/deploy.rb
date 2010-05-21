@@ -1,10 +1,7 @@
-require 'engineyard/action/util'
-
 module EY
   class CLI
     module Action
       class Deploy
-        extend EY::Action::Util
 
         EYSD_VERSION = "~>0.3.0"
 
@@ -23,7 +20,7 @@ module EY
           EY.ui.info "Connecting to the server..."
           ensure_eysd_present(master, options[:install_eysd])
 
-          EY.ui.info "Running deploy on server..."
+          EY.ui.info "Running deploy for '#{env.name}' on server..."
           deployed = master.deploy!(app, branch, options[:migrate], env.config)
 
           if deployed
@@ -34,6 +31,14 @@ module EY
         end
 
         private
+
+        def self.api
+          @api ||= EY::CLI::API.new
+        end
+
+        def self.repo
+          @repo ||= EY::Repo.new
+        end
 
         def self.fetch_app
           app = api.app_for_repo(repo)
@@ -47,9 +52,7 @@ module EY
           raise DeployArgumentError if !env_name && app.environments.size != 1
 
           env = if env_name
-                  # environment names are unique per-customer, so
-                  # there's no danger of finding two here
-                  app.environments.find{|e| e.name == env_name }
+                  api.environment_named(env_name, app.environments)
                 else
                   app.environments.first
                 end

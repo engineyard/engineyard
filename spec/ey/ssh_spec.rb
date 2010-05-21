@@ -27,3 +27,23 @@ describe "ey ssh" do
     @out.should =~ /could not find.*bogusenv/i
   end
 end
+
+describe "ey ssh ENV" do
+  it_should_behave_like "an integration test"
+
+  before(:all) do
+    api_scenario "one app, many similarly-named environments"
+  end
+
+  it "works when given an unambiguous substring" do
+    print_my_args = "#!/bin/sh\necho ssh $*"
+
+    ey "ssh prod", :prepend_to_path => {'ssh' => print_my_args}
+    @raw_ssh_commands.should == ["ssh turkey@174.129.198.124"]
+  end
+
+  it "complains when given an ambiguous substring" do
+    ey "ssh staging", :hide_err => true, :expect_failure => true
+    @err.should match(/'staging' is ambiguous/)
+  end
+end

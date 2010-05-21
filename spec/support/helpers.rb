@@ -21,9 +21,8 @@ module Spec
       hide_err = options.has_key?(:hide_err) ? options[:hide_err] : options[:expect_failure]
       path_prepends = options[:prepend_to_path]
 
-      ey_env = {
-        'DEBUG' => options[:debug].to_s
-      }
+      ey_env = {}
+      ey_env['DEBUG'] = options[:debug].to_s if options[:debug]
 
       if path_prepends
         tempdir = File.join(Dir.tmpdir, "ey_test_cmds_#{Time.now.tv_sec}#{Time.now.tv_usec}_#{$$}")

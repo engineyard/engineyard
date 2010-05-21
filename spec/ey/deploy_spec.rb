@@ -84,12 +84,6 @@ describe "ey deploy" do
       ey "deploy --no-migrate giblets master"
       @ssh_commands.last.should_not =~ /--migrate/
     end
-
-    it "can be disabled with --no-migrate" do
-      ey "deploy --no-migrate"
-      @ssh_commands.last.should =~ /eysd deploy/
-      @ssh_commands.last.should_not =~ /--migrate/
-    end
   end
 
   context "choosing something to deploy" do
@@ -199,6 +193,28 @@ describe "ey deploy" do
         ey "deploy giblets current-branch --force"
         @ssh_commands.last.should =~ /--branch current-branch/
       end
+    end
+  end
+
+  context "specifying an environment" do
+    before(:all) do
+      api_scenario "one app, many similarly-named environments"
+    end
+
+    it "lets you choose by unambiguous substring" do
+      ey "deploy prod"
+      @out.should match(/Running deploy for 'railsapp_production'/)
+    end
+
+    it "lets you choose by complete name even if the complete name is ambiguous" do
+      ey "deploy railsapp_staging"
+      @out.should match(/Running deploy for 'railsapp_staging'/)
+    end
+
+    it "complains when given an ambiguous substring" do
+      # NB: there's railsapp_staging and railsapp_staging_2
+      ey "deploy staging", :hide_err => true, :expect_failure => true
+      @err.should match(/'staging' is ambiguous/)
     end
   end
 

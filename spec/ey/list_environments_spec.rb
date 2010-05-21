@@ -1,6 +1,7 @@
 require 'spec_helper'
 
 describe "ey environments" do
+
   it_should_behave_like "an integration test"
 
   before(:all) do
@@ -10,7 +11,7 @@ describe "ey environments" do
   it "lists the environments your app is in" do
     ey "environments"
     @out.should =~ /giblets/
-    @out.should =~ /ham/
+    @out.should =~ /bakon/
   end
 
   it "reports failure to find a git repo when not in one" do

@@ -47,8 +47,18 @@ module EY
 
     desc "rebuild [ENV]", "Rebuild environment (ensure configuration is up-to-date)"
     def rebuild(name = nil)
-      require 'engineyard/action/rebuild'
-      EY::Action::Rebuild.call(name)
+      env = if name
+              env = api.environment_named(name) or raise NoEnvironmentError.new(name)
+            end
+
+      unless env
+        repo = Repo.new
+        app = api.app_for_repo(repo) or raise NoAppError.new(repo)
+        env = app.one_and_only_environment or raise EnvironmentError, "Unable to determine a single environment for the current application (found #{app.environments.size} environments)"
+      end
+
+      EY.ui.debug("Rebuilding #{env.name}")
+      env.rebuild
     end
 
     desc "ssh ENV", "Open an ssh session to the environment's application server"

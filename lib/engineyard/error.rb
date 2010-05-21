@@ -33,6 +33,17 @@ module EY
   class EnvironmentError < EY::Error
   end
 
+  class AmbiguousEnvironmentName < EY::Error
+    def initialize(name, matches)
+      @name, @matches = name, matches
+    end
+
+    def message
+      pretty_names = @matches.map {|x| "'#{x}'"}.join(', ')
+      "The name '#{@name}' is ambiguous; it matches all of the following environment names: #{pretty_names}.\nPlease use a longer, unambiguous substring or the entire environment name."
+    end
+  end
+
   class NoEnvironmentError < EY::Error
     def initialize(env_name=nil)
       @env_name = env_name
