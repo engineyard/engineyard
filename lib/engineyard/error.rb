@@ -14,6 +14,16 @@ module EY
     end
   end
 
+  class NoAppMaster < EY::Error
+    def initialize(env_name)
+      @env_name = env_name
+    end
+
+    def message
+      "The environment '#{@env_name}' does not have a master instance."
+    end
+  end
+
   class EnvironmentError < EY::Error
   end
 

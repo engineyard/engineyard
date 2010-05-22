@@ -54,8 +54,10 @@ module EY
     desc "ssh ENV", "Open an ssh session to the environment's application server"
     def ssh(name)
       env = account.environment_named(name)
-      if env
+      if env && env.app_master
         Kernel.exec "ssh", "#{env.username}@#{env.app_master.public_hostname}", *ARGV[2..-1]
+      elsif env
+        raise NoAppMaster.new(env.name)
       else
         EY.ui.warn %|Could not find an environment named "#{name}"|
       end
