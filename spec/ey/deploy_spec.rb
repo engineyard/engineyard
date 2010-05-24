@@ -127,6 +127,8 @@ describe "ey deploy" do
         [
           # initial repo setup
           'git init >/dev/null 2>&1',
+          'git config user.email deploy@spec.test',
+          'git config user.name "Deploy Spec"',
           'git remote add origin "user@git.host/path/to/repo.git"',
 
           # we'll have one commit on master

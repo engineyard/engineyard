@@ -57,7 +57,8 @@ shared_examples_for "an integration test" do
   end
 
   after(:all) do
-    ENV['CLOUD_URL'] = nil
+    ENV.delete('CLOUD_URL')
+    ENV.delete('EYRC')
     FakeFS.activate!
     FakeWeb.allow_net_connect = false
   end
@@ -65,7 +66,6 @@ end
 
 shared_examples_for "it has an account" do
   before(:all) do
-    write_yaml({"api_token" => "asdf"}, "~/.eyrc")
-    @account = EY::Account.new(EY::API.new)
+    @account = EY::Account.new(EY::API.new('asdf'))
   end
 end
