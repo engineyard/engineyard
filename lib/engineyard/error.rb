@@ -1,6 +1,12 @@
 module EY
   class Error < RuntimeError; end
 
+  class NoRemotesError < EY::Error
+    def initialize(path)
+      super "fatal: No git remotes found in #{path}"
+    end
+  end
+
   class NoAppError < Error
     def initialize(repo)
       @repo = repo

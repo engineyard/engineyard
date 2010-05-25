@@ -15,9 +15,9 @@ module EY
     end
 
     def urls
-      `git config -f #{@path}/.git/config --get-regexp 'remote.*.url'`.split(/\n/).map do |c|
-        c.split.last
-      end
+      lines = `git config -f #{@path}/.git/config --get-regexp 'remote.*.url'`.split(/\n/)
+      raise NoRemotesError.new(@path) if lines.empty?
+      lines.map { |c| c.split.last }
     end
 
   end # Repo
