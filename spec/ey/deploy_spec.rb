@@ -1,38 +1,24 @@
 require 'spec_helper'
 
-describe "ey deploy" do
-  # like the "an integration test" setup, but without the ~/.eyrc file
-  # so we can test creating it
-  before(:all) do
-    FakeFS.deactivate!
-    ENV['EYRC'] = "/tmp/eyrc"
-    ENV['CLOUD_URL'] = EY.fake_awsm
-    FakeWeb.allow_net_connect = true
+describe "ey deploy without an eyrc file" do
+
+  it_should_behave_like "an integration test without an eyrc file"
+
+  before(:each) do
+    FileUtils.rm_rf(ENV['EYRC'])
+    api_scenario "one app, one environment"
   end
 
-  after(:all) do
-    ENV['CLOUD_URL'] = nil
-    FakeFS.activate!
-    FakeWeb.allow_net_connect = false
-  end
-
-  describe "without an eyrc file" do
-    before(:each) do
-      FileUtils.rm_rf(ENV['EYRC'])
-      api_scenario "one app, one environment"
+  it "prompts for authentication before continuing" do
+    ey("deploy", :hide_err => true) do |input|
+      input.puts("test@test.test")
+      input.puts("test")
     end
 
-    it "prompts for authentication before continuing" do
-      ey("deploy", :hide_err => true) do |input|
-        input.puts("test@test.test")
-        input.puts("test")
-      end
-
-      @out.should include("We need to fetch your API token, please login")
-      @out.should include("Email:")
-      @out.should include("Password:")
-      @ssh_commands.should_not be_empty
-    end
+    @out.should include("We need to fetch your API token, please login")
+    @out.should include("Email:")
+    @out.should include("Password:")
+    @ssh_commands.should_not be_empty
   end
 end
 

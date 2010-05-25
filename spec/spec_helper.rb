@@ -14,6 +14,7 @@ end
 require 'fakeweb'
 require 'fakeweb_matcher'
 require 'fakefs/safe'
+require 'json'
 
 # Engineyard gem
 $LOAD_PATH.unshift(File.join(EY_ROOT, "lib"))
@@ -24,8 +25,6 @@ require 'spec/autorun'
 require 'yaml'
 support = Dir[File.join(EY_ROOT,'/spec/support/*.rb')]
 support.each{|helper| require helper }
-
-EY.start_fake_awsm
 
 Spec::Runner.configure do |config|
   config.include Spec::Helpers
@@ -43,17 +42,12 @@ Spec::Runner.configure do |config|
   end
 end
 
-# Use this in conjunction with the 'ey' helper method
-shared_examples_for "an integration test" do
+shared_examples_for "an integration test without an eyrc file" do
   before(:all) do
     FakeFS.deactivate!
     ENV['EYRC'] = "/tmp/eyrc"
-    ENV['CLOUD_URL'] = EY.fake_awsm
     FakeWeb.allow_net_connect = true
-
-    token = { ENV['CLOUD_URL'] => {
-        "api_token" => "f81a1706ddaeb148cfb6235ddecfc1cf"} }
-    File.open(ENV['EYRC'], "w"){|f| YAML.dump(token, f) }
+    ENV['CLOUD_URL'] = EY.fake_awsm
   end
 
   after(:all) do
@@ -61,6 +55,17 @@ shared_examples_for "an integration test" do
     ENV.delete('EYRC')
     FakeFS.activate!
     FakeWeb.allow_net_connect = false
+  end
+end
+
+# Use this in conjunction with the 'ey' helper method
+shared_examples_for "an integration test" do
+  it_should_behave_like "an integration test without an eyrc file"
+
+  before(:all) do
+    token = { ENV['CLOUD_URL'] => {
+        "api_token" => "f81a1706ddaeb148cfb6235ddecfc1cf"} }
+    File.open(ENV['EYRC'], "w"){|f| YAML.dump(token, f) }
   end
 end
 
