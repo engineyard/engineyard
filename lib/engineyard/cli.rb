@@ -73,7 +73,7 @@ module EY
       end
     end
 
-    desc "logs ENV", "Retrieve the latest logs for an enviornment"
+    desc "logs [ENV]", "Retrieve the latest logs for an environment"
     def logs(name)
       env_named(name).logs.each do |log|
         EY.ui.info log.instance_name
