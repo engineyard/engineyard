@@ -15,7 +15,7 @@ describe "ey ssh" do
   end
 
   it "complains if it has no app master" do
-    ey "ssh bakon", :hide_err => true, :expect_failure => true
+    ey "ssh bakon", :expect_failure => true
     @err.should =~ /'bakon' does not have a master instance/
   end
 

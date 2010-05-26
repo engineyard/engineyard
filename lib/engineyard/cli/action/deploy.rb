@@ -83,23 +83,23 @@ module EY
         end
 
         def self.ensure_eysd_present(instance, install_eysd)
-          ey_deploy_check = instance.ey_deploy_check
-
-          if ey_deploy_check.ssh_failed?
+          eysd_status = instance.ey_deploy_check
+          case eysd_status
+          when :ssh_failed
             raise EnvironmentError, "SSH connection to #{instance.hostname} failed"
-          end
-
-          if ey_deploy_check.incompatible_version?
-            raise EnvironmentError, "ey-deploy version not compatible"
-          end
-
-          if ey_deploy_check.missing?
-            EY.ui.warn "Server does not have ey-deploy gem installed"
-          end
-
-          if ey_deploy_check.missing? || install_eysd
-            EY.ui.info "Installing ey-deploy gem..."
+          when :eysd_missing
+            EY.ui.warn "Instance does not have server-side component installed"
+            EY.ui.info "Installing server-side component..."
             instance.install_ey_deploy!
+          when :too_new
+            raise EnvironmentError, "server-side component too new; please upgrade your copy of the engineyard gem."
+          when :too_old
+            EY.ui.info "Upgrading server-side component..."
+            instance.upgrade_ey_deploy!
+          when :ok
+            # no action needed
+          else
+            raise EY::Error, "Internal error: Unexpected status from Instance#ey_deploy_check; got #{eysd_status.inspect}"
           end
         end
 

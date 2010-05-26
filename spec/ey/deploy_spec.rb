@@ -28,25 +28,25 @@ describe "ey deploy" do
   context "with invalid input" do
     it "complains when there is no app" do
       api_scenario "empty"
-      ey "deploy", :hide_err => true, :expect_failure => true
+      ey "deploy", :expect_failure => true
       @err.should include(%|no application configured|)
     end
 
     it "complains when you specify a nonexistent environment" do
       api_scenario "one app, one environment"
-      ey "deploy typo-happens-here master", :hide_err => true, :expect_failure => true
+      ey "deploy typo-happens-here master", :expect_failure => true
       @err.should match(/no environment named 'typo-happens-here'/i)
     end
 
     it "complains when the specified environment does not contain the app" do
       api_scenario "one app, one environment, not linked"
-      ey "deploy giblets master", :hide_err => true, :expect_failure => true
+      ey "deploy giblets master", :expect_failure => true
       @err.should match(/doesn't run this application/i)
     end
 
     it "complains when environment is ambiguous" do
       api_scenario "one app, two environments"
-      ey "deploy", :hide_err => true, :expect_failure => true
+      ey "deploy", :expect_failure => true
       @err.should match(/was called incorrectly/i)
     end
   end
@@ -191,7 +191,7 @@ describe "ey deploy" do
       end
 
       it "complains about a non-default branch without --force" do
-        ey "deploy giblets current-branch", :hide_err => true, :expect_failure => true
+        ey "deploy giblets current-branch", :expect_failure => true
         @err.should =~ /deploy branch is set to "master"/
       end
 
@@ -207,20 +207,50 @@ describe "ey deploy" do
       api_scenario "one app, one environment"
     end
 
-    after(:all) do
+    before(:each) do
+      ENV.delete "NO_SSH"
+    end
+
+    after(:each) do
       ENV['NO_SSH'] = "true"
     end
 
-    it "installs eysd if 'eysd check' fails" do
-      ENV.delete('NO_SSH')
-      fake_ssh_no_eysd = "#!/usr/bin/env ruby\n exit!(127) if ARGV.last =~ /eysd check/"
+    def exiting_ssh(exit_code)
+      "#!/usr/bin/env ruby\n exit!(#{exit_code}) if ARGV.to_s =~ /Base64.decode64/"
+    end
 
-      ey "deploy", :prepend_to_path => {'ssh' => fake_ssh_no_eysd}
+    it "raises an error if SSH fails" do
+      ey "deploy", :prepend_to_path => {'ssh' => exiting_ssh(255)}, :expect_failure => true
+      @err.should =~ /SSH connection to \S+ failed/
+    end
+
+    it "installs ey-deploy if it's missing" do
+      ey "deploy", :prepend_to_path => {'ssh' => exiting_ssh(104)}
 
       gem_install_command = @ssh_commands.find do |command|
         command =~ /gem install ey-deploy/
       end
       gem_install_command.should =~ %r{/usr/local/ey_resin/ruby/bin/gem install}
+    end
+
+    it "upgrades ey-deploy if it's too old" do
+      ey "deploy", :prepend_to_path => {'ssh' => exiting_ssh(70)}
+      @ssh_commands.should have_command_like(/gem uninstall -a -x ey-deploy/)
+      @ssh_commands.should have_command_like(/gem install ey-deploy/)
+    end
+
+    it "raises an error if ey-deploy is too new" do
+      ey "deploy", :prepend_to_path => {'ssh' => exiting_ssh(17)}, :expect_failure => true
+      @ssh_commands.should_not have_command_like(/gem install ey-deploy/)
+      @ssh_commands.should_not have_command_like(/eysd deploy/)
+      @err.should match(/too new/i)
+    end
+
+    it "does not change ey-deploy if its version is satisfactory" do
+      ey "deploy", :prepend_to_path => {'ssh' => exiting_ssh(0)}
+      @ssh_commands.should_not have_command_like(/gem install ey-deploy/)
+      @ssh_commands.should_not have_command_like(/gem uninstall.* ey-deploy/)
+      @ssh_commands.should have_command_like(/eysd deploy/)
     end
   end
 end

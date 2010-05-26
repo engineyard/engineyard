@@ -18,8 +18,8 @@ module Spec
 
     def ey(cmd = nil, options = {}, &block)
       require "open3"
-      hide_err = options.delete(:hide_err)
-      path_prepends = options.delete(:prepend_to_path)
+      hide_err = options.has_key?(:hide_err) ? options[:hide_err] : options[:expect_failure]
+      path_prepends = options[:prepend_to_path]
 
       ey_env = {
         'DEBUG' => options[:debug].to_s
