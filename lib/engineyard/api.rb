@@ -72,14 +72,17 @@ module EY
       rescue OpenSSL::SSL::SSLError
         raise RequestFailed, "SSL is misconfigured on your cloud"
       end
-      raise RequestFailed, "Response body was empty" if resp.body.empty?
 
-      begin
-        data = JSON.parse(resp.body)
-        EY.ui.debug("Response", data)
-      rescue JSON::ParserError
-        EY.ui.debug("Raw response", resp.body)
-        raise RequestFailed, "Response was not valid JSON."
+      if resp.code == 204
+        data = nil
+      else
+        begin
+          data = JSON.parse(resp.body)
+          EY.ui.debug("Response", data)
+        rescue JSON::ParserError
+          EY.ui.debug("Raw response", resp.body)
+          raise RequestFailed, "Response was not valid JSON."
+        end
       end
 
       data

@@ -67,7 +67,8 @@ class FakeAwsm < Sinatra::Base
   end
 
   put "/api/v2/environments/:env_id/rebuild" do
-    {}.to_json
+    status(204)
+    ""
   end
 
   post "/api/v2/authenticate" do
