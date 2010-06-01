@@ -42,8 +42,8 @@ module Spec
       with_env(ey_env) do
         exit_status = Open4::open4("#{eybin} #{cmd}") do |pid, stdin, stdout, stderr|
           block.call(stdin) if block
-          @err = stderr.read_available_bytes
-          @out = stdout.read_available_bytes
+          @err = stderr.read
+          @out = stdout.read
         end
 
         if !exit_status.success? && !options[:expect_failure]
