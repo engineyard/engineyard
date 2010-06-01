@@ -49,6 +49,13 @@ describe "ey deploy" do
       ey "deploy", :expect_failure => true
       @err.should match(/was called incorrectly/i)
     end
+
+    it "complains when the app master is in a non-running state" do
+      api_scenario "one app, one environment, app master red"
+      ey "deploy giblets master", :expect_failure => true
+      @err.should_not match(/No running instances/i)
+      @err.should match(/running.*\(green\)/)
+    end
   end
 
   it "runs when environment is known" do

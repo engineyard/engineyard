@@ -28,6 +28,8 @@ class FakeAwsm < Sinatra::Base
                      Scenario::UnlinkedApp
                    when "one app, one environment"
                      Scenario::LinkedApp
+                   when "one app, one environment, app master red"
+                     Scenario::LinkedAppRedMaster
                    when "one app, two environments"
                      Scenario::OneAppTwoEnvs
                    when "one app, many similarly-named environments"
@@ -203,6 +205,22 @@ private
         }]
       end
     end # LinkedApp
+
+    class LinkedAppRedMaster < LinkedApp
+      def self.apps
+        apps = super
+        apps[0]["environments"][0]["instances"][0]["status"] = "error"
+        apps[0]["environments"][0]["app_master"]["status"] = "error"
+        apps
+      end
+
+      def self.environments
+        envs = super
+        envs[0]["instances"][0]["status"] = "error"
+        envs[0]["app_master"]["status"] = "error"
+        envs
+      end
+    end
 
     class OneAppTwoEnvs
       extend FindableGitRemote
