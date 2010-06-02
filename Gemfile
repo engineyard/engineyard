@@ -16,6 +16,6 @@ group :test do
   gem "fakefs"
   gem "bundler"
   gem "sinatra"
-  gem "realweb", "~>0.1.4"
+  gem "realweb", "~>0.1.6"
   gem "ruby-debug"
 end

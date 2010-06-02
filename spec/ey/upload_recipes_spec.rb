@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe "ey upload_recipes" do
+describe "ey recipes upload" do
   it_should_behave_like "an integration test"
 
   it "posts the recipes to the correct url" do
@@ -13,9 +13,16 @@ describe "ey upload_recipes" do
       `git init`
       `git add .`
       `git commit -m "OMG"`
-      ey "upload_recipes giblets", :debug => true
+      ey "recipes upload giblets", :debug => true
     end
 
     @out.should =~ /recipes uploaded successfully/i
+  end
+
+  it "errors correctly on bogus env name" do
+    api_scenario "one app, one environment"
+    ey "recipes upload bogusenv", :expect_failure => true
+
+    @err.should =~ /can't be found/i
   end
 end

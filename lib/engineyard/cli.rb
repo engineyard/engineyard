@@ -1,12 +1,12 @@
-require 'thor'
 require 'engineyard'
 require 'engineyard/error'
-require 'engineyard/cli/thor_fixes'
+require 'engineyard/thor'
 
 module EY
-  class CLI < Thor
-    autoload :API, 'engineyard/cli/api'
-    autoload :UI,  'engineyard/cli/ui'
+  class CLI < EY::Thor
+    autoload :API,     'engineyard/cli/api'
+    autoload :UI,      'engineyard/cli/ui'
+    autoload :Recipes, 'engineyard/cli/recipes'
 
     include Thor::Actions
 
@@ -72,56 +72,14 @@ module EY
       end
     end
 
-    desc "upload_recipes ENV", "Upload custom chef recipes from the current directory to ENV"
-    def upload_recipes(name)
-      if api.environments.match_one(name).upload_recipes
-        EY.ui.say "Recipes uploaded successfully"
-      else
-        EY.ui.error "Recipes upload failed"
-      end
-    end
+    desc "recipes COMMAND [ARGS]", "Commands related to custom recipes"
+    subcommand "recipes", EY::CLI::Recipes
 
     desc "version", "Print the version of the engineyard gem"
     def version
       EY.ui.say %{engineyard version #{EY::VERSION}}
     end
     map ["-v", "--version"] => :version
-
-    private
-    def api
-      @api ||= EY::CLI::API.new
-    end
-
-    def repo
-      @repo ||= EY::Repo.new
-    end
-
-    def fetch_environment(env_name)
-      if env_name.nil?
-        fetch_environment_from_app(api.fetch_app_for_repo(repo))
-      else
-        env = api.environments.match_one(env_name)
-
-        if env.nil?
-          raise EnvironmentError, "Environment '#{env_name}' can't be found\n" +
-            "You can create it at #{EY.config.endpoint}"
-        end
-
-        env
-      end
-    end
-
-    def fetch_environment_from_app(app)
-      env = app.one_and_only_environment or raise NoSingleEnvironmentError.new(app)
-    end
-
-    def get_apps(all_apps = false)
-      if all_apps
-        api.apps
-      else
-        [api.app_for_repo(repo)].compact
-      end
-    end
 
   end # CLI
 end # EY
