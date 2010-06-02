@@ -66,10 +66,6 @@ shared_examples_for "an integration test without an eyrc file" do
     ENV['CLOUD_URL'] = EY.fake_awsm
   end
 
-  before(:each) do
-    api_git_remote nil
-  end
-
   after(:all) do
     ENV.delete('CLOUD_URL')
     ENV.delete('EYRC')

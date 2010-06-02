@@ -34,22 +34,12 @@ class FakeAwsm < Sinatra::Base
                      Scenario::OneAppTwoEnvs
                    when "one app, many similarly-named environments"
                      Scenario::OneAppManySimilarlyNamedEnvs
+                   else
+                     status(400)
+                     return {"ok" => "false", "message" => "wtf is the #{params[:scenario]} scenario?"}.to_json
                    end
-    if new_scenario
-      @@scenario = new_scenario
-      {"ok" => "true"}.to_json
-    else
-      status(400)
-      {"ok" => "false", "message" => "wtf is the #{params[:scenario]} scenario?"}.to_json
-    end
-  end
-
-  put "/git_remote" do
-    FindableGitRemote.remote = if (!params[:remote] || params[:remote].empty?)
-                                 nil
-                               else
-                                 params[:remote]
-                               end
+    @@scenario = new_scenario.new(params[:remote])
+    {"ok" => "true"}.to_json
   end
 
   get "/api/v2/apps" do
@@ -89,54 +79,32 @@ private
       params[:password] == "test"
   end
 
-  module FindableGitRemote
-    class << self
-      attr_accessor :remote
-    end
-
-    def git_remote
-      FindableGitRemote.remote || local_git_remote
-    end
-
-    # Since we have to find something in `git remote -v` that
-    # corresponds to an app in cloud.ey in order to do anything, we
-    # simulate this by faking out the API to have whatever git
-    # remote we'll find anyway.
-    def local_git_remote
-      remotes = []
-      `git remote -v`.each_line do |line|
-        parts = line.split(/\t/)
-        # the remote will look like
-        # "git@github.com:engineyard/engineyard.git (fetch)\n"
-        # so we need to chop it up a bit
-        remotes << parts[1].gsub(/\s.*$/, "") if parts[1]
-      end
-      remotes.first
-    end
-  end
-
   module Scenario
     class Empty
-      def self.apps
+      attr_reader :git_remote
+
+      def initialize(git_remote)
+        @git_remote = git_remote
+      end
+
+      def apps
         []
       end
 
-      def self.environments
+      def environments
         []
       end
     end # Empty
 
-    class UnlinkedApp
-      extend FindableGitRemote
-
-      def self.apps
+    class UnlinkedApp < Empty
+      def apps
         [{
             "name" => "rails232app",
             "environments" => [],
             "repository_uri" => git_remote}]
       end
 
-      def self.environments
+      def environments
         [{
             "ssh_username" => "turkey",
             "instances" => [{
@@ -155,10 +123,8 @@ private
       end
     end # UnlinkedApp
 
-    class LinkedApp
-      extend FindableGitRemote
-
-      def self.apps
+    class LinkedApp < Empty
+      def apps
         [{"name" => "rails232app",
             "environments" => [{"ssh_username" => "turkey",
                 "instances" => [{"public_hostname" => "174.129.198.124",
@@ -176,7 +142,7 @@ private
             "repository_uri" => git_remote}]
       end
 
-      def self.environments
+      def environments
         [{
             "ssh_username" => "turkey",
             "instances" => [{
@@ -196,7 +162,7 @@ private
               "id" => 27220}}]
       end
 
-      def self.logs(env_id)
+      def logs(env_id)
         [{
           "id" => env_id,
           "role" => "app_master",
@@ -207,14 +173,14 @@ private
     end # LinkedApp
 
     class LinkedAppRedMaster < LinkedApp
-      def self.apps
+      def apps
         apps = super
         apps[0]["environments"][0]["instances"][0]["status"] = "error"
         apps[0]["environments"][0]["app_master"]["status"] = "error"
         apps
       end
 
-      def self.environments
+      def environments
         envs = super
         envs[0]["instances"][0]["status"] = "error"
         envs[0]["app_master"]["status"] = "error"
@@ -222,10 +188,8 @@ private
       end
     end
 
-    class OneAppTwoEnvs
-      extend FindableGitRemote
-
-      def self.apps
+    class OneAppTwoEnvs < Empty
+      def apps
         apps = [{
             "name" => "rails232app",
             "repository_uri" => git_remote
@@ -258,7 +222,7 @@ private
             "repository_uri" => git_remote}]
       end
 
-      def self.environments
+      def environments
         [{
             "ssh_username" => "turkey",
             "instances" => [{
@@ -291,10 +255,8 @@ private
       end
     end # OneAppTwoEnvs
 
-    class OneAppManySimilarlyNamedEnvs
-      extend FindableGitRemote
-
-      def self.apps
+    class OneAppManySimilarlyNamedEnvs < Empty
+      def apps
         apps = [{
             "name" => "rails232app",
             "repository_uri" => git_remote
@@ -355,7 +317,7 @@ private
             "repository_uri" => git_remote}]
       end
 
-      def self.environments
+      def environments
         [{
             "ssh_username" => "turkey",
             "instances" => [{
@@ -414,7 +376,7 @@ private
           }]
       end
 
-      def self.logs(env_id)
+      def logs(env_id)
         [{
             "id" => env_id,
             "role" => "app_master",

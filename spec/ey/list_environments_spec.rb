@@ -15,7 +15,6 @@ describe "ey environments" do
   end
 
   it "reports failure to find a git repo when not in one" do
-    api_git_remote('dontcare')
     Dir.chdir("/tmp") do
       ey "environments", :expect_failure => true
       @err.should =~ /fatal: No git remotes found in .*\/tmp/

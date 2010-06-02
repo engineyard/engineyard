@@ -95,12 +95,7 @@ describe "ey deploy" do
 
   context "choosing something to deploy" do
     before(:all) do
-      api_scenario "one app, one environment"
-      api_git_remote("user@git.host/path/to/repo.git")
-    end
-
-    after(:all) do
-      api_git_remote(nil)
+      api_scenario "one app, one environment", "user@git.host/path/to/repo.git"
     end
 
     before(:all) do

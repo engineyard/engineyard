@@ -75,14 +75,21 @@ module Spec
       @out
     end
 
-    def api_scenario(scenario)
-      response = ::RestClient.put(EY.fake_awsm + '/scenario', {"scenario" => scenario}, {})
+    def api_scenario(scenario, remote = local_git_remote)
+      response = ::RestClient.put(EY.fake_awsm + '/scenario', {"scenario" => scenario, "remote" => remote}, {})
       raise "Setting scenario failed: #{response.inspect}" unless response.code == 200
     end
 
-    def api_git_remote(remote)
-      response = ::RestClient.put(EY.fake_awsm + '/git_remote', {"remote" => remote}, {})
-      raise "Setting git remote failed: #{response.inspect}" unless response.code == 200
+    def local_git_remote
+      remotes = []
+      `git remote -v`.each_line do |line|
+        parts = line.split(/\t/)
+        # the remote will look like
+        # "git@github.com:engineyard/engineyard.git (fetch)\n"
+        # so we need to chop it up a bit
+        remotes << parts[1].gsub(/\s.*$/, "") if parts[1]
+      end
+      remotes.first
     end
 
     def read_yaml(file="ey.yml")
