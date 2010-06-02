@@ -10,6 +10,20 @@ describe "ey logs" do
     @out.should match(/CUSTOM LOG OUTPUT/)
     @err.should be_empty
   end
+
+  it "can infer the environment" do
+    api_scenario "one app, one environment"
+    ey "logs"
+    @out.should match(/MAIN LOG OUTPUT/)
+    @out.should match(/CUSTOM LOG OUTPUT/)
+    @err.should be_empty
+  end
+
+  it "complains when it can't infer the environment" do
+    api_scenario "one app, two environments"
+    ey "logs", :expect_failure => true
+    @err.should =~ /single environment/
+  end
 end
 
 describe "ey logs ENV" do

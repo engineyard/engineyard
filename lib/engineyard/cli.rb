@@ -65,8 +65,8 @@ module EY
     end
 
     desc "logs [ENV]", "Retrieve the latest logs for an environment"
-    def logs(name)
-      api.environments.match_one(name).logs.each do |log|
+    def logs(name = nil)
+      fetch_environment(name).logs.each do |log|
         EY.ui.info log.instance_name
 
         if log.main
