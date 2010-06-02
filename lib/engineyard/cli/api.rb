@@ -23,8 +23,8 @@ module EY
         @token = self.class.fetch_token
       end
 
-      def environment_named(env_name, envs = self.environments)
-        super || find_environment_by_unambiguous_substring(env_name, envs)
+      def fetch_app_for_repo(repo)
+        app_for_repo(repo) || raise(NoAppError.new(repo))
       end
 
       def self.fetch_token
@@ -39,15 +39,6 @@ module EY
           EY.ui.warn "Invalid username or password, please try again"
           retry
         end
-      end
-
-      private
-      def find_environment_by_unambiguous_substring(env_name, envs)
-        candidates = envs.find_all{|e| e.name[env_name] }
-        if candidates.size > 1
-          raise AmbiguousEnvironmentName.new(env_name, candidates.map {|e| e.name})
-        end
-        candidates.first
       end
 
     end

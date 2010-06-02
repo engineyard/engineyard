@@ -60,13 +60,13 @@ module EY
           raise DeployArgumentError if !env_name && app.environments.size != 1
 
           env = if env_name
-                  api.environment_named(env_name, app.environments)
+                  app.environments.match_one(env_name)
                 else
                   app.environments.first
                 end
 
           # the environment exists, but doesn't have this app
-          if !env && api.environment_named(env_name)
+          if !env && api.environments.named(env_name)
             raise EnvironmentError, "Environment '#{env_name}' doesn't run this application\nYou can add it at #{EY.config.endpoint}"
           end
 

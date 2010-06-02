@@ -19,6 +19,19 @@ describe "EY::Model::Environment#rebuild" do
   end
 end
 
+describe "EY::Model::Environment.from_array" do
+  it "returns a smart collection, not just a dumb array" do
+    api_data = [
+      {"id" => 32340, "name" => 'iceberg'},
+      {"id" => 9433, "name" => 'zoidberg'},
+    ]
+
+    collection = EY::Model::Environment.from_array(api_data)
+    collection.should be_kind_of(Array)
+    collection.should respond_to(:match_one)
+  end
+end
+
 describe "EY::Model::Environment#instances" do
   it_should_behave_like "it has an api"
 

@@ -9,6 +9,10 @@ module EY
         end
       end
 
+      def self.from_array(array, extras={})
+        Collection::Environments[*super]
+      end
+
       def logs
         Log.from_array(api_get("/environments/#{id}/logs")["logs"])
       end

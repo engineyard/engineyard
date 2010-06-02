@@ -19,7 +19,7 @@ describe "ey rebuild" do
 
   it "fails when the environment name is bogus" do
     ey "rebuild typo", :expect_failure => true
-    @err.should match(/No environment named 'typo'/)
+    @err.should match(/'typo'/)
   end
 end
 

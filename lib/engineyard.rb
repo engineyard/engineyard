@@ -3,11 +3,12 @@ module EY
 
   VERSION = "0.3.3.pre"
 
-  autoload :API,     'engineyard/api'
-  autoload :Config,  'engineyard/config'
-  autoload :Error,   'engineyard/error'
-  autoload :Model,   'engineyard/model'
-  autoload :Repo,    'engineyard/repo'
+  autoload :API,        'engineyard/api'
+  autoload :Collection, 'engineyard/collection'
+  autoload :Config,     'engineyard/config'
+  autoload :Error,      'engineyard/error'
+  autoload :Model,      'engineyard/model'
+  autoload :Repo,       'engineyard/repo'
 
   class UI
     # stub debug outside of the CLI

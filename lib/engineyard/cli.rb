@@ -28,7 +28,6 @@ module EY
       EY::CLI::Action::Deploy.call(env_name, branch, options)
     end
 
-
     desc "environments [--all]", "List cloud environments for this app, or all environments"
     method_option :all, :type => :boolean, :aliases => %(-a)
     def environments
@@ -41,34 +40,33 @@ module EY
     desc "rebuild [ENV]", "Rebuild environment (ensure configuration is up-to-date)"
     def rebuild(name = nil)
       env = if name
-              env = api.environment_named(name) or raise NoEnvironmentError.new(name)
+              env = api.environments.match_one!(name)
             end
 
       unless env
         repo = Repo.new
-        app = api.app_for_repo(repo) or raise NoAppError.new(repo)
-        env = app.one_and_only_environment or raise EnvironmentError, "Unable to determine a single environment for the current application (found #{app.environments.size} environments)"
+        app = api.fetch_app_for_repo(repo)
+        env = app.one_and_only_environment or raise NoSingleEnvironmentError.new(app)
       end
 
       EY.ui.debug("Rebuilding #{env.name}")
       env.rebuild
     end
 
-    desc "ssh ENV", "Open an ssh session to the environment's application server"
-    def ssh(name)
-      env = api.environment_named(name)
-      if env && env.app_master
-        Kernel.exec "ssh", "#{env.username}@#{env.app_master.public_hostname}", *ARGV[2..-1]
-      elsif env
-        raise NoAppMaster.new(env.name)
+    desc "ssh [ENV]", "Open an ssh session to the environment's application server"
+    def ssh(name = nil)
+      env = fetch_environment(name)
+
+      if env.app_master
+        Kernel.exec "ssh", "#{env.username}@#{env.app_master.public_hostname}"
       else
-        EY.ui.warn %|Could not find an environment named "#{name}"|
+        raise NoAppMaster.new(env.name)
       end
     end
 
     desc "logs [ENV]", "Retrieve the latest logs for an environment"
     def logs(name)
-      env_named(name).logs.each do |log|
+      api.environments.match_one(name).logs.each do |log|
         EY.ui.info log.instance_name
 
         if log.main
@@ -85,7 +83,7 @@ module EY
 
     desc "upload_recipes ENV", "Upload custom chef recipes from the current directory to ENV"
     def upload_recipes(name)
-      if env_named(name).upload_recipes
+      if api.environments.match_one(name).upload_recipes
         EY.ui.say "Recipes uploaded successfully"
       else
         EY.ui.error "Recipes upload failed"
@@ -107,15 +105,23 @@ module EY
       @repo ||= EY::Repo.new
     end
 
-    def env_named(env_name)
-      env = api.environment_named(env_name)
+    def fetch_environment(env_name)
+      if env_name.nil?
+        fetch_environment_from_app(api.fetch_app_for_repo(repo))
+      else
+        env = api.environments.match_one(env_name)
 
-      if env.nil?
-        raise EnvironmentError, "Environment '#{env_name}' can't be found\n" +
-          "You can create it at #{EY.config.endpoint}"
+        if env.nil?
+          raise EnvironmentError, "Environment '#{env_name}' can't be found\n" +
+            "You can create it at #{EY.config.endpoint}"
+        end
+
+        env
       end
+    end
 
-      env
+    def fetch_environment_from_app(app)
+      env = app.one_and_only_environment or raise NoSingleEnvironmentError.new(app)
     end
 
     def get_apps(all_apps = false)

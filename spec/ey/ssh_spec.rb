@@ -1,5 +1,7 @@
 require 'spec_helper'
 
+print_my_args_ssh = "#!/bin/sh\necho ssh $*"
+
 describe "ey ssh" do
   it_should_behave_like "an integration test"
 
@@ -8,9 +10,7 @@ describe "ey ssh" do
   end
 
   it "SSH-es into the right environment" do
-    print_my_args = "#!/bin/sh\necho ssh $*"
-
-    ey "ssh giblets", :prepend_to_path => {'ssh' => print_my_args}
+    ey "ssh giblets", :prepend_to_path => {'ssh' => print_my_args_ssh}
     @raw_ssh_commands.should == ["ssh turkey@174.129.198.124"]
   end
 
@@ -20,11 +20,27 @@ describe "ey ssh" do
   end
 
   it "complains if you give it a bogus environment" do
-    print_my_args = "#!/bin/sh\necho ssh $*"
-
-    ey "ssh bogusenv", :prepend_to_path => {'ssh' => print_my_args}, :hide_err => true
+    ey "ssh bogusenv", :prepend_to_path => {'ssh' => print_my_args_ssh}, :expect_failure => true
     @raw_ssh_commands.should be_empty
-    @out.should =~ /could not find.*bogusenv/i
+    @err.should =~ /bogusenv/
+  end
+end
+
+describe "ey ssh" do
+  it_should_behave_like "an integration test"
+
+  it "guesses the environment from the current application" do
+    api_scenario "one app, one environment"
+
+    ey "ssh", :prepend_to_path => {'ssh' => print_my_args_ssh}
+    @raw_ssh_commands.should == ["ssh turkey@174.129.198.124"]
+  end
+
+  it "complains when it can't guess the environment and its name isn't specified" do
+    api_scenario "one app, one environment, not linked"
+
+    ey "ssh", :prepend_to_path => {'ssh' => print_my_args_ssh}, :expect_failure => true
+    @err.should =~ /single environment/i
   end
 end
 

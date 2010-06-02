@@ -44,6 +44,16 @@ module EY
     end
   end
 
+  class NoSingleEnvironmentError < EY::Error
+    def initialize(app)
+      @envs = app.environments
+    end
+
+    def message
+      "Unable to determine a single environment for the current application (found #{@envs.size} environments)"
+    end
+  end
+
   class NoEnvironmentError < EY::Error
     def initialize(env_name=nil)
       @env_name = env_name
