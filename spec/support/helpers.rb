@@ -132,7 +132,7 @@ module EY
           raise SyntaxError, "There is a syntax error in fake_awsm.ru! fix it!"
         end
         config_ru = File.join(EY_ROOT, "spec/support/fake_awsm.ru")
-        @server = RealWeb.start_server(config_ru)
+        @server = RealWeb.start_server_in_fork(config_ru)
         "http://localhost:#{@server.port}"
       end
     end
