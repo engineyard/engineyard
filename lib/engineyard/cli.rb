@@ -39,16 +39,7 @@ module EY
 
     desc "rebuild [ENV]", "Rebuild environment (ensure configuration is up-to-date)"
     def rebuild(name = nil)
-      env = if name
-              env = api.environments.match_one!(name)
-            end
-
-      unless env
-        repo = Repo.new
-        app = api.fetch_app_for_repo(repo)
-        env = app.one_and_only_environment or raise NoSingleEnvironmentError.new(app)
-      end
-
+      env = fetch_environment(name)
       EY.ui.debug("Rebuilding #{env.name}")
       env.rebuild
     end
