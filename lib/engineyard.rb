@@ -1,7 +1,7 @@
 module EY
   require 'engineyard/ruby_ext'
 
-  VERSION = "0.3.3.pre"
+  VERSION = "0.3.3"
 
   autoload :API,        'engineyard/api'
   autoload :Collection, 'engineyard/collection'
