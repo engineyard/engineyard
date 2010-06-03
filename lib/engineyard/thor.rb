@@ -30,21 +30,10 @@ module EY
 
     def fetch_environment(env_name)
       if env_name.nil?
-        fetch_environment_from_app(api.fetch_app_for_repo(repo))
+        api.fetch_app_for_repo(repo).sole_environment!
       else
-        env = api.environments.match_one(env_name)
-
-        if env.nil?
-          raise EnvironmentError, "Environment '#{env_name}' can't be found\n" +
-            "You can create it at #{EY.config.endpoint}"
-        end
-
-        env
+        api.environments.match_one!(env_name)
       end
-    end
-
-    def fetch_environment_from_app(app)
-      env = app.one_and_only_environment or raise NoSingleEnvironmentError.new(app)
     end
 
     def get_apps(all_apps = false)

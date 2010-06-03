@@ -8,10 +8,14 @@ module EY
         end
       end
 
-      def one_and_only_environment
+      def sole_environment
         if environments.size == 1
           environments.first
         end
+      end
+
+      def sole_environment!
+        sole_environment or raise NoSingleEnvironmentError.new(self)
       end
 
     end
