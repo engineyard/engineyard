@@ -72,14 +72,31 @@ module EY
     end
     map "envs" => :environments
 
-    desc "rebuild [ENV]", "Rebuild environment (ensure configuration is up-to-date)"
+    desc "rebuild [ENVIRONMENT]", "Rebuild environment (ensure configuration is up-to-date)"
     def rebuild(name = nil)
       env = fetch_environment(name)
       EY.ui.debug("Rebuilding #{env.name}")
       env.rebuild
     end
 
-    desc "ssh [ENV]", "Open an ssh session to the environment's application server"
+    desc "rollback [ENVIRONMENT]", "Rollback to the previous deploy"
+    def rollback(name = nil)
+      app    = api.app_for_repo!(repo)
+      env    = fetch_environment(name)
+
+      if env.app_master
+        EY.ui.info("Rolling back #{env.name}")
+        if env.app_master.rollback!(app, env.config)
+          EY.ui.info "Rollback complete"
+        else
+          raise EY::Error, "Rollback failed"
+        end
+      else
+        raise NoAppMaster.new(env.name)
+      end
+    end
+
+    desc "ssh [ENVIRONMENT]", "Open an ssh session to the environment's application server"
     def ssh(name = nil)
       env = fetch_environment(name)
 
@@ -90,7 +107,7 @@ module EY
       end
     end
 
-    desc "logs [ENV]", "Retrieve the latest logs for an environment"
+    desc "logs [ENVIRONMENT]", "Retrieve the latest logs for an environment"
     def logs(name = nil)
       fetch_environment(name).logs.each do |log|
         EY.ui.info log.instance_name

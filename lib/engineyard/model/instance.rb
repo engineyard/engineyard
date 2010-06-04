@@ -73,6 +73,16 @@ exit(17) # required_version < current_version
         ssh(Escape.shell_command(['sudo', gem_path, 'install', 'ey-deploy', '-v', EYSD_VERSION]))
       end
 
+      def rollback!(app, extra_configuration=nil)
+        deploy_cmd = [eysd_path, 'deploy', 'rollback', '--app', app.name]
+
+        if extra_configuration
+          deploy_cmd << '--config' << extra_configuration.to_json
+        end
+
+        ssh Escape.shell_command(deploy_cmd)
+      end
+
       def upgrade_ey_deploy!
         ssh "sudo #{gem_path} uninstall -a -x ey-deploy"
         install_ey_deploy!
