@@ -3,8 +3,6 @@ module EY
     module Action
       class Deploy
 
-        EYSD_VERSION = "~>0.3.0"
-
         def self.call(env_name, branch, options)
           env_name ||= EY.config.default_environment
 
