@@ -34,6 +34,10 @@ module EY
       apps.find{|a| repo.urls.include?(a.repository_uri) }
     end
 
+    def app_for_repo!(repo)
+      app_for_repo(repo) || raise(NoAppError.new(repo))
+    end
+
     class InvalidCredentials < EY::Error; end
     class RequestFailed < EY::Error; end
 

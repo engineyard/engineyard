@@ -8,7 +8,7 @@ module EY
         def self.call(env_name, branch, options)
           env_name ||= EY.config.default_environment
 
-          app    = fetch_app
+          app    = api.app_for_repo!(repo)
           env    = fetch_environment(env_name, app)
           branch = fetch_branch(env.name, branch, options[:force])
           master = env.app_master!
@@ -34,12 +34,6 @@ module EY
 
         def self.repo
           @repo ||= EY::Repo.new
-        end
-
-        def self.fetch_app
-          app = api.app_for_repo(repo)
-          raise NoAppError.new(repo) unless app
-          app
         end
 
         def self.fetch_environment(env_name, app)

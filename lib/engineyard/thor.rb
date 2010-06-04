@@ -30,7 +30,7 @@ module EY
 
     def fetch_environment(env_name)
       if env_name.nil?
-        api.fetch_app_for_repo(repo).sole_environment!
+        api.app_for_repo!(repo).sole_environment!
       else
         api.environments.match_one!(env_name)
       end

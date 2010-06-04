@@ -23,10 +23,6 @@ module EY
         @token = self.class.fetch_token
       end
 
-      def fetch_app_for_repo(repo)
-        app_for_repo(repo) || raise(NoAppError.new(repo))
-      end
-
       def self.fetch_token
         EY.ui.warn("The engineyard gem is prerelease software. Please do not use")
         EY.ui.warn("this tool to deploy to mission-critical environments, yet.")
