@@ -63,6 +63,10 @@ module EY
       end
       alias_method :config, :configuration
 
+      def default_branch
+        EY.config.default_branch(name)
+      end
+
       def shorten_name_for(app)
         name.gsub(/^#{Regexp.quote(app.name)}_/, '')
       end

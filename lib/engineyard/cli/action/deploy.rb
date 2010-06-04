@@ -10,7 +10,7 @@ module EY
 
           app    = api.app_for_repo!(repo)
           env    = fetch_environment(env_name, app)
-          branch = fetch_branch(env.name, branch, options[:force])
+          branch = fetch_branch(env, branch, options[:force])
           master = env.app_master!
 
           EY.ui.info "Connecting to the server..."
@@ -59,8 +59,8 @@ module EY
           env
         end
 
-        def self.fetch_branch(env_name, user_specified_branch, force)
-          default_branch = EY.config.default_branch(env_name)
+        def self.fetch_branch(env, user_specified_branch, force)
+          default_branch = env.default_branch
 
           branch = if user_specified_branch
                      if default_branch && (user_specified_branch != default_branch) && !force
