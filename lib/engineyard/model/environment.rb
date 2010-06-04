@@ -21,6 +21,16 @@ module EY
         Instance.from_array(api_get("/environments/#{id}/instances")["instances"], :environment => self)
       end
 
+      def app_master!
+        master = app_master
+        if master.nil?
+          raise NoAppMaster.new(name)
+        elsif master.status != "running"
+          raise BadAppMasterStatus.new(master.status)
+        end
+        master
+      end
+
       def rebuild
         api.request("/environments/#{id}/rebuild", :method => :put)
       end

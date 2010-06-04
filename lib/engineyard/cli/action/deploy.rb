@@ -11,7 +11,7 @@ module EY
           app    = fetch_app
           env    = fetch_environment(env_name, app)
           branch = fetch_branch(env.name, branch, options[:force])
-          master = fetch_app_master(env)
+          master = env.app_master!
 
           EY.ui.info "Connecting to the server..."
           ensure_eysd_present(master, options[:install_eysd])
@@ -27,18 +27,6 @@ module EY
         end
 
         private
-
-        def self.fetch_app_master(env)
-          master = env.app_master
-
-          if !master
-            raise EnvironmentError, "No running instances for environment #{env.name}\nStart one at #{EY.config.endpoint}"
-          elsif master.status != "running"
-            raise EnvironmentError, "Cannot deploy: application master's status is not \"running\" (green); it is \"#{master.status}\"."
-          end
-
-          master
-        end
 
         def self.api
           @api ||= EY::CLI::API.new

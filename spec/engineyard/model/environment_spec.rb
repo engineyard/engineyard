@@ -57,6 +57,45 @@ describe "EY::Model::Environment#instances" do
   end
 end
 
+describe "EY::Model::Environment#app_master!" do
+  def make_env_with_master(app_master)
+    if app_master
+      app_master = {
+        "id" => 44206,
+        "role" => "solo",
+      }.merge(app_master)
+    end
+
+    EY::Model::Environment.from_hash({
+        "id" => 11830,
+        "name" => "guinea-pigs-are-delicious",
+        "app_master" => app_master,
+        "instances" => [app_master],
+      })
+  end
+
+
+  it "returns the app master if it's present and running" do
+    env = make_env_with_master("status" => "running")
+    env.app_master!.should_not be_nil
+    env.app_master!.id.should == 44206
+  end
+
+  it "raises an error if the app master is in a non-running state" do
+    env = make_env_with_master("status" => "error")
+    lambda {
+      env.app_master!
+    }.should raise_error(EY::BadAppMasterStatus)
+  end
+
+  it "raises an error if the app master is absent" do
+    env = make_env_with_master(nil)
+    lambda {
+      env.app_master!
+    }.should raise_error(EY::NoAppMaster)
+  end
+end
+
 describe "EY::Model::Environment#shorten_name_for(app)" do
   def short(environment_name, app_name)
     env = EY::Model::Environment.from_hash({:name => environment_name})

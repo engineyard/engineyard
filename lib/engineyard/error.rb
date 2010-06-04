@@ -30,6 +30,16 @@ module EY
     end
   end
 
+  class BadAppMasterStatus < EY::Error
+    def initialize(master_status)
+      @master_status = master_status
+    end
+
+    def message
+      "Application master's status is not \"running\" (green); it is \"#{@master_status}\"."
+    end
+  end
+
   class EnvironmentError < EY::Error
   end
 
