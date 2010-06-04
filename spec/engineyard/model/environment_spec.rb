@@ -21,6 +21,27 @@ describe "EY::Model::Environment#rebuild" do
   end
 end
 
+describe "EY::Model::Environment#run_custom_recipes" do
+  it_should_behave_like "it has an api"
+
+  it "hits the rebuild action in the API" do
+    env = EY::Model::Environment.from_hash({
+        "id" => 46534,
+        "api" => @api,
+      })
+
+    FakeWeb.register_uri(
+      :put,
+      "https://cloud.engineyard.com/api/v2/environments/#{env.id}/run_custom_recipes",
+      :body => ''
+    )
+
+    env.run_custom_recipes
+
+    FakeWeb.should have_requested(:put, "https://cloud.engineyard.com/api/v2/environments/#{env.id}/run_custom_recipes")
+  end
+end
+
 describe "EY::Model::Environment.from_array" do
   it "returns a smart collection, not just a dumb array" do
     api_data = [

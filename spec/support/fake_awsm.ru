@@ -75,6 +75,11 @@ class FakeAwsm < Sinatra::Base
     ""
   end
 
+  put "/api/v2/environments/:env_id/run_custom_recipes" do
+    status(202)
+    ""
+  end
+
   post "/api/v2/authenticate" do
     if valid_user?
       {"api_token" => "deadbeef", "ok" => true}.to_json

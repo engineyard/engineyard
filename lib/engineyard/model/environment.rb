@@ -43,6 +43,10 @@ module EY
         api.request("/environments/#{id}/rebuild", :method => :put)
       end
 
+      def run_custom_recipes
+        api.request("/environments/#{id}/run_custom_recipes", :method => :put)
+      end
+
       def upload_recipes(file_to_upload = recipe_file)
         api.request("/environments/#{id}/recipes",
           :method => :post,
