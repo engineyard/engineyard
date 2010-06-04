@@ -14,7 +14,7 @@ describe "ey recipes upload" do
     api_scenario "one app, one environment"
     ey "recipes upload giblets", :debug => true
 
-    @out.should =~ /recipes uploaded successfully/i
+    @out.should =~ /Recipes uploaded successfully for giblets/i
   end
 
   it "errors correctly on bogus env name" do
@@ -28,7 +28,7 @@ describe "ey recipes upload" do
     api_scenario "one app, one environment"
 
     ey "recipes upload", :debug => true
-    @out.should =~ /recipes uploaded successfully/i
+    @out.should =~ /Recipes uploaded successfully for giblets/i
   end
 
   it "complains when it can't infer the environment from the current application" do
