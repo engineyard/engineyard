@@ -44,10 +44,10 @@ describe "ey deploy" do
       @err.should match(/doesn't run this application/i)
     end
 
-    it "complains when environment is ambiguous" do
+    it "complains when environment is not specified and app is in >1 environment" do
       api_scenario "one app, two environments"
       ey "deploy", :expect_failure => true
-      @err.should match(/was called incorrectly/i)
+      @err.should match(/single environment.*2/i)
     end
 
     it "complains when the app master is in a non-running state" do

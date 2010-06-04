@@ -37,14 +37,10 @@ module EY
         end
 
         def self.fetch_environment(env_name, app)
-          # if the name's not specified and there's not exactly one
-          # environment, we can't figure out which environment to deploy
-          raise DeployArgumentError if !env_name && app.environments.size != 1
-
           env = if env_name
                   app.environments.match_one(env_name)
                 else
-                  app.environments.first
+                  app.sole_environment!
                 end
 
           # the environment exists, but doesn't have this app
