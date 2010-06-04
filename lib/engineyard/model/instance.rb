@@ -43,6 +43,27 @@ exit(17) # required_version < current_version
         ssh Escape.shell_command(deploy_cmd)
       end
 
+      def ensure_eysd_present!
+        eysd_status = ey_deploy_check
+
+        yield eysd_status if block_given?
+
+        case eysd_status
+        when :ssh_failed
+          raise EnvironmentError, "SSH connection to #{hostname} failed"
+        when :eysd_missing
+          install_ey_deploy!
+        when :too_new
+          raise EnvironmentError, "server-side component too new; please upgrade your copy of the engineyard gem."
+        when :too_old
+          upgrade_ey_deploy!
+        when :ok
+          # no action needed
+        else
+          raise EY::Error, "Internal error: Unexpected status from Instance#ey_deploy_check; got #{eysd_status.inspect}"
+        end
+      end
+
       def ey_deploy_check
         require 'base64'
         encoded_script = Base64.encode64(CHECK_SCRIPT).gsub(/\n/, '')

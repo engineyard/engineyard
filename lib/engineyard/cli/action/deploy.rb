@@ -14,7 +14,17 @@ module EY
           master = env.app_master!
 
           EY.ui.info "Connecting to the server..."
-          ensure_eysd_present(master, options[:install_eysd])
+          master.ensure_eysd_present! do |eysd_status|
+            case eysd_status
+            when :eysd_missing
+              EY.ui.warn "Instance does not have server-side component installed"
+              EY.ui.info "Installing server-side component..."
+            when :too_old
+              EY.ui.info "Upgrading server-side component..."
+            else
+              # nothing slow is happening, so there's nothing to say
+            end
+          end
 
           EY.ui.info "Running deploy for '#{env.name}' on server..."
           deployed = master.deploy!(app, branch, options[:migrate], env.config)
@@ -69,27 +79,6 @@ module EY
 
           raise DeployArgumentError unless branch
           branch
-        end
-
-        def self.ensure_eysd_present(instance, install_eysd)
-          eysd_status = instance.ey_deploy_check
-          case eysd_status
-          when :ssh_failed
-            raise EnvironmentError, "SSH connection to #{instance.hostname} failed"
-          when :eysd_missing
-            EY.ui.warn "Instance does not have server-side component installed"
-            EY.ui.info "Installing server-side component..."
-            instance.install_ey_deploy!
-          when :too_new
-            raise EnvironmentError, "server-side component too new; please upgrade your copy of the engineyard gem."
-          when :too_old
-            EY.ui.info "Upgrading server-side component..."
-            instance.upgrade_ey_deploy!
-          when :ok
-            # no action needed
-          else
-            raise EY::Error, "Internal error: Unexpected status from Instance#ey_deploy_check; got #{eysd_status.inspect}"
-          end
         end
 
       end
