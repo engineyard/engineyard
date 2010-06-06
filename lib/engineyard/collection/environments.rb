@@ -18,8 +18,7 @@ module EY
       end
 
       def match_one!(name_part)
-        match_one(name_part) or raise EnvironmentError,
-        "Environment containing '#{name_part}' can't be found\nYou can create it at #{EY.config.endpoint}"
+        match_one(name_part) or raise NoEnvironmentError.new(name_part)
       end
 
     private

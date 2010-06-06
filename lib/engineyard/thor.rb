@@ -32,11 +32,13 @@ module EY
       @repo ||= EY::Repo.new
     end
 
-    def fetch_environment(env_name)
-      if env_name.nil?
-        api.app_for_repo!(repo).sole_environment!
+    # if an app is supplied, it is used as a constraint for implied environment lookup
+    def fetch_environment(env_name, app = nil)
+      env_name ||= EY.config.default_environment
+      if env_name
+        (app || api).environments.match_one!(env_name)
       else
-        api.environments.match_one!(env_name)
+        (app || api.app_for_repo!(repo)).sole_environment!
       end
     end
 

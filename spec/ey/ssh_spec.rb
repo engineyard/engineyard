@@ -52,10 +52,15 @@ describe "ey ssh ENV" do
   end
 
   it "works when given an unambiguous substring" do
-    print_my_args = "#!/bin/sh\necho ssh $*"
-
-    ey "ssh prod", :prepend_to_path => {'ssh' => print_my_args}
+    ey "ssh prod", :prepend_to_path => {'ssh' => print_my_args_ssh}
     @raw_ssh_commands.should == ["ssh turkey@174.129.198.124"]
+  end
+
+  it "doesn't require you to be in any app's directory if the name is unambiguous" do
+    Dir.chdir(Dir.tmpdir) do
+      ey "ssh prod", :prepend_to_path => {'ssh' => print_my_args_ssh}
+      @raw_ssh_commands.should == ["ssh turkey@174.129.198.124"]
+    end
   end
 
   it "complains when given an ambiguous substring" do

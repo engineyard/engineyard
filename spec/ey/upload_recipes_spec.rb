@@ -17,7 +17,7 @@ describe "ey recipes upload" do
   end
 
   it "posts the recipes to the correct url" do
-    api_scenario "one app, one environment"
+    api_scenario "one app, one environment", "user@host.tld:path/to/repo.git"
     Dir.chdir(@recipe_dir) do
       ey "recipes upload giblets", :debug => true
     end
@@ -29,7 +29,7 @@ describe "ey recipes upload" do
     api_scenario "one app, one environment"
     ey "recipes upload bogusenv", :expect_failure => true
 
-    @err.should =~ /can't be found/i
+    @err.should =~ /No environment named 'bogusenv'/
   end
 
   it "can infer the environment from the current application" do

@@ -52,6 +52,12 @@ module EY
     end
   end
 
+  class EnvironmentUnlinkedError < EY::Error
+    def initialize(env_name)
+      super "Environment '#{env_name}' exists but does not run this application."
+    end
+  end
+
   class BranchMismatch < EY::Error
     def initialize(default_branch, branch)
       super %|Your deploy branch is set to "#{default_branch}".\n| +

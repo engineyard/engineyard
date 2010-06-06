@@ -24,8 +24,43 @@ module EY
     method_option :install_eysd, :type => :boolean, :aliases => %(-s),
       :desc => "Force remote install of eysd"
     def deploy(env_name = nil, branch = nil)
-      require 'engineyard/cli/action/deploy'
-      EY::CLI::Action::Deploy.call(env_name, branch, options)
+      app         = api.app_for_repo!(repo)
+      environment = fetch_environment(env_name, app)
+      deployment = Model::Deploy.new({
+        :environment    => environment,
+        :app            => app,
+        :branch         => branch,
+        :current_branch => repo.current_branch,
+        :force          => options[:force],
+        :migrate        => options[:migrate],
+      })
+
+      EY.ui.info "Connecting to the server..."
+
+      deployment.ensure_server_capable! do |action|
+        case action
+        when :installing
+          EY.ui.warn "Instance does not have server-side component installed"
+          EY.ui.info "Installing server-side component..."
+        when :upgrading
+          EY.ui.info "Upgrading server-side component..."
+        else
+          # nothing slow is happening, so there's nothing to say
+        end
+      end
+
+      EY.ui.info "Running deploy for '#{environment.name}' on server..."
+
+      if deployment.run
+        EY.ui.info "Deploy complete"
+      else
+        raise EY::Error, "Deploy failed"
+      end
+
+    rescue NoEnvironmentError => e
+      # Give better feedback about why we couldn't find the environment.
+      exists = api.environments.named(env_name)
+      raise exists ? EnvironmentUnlinkedError.new(env_name) : e
     end
 
     desc "environments [--all]", "List cloud environments for this app, or all environments"

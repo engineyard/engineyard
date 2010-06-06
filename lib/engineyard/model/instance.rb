@@ -44,18 +44,16 @@ exit(17) # required_version < current_version
       end
 
       def ensure_eysd_present!
-        eysd_status = ey_deploy_check
-
-        yield eysd_status if block_given?
-
-        case eysd_status
+        case ey_deploy_check
         when :ssh_failed
           raise EnvironmentError, "SSH connection to #{hostname} failed"
         when :eysd_missing
+          yield :installing if block_given?
           install_ey_deploy!
         when :too_new
           raise EnvironmentError, "server-side component too new; please upgrade your copy of the engineyard gem."
         when :too_old
+          yield :upgrading if block_given?
           upgrade_ey_deploy!
         when :ok
           # no action needed
