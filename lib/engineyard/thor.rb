@@ -20,6 +20,10 @@ module EY
 
     protected
 
+    def self.exit_on_failure?
+      true
+    end
+
     def api
       @api ||= EY::CLI::API.new
     end

@@ -9,7 +9,7 @@ describe "ey" do
 
   context "run with an argument that is not a command" do
     it "tells the user that is not a command" do
-      ey "foobarbaz", :hide_err => true
+      ey "foobarbaz", :expect_failure => true
       @err.should include("Could not find task")
     end
   end
