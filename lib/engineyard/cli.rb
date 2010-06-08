@@ -24,20 +24,15 @@ module EY
     method_option :install_eysd, :type => :boolean, :aliases => %(-s),
       :desc => "Force remote install of eysd"
     def deploy(env_name = nil, branch = nil)
-      app         = api.app_for_repo!(repo)
-      environment = fetch_environment(env_name, app)
-      deployment = Model::Deploy.new({
-        :environment    => environment,
-        :app            => app,
-        :branch         => branch,
-        :current_branch => repo.current_branch,
-        :force          => options[:force],
-        :migrate        => options[:migrate],
-      })
+      app           = api.app_for_repo!(repo)
+      environment   = fetch_environment(env_name, app)
+      deploy_branch = environment.resolve_branch(branch, options[:force]) ||
+        repo.current_branch ||
+        raise(DeployArgumentError)
 
       EY.ui.info "Connecting to the server..."
 
-      deployment.ensure_server_capable! do |action|
+      environment.ensure_eysd_present! do |action|
         case action
         when :installing
           EY.ui.warn "Instance does not have server-side component installed"
@@ -51,7 +46,7 @@ module EY
 
       EY.ui.info "Running deploy for '#{environment.name}' on server..."
 
-      if deployment.run
+      if environment.deploy!(app, deploy_branch, options[:migrate])
         EY.ui.info "Deploy complete"
       else
         raise EY::Error, "Deploy failed"
