@@ -75,21 +75,9 @@ module Spec
       @out
     end
 
-    def api_scenario(scenario, remote = local_git_remote)
+    def api_scenario(scenario, remote = "user@git.host:path/to/repo.git")
       response = ::RestClient.put(EY.fake_awsm + '/scenario', {"scenario" => scenario, "remote" => remote}, {})
       raise "Setting scenario failed: #{response.inspect}" unless response.code == 200
-    end
-
-    def local_git_remote
-      remotes = []
-      `git remote -v`.each_line do |line|
-        parts = line.split(/\t/)
-        # the remote will look like
-        # "git@github.com:engineyard/engineyard.git (fetch)\n"
-        # so we need to chop it up a bit
-        remotes << parts[1].gsub(/\s.*$/, "") if parts[1]
-      end
-      remotes.first
     end
 
     def read_yaml(file="ey.yml")
@@ -137,5 +125,22 @@ module EY
       end
     end
     alias_method :start_fake_awsm, :fake_awsm
+
+    def git_repo_for_tests
+      return @git_repo if @git_repo
+
+      git_dir = Pathname.new("/tmp/#{$$}")
+      git_dir.mkdir
+      Dir.chdir(git_dir) do
+        git_dir.join("cookbooks").mkdir
+        File.open(git_dir.join("cookbooks/file"), "w"){|f| f << "boo" }
+        system("git init -q")
+        system("git add .")
+        system("git commit -q -m 'First Commit'")
+        system("git remote add testremote user@git.host:path/to/repo.git")
+      end
+      @git_repo = git_dir
+    end
+
   end
 end

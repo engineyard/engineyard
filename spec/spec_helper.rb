@@ -64,9 +64,13 @@ shared_examples_for "an integration test without an eyrc file" do
     ENV['EYRC'] = "/tmp/eyrc"
     FakeWeb.allow_net_connect = true
     ENV['CLOUD_URL'] = EY.fake_awsm
+
+    @_original_dir = Dir.getwd
+    Dir.chdir(EY.git_repo_for_tests)
   end
 
   after(:all) do
+    Dir.chdir(@_original_dir)
     ENV.delete('CLOUD_URL')
     ENV.delete('EYRC')
     FakeFS.activate!
