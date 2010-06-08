@@ -66,6 +66,13 @@ module EY
         tmp
       end
 
+      def resolve_branch(branch, allow_non_default_branch=false)
+        if !allow_non_default_branch && branch && default_branch && (branch != default_branch)
+          raise BranchMismatch.new(default_branch, branch)
+        end
+        branch || default_branch
+      end
+
       def configuration
         EY.config.environments[self.name]
       end

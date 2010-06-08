@@ -11,8 +11,9 @@ module EY
         @specified_branch = @options[:branch]
         @current_branch   = @options[:current_branch]
 
-        @default_branch   = @environment.default_branch
-        @branch           = resolve_branch
+        @branch           = @environment.resolve_branch(options[:branch], options[:force]) ||
+                            @current_branch ||
+                            raise(DeployArgumentError)
       end
 
       def ensure_server_capable!(&block)
@@ -21,15 +22,6 @@ module EY
 
       def run
         @environment.deploy!(@options[:app], @branch, @options[:migrate])
-      end
-
-      private
-
-      def resolve_branch
-        if !@options[:force] && @specified_branch && @default_branch && (@specified_branch != @default_branch)
-          raise BranchMismatch.new(@default_branch, @specified_branch)
-        end
-        @specified_branch || @default_branch || @current_branch || raise(DeployArgumentError)
       end
     end
   end
