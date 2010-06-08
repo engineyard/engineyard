@@ -57,7 +57,7 @@ module EY
         end
 
         tmp = Tempfile.new("recipes")
-        cmd = "git archive --format=tar HEAD cookbooks | gzip > #{tmp.path}"
+        cmd = "tar czf '#{tmp.path}' cookbooks/"
 
         unless system(cmd)
           raise EY::Error, "Could not archive recipes.\nCommand `#{cmd}` exited with an error."

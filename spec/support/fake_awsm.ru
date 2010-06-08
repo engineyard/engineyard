@@ -55,8 +55,19 @@ class FakeAwsm < Sinatra::Base
   end
 
   post "/api/v2/environments/:env_id/recipes" do
-    status(202)
-    ""
+    if params[:file][:tempfile]
+      files = `tar --list -z -f "#{params[:file][:tempfile].path}"`.split(/\n/)
+      if files.empty?
+        status(400)
+        "No files in uploaded tarball"
+      else
+        status(204)
+        ""
+      end
+    else
+      status(400)
+      "Recipe file not uploaded"
+    end
   end
 
   put "/api/v2/environments/:env_id/rebuild" do
