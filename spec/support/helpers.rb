@@ -126,20 +126,27 @@ module EY
     end
     alias_method :start_fake_awsm, :fake_awsm
 
-    def git_repo_for_tests
-      return @git_repo if @git_repo
+    def define_git_repo(name, &setup)
+      @git_repo_setup ||= {}
+      raise "Attempted to redefine git repo #{name}; don't do that!" if @git_repo_setup.has_key?(name)
+      @git_repo_setup[name] = setup
+    end
 
-      git_dir = Pathname.new("/tmp/#{$$}")
+    def git_repo_dir(name)
+      @git_repo_dir_cache ||= {}
+      return @git_repo_dir_cache[name] if @git_repo_dir_cache.has_key?(name)
+      raise ArgumentError, "No definition for git repo #{name}" unless @git_repo_setup[name]
+
+      git_dir = Pathname.new("/tmp/engineyard_test_repo_#{Time.now.tv_sec}_#{Time.now.tv_usec}_#{$$}")
       git_dir.mkdir
       Dir.chdir(git_dir) do
-        git_dir.join("cookbooks").mkdir
-        File.open(git_dir.join("cookbooks/file"), "w"){|f| f << "boo" }
         system("git init -q")
-        system("git add .")
-        system("git commit -q -m 'First Commit'")
+        system('git config user.email ey@spec.test')
+        system('git config user.name "EY Specs"')
         system("git remote add testremote user@git.host:path/to/repo.git")
+        @git_repo_setup[name].call(git_dir)
       end
-      @git_repo = git_dir
+      @git_repo_dir_cache[name] = git_dir
     end
 
   end

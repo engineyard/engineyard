@@ -29,6 +29,7 @@ support.each{|helper| require helper }
 
 Spec::Runner.configure do |config|
   config.include Spec::Helpers
+  config.extend Spec::GitRepo
 
   config.before(:all) do
     FakeWeb.allow_net_connect = false
@@ -58,19 +59,23 @@ Spec::Matchers.define :have_command_like do |regex|
   end
 end
 
+EY.define_git_repo("default") do |git_dir|
+  system("echo 'source :gemcutter' > Gemfile")
+  system("git add Gemfile")
+  system("git commit -m 'initial commit' >/dev/null 2>&1")
+end
+
 shared_examples_for "an integration test without an eyrc file" do
+  use_git_repo('default')
+
   before(:all) do
     FakeFS.deactivate!
     ENV['EYRC'] = "/tmp/eyrc"
     FakeWeb.allow_net_connect = true
     ENV['CLOUD_URL'] = EY.fake_awsm
-
-    @_original_dir = Dir.getwd
-    Dir.chdir(EY.git_repo_for_tests)
   end
 
   after(:all) do
-    Dir.chdir(@_original_dir)
     ENV.delete('CLOUD_URL')
     ENV.delete('EYRC')
     FakeFS.activate!
