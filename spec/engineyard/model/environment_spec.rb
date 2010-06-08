@@ -9,9 +9,11 @@ describe "EY::Model::Environment#rebuild" do
         "api" => @api,
       })
 
-    FakeWeb.register_uri(:put,
+    FakeWeb.register_uri(
+      :put,
       "https://cloud.engineyard.com/api/v2/environments/#{env.id}/rebuild",
-      :body => {}.to_json)
+      :body => ''
+    )
 
     env.rebuild
 

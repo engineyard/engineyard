@@ -55,11 +55,12 @@ class FakeAwsm < Sinatra::Base
   end
 
   post "/api/v2/environments/:env_id/recipes" do
-    {}.to_json
+    status(202)
+    ""
   end
 
   put "/api/v2/environments/:env_id/rebuild" do
-    status(204)
+    status(202)
     ""
   end
 

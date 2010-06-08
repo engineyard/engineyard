@@ -73,8 +73,8 @@ module EY
         raise RequestFailed, "SSL is misconfigured on your cloud"
       end
 
-      if resp.code == 204
-        data = nil
+      if resp.body.empty?
+        data = ''
       else
         begin
           data = JSON.parse(resp.body)
