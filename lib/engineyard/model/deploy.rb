@@ -13,15 +13,14 @@ module EY
 
         @default_branch   = @environment.default_branch
         @branch           = resolve_branch
-        @master           = @environment.app_master!
       end
 
       def ensure_server_capable!(&block)
-        @master.ensure_eysd_present!(&block)
+        @environment.ensure_eysd_present!(&block)
       end
 
       def run
-        @master.deploy!(@options[:app], @branch, @options[:migrate], @environment.config)
+        @environment.deploy!(@options[:app], @branch, @options[:migrate])
       end
 
       private

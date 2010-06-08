@@ -31,6 +31,14 @@ module EY
         master
       end
 
+      def ensure_eysd_present!(&blk)
+        app_master!.ensure_eysd_present!(&blk)
+      end
+
+      def deploy!(app, ref, migration_command=nil)
+        app_master!.deploy!(app, ref, migration_command, config)
+      end
+
       def rebuild
         api.request("/environments/#{id}/rebuild", :method => :put)
       end
