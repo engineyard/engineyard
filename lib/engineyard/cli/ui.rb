@@ -43,6 +43,14 @@ module EY
         end
       end
 
+      def say(*args)
+        if args.first == "Tasks:"
+          super "Commands:"
+        else
+          super
+        end
+      end
+
       def ask(message, password = false)
         begin
           require 'highline'

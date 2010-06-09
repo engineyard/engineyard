@@ -9,16 +9,55 @@ module EY
     end
 
     no_tasks do
+      def self.subcommands
+        @@subcommands ||= {}
+      end
+
+      def self.subcommand(subcommand, subcommand_class)
+        subcommand = subcommand.to_s
+        subcommands[subcommand] = subcommand_class
+        subcommand_class.subcommand_help subcommand
+        define_method(subcommand) { |*_| subcommand_class.start(subcommand_args) }
+      end
+
+      def self.subcommand_help(cmd)
+        desc "help #{cmd} [SUBCOMMAND]", "Describe all subcommands or one specific subcommand."
+
+        class_eval <<-RUBY
+def help(*args)
+  super
+  if args.empty?
+    banner = "See '" + self.class.send(:banner_base) + " help #{cmd} [SUBCOMMAND]' "
+    text = "for more information on a specific subcommand."
+    EY.ui.say  banner + text
+  end
+end
+        RUBY
+      end
+
       def subcommand_args
         @@original_args[1..-1]
       end
 
-      def self.subcommand(subcommand, subcommand_class)
-        define_method(subcommand) { |*_| subcommand_class.start(subcommand_args) }
+      def self.printable_tasks(all=true)
+        (all ? all_tasks : tasks).map do |_, task|
+          item = []
+          item << banner(task)
+          item << (task.description ? "# #{task.description.gsub(/\n.*/,'')}" : "")
+          item
+        end
       end
     end
 
     protected
+
+    def self.handle_no_task_error(task)
+      if self.banner_base == "thor"
+        raise UndefinedTaskError, "Could not find command #{task.inspect} in #{namespace.inspect} namespace."
+      else
+        raise UndefinedTaskError, "Could not find command #{task.inspect}."
+      end
+    end
 
     def self.exit_on_failure?
       true
