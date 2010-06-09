@@ -21,8 +21,6 @@ module EY
     method_option :migrate, :type => :string, :aliases => %w(-m),
       :default => 'rake db:migrate',
       :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations"
-    method_option :install_eysd, :type => :boolean, :aliases => %(-s),
-      :desc => "Force remote install of eysd"
     def deploy(env_name = nil, branch = nil)
       app           = api.app_for_repo!(repo)
       environment   = fetch_environment(env_name, app)
