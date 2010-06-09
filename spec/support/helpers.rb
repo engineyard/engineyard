@@ -17,7 +17,6 @@ module Spec
     ZeroExitStatus = Class.new(UnexpectedExit)
 
     def ey(cmd = nil, options = {}, &block)
-      require "open3"
       hide_err = options.has_key?(:hide_err) ? options[:hide_err] : options[:expect_failure]
       path_prepends = options[:prepend_to_path]
 
