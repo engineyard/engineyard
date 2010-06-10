@@ -36,6 +36,7 @@ describe "ey deploy" do
 
   # common behavior
   it_should_behave_like "it takes an environment name"
+  it_should_behave_like "it invokes eysd"
 end
 
 describe "ey deploy" do
@@ -182,58 +183,6 @@ describe "ey deploy" do
     it "lets you choose by complete name even if the complete name is ambiguous" do
       ey "deploy railsapp_staging"
       @out.should match(/Running deploy for 'railsapp_staging'/)
-    end
-  end
-
-  context "eysd install" do
-    before(:all) do
-      api_scenario "one app, one environment"
-    end
-
-    before(:each) do
-      ENV.delete "NO_SSH"
-    end
-
-    after(:each) do
-      ENV['NO_SSH'] = "true"
-    end
-
-    def exiting_ssh(exit_code)
-      "#!/usr/bin/env ruby\n exit!(#{exit_code}) if ARGV.to_s =~ /Base64.decode64/"
-    end
-
-    it "raises an error if SSH fails" do
-      ey "deploy", :prepend_to_path => {'ssh' => exiting_ssh(255)}, :expect_failure => true
-      @err.should =~ /SSH connection to \S+ failed/
-    end
-
-    it "installs ey-deploy if it's missing" do
-      ey "deploy", :prepend_to_path => {'ssh' => exiting_ssh(104)}
-
-      gem_install_command = @ssh_commands.find do |command|
-        command =~ /gem install ey-deploy/
-      end
-      gem_install_command.should =~ %r{/usr/local/ey_resin/ruby/bin/gem install}
-    end
-
-    it "upgrades ey-deploy if it's too old" do
-      ey "deploy", :prepend_to_path => {'ssh' => exiting_ssh(70)}
-      @ssh_commands.should have_command_like(/gem uninstall -a -x ey-deploy/)
-      @ssh_commands.should have_command_like(/gem install ey-deploy/)
-    end
-
-    it "raises an error if ey-deploy is too new" do
-      ey "deploy", :prepend_to_path => {'ssh' => exiting_ssh(17)}, :expect_failure => true
-      @ssh_commands.should_not have_command_like(/gem install ey-deploy/)
-      @ssh_commands.should_not have_command_like(/eysd deploy/)
-      @err.should match(/too new/i)
-    end
-
-    it "does not change ey-deploy if its version is satisfactory" do
-      ey "deploy", :prepend_to_path => {'ssh' => exiting_ssh(0)}
-      @ssh_commands.should_not have_command_like(/gem install ey-deploy/)
-      @ssh_commands.should_not have_command_like(/gem uninstall.* ey-deploy/)
-      @ssh_commands.should have_command_like(/eysd deploy/)
     end
   end
 end

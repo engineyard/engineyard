@@ -6,6 +6,7 @@ module EY
       def enable(env_name = nil)
         app         = api.app_for_repo!(repo)
         environment = fetch_environment(env_name, app)
+        loudly_check_eysd(environment)
         EY.ui.info "Taking down maintenance page for #{environment.name}"
         environment.take_down_maintenance_page!(app)
       end
@@ -14,6 +15,7 @@ module EY
       def disable(env_name = nil)
         app         = api.app_for_repo!(repo)
         environment = fetch_environment(env_name, app)
+        loudly_check_eysd(environment)
         EY.ui.info "Putting up maintenance page for #{environment.name}"
         environment.put_up_maintenance_page!(app)
       end

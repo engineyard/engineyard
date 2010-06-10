@@ -31,17 +31,7 @@ module EY
 
       EY.ui.info "Connecting to the server..."
 
-      environment.ensure_eysd_present! do |action|
-        case action
-        when :installing
-          EY.ui.warn "Instance does not have server-side component installed"
-          EY.ui.info "Installing server-side component..."
-        when :upgrading
-          EY.ui.info "Upgrading server-side component..."
-        else
-          # nothing slow is happening, so there's nothing to say
-        end
-      end
+      loudly_check_eysd(environment)
 
       EY.ui.info "Running deploy for '#{environment.name}' on server..."
 

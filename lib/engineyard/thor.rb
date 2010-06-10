@@ -32,6 +32,20 @@ module EY
       @repo ||= EY::Repo.new
     end
 
+    def loudly_check_eysd(environment)
+      environment.ensure_eysd_present! do |action|
+        case action
+        when :installing
+          EY.ui.warn "Instance does not have server-side component installed"
+          EY.ui.info "Installing server-side component..."
+        when :upgrading
+          EY.ui.info "Upgrading server-side component..."
+        else
+          # nothing slow is happening, so there's nothing to say
+        end
+      end
+    end
+
     # if an app is supplied, it is used as a constraint for implied environment lookup
     def fetch_environment(env_name, app = nil)
       env_name ||= EY.config.default_environment
