@@ -29,6 +29,7 @@ exit(17) # required_version < current_version
 
       alias :hostname :public_hostname
 
+
       def deploy!(app, ref, migration_command=nil, extra_configuration=nil)
         deploy_cmd = [eysd_path, 'deploy', '--app', app.name, '--branch', ref]
 
@@ -43,6 +44,17 @@ exit(17) # required_version < current_version
         ssh Escape.shell_command(deploy_cmd)
       end
 
+      def rollback!(app, extra_configuration=nil)
+        deploy_cmd = [eysd_path, 'deploy', 'rollback', '--app', app.name]
+
+        if extra_configuration
+          deploy_cmd << '--config' << extra_configuration.to_json
+        end
+
+        ssh Escape.shell_command(deploy_cmd)
+      end
+
+
       def put_up_maintenance_page!(app)
         ssh Escape.shell_command([
             eysd_path, 'deploy', 'enable_maintenance_page', '--app', app.name
@@ -54,6 +66,7 @@ exit(17) # required_version < current_version
             eysd_path, 'deploy', 'disable_maintenance_page', '--app', app.name
           ])
       end
+
 
       def ensure_eysd_present!
         case ey_deploy_check
@@ -83,16 +96,6 @@ exit(17) # required_version < current_version
 
       def install_ey_deploy!
         ssh(Escape.shell_command(['sudo', gem_path, 'install', 'ey-deploy', '-v', EYSD_VERSION]))
-      end
-
-      def rollback!(app, extra_configuration=nil)
-        deploy_cmd = [eysd_path, 'deploy', 'rollback', '--app', app.name]
-
-        if extra_configuration
-          deploy_cmd << '--config' << extra_configuration.to_json
-        end
-
-        ssh Escape.shell_command(deploy_cmd)
       end
 
       def upgrade_ey_deploy!
