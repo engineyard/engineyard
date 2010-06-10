@@ -32,6 +32,11 @@ describe "ey ssh" do
     "ssh #{opts[:env]}"
   end
 
+  def verify_ran(scenario)
+    ssh_target = scenario[:ssh_username] + '@' + scenario[:master_ip]
+    @raw_ssh_commands.should == ["ssh #{ssh_target}"]
+  end
+
   it_should_behave_like "it takes an environment name"
 end
 
@@ -44,13 +49,6 @@ describe "ey ssh" do
     ey "ssh", :prepend_to_path => {'ssh' => print_my_args_ssh}
     @raw_ssh_commands.should == ["ssh turkey@174.129.198.124"]
   end
-
-  it "complains when it can't guess the environment and its name isn't specified" do
-    api_scenario "one app, one environment, not linked"
-
-    ey "ssh", :prepend_to_path => {'ssh' => print_my_args_ssh}, :expect_failure => true
-    @err.should =~ /single environment/i
-  end
 end
 
 describe "ey ssh ENV" do
@@ -58,11 +56,6 @@ describe "ey ssh ENV" do
 
   before(:all) do
     api_scenario "one app, many similarly-named environments"
-  end
-
-  it "works when given an unambiguous substring" do
-    ey "ssh prod", :prepend_to_path => {'ssh' => print_my_args_ssh}
-    @raw_ssh_commands.should == ["ssh turkey@174.129.198.124"]
   end
 
   it "doesn't require you to be in any app's directory if the name is unambiguous" do

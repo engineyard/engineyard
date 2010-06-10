@@ -22,5 +22,9 @@ describe "ey web disable" do
     "web disable #{opts[:env]}"
   end
 
+  def verify_ran(scenario)
+    @out.should =~ /Putting up maintenance page.*#{scenario[:environment]}/
+  end
+
   it_should_behave_like "it takes an environment name"
 end

@@ -30,6 +30,10 @@ describe "ey deploy" do
     "deploy #{options[:env]}"
   end
 
+  def verify_ran(scenario)
+    @out.should match(/Running deploy for '#{scenario[:environment]}'/)
+  end
+
   # common behavior
   it_should_behave_like "it takes an environment name"
 end
@@ -180,11 +184,6 @@ describe "ey deploy" do
   context "specifying an environment" do
     before(:all) do
       api_scenario "one app, many similarly-named environments"
-    end
-
-    it "lets you choose by unambiguous substring" do
-      ey "deploy prod"
-      @out.should match(/Running deploy for 'railsapp_production'/)
     end
 
     it "lets you choose by complete name even if the complete name is ambiguous" do

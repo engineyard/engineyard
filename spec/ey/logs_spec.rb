@@ -33,19 +33,9 @@ describe "ey logs" do
     "logs #{opts[:env]}"
   end
 
+  def verify_ran(scenario)
+    @out.should match(/Main logs for #{scenario[:environment]}/)
+  end
+
   it_should_behave_like "it takes an environment name"
-end
-
-
-describe "ey logs ENV" do
-  given "integration"
-
-  before(:all) do
-    api_scenario "one app, many similarly-named environments"
-  end
-
-  it "works when given an unambiguous substring" do
-    ey "logs prod"
-    @out.should match(/MAIN LOG OUTPUT/)
-  end
 end

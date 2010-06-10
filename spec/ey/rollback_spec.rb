@@ -29,20 +29,11 @@ describe "ey rollback" do
     "rollback #{opts[:env]}"
   end
 
-  it_should_behave_like "it takes an environment name"
-end
-
-describe "ey rollback ENV" do
-  given "integration"
-
-  before(:all) do
-    api_scenario "one app, many similarly-named environments"
-  end
-
-  it "works when given an unambiguous substring" do
-    ey "rollback prod", :debug => true
-    @out.should match(/Rolling back railsapp_production/i)
+  def verify_ran(scenario)
+    @out.should match(/Rolling back #{scenario[:environment]}/)
     @err.should be_empty
-    @ssh_commands.last.should match(/eysd deploy rollback --app rails232app/)
+    @ssh_commands.last.should match(/eysd deploy rollback --app #{scenario[:application]}/)
   end
+
+  it_should_behave_like "it takes an environment name"
 end

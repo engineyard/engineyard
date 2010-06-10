@@ -113,15 +113,53 @@ shared_examples_for "it takes an environment name" do
     ey(command_to_run(command_options), ey_options)
   end
 
+  def _verify_ran(scenario)
+    if respond_to?(:verify_ran)
+      verify_ran(scenario)
+    else
+      pending "Need to implement verify_ran"
+    end
+  end
+
+  def make_scenario(hash)
+    # since nil will silently turn to empty string when interpolated,
+    # and there's a lot of string matching involved in integration
+    # testing, it would be nice to have early notification of typos.
+    scenario = Hash.new { |h,k| raise "Tried to get key #{k.inspect}, but it's missing!" }
+    scenario.merge!(hash)
+  end
+
   it "complains when you specify a nonexistent environment" do
     api_scenario "one app, one environment"
     run_ey({:env => 'typo-happens-here'}, {:expect_failure => true})
     @err.should match(/no environment named 'typo-happens-here'/i)
   end
 
-  it "complains when given an ambiguous substring" do
-    api_scenario "one app, many similarly-named environments"
-    run_ey({:env => 'staging'}, {:expect_failure => true})
-    @err.should match(/'staging' is ambiguous/)
+  context "given a piece of the environment name" do
+    before(:all) do
+      api_scenario "one app, many similarly-named environments"
+    end
+    it "complains when the substring is ambiguous" do
+      run_ey({:env => 'staging'}, {:expect_failure => true})
+      @err.should match(/'staging' is ambiguous/)
+    end
+
+    it "works when the substring is unambiguous" do
+      api_scenario "one app, many similarly-named environments"
+      run_ey({:env => 'prod'}, {:debug => true})
+      _verify_ran(make_scenario({
+            :environment  => 'railsapp_production',
+            :application  => 'rails232app',
+            :master_ip    => '174.129.198.124',
+            :ssh_username => 'turkey',
+          }))
+    end
   end
+
+  it "complains when it can't guess the environment and its name isn't specified" do
+    api_scenario "one app, one environment, not linked"
+    run_ey({:env => nil}, {:expect_failure => true})
+    @err.should =~ /single environment/i
+  end
+
 end

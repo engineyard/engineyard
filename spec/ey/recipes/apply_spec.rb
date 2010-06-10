@@ -25,18 +25,9 @@ describe "ey recipes apply" do
     "recipes apply #{opts[:env]}"
   end
 
+  def verify_ran(scenario)
+    @out.should =~ /Uploaded recipes started for #{scenario[:environment]}/
+  end
+
   it_should_behave_like "it takes an environment name"
-end
-
-describe "ey recipes apply ENV" do
-  given "integration"
-
-  before(:all) do
-    api_scenario "one app, many similarly-named environments"
-  end
-
-  it "works when given an unambiguous substring" do
-    ey "recipes apply prod", :debug => true
-    @out.should =~ /Uploaded recipes started for railsapp_production/
-  end
 end

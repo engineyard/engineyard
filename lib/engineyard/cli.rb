@@ -103,16 +103,17 @@ module EY
 
     desc "logs [ENVIRONMENT]", "Retrieve the latest logs for an environment"
     def logs(name = nil)
-      fetch_environment(name).logs.each do |log|
+      env = fetch_environment(name)
+      env.logs.each do |log|
         EY.ui.info log.instance_name
 
         if log.main
-          EY.ui.info "Main logs:"
+          EY.ui.info "Main logs for #{env.name}:"
           EY.ui.say  log.main
         end
 
         if log.custom
-          EY.ui.info "Custom logs:"
+          EY.ui.info "Custom logs for #{env.name}:"
           EY.ui.say  log.custom
         end
       end

@@ -25,18 +25,9 @@ describe "ey rebuild" do
     "rebuild #{opts[:env]}"
   end
 
+  def verify_ran(scenario)
+    @out.should =~ /Rebuilding #{scenario[:environment]}/
+  end
+
   it_should_behave_like "it takes an environment name"
-end
-
-describe "ey rebuild ENV" do
-  given "integration"
-
-  before(:all) do
-    api_scenario "one app, many similarly-named environments"
-  end
-
-  it "works when given an unambiguous substring" do
-    ey "rebuild prod", :debug => true
-    @out.should =~ /Rebuilding railsapp_production/
-  end
 end
