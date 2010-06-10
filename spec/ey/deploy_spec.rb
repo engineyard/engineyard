@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe "ey deploy without an eyrc file" do
 
-  it_should_behave_like "an integration test without an eyrc file"
+  given "integration without an eyrc file"
 
   before(:each) do
     FileUtils.rm_rf(ENV['EYRC'])
@@ -23,7 +23,7 @@ describe "ey deploy without an eyrc file" do
 end
 
 describe "ey deploy" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   context "with invalid input" do
     it "complains when there is no app" do

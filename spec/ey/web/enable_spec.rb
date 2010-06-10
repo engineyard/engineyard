@@ -1,8 +1,7 @@
 require 'spec_helper'
 
 describe "ey web enable" do
-  it_should_behave_like "an integration test"
-
+  given "integration"
   use_git_repo('default')
 
   before(:all) do

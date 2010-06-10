@@ -3,7 +3,7 @@ require 'spec_helper'
 print_my_args_ssh = "#!/bin/sh\necho ssh $*"
 
 describe "ey ssh" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   before(:all) do
     api_scenario "one app, two environments"
@@ -27,7 +27,7 @@ describe "ey ssh" do
 end
 
 describe "ey ssh" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   it "guesses the environment from the current application" do
     api_scenario "one app, one environment"
@@ -45,7 +45,7 @@ describe "ey ssh" do
 end
 
 describe "ey ssh ENV" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   before(:all) do
     api_scenario "one app, many similarly-named environments"

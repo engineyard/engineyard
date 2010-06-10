@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "ey rollback" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   before(:all) do
     api_scenario "one app, one environment"
@@ -29,7 +29,7 @@ describe "ey rollback" do
 end
 
 describe "ey rollback ENV" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   before(:all) do
     api_scenario "one app, many similarly-named environments"

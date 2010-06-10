@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "ey recipes upload" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   define_git_repo('+cookbooks') do |git_dir|
     git_dir.join("cookbooks").mkdir

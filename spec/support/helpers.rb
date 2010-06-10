@@ -108,6 +108,19 @@ module Spec
       end
       retval
     end
+
+  end
+end
+
+module Spec
+  module Helpers
+    module SemanticNames
+
+      def given(name)
+        it_should_behave_like name
+      end
+
+    end
   end
 end
 

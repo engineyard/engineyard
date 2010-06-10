@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "ey logs" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   it "prints logs returned by awsm" do
     api_scenario "one app, one environment"
@@ -27,7 +27,7 @@ describe "ey logs" do
 end
 
 describe "ey logs ENV" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   before(:all) do
     api_scenario "one app, many similarly-named environments"

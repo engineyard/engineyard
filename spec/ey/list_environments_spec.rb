@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe "ey environments" do
 
-  it_should_behave_like "an integration test"
+  given "integration"
 
   before(:all) do
     api_scenario "one app, two environments"

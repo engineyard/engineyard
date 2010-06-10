@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "EY::Model::Environment#rebuild" do
-  it_should_behave_like "it has an api"
+  given "it has an api"
 
   it "hits the rebuild action in the API" do
     env = EY::Model::Environment.from_hash({
@@ -22,7 +22,7 @@ describe "EY::Model::Environment#rebuild" do
 end
 
 describe "EY::Model::Environment#run_custom_recipes" do
-  it_should_behave_like "it has an api"
+  given "it has an api"
 
   it "hits the rebuild action in the API" do
     env = EY::Model::Environment.from_hash({
@@ -56,7 +56,7 @@ describe "EY::Model::Environment.from_array" do
 end
 
 describe "EY::Model::Environment#instances" do
-  it_should_behave_like "it has an api"
+  given "it has an api"
 
   it "returns instances" do
     env = EY::Model::Environment.from_hash({

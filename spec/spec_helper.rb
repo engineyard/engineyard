@@ -30,6 +30,7 @@ support.each{|helper| require helper }
 Spec::Runner.configure do |config|
   config.include Spec::Helpers
   config.extend Spec::GitRepo
+  config.extend Spec::Helpers::SemanticNames
 
   config.before(:all) do
     FakeWeb.allow_net_connect = false
@@ -65,7 +66,7 @@ EY.define_git_repo("default") do |git_dir|
   system("git commit -m 'initial commit' >/dev/null 2>&1")
 end
 
-shared_examples_for "an integration test without an eyrc file" do
+shared_examples_for "integration without an eyrc file" do
   use_git_repo('default')
 
   before(:all) do
@@ -84,8 +85,8 @@ shared_examples_for "an integration test without an eyrc file" do
 end
 
 # Use this in conjunction with the 'ey' helper method
-shared_examples_for "an integration test" do
-  it_should_behave_like "an integration test without an eyrc file"
+shared_examples_for "integration" do
+  given "integration without an eyrc file"
 
   before(:all) do
     token = { ENV['CLOUD_URL'] => {

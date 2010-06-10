@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "ey rebuild" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   before(:all) do
     api_scenario "one app, one environment"
@@ -24,7 +24,7 @@ describe "ey rebuild" do
 end
 
 describe "ey rebuild ENV" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   before(:all) do
     api_scenario "one app, many similarly-named environments"

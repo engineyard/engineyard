@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "ey recipes apply" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   before(:all) do
     api_scenario "one app, one environment"
@@ -24,7 +24,7 @@ describe "ey recipes apply" do
 end
 
 describe "ey recipes apply ENV" do
-  it_should_behave_like "an integration test"
+  given "integration"
 
   before(:all) do
     api_scenario "one app, many similarly-named environments"
