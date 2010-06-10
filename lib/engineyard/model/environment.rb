@@ -39,6 +39,10 @@ module EY
         app_master!.deploy!(app, ref, migration_command, config)
       end
 
+      def rollback!(app)
+        app_master!.rollback!(app, config)
+      end
+
       def rebuild
         api.request("/environments/#{id}/rebuild", :method => :put)
       end

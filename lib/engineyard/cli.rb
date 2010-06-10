@@ -79,7 +79,7 @@ module EY
 
       if env.app_master
         EY.ui.info("Rolling back #{env.name}")
-        if env.app_master.rollback!(app, env.config)
+        if env.rollback!(app)
           EY.ui.info "Rollback complete"
         else
           raise EY::Error, "Rollback failed"
