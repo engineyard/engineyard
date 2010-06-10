@@ -7,6 +7,7 @@ module EY
     autoload :API,     'engineyard/cli/api'
     autoload :UI,      'engineyard/cli/ui'
     autoload :Recipes, 'engineyard/cli/recipes'
+    autoload :Web,     'engineyard/cli/web'
 
     include Thor::Actions
 
@@ -119,6 +120,9 @@ module EY
 
     desc "recipes COMMAND [ARGS]", "Commands related to custom recipes"
     subcommand "recipes", EY::CLI::Recipes
+
+    desc "web COMMAND [ARGS]", "Commands related to maintenance pages"
+    subcommand "web", EY::CLI::Web
 
     desc "version", "Print the version of the engineyard gem"
     def version

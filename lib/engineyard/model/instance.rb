@@ -43,6 +43,18 @@ exit(17) # required_version < current_version
         ssh Escape.shell_command(deploy_cmd)
       end
 
+      def put_up_maintenance_page!(app)
+        ssh Escape.shell_command([
+            eysd_path, 'deploy', 'enable_maintenance_page', '--app', app.name
+          ])
+      end
+
+      def take_down_maintenance_page!(app)
+        ssh Escape.shell_command([
+            eysd_path, 'deploy', 'disable_maintenance_page', '--app', app.name
+          ])
+      end
+
       def ensure_eysd_present!
         case ey_deploy_check
         when :ssh_failed

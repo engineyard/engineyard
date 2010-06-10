@@ -43,6 +43,14 @@ module EY
         app_master!.rollback!(app, config)
       end
 
+      def take_down_maintenance_page!(app)
+        app_master!.take_down_maintenance_page!(app)
+      end
+
+      def put_up_maintenance_page!(app)
+        app_master!.put_up_maintenance_page!(app)
+      end
+
       def rebuild
         api.request("/environments/#{id}/rebuild", :method => :put)
       end
