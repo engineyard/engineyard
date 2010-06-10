@@ -20,12 +20,16 @@ describe "ey rollback" do
     @err.should be_empty
     @ssh_commands.last.should match(/eysd deploy rollback --app rails232app/)
   end
+end
 
-  it "fails when the environment name is bogus" do
-    ey "rollback typo", :expect_failure => true
-    @err.should match(/'typo'/)
-    @ssh_commands.should be_empty
+describe "ey rollback" do
+  given "integration"
+
+  def command_to_run(opts)
+    "rollback #{opts[:env]}"
   end
+
+  it_should_behave_like "it takes an environment name"
 end
 
 describe "ey rollback ENV" do
@@ -40,11 +44,5 @@ describe "ey rollback ENV" do
     @out.should match(/Rolling back railsapp_production/i)
     @err.should be_empty
     @ssh_commands.last.should match(/eysd deploy rollback --app rails232app/)
-  end
-
-  it "complains when given an ambiguous substring" do
-    ey "rollback staging", :hide_err => true, :expect_failure => true
-    @err.should =~ /'staging' is ambiguous/
-    @ssh_commands.should be_empty
   end
 end

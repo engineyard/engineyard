@@ -16,11 +16,16 @@ describe "ey rebuild" do
     ey "rebuild", :debug => true
     @out.should =~ /Rebuilding giblets/i
   end
+end
 
-  it "fails when the environment name is bogus" do
-    ey "rebuild typo", :expect_failure => true
-    @err.should match(/'typo'/)
+describe "ey rebuild" do
+  given "integration"
+
+  def command_to_run(opts)
+    "rebuild #{opts[:env]}"
   end
+
+  it_should_behave_like "it takes an environment name"
 end
 
 describe "ey rebuild ENV" do
@@ -33,10 +38,5 @@ describe "ey rebuild ENV" do
   it "works when given an unambiguous substring" do
     ey "rebuild prod", :debug => true
     @out.should =~ /Rebuilding railsapp_production/
-  end
-
-  it "complains when given an ambiguous substring" do
-    ey "rebuild staging", :hide_err => true, :expect_failure => true
-    @err.should =~ /'staging' is ambiguous/
   end
 end

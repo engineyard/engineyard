@@ -100,3 +100,28 @@ shared_examples_for "it has an api" do
     @api = EY::API.new('asdf')
   end
 end
+
+
+# Shared behavior for things that take an environment name
+shared_examples_for "it takes an environment name" do
+
+  def run_ey(command_options, ey_options)
+    if respond_to?(:extra_ey_options)   # needed for ssh tests
+      ey_options.merge!(extra_ey_options)
+    end
+
+    ey(command_to_run(command_options), ey_options)
+  end
+
+  it "complains when you specify a nonexistent environment" do
+    api_scenario "one app, one environment"
+    run_ey({:env => 'typo-happens-here'}, {:expect_failure => true})
+    @err.should match(/no environment named 'typo-happens-here'/i)
+  end
+
+  it "complains when given an ambiguous substring" do
+    api_scenario "one app, many similarly-named environments"
+    run_ey({:env => 'staging'}, {:expect_failure => true})
+    @err.should match(/'staging' is ambiguous/)
+  end
+end

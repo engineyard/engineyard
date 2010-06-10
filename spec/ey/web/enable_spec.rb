@@ -13,3 +13,13 @@ describe "ey web enable" do
     @ssh_commands.should have_command_like(/eysd deploy disable_maintenance_page --app rails232app/)
   end
 end
+
+describe "ey web enable" do
+  given "integration"
+
+  def command_to_run(opts)
+    "web enable #{opts[:env]}"
+  end
+
+  it_should_behave_like "it takes an environment name"
+end

@@ -22,6 +22,18 @@ describe "ey deploy without an eyrc file" do
   end
 end
 
+
+describe "ey deploy" do
+  given "integration"
+
+  def command_to_run(options)
+    "deploy #{options[:env]}"
+  end
+
+  # common behavior
+  it_should_behave_like "it takes an environment name"
+end
+
 describe "ey deploy" do
   given "integration"
 
@@ -30,12 +42,6 @@ describe "ey deploy" do
       api_scenario "empty"
       ey "deploy", :expect_failure => true
       @err.should include(%|no application configured|)
-    end
-
-    it "complains when you specify a nonexistent environment" do
-      api_scenario "one app, one environment"
-      ey "deploy typo-happens-here master", :expect_failure => true
-      @err.should match(/no environment named 'typo-happens-here'/i)
     end
 
     it "complains when the specified environment does not contain the app" do
@@ -184,12 +190,6 @@ describe "ey deploy" do
     it "lets you choose by complete name even if the complete name is ambiguous" do
       ey "deploy railsapp_staging"
       @out.should match(/Running deploy for 'railsapp_staging'/)
-    end
-
-    it "complains when given an ambiguous substring" do
-      # NB: there's railsapp_staging and railsapp_staging_2
-      ey "deploy staging", :hide_err => true, :expect_failure => true
-      @err.should match(/'staging' is ambiguous/)
     end
   end
 

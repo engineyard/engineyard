@@ -26,6 +26,17 @@ describe "ey logs" do
   end
 end
 
+describe "ey logs" do
+  given "integration"
+
+  def command_to_run(opts)
+    "logs #{opts[:env]}"
+  end
+
+  it_should_behave_like "it takes an environment name"
+end
+
+
 describe "ey logs ENV" do
   given "integration"
 
@@ -36,10 +47,5 @@ describe "ey logs ENV" do
   it "works when given an unambiguous substring" do
     ey "logs prod"
     @out.should match(/MAIN LOG OUTPUT/)
-  end
-
-  it "complains when given an ambiguous substring" do
-    ey "logs staging", :hide_err => true, :expect_failure => true
-    @err.should match(/'staging' is ambiguous/)
   end
 end
