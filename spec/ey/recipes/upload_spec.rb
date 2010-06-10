@@ -18,18 +18,4 @@ describe "ey recipes upload" do
   end
 
   it_should_behave_like "it takes an environment name"
-
-  it "posts the recipes to the correct url" do
-    api_scenario "one app, one environment"
-    ey "recipes upload giblets", :debug => true
-
-    @out.should =~ /Recipes uploaded successfully for giblets/i
-  end
-
-  it "can infer the environment from the current application" do
-    api_scenario "one app, one environment"
-
-    ey "recipes upload", :debug => true
-    @out.should =~ /Recipes uploaded successfully for giblets/i
-  end
 end

@@ -68,13 +68,6 @@ describe "ey deploy" do
     end
   end
 
-  it "runs when environment is known" do
-    api_scenario "one app, one environment"
-    ey "deploy", :hide_err => true
-    @out.should match(/running deploy/i)
-    @err.should be_empty
-  end
-
   context "migration command" do
     before(:each) do
       api_scenario "one app, one environment"

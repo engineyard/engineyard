@@ -9,11 +9,6 @@ describe "ey ssh" do
     api_scenario "one app, two environments"
   end
 
-  it "SSH-es into the right environment" do
-    ey "ssh giblets", :prepend_to_path => {'ssh' => print_my_args_ssh}
-    @raw_ssh_commands.should == ["ssh turkey@174.129.198.124"]
-  end
-
   it "complains if it has no app master" do
     ey "ssh bakon", :expect_failure => true
     @err.should =~ /'bakon' does not have a master instance/
@@ -38,17 +33,6 @@ describe "ey ssh" do
   end
 
   it_should_behave_like "it takes an environment name"
-end
-
-describe "ey ssh" do
-  given "integration"
-
-  it "guesses the environment from the current application" do
-    api_scenario "one app, one environment"
-
-    ey "ssh", :prepend_to_path => {'ssh' => print_my_args_ssh}
-    @raw_ssh_commands.should == ["ssh turkey@174.129.198.124"]
-  end
 end
 
 describe "ey ssh ENV" do

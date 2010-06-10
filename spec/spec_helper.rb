@@ -129,6 +129,17 @@ shared_examples_for "it takes an environment name" do
     scenario.merge!(hash)
   end
 
+  it "operates on the current environment by default" do
+    api_scenario "one app, one environment"
+    run_ey({:env => nil}, {:debug => true})
+    _verify_ran(make_scenario({
+          :environment  => 'giblets',
+          :application  => 'rails232app',
+          :master_ip    => '174.129.198.124',
+          :ssh_username => 'turkey',
+        }))
+  end
+
   it "complains when you specify a nonexistent environment" do
     api_scenario "one app, one environment"
     run_ey({:env => 'typo-happens-here'}, {:expect_failure => true})
@@ -139,6 +150,7 @@ shared_examples_for "it takes an environment name" do
     before(:all) do
       api_scenario "one app, many similarly-named environments"
     end
+
     it "complains when the substring is ambiguous" do
       run_ey({:env => 'staging'}, {:expect_failure => true})
       @err.should match(/'staging' is ambiguous/)
