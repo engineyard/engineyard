@@ -78,7 +78,7 @@ used, all environments are displayed instead.
     end
     map "envs" => :environments
 
-    desc "rebuild [ENVIRONMENT]", <<-DESC
+    desc "rebuild [--environment ENVIRONMENT]", <<-DESC
 Rebuild specified environment.
 
 Engine Yard's main configuration run occurs on all servers. Mainly used to fix
@@ -90,8 +90,10 @@ Note that uploaded recipes are also run after the main configuration run has
 successfully completed.
     DESC
 
-    def rebuild(name = nil)
-      env = fetch_environment(name)
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :desc => "Environment to rebuild"
+    def rebuild
+      env = fetch_environment(options[:environment])
       EY.ui.debug("Rebuilding #{env.name}")
       env.rebuild
     end

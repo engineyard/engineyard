@@ -4,7 +4,9 @@ describe "ey rebuild" do
   given "integration"
 
   def command_to_run(opts)
-    "rebuild #{opts[:env]}"
+    cmd = "rebuild"
+    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd
   end
 
   def verify_ran(scenario)
