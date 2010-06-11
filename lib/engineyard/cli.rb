@@ -17,11 +17,11 @@ module EY
       super
     end
 
-    desc "deploy [ENVIRONMENT] [BRANCH]", <<-DESC
-Deploy specified branch to specified environment.
+    desc "deploy [--environment ENVIRONMENT] [--ref GIT-REF]", <<-DESC
+Deploy specified branch/tag/sha to specified environment.
 
 This command must be run with the current directory containing the app to be
-deployed. If ey.yml specifies a default branch then the branch parameter can be
+deployed. If ey.yml specifies a default branch then the ref parameter can be
 omitted. Furthermore, if a default branch is specified but a different command
 is supplied the deploy will fail unless --force is used.
 
@@ -30,14 +30,18 @@ specified via --migrate "ruby do_migrations.rb". Migrations can also be skipped
 entirely by using --no-migrate.
     DESC
     method_option :force, :type => :boolean, :aliases => %w(-f),
-      :desc => "Force a deploy of the specified branch"
+      :desc => "Force a deploy of the specified branch even if a default is set"
     method_option :migrate, :type => :string, :aliases => %w(-m),
       :default => 'rake db:migrate',
       :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations"
-    def deploy(env_name = nil, branch = nil)
-      app           = api.app_for_repo!(repo)
-      environment   = fetch_environment(env_name, app)
-      deploy_branch = environment.resolve_branch(branch, options[:force]) ||
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :desc => "Environment in which to deploy this application"
+    method_option :ref, :type => :string, :aliases => %w(-r),
+      :desc => "Git ref to deploy. May be a branch, a tag, or a SHA."
+    def deploy
+      app         = api.app_for_repo!(repo)
+      environment = fetch_environment(options[:environment], app)
+      deploy_ref  = environment.resolve_branch(options[:ref], options[:force]) ||
         repo.current_branch ||
         raise(DeployArgumentError)
 
@@ -47,7 +51,7 @@ entirely by using --no-migrate.
 
       EY.ui.info "Running deploy for '#{environment.name}' on server..."
 
-      if environment.deploy(app, deploy_branch, options[:migrate])
+      if environment.deploy(app, deploy_ref, options[:migrate])
         EY.ui.info "Deploy complete"
       else
         raise EY::Error, "Deploy failed"
@@ -55,8 +59,8 @@ entirely by using --no-migrate.
 
     rescue NoEnvironmentError => e
       # Give better feedback about why we couldn't find the environment.
-      exists = api.environments.named(env_name)
-      raise exists ? EnvironmentUnlinkedError.new(env_name) : e
+      exists = api.environments.named(options[:environment])
+      raise exists ? EnvironmentUnlinkedError.new(options[:environment]) : e
     end
 
     desc "environments [--all]", <<-DESC

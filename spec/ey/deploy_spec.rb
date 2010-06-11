@@ -27,7 +27,9 @@ describe "ey deploy" do
   given "integration"
 
   def command_to_run(options)
-    "deploy #{options[:env]}"
+    cmd = "deploy"
+    cmd << " -e #{options[:env]}" if options[:env]
+    cmd
   end
 
   def verify_ran(scenario)
@@ -51,7 +53,7 @@ describe "ey deploy" do
 
     it "complains when the specified environment does not contain the app" do
       api_scenario "one app, one environment, not linked"
-      ey "deploy giblets master", :expect_failure => true
+      ey "deploy -e giblets -r master", :expect_failure => true
       @err.should match(/does not run this application/i)
     end
 
@@ -63,7 +65,7 @@ describe "ey deploy" do
 
     it "complains when the app master is in a non-running state" do
       api_scenario "one app, one environment, app master red"
-      ey "deploy giblets master", :expect_failure => true
+      ey "deploy --environment giblets --ref master", :expect_failure => true
       @err.should_not match(/No running instances/i)
       @err.should match(/running.*\(green\)/)
     end
@@ -88,11 +90,6 @@ describe "ey deploy" do
     it "can be disabled with --no-migrate" do
       ey "deploy --no-migrate"
       @ssh_commands.last.should =~ /eysd deploy/
-      @ssh_commands.last.should_not =~ /--migrate/
-    end
-
-    it "can be disabled with --no-migrate in the middle of the command line" do
-      ey "deploy --no-migrate giblets master"
       @ssh_commands.last.should_not =~ /--migrate/
     end
   end
@@ -124,12 +121,12 @@ describe "ey deploy" do
       end
 
       it "deploys another branch if given" do
-        ey "deploy giblets master"
+        ey "deploy --ref master"
         @ssh_commands.last.should =~ /--branch master/
       end
 
       it "deploys a tag if given" do
-        ey "deploy giblets v1"
+        ey "deploy --ref v1"
         @ssh_commands.last.should =~ /--branch v1/
       end
     end
@@ -164,12 +161,12 @@ describe "ey deploy" do
       end
 
       it "complains about a non-default branch without --force" do
-        ey "deploy giblets current-branch", :expect_failure => true
+        ey "deploy -r current-branch", :expect_failure => true
         @err.should =~ /deploy branch is set to "master"/
       end
 
       it "deploys a non-default branch with --force" do
-        ey "deploy giblets current-branch --force"
+        ey "deploy -r current-branch --force"
         @ssh_commands.last.should =~ /--branch current-branch/
       end
     end
@@ -181,7 +178,7 @@ describe "ey deploy" do
     end
 
     it "lets you choose by complete name even if the complete name is ambiguous" do
-      ey "deploy railsapp_staging"
+      ey "deploy --environment railsapp_staging"
       @out.should match(/Running deploy for 'railsapp_staging'/)
     end
   end
