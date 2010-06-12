@@ -23,12 +23,13 @@ The current directory should contain a subdirectory named "cookbooks" to be
 uploaded.
       DESC
 
-      def upload(name = nil)
-        environment = fetch_environment(name)
+      method_option :environment, :type => :string, :aliases => %w(-e),
+        :desc => "Environment that will receive the recipes"
+      def upload
+        environment = fetch_environment(options[:environment])
         environment.upload_recipes
         EY.ui.say "Recipes uploaded successfully for #{environment.name}"
       end
     end
   end
-
 end

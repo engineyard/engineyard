@@ -10,7 +10,9 @@ describe "ey recipes upload" do
   use_git_repo('+cookbooks')
 
   def command_to_run(opts)
-    "recipes upload #{opts[:env]}"
+    cmd = "recipes upload"
+    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd
   end
 
   def verify_ran(scenario)
