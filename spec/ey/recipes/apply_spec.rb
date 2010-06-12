@@ -4,7 +4,9 @@ describe "ey recipes apply" do
   given "integration"
 
   def command_to_run(opts)
-    "recipes apply #{opts[:env]}"
+    cmd = "recipes apply"
+    cmd << " -e #{opts[:env]}" if opts[:env]
+    cmd
   end
 
   def verify_ran(scenario)

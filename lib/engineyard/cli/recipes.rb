@@ -8,8 +8,10 @@ This is similar to '#{banner_base} rebuild' except Engine Yard's main
 configuration step is skipped.
       DESC
 
-      def apply(name = nil)
-        environment = fetch_environment(name)
+      method_option :environment, :type => :string, :aliases => %w(-e),
+        :desc => "Environment in which to apply recipes"
+      def apply
+        environment = fetch_environment(options[:environment])
         environment.run_custom_recipes
         EY.ui.say "Uploaded recipes started for #{environment.name}"
       end
