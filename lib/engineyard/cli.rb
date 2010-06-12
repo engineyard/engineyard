@@ -120,15 +120,16 @@ remote server(s) to restart application servers.
       end
     end
 
-    desc "ssh [ENVIRONMENT]", <<-DESC
+    desc "ssh [--environment ENVIRONMENT]", <<-DESC
 Open an ssh session.
 
 If the environment contains just one server, a session to it will be opened. For
 environments with clusters, a session will be opened to the application master.
     DESC
-
-    def ssh(name = nil)
-      env = fetch_environment(name)
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :desc => "Environment to ssh into"
+    def ssh
+      env = fetch_environment(options[:environment])
 
       if env.app_master
         Kernel.exec "ssh", "#{env.username}@#{env.app_master.public_hostname}"

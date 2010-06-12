@@ -10,7 +10,7 @@ describe "ey ssh" do
   end
 
   it "complains if it has no app master" do
-    ey "ssh bakon", :expect_failure => true
+    ey "ssh -e bakon", :expect_failure => true
     @err.should =~ /'bakon' does not have a master instance/
   end
 
@@ -24,7 +24,9 @@ describe "ey ssh" do
   end
 
   def command_to_run(opts)
-    "ssh #{opts[:env]}"
+    cmd = "ssh"
+    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd
   end
 
   def verify_ran(scenario)
@@ -44,7 +46,7 @@ describe "ey ssh ENV" do
 
   it "doesn't require you to be in any app's directory if the name is unambiguous" do
     Dir.chdir(Dir.tmpdir) do
-      ey "ssh prod", :prepend_to_path => {'ssh' => print_my_args_ssh}
+      ey "ssh -e prod", :prepend_to_path => {'ssh' => print_my_args_ssh}
       @raw_ssh_commands.should == ["ssh turkey@174.129.198.124"]
     end
   end
