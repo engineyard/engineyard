@@ -4,7 +4,9 @@ describe "ey web enable" do
   given "integration"
 
   def command_to_run(opts)
-    "web enable #{opts[:env]}"
+    cmd = "web enable"
+    cmd << " -e #{opts[:env]}" if opts[:env]
+    cmd
   end
 
   def verify_ran(scenario)

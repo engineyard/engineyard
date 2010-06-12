@@ -2,16 +2,13 @@ module EY
   class CLI
     class Web < EY::Thor
       desc "web enable [ENVIRONMENT]", <<-HELP
-Take down the maintenance page for the specified environment.
-
-Note that a maintenance page exists for the entire environment. If you are
-using multiple applications in a single environment, this command will re-enable
-traffic for all of them.
+Take down the maintenance page for the current application in the specified environment.
       HELP
-
-      def enable(env_name = nil)
+      method_option :environment, :type => :string, :aliases => %w(-e),
+        :desc => "Environment on which to put up the maintenance page"
+      def enable
         app         = api.app_for_repo!(repo)
-        environment = fetch_environment(env_name, app)
+        environment = fetch_environment(options[:environment], app)
         loudly_check_eysd(environment)
         EY.ui.info "Taking down maintenance page for #{environment.name}"
         environment.take_down_maintenance_page(app)
