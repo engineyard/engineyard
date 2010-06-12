@@ -4,7 +4,9 @@ describe "ey rollback" do
   given "integration"
 
   def command_to_run(opts)
-    "rollback #{opts[:env]}"
+    cmd = "rollback"
+    cmd << " -e #{opts[:env]}" if opts[:env]
+    cmd
   end
 
   def verify_ran(scenario)

@@ -98,16 +98,17 @@ successfully completed.
       env.rebuild
     end
 
-    desc "rollback [ENVIRONMENT]", <<-DESC
+    desc "rollback [--environment ENVIRONMENT]", <<-DESC
 Rollback to the previous deploy.
 
 Uses code from previous deploy in the "/data/APP_NAME/releases" directory on
 remote server(s) to restart application servers.
    DESC
-
-    def rollback(name = nil)
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :desc => "Environment in which to roll back the current application"
+    def rollback
       app = api.app_for_repo!(repo)
-      env = fetch_environment(name)
+      env = fetch_environment(options[:environment])
 
       loudly_check_eysd(env)
 
