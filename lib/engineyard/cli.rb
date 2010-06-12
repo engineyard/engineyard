@@ -138,16 +138,17 @@ environments with clusters, a session will be opened to the application master.
       end
     end
 
-    desc "logs [ENVIRONMENT]", <<-DESC
+    desc "logs [--environment ENVIRONMENT]", <<-DESC
 Retrieve the latest logs for an environment.
 
 Displays Engine Yard configuration logs for all servers in the environment. If
 recipes were uploaded to the environment & run, their logs will also be
 displayed beneath the main configuration logs.
     DESC
-
-    def logs(name = nil)
-      env = fetch_environment(name)
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :desc => "Environment with the interesting logs"
+    def logs
+      env = fetch_environment(options[:environment])
       env.logs.each do |log|
         EY.ui.info log.instance_name
 

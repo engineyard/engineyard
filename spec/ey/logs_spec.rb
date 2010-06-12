@@ -5,7 +5,7 @@ describe "ey logs" do
 
   it "prints logs returned by awsm" do
     api_scenario "one app, one environment"
-    ey "logs giblets"
+    ey "logs -e giblets"
     @out.should match(/MAIN LOG OUTPUT/)
     @out.should match(/CUSTOM LOG OUTPUT/)
     @err.should be_empty
@@ -22,7 +22,9 @@ describe "ey logs" do
   given "integration"
 
   def command_to_run(opts)
-    "logs #{opts[:env]}"
+    cmd = "logs"
+    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd
   end
 
   def verify_ran(scenario)
