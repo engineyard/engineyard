@@ -14,7 +14,7 @@ traffic for all of them.
         environment = fetch_environment(env_name, app)
         loudly_check_eysd(environment)
         EY.ui.info "Taking down maintenance page for #{environment.name}"
-        environment.take_down_maintenance_page!(app)
+        environment.take_down_maintenance_page(app)
       end
 
       desc "web disable [ENVIRONMENT]", <<-HELP
@@ -40,7 +40,7 @@ Maintenance pages searched for in order of decreasing priority:
         environment = fetch_environment(env_name, app)
         loudly_check_eysd(environment)
         EY.ui.info "Putting up maintenance page for #{environment.name}"
-        environment.put_up_maintenance_page!(app)
+        environment.put_up_maintenance_page(app)
       end
     end
   end

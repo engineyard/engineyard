@@ -47,7 +47,7 @@ entirely by using --no-migrate.
 
       EY.ui.info "Running deploy for '#{environment.name}' on server..."
 
-      if environment.deploy!(app, deploy_branch, options[:migrate])
+      if environment.deploy(app, deploy_branch, options[:migrate])
         EY.ui.info "Deploy complete"
       else
         raise EY::Error, "Deploy failed"
@@ -105,7 +105,7 @@ remote server(s) to restart application servers.
 
       if env.app_master
         EY.ui.info("Rolling back #{env.name}")
-        if env.rollback!(app)
+        if env.rollback(app)
           EY.ui.info "Rollback complete"
         else
           raise EY::Error, "Rollback failed"

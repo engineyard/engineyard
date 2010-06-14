@@ -31,24 +31,24 @@ module EY
         master
       end
 
-      def ensure_eysd_present!(&blk)
-        app_master!.ensure_eysd_present!(&blk)
+      def ensure_eysd_present(&blk)
+        app_master!.ensure_eysd_present(&blk)
       end
 
-      def deploy!(app, ref, migration_command=nil)
-        app_master!.deploy!(app, ref, migration_command, config)
+      def deploy(app, ref, migration_command=nil)
+        app_master!.deploy(app, ref, migration_command, config)
       end
 
-      def rollback!(app)
-        app_master!.rollback!(app, config)
+      def rollback(app)
+        app_master!.rollback(app, config)
       end
 
-      def take_down_maintenance_page!(app)
-        app_master!.take_down_maintenance_page!(app)
+      def take_down_maintenance_page(app)
+        app_master!.take_down_maintenance_page(app)
       end
 
-      def put_up_maintenance_page!(app)
-        app_master!.put_up_maintenance_page!(app)
+      def put_up_maintenance_page(app)
+        app_master!.put_up_maintenance_page(app)
       end
 
       def rebuild

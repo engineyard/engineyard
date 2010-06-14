@@ -30,7 +30,7 @@ exit(17) # required_version < current_version
       alias :hostname :public_hostname
 
 
-      def deploy!(app, ref, migration_command=nil, extra_configuration=nil)
+      def deploy(app, ref, migration_command=nil, extra_configuration=nil)
         deploy_cmd = [eysd_path, 'deploy', '--app', app.name, '--branch', ref]
 
         if extra_configuration
@@ -44,7 +44,7 @@ exit(17) # required_version < current_version
         ssh Escape.shell_command(deploy_cmd)
       end
 
-      def rollback!(app, extra_configuration=nil)
+      def rollback(app, extra_configuration=nil)
         deploy_cmd = [eysd_path, 'deploy', 'rollback', '--app', app.name]
 
         if extra_configuration
@@ -55,31 +55,31 @@ exit(17) # required_version < current_version
       end
 
 
-      def put_up_maintenance_page!(app)
+      def put_up_maintenance_page(app)
         ssh Escape.shell_command([
             eysd_path, 'deploy', 'enable_maintenance_page', '--app', app.name
           ])
       end
 
-      def take_down_maintenance_page!(app)
+      def take_down_maintenance_page(app)
         ssh Escape.shell_command([
             eysd_path, 'deploy', 'disable_maintenance_page', '--app', app.name
           ])
       end
 
 
-      def ensure_eysd_present!
+      def ensure_eysd_present
         case ey_deploy_check
         when :ssh_failed
           raise EnvironmentError, "SSH connection to #{hostname} failed"
         when :eysd_missing
           yield :installing if block_given?
-          install_ey_deploy!
+          install_ey_deploy
         when :too_new
           raise EnvironmentError, "server-side component too new; please upgrade your copy of the engineyard gem."
         when :too_old
           yield :upgrading if block_given?
-          upgrade_ey_deploy!
+          upgrade_ey_deploy
         when :ok
           # no action needed
         else
@@ -94,13 +94,13 @@ exit(17) # required_version < current_version
         EXIT_STATUS[$?.exitstatus]
       end
 
-      def install_ey_deploy!
+      def install_ey_deploy
         ssh(Escape.shell_command(['sudo', gem_path, 'install', 'ey-deploy', '-v', EYSD_VERSION]))
       end
 
-      def upgrade_ey_deploy!
+      def upgrade_ey_deploy
         ssh "sudo #{gem_path} uninstall -a -x ey-deploy"
-        install_ey_deploy!
+        install_ey_deploy
       end
 
     private
