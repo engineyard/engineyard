@@ -100,18 +100,16 @@ remote server(s) to restart application servers.
    DESC
 
     def rollback(name = nil)
-      app    = api.app_for_repo!(repo)
-      env    = fetch_environment(name)
+      app = api.app_for_repo!(repo)
+      env = fetch_environment(name)
 
-      if env.app_master
-        EY.ui.info("Rolling back #{env.name}")
-        if env.rollback(app)
-          EY.ui.info "Rollback complete"
-        else
-          raise EY::Error, "Rollback failed"
-        end
+      loudly_check_eysd(env)
+
+      EY.ui.info("Rolling back #{env.name}")
+      if env.rollback!(app)
+        EY.ui.info "Rollback complete"
       else
-        raise NoAppMaster.new(env.name)
+        raise EY::Error, "Rollback failed"
       end
     end
 
