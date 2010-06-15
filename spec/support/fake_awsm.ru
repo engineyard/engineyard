@@ -143,18 +143,22 @@ private
         [{
             "ssh_username" => "turkey",
             "instances" => [{
-                "public_hostname" => "174.129.198.124",
                 "status" => "running",
-                "id" => 27220}],
+                "id" => 27220,
+                "amazon_id" => 'i-ddbbdd92',
+                "role" => "solo",
+                "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
             "name" => "giblets",
             "apps" => [],
             "instances_count" => 1,
             "stack_name" => "nginx_mongrel",
             "id" => 200,
             "app_master" => {
-              "public_hostname" => "174.129.198.124",
               "status" => "running",
-              "id" => 27220}}]
+              "id" => 27220,
+              "amazon_id" => 'i-ddbbdd92',
+              "role" => "solo",
+              "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}}]
       end
     end # UnlinkedApp
 
@@ -162,18 +166,24 @@ private
       def apps
         [{"name" => "rails232app",
             "environments" => [{"ssh_username" => "turkey",
-                "instances" => [{"public_hostname" => "174.129.198.124",
+                "instances" => [{
                     "status" => "running",
-                    "id" => 27220}],
+                    "id" => 27220,
+                    "amazon_id" => 'i-ddbbdd92',
+                    "role" => "solo",
+                    "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
                 "name" => "giblets",
                 "apps" => [{"name" => "rails232app",
                     "repository_uri" => git_remote}],
                 "instances_count" => 1,
                 "stack_name" => "nginx_mongrel",
                 "id" => 200,
-                "app_master" => {"public_hostname" => "174.129.198.124",
+                "app_master" => {
                   "status" => "running",
-                  "id" => 27220}}],
+                  "id" => 27220,
+                  "amazon_id" => 'i-ddbbdd92',
+                  "role" => "solo",
+                  "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}}],
             "repository_uri" => git_remote}]
       end
 
@@ -181,9 +191,11 @@ private
         [{
             "ssh_username" => "turkey",
             "instances" => [{
-                "public_hostname" => "174.129.198.124",
                 "status" => "running",
-                "id" => 27220}],
+                "id" => 27220,
+                "amazon_id" => 'i-ddbbdd92',
+                "role" => "solo",
+                "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
             "name" => "giblets",
             "apps" => [{
                 "name" => "rails232app",
@@ -192,9 +204,11 @@ private
             "stack_name" => "nginx_mongrel",
             "id" => 200,
             "app_master" => {
-              "public_hostname" => "174.129.198.124",
               "status" => "running",
-              "id" => 27220}}]
+              "id" => 27220,
+              "amazon_id" => 'i-ddbbdd92',
+              "role" => "solo",
+              "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}}]
       end
 
       def logs(env_id)
@@ -233,17 +247,23 @@ private
         [{"name" => "rails232app",
             "environments" => [{
                 "ssh_username" => "turkey",
-                "instances" => [{"public_hostname" => "174.129.198.124",
+                "instances" => [{
                     "status" => "running",
-                    "id" => 27220}],
+                    "id" => 27220,
+                    "amazon_id" => 'i-ddbbdd92',
+                    "role" => "solo",
+                    "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
                 "name" => "giblets",
                 "apps" => apps,
                 "instances_count" => 1,
                 "stack_name" => "nginx_mongrel",
                 "id" => 200,
-                "app_master" => {"public_hostname" => "174.129.198.124",
+                "app_master" => {
                   "status" => "running",
-                  "id" => 27220}
+                  "id" => 27220,
+                  "amazon_id" => 'i-ddbbdd92',
+                  "role" => "solo",
+                  "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}
               }, {
                 "ssh_username" => "ham",
                 "instances" => [],
@@ -261,9 +281,11 @@ private
         [{
             "ssh_username" => "turkey",
             "instances" => [{
-                "public_hostname" => "174.129.198.124",
                 "status" => "running",
-                "id" => 27220}],
+                "id" => 27220,
+                "amazon_id" => 'i-ddbbdd92',
+                "role" => "solo",
+                "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
             "name" => "giblets",
             "apps" => [{
                 "name" => "rails232app",
@@ -272,9 +294,11 @@ private
             "stack_name" => "nginx_mongrel",
             "id" => 200,
             "app_master" => {
-              "public_hostname" => "174.129.198.124",
               "status" => "running",
-              "id" => 27220}
+              "id" => 27220,
+              "amazon_id" => 'i-ddbbdd92',
+              "role" => "solo",
+              "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}
           }, {
             "ssh_username" => "ham",
             "instances" => [],
@@ -301,18 +325,22 @@ private
             "environments" => [{
                 "ssh_username" => "turkey",
                 "instances" => [{
-                    "public_hostname" => "174.129.198.124",
                     "status" => "running",
-                    "id" => 27220}],
+                    "id" => 27220,
+                    "amazon_id" => 'i-ddbbdd92',
+                    "role" => "solo",
+                    "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
                 "name" => "railsapp_production",
                 "apps" => apps,
                 "instances_count" => 1,
                 "stack_name" => "nginx_mongrel",
                 "id" => 200,
                 "app_master" => {
-                  "public_hostname" => "174.129.198.124",
                   "status" => "running",
                   "id" => 27220,
+                  "amazon_id" => 'i-ddbbdd92',
+                  "role" => "solo",
+                  "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com",
                 },
               }, {
                 "ssh_username" => "ham",
@@ -320,6 +348,7 @@ private
                     "public_hostname" => '127.3.2.1',
                     "status" => "running",
                     "id" => 63066,
+                    "role" => "solo",
                   }],
                 "name" => "railsapp_staging",
                 "apps" => apps,
@@ -330,13 +359,15 @@ private
                   "public_hostname" => '127.3.2.1',
                   "status" => "running",
                   "id" => 63066,
+                  "role" => "solo",
                 },
               }, {
                 "ssh_username" => "ham",
                 "instances" => [{
-                    "public_hostname" => '127.44.55.66',
                     "status" => "running",
                     "id" => 59395,
+                    "role" => "solo",
+                    "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com",
                   }],
                 "name" => "railsapp_staging_2",
                 "apps" => apps,
@@ -347,6 +378,7 @@ private
                   "public_hostname" => '127.44.55.66',
                   "status" => "running",
                   "id" => 59395,
+                  "role" => "solo",
                 },
               }],
             "repository_uri" => git_remote}]
@@ -356,9 +388,11 @@ private
         [{
             "ssh_username" => "turkey",
             "instances" => [{
-                "public_hostname" => "174.129.198.124",
                 "status" => "running",
-                "id" => 27220}],
+                "id" => 27220,
+                "amazon_id" => 'i-ddbbdd92',
+                "role" => "solo",
+                "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
             "name" => "railsapp_production",
             "apps" => [{
                 "name" => "rails232app",
@@ -367,15 +401,19 @@ private
             "stack_name" => "nginx_mongrel",
             "id" => 200,
             "app_master" => {
-              "public_hostname" => "174.129.198.124",
+              "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com",
               "status" => "running",
-              "id" => 27220}
+              "id" => 27220,
+              "amazon_id" => 'i-ddbbdd92',
+              "role" => "solo"},
           }, {
             "ssh_username" => "ham",
             "instances" => [{
                 "public_hostname" => '127.3.2.1',
                 "status" => "running",
                 "id" => 63066,
+                "amazon_id" => 'i-09fec72a',
+                "role" => "solo",
               }],
             "name" => "railsapp_staging",
             "apps" => [{
@@ -388,6 +426,8 @@ private
               "public_hostname" => '127.3.2.1',
               "status" => "running",
               "id" => 63066,
+              "amazon_id" => 'i-09fec72a',
+              "role" => "solo",
             },
           }, {
             "ssh_username" => "chicken",
@@ -395,6 +435,8 @@ private
                 "public_hostname" => '127.44.55.66',
                 "status" => "running",
                 "id" => 59395,
+                "amazon_id" => 'i-1aa1e271',
+                "role" => "solo",
               }],
             "name" => "railsapp_staging_2",
             "apps" => [{
@@ -407,6 +449,8 @@ private
               "public_hostname" => '127.44.55.66',
               "status" => "running",
               "id" => 59395,
+              "amazon_id" => 'i-1aa1e271',
+              "role" => "solo",
             },
           }]
       end

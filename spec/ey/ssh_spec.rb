@@ -30,7 +30,7 @@ describe "ey ssh" do
   end
 
   def verify_ran(scenario)
-    ssh_target = scenario[:ssh_username] + '@' + scenario[:master_ip]
+    ssh_target = scenario[:ssh_username] + '@' + scenario[:master_hostname]
     @raw_ssh_commands.should == ["ssh #{ssh_target}"]
   end
 
@@ -47,7 +47,7 @@ describe "ey ssh ENV" do
   it "doesn't require you to be in any app's directory if the name is unambiguous" do
     Dir.chdir(Dir.tmpdir) do
       ey "ssh -e prod", :prepend_to_path => {'ssh' => print_my_args_ssh}
-      @raw_ssh_commands.should == ["ssh turkey@174.129.198.124"]
+      @raw_ssh_commands.should == ["ssh turkey@ec2-174-129-198-124.compute-1.amazonaws.com"]
     end
   end
 end

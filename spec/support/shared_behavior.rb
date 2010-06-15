@@ -30,10 +30,10 @@ shared_examples_for "it takes an environment name" do
     api_scenario "one app, one environment"
     run_ey({:env => nil}, {:debug => true})
     verify_ran(make_scenario({
-          :environment  => 'giblets',
-          :application  => 'rails232app',
-          :master_ip    => '174.129.198.124',
-          :ssh_username => 'turkey',
+          :environment      => 'giblets',
+          :application      => 'rails232app',
+          :master_hostname  => 'ec2-174-129-198-124.compute-1.amazonaws.com',
+          :ssh_username     => 'turkey',
         }))
   end
 
@@ -57,10 +57,10 @@ shared_examples_for "it takes an environment name" do
       api_scenario "one app, many similarly-named environments"
       run_ey({:env => 'prod'}, {:debug => true})
       verify_ran(make_scenario({
-            :environment  => 'railsapp_production',
-            :application  => 'rails232app',
-            :master_ip    => '174.129.198.124',
-            :ssh_username => 'turkey',
+            :environment      => 'railsapp_production',
+            :application      => 'rails232app',
+            :master_hostname  => 'ec2-174-129-198-124.compute-1.amazonaws.com',
+            :ssh_username     => 'turkey',
           }))
     end
   end
