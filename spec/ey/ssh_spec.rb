@@ -36,18 +36,3 @@ describe "ey ssh" do
 
   it_should_behave_like "it takes an environment name"
 end
-
-describe "ey ssh ENV" do
-  given "integration"
-
-  before(:all) do
-    api_scenario "one app, many similarly-named environments"
-  end
-
-  it "doesn't require you to be in any app's directory if the name is unambiguous" do
-    Dir.chdir(Dir.tmpdir) do
-      ey "ssh -e prod", :prepend_to_path => {'ssh' => print_my_args_ssh}
-      @raw_ssh_commands.should == ["ssh turkey@ec2-174-129-198-124.compute-1.amazonaws.com"]
-    end
-  end
-end
