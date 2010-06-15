@@ -106,7 +106,7 @@ remote server(s) to restart application servers.
       loudly_check_eysd(env)
 
       EY.ui.info("Rolling back #{env.name}")
-      if env.rollback!(app)
+      if env.rollback(app)
         EY.ui.info "Rollback complete"
       else
         raise EY::Error, "Rollback failed"

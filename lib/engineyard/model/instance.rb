@@ -95,7 +95,7 @@ exit(17) # required_version < current_version
       end
 
       def install_ey_deploy
-        ssh(Escape.shell_command(['sudo', gem_path, 'install', 'ey-deploy', '-v', EYSD_VERSION]))
+        ssh(Escape.shell_command(['sudo', gem_path, 'install', 'ey-deploy', '--no-rdoc', '--no-ri', '-v', EYSD_VERSION]))
       end
 
       def upgrade_ey_deploy
