@@ -33,7 +33,8 @@ describe "EY::Model::Environment#run_custom_recipes" do
     FakeWeb.register_uri(
       :put,
       "https://cloud.engineyard.com/api/v2/environments/#{env.id}/run_custom_recipes",
-      :body => ''
+      :body => '',
+      :content_type => 'application/json'
     )
 
     env.run_custom_recipes
@@ -72,8 +73,9 @@ describe "EY::Model::Environment#instances" do
     }
     FakeWeb.register_uri(:get,
       "https://cloud.engineyard.com/api/v2/environments/#{env.id}/instances",
-      :body => {"instances" => [instance_data]}.to_json)
-
+      :body => {"instances" => [instance_data]}.to_json,
+      :content_type => 'application/json'
+    )
 
     env.should have(1).instances
     env.instances.first.should == EY::Model::Instance.from_hash(instance_data.merge(:environment => env))

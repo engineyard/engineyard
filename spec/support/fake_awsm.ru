@@ -54,6 +54,24 @@ class FakeAwsm < Sinatra::Base
     {"logs" => @@scenario.logs(params[:env_id])}.to_json
   end
 
+  get "/api/v2/environments/:env_id/recipes" do
+    redirect '/fakes3/recipe'
+  end
+
+  get "/fakes3/recipe" do
+    content_type "binary/octet-stream"
+    status(200)
+
+    tempdir = File.join(Dir.tmpdir, "ey_test_cmds_#{Time.now.tv_sec}#{Time.now.tv_usec}_#{$$}")
+    Dir.mkdir(tempdir)
+    Dir.mkdir("#{tempdir}/cookbooks")
+    File.open("#{tempdir}/cookbooks/README", 'w') do |f|
+      f.write "Remove this file to clone an upstream git repository of cookbooks\n"
+    end
+
+    Dir.chdir(tempdir) { `tar czf - cookbooks` }
+  end
+
   post "/api/v2/environments/:env_id/recipes" do
     if params[:file][:tempfile]
       files = `tar --list -z -f "#{params[:file][:tempfile].path}"`.split(/\n/)

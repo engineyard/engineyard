@@ -59,6 +59,23 @@ module EY
         api.request("/environments/#{id}/run_custom_recipes", :method => :put)
       end
 
+      def download_recipes
+        if File.exist?('cookbooks')
+          raise EY::Error, "Could not download, cookbooks already exists"
+        end
+
+        require 'tempfile'
+        tmp = Tempfile.new("recipes")
+        tmp.write(api.request("/environments/#{id}/recipes"))
+        tmp.flush
+
+        cmd = "tar xzf '#{tmp.path}' cookbooks"
+
+        unless system(cmd)
+          raise EY::Error, "Could not unarchive recipes.\nCommand `#{cmd}` exited with an error."
+        end
+      end
+
       def upload_recipes(file_to_upload = recipe_file)
         api.request("/environments/#{id}/recipes",
           :method => :post,
@@ -103,4 +120,5 @@ module EY
       end
     end
   end
+
 end

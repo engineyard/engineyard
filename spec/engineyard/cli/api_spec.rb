@@ -20,7 +20,7 @@ describe EY::CLI::API do
 
   context "without saved api token" do
     before(:each) do
-      FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|)
+      FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
 
       capture_stdio("\n\n") do
         @token = EY::CLI::API.new

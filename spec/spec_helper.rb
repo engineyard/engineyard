@@ -22,6 +22,7 @@ require 'engineyard'
 
 # Spec stuff
 require 'spec/autorun'
+require 'tmpdir'
 require 'yaml'
 require 'pp'
 support = Dir[File.join(EY_ROOT,'/spec/support/*.rb')]

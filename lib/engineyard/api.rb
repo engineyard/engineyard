@@ -75,7 +75,7 @@ module EY
 
       if resp.body.empty?
         data = ''
-      else
+      elsif resp.headers[:content_type] =~ /application\/json/
         begin
           data = JSON.parse(resp.body)
           EY.ui.debug("Response", data)
@@ -83,6 +83,8 @@ module EY
           EY.ui.debug("Raw response", resp.body)
           raise RequestFailed, "Response was not valid JSON."
         end
+      else
+        data = resp.body
       end
 
       data

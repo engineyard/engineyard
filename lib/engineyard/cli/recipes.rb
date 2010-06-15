@@ -30,6 +30,23 @@ uploaded.
         environment.upload_recipes
         EY.ui.say "Recipes uploaded successfully for #{environment.name}"
       end
+
+      desc "recipes download [--environment ENVIRONMENT]", <<-DESC
+Download custom chef recipes from ENVIRONMENT into the current directory.
+
+The recipes will be unpacked into a directory called "cookbooks" in the
+current directory.
+
+If the cookbooks directory already exists, an error will be raised.
+DESC
+      method_option :environment, :type => :string, :aliases => %w(-e),
+        :desc => "Environment for which to download the recipes"
+      def download
+        environment = fetch_environment(options[:environment])
+        environment.download_recipes
+        EY.ui.say "Recipes downloaded successfully for #{environment.name}"
+      end
+
     end
   end
 end
