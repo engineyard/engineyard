@@ -67,7 +67,7 @@ module EY
 
   class DeployArgumentError < EY::Error
     def initialize
-      super %|"deploy" was called incorrectly. Call as "deploy [ENVIRONMENT] [BRANCH]"\n| +
+      super %("deploy" was called incorrectly. Call as "deploy [--environment <env>] [--ref <branch|tag|ref>]"\n) +
         %|You can set default environments and branches in ey.yml|
     end
   end
