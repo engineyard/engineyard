@@ -16,6 +16,13 @@ module EY
     end
   end
 
+  class InvalidAppError < Error
+    def initialize(name)
+      error = %|There is no app configured with the name "#{name}"|
+        super error
+    end
+  end
+
   class NoAppMaster < EY::Error
     def initialize(env_name)
       super "The environment '#{env_name}' does not have a master instance."
