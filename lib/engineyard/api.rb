@@ -38,6 +38,15 @@ module EY
       app_for_repo(repo) || raise(NoAppError.new(repo))
     end
 
+    def fetch_app(name)
+      apps.find{|a| a.name == name}
+    end
+
+    def fetch_app!(name)
+      return unless name
+      fetch_app(name) || raise(InvalidAppError.new(name))
+    end
+
     class InvalidCredentials < EY::Error; end
     class RequestFailed < EY::Error; end
 
