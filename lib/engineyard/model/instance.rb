@@ -2,7 +2,7 @@ require 'escape'
 
 module EY
   module Model
-    class Instance < ApiStruct.new(:id, :role, :status, :amazon_id, :public_hostname, :environment)
+    class Instance < ApiStruct.new(:id, :role, :name, :status, :amazon_id, :public_hostname, :environment)
       EYSD_VERSION = "~>0.4.1"
       CHECK_SCRIPT = <<-SCRIPT
 require "rubygems"
@@ -31,40 +31,36 @@ exit(17) # required_version < current_version
 
 
       def deploy(app, ref, migration_command=nil, extra_configuration=nil)
-        deploy_cmd = [eysd_path, 'deploy', '--app', app.name, '--branch', ref]
+        deploy_args = ['--app', app.name, '--branch', ref]
 
         if extra_configuration
-          deploy_cmd << '--config' << extra_configuration.to_json
+          deploy_args << '--config' << extra_configuration.to_json
         end
 
         if migration_command
-          deploy_cmd << "--migrate" << migration_command
+          deploy_args << "--migrate" << migration_command
         end
 
-        ssh Escape.shell_command(deploy_cmd)
+        invoke_eysd_deploy(deploy_args)
       end
 
       def rollback(app, extra_configuration=nil)
-        deploy_cmd = [eysd_path, 'deploy', 'rollback', '--app', app.name]
+        deploy_args = ['rollback', '--app', app.name]
 
         if extra_configuration
-          deploy_cmd << '--config' << extra_configuration.to_json
+          deploy_args << '--config' << extra_configuration.to_json
         end
 
-        ssh Escape.shell_command(deploy_cmd)
+        invoke_eysd_deploy(deploy_args)
       end
 
 
       def put_up_maintenance_page(app)
-        ssh Escape.shell_command([
-            eysd_path, 'deploy', 'enable_maintenance_page', '--app', app.name
-          ])
+        invoke_eysd_deploy(['enable_maintenance_page', '--app', app.name])
       end
 
       def take_down_maintenance_page(app)
-        ssh Escape.shell_command([
-            eysd_path, 'deploy', 'disable_maintenance_page', '--app', app.name
-          ])
+        invoke_eysd_deploy(['disable_maintenance_page', '--app', app.name])
       end
 
 
@@ -120,6 +116,18 @@ exit(17) # required_version < current_version
         else
           true
         end
+      end
+
+      def invoke_eysd_deploy(deploy_args)
+        start = [eysd_path, 'deploy']
+        instance_args = environment.instances.inject(['--instances']) do |command, inst|
+          instance_tuple = [inst.public_hostname, inst.role]
+          instance_tuple << inst.name if inst.name
+
+          command << instance_tuple.join(',')
+        end
+
+        ssh Escape.shell_command(start + deploy_args + instance_args)
       end
 
       def eysd_path

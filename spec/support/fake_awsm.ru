@@ -163,39 +163,56 @@ private
     end # UnlinkedApp
 
     class LinkedApp < Empty
+      def _instances
+        [{
+            "id" => 27220,
+            "role" => "app_master",
+            "name" => nil,
+            "status" => "running",
+            "amazon_id" => 'i-ddbbdd92',
+            "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com",
+          }, {
+            "id" => 22721,
+            "name" => nil,
+            "role" => "db_master",
+            "status" => "running",
+            "amazon_id" => "i-d4cdddbf",
+            "public_hostname" => "ec2-174-129-142-53.compute-1.amazonaws.com",
+          }, {
+            "id" => 22722,
+            "role" => "app",
+            "name" => nil,
+            "status" => "building",
+            "amazon_id" => "i-d2e3f1b9",
+            "public_hostname" => "ec2-72-44-46-66.compute-1.amazonaws.com",
+          }, {
+            "id" => 22723,
+            "role" => "util",
+            "name" => "fluffy",
+            "status" => "running",
+            "amazon_id" => "i-80e3f1eb",
+            "public_hostname" => "ec2-184-73-116-228.compute-1.amazonaws.com",
+          }]
+      end
+
       def apps
         [{"name" => "rails232app",
             "environments" => [{"ssh_username" => "turkey",
-                "instances" => [{
-                    "status" => "running",
-                    "id" => 27220,
-                    "amazon_id" => 'i-ddbbdd92',
-                    "role" => "solo",
-                    "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
+                "instances" => _instances,
                 "name" => "giblets",
                 "apps" => [{"name" => "rails232app",
                     "repository_uri" => git_remote}],
                 "instances_count" => 1,
                 "stack_name" => "nginx_mongrel",
                 "id" => 200,
-                "app_master" => {
-                  "status" => "running",
-                  "id" => 27220,
-                  "amazon_id" => 'i-ddbbdd92',
-                  "role" => "solo",
-                  "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}}],
+                "app_master" => _instances.first}],
             "repository_uri" => git_remote}]
       end
 
       def environments
         [{
             "ssh_username" => "turkey",
-            "instances" => [{
-                "status" => "running",
-                "id" => 27220,
-                "amazon_id" => 'i-ddbbdd92',
-                "role" => "solo",
-                "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
+            "instances" => _instances,
             "name" => "giblets",
             "apps" => [{
                 "name" => "rails232app",
@@ -203,12 +220,7 @@ private
             "instances_count" => 1,
             "stack_name" => "nginx_mongrel",
             "id" => 200,
-            "app_master" => {
-              "status" => "running",
-              "id" => 27220,
-              "amazon_id" => 'i-ddbbdd92',
-              "role" => "solo",
-              "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}}]
+            "app_master" => _instances[0]}]
       end
 
       def logs(env_id)

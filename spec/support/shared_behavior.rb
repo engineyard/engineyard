@@ -2,7 +2,7 @@ module Spec
   module Helpers
     module SharedIntegrationTestUtils
 
-      def run_ey(command_options, ey_options)
+      def run_ey(command_options, ey_options={})
         if respond_to?(:extra_ey_options)   # needed for ssh tests
           ey_options.merge!(extra_ey_options)
         end
@@ -74,6 +74,26 @@ end
 
 shared_examples_for "it invokes eysd" do
   include Spec::Helpers::SharedIntegrationTestUtils
+
+  it "passes along instance information to eysd" do
+    api_scenario "one app, one environment"
+    run_ey({:env => 'giblets'})
+
+    instance_args = [
+      Regexp.quote("ec2-174-129-198-124.compute-1.amazonaws.com,app_master"),
+      Regexp.quote("ec2-174-129-142-53.compute-1.amazonaws.com,db_master"),
+      Regexp.quote("ec2-72-44-46-66.compute-1.amazonaws.com,app"),
+      Regexp.quote("ec2-184-73-116-228.compute-1.amazonaws.com,util,fluffy"),
+    ]
+
+    # they should all be mentioned
+    instance_args.each do |i|
+      @ssh_commands.last.should =~ /#{i}/
+    end
+
+    # after the option '--instances'
+    @ssh_commands.last.should match(/--instances (#{instance_args.join('|')})/)
+  end
 
   context "eysd install" do
     before(:all) do

@@ -60,17 +60,19 @@ describe "EY::Model::Environment#instances" do
   given "it has an api"
 
   it "returns instances" do
-    env = EY::Model::Environment.from_hash({
-        "id" => 10291,
-        "api" => @api,
-      })
-
     instance_data = {
       "id" => "1",
       "role" => "app_master",
       "amazon_id" => "i-likebeer",
       "public_hostname" => "banana_master"
     }
+
+    env = EY::Model::Environment.from_hash({
+        "id" => 10291,
+        "api" => @api,
+        "instances" => [instance_data],
+      })
+
     FakeWeb.register_uri(:get,
       "https://cloud.engineyard.com/api/v2/environments/#{env.id}/instances",
       :body => {"instances" => [instance_data]}.to_json,
@@ -95,7 +97,7 @@ describe "EY::Model::Environment#app_master!" do
         "id" => 11830,
         "name" => "guinea-pigs-are-delicious",
         "app_master" => app_master,
-        "instances" => [app_master],
+        "instances" => [app_master].compact,
       })
   end
 

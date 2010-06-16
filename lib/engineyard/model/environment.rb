@@ -1,10 +1,11 @@
 module EY
   module Model
-    class Environment < ApiStruct.new(:id, :name, :instances_count, :apps, :app_master, :username, :api)
+    class Environment < ApiStruct.new(:id, :name, :instances, :instances_count, :apps, :app_master, :username, :api)
       def self.from_hash(hash)
         super.tap do |env|
           env.username = hash['ssh_username']
           env.apps = App.from_array(env.apps, :api => env.api)
+          env.instances = Instance.from_array(hash['instances'], :environment => env)
           env.app_master = Instance.from_hash(env.app_master.merge(:environment => env)) if env.app_master
         end
       end
@@ -15,10 +16,6 @@ module EY
 
       def logs
         Log.from_array(api_get("/environments/#{id}/logs")["logs"])
-      end
-
-      def instances
-        Instance.from_array(api_get("/environments/#{id}/instances")["instances"], :environment => self)
       end
 
       def app_master!
