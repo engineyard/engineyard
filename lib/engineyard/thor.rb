@@ -21,17 +21,17 @@ module EY
       end
 
       def self.subcommand_help(cmd)
-        desc "help #{cmd} [SUBCOMMAND]", "Describe all subcommands or one specific subcommand."
+        desc "#{cmd} help [COMMAND]", "Describe all subcommands or one specific subcommand."
 
         class_eval <<-RUBY
-def help(*args)
-  super
-  if args.empty?
-    banner = "See '" + self.class.send(:banner_base) + " help #{cmd} [SUBCOMMAND]' "
-    text = "for more information on a specific subcommand."
-    EY.ui.say  banner + text
-  end
-end
+          def help(*args)
+            super
+            if args.empty?
+              banner = "See '" + self.class.send(:banner_base) + " #{cmd} help [COMMAND]' "
+              text = "for more information on a specific subcommand."
+              EY.ui.say  banner + text
+            end
+          end
         RUBY
       end
 
