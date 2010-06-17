@@ -1,5 +1,5 @@
+$LOAD_PATH.unshift File.expand_path("../vendor", __FILE__)
 require 'thor'
-require 'engineyard/cli/thor_fixes'
 
 module EY
   class Thor < ::Thor
