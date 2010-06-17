@@ -31,7 +31,11 @@ exit(17) # required_version < current_version
 
 
       def deploy(app, ref, migration_command=nil, extra_configuration=nil)
-        deploy_args = ['--app', app.name, '--branch', ref]
+        deploy_args = [
+          '--app', app.name,
+          '--repo', app.repository_uri,
+          '--branch', ref,
+        ]
 
         if extra_configuration
           deploy_args << '--config' << extra_configuration.to_json

@@ -34,6 +34,7 @@ describe "ey deploy" do
 
   def verify_ran(scenario)
     @out.should match(/Running deploy for '#{scenario[:environment]}'/)
+    @ssh_commands.should have_command_like(/eysd deploy/)
   end
 
   # common behavior
@@ -201,7 +202,8 @@ describe "ey deploy" do
 
     it "allows you to specify an app when not in a directory" do
       ey "deploy --app rails232app --ref master"
-      @ssh_commands.last.should match(/deploy --app rails232app --branch master --migrate 'rake db:migrate'/)
+      @ssh_commands.last.should match(/--app rails232app/)
+      @ssh_commands.last.should match(/--branch master/)
     end
 
     it "requires that you specify a ref when specifying the application" do
@@ -209,4 +211,11 @@ describe "ey deploy" do
       @err.should match(/you must also specify the ref to deploy/)
     end
   end
+
+  it "passes along the repository URL to eysd" do
+    api_scenario "one app, one environment", "user@git.host:path/to/repo.git"
+    ey "deploy"
+    @ssh_commands.last.should =~ /--repo user@git.host:path\/to\/repo.git/
+  end
+
 end
