@@ -3,7 +3,7 @@ require 'escape'
 module EY
   module Model
     class Instance < ApiStruct.new(:id, :role, :status, :amazon_id, :public_hostname, :environment)
-      EYSD_VERSION = "~>0.4.0"
+      EYSD_VERSION = "~>0.4.1"
       CHECK_SCRIPT = <<-SCRIPT
 require "rubygems"
 requirement = Gem::Requirement.new("#{EYSD_VERSION}")
