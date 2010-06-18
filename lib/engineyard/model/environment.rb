@@ -1,6 +1,6 @@
 module EY
   module Model
-    class Environment < ApiStruct.new(:id, :name, :instances, :instances_count, :apps, :app_master, :username, :api)
+    class Environment < ApiStruct.new(:id, :name, :instances, :instances_count, :apps, :app_master, :username, :stack_name, :api)
       def self.from_hash(hash)
         super.tap do |env|
           env.username = hash['ssh_username']

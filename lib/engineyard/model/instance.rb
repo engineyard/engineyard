@@ -32,8 +32,9 @@ exit(17) # required_version < current_version
 
       def deploy(app, ref, migration_command=nil, extra_configuration=nil)
         deploy_args = [
-          '--app', app.name,
-          '--repo', app.repository_uri,
+          '--app',    app.name,
+          '--repo',   app.repository_uri,
+          '--stack',  environment.stack_name,
           '--branch', ref,
         ]
 
@@ -49,7 +50,10 @@ exit(17) # required_version < current_version
       end
 
       def rollback(app, extra_configuration=nil)
-        deploy_args = ['rollback', '--app', app.name]
+        deploy_args = ['rollback',
+          '--app',   app.name,
+          '--stack', environment.stack_name,
+        ]
 
         if extra_configuration
           deploy_args << '--config' << extra_configuration.to_json

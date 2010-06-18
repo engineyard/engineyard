@@ -17,4 +17,11 @@ describe "ey rollback" do
 
   it_should_behave_like "it takes an environment name"
   it_should_behave_like "it invokes eysd"
+
+  it "passes along the web server stack to eysd" do
+    api_scenario "one app, one environment"
+    ey "rollback"
+    @ssh_commands.last.should =~ /--stack nginx_mongrel/
+  end
+
 end

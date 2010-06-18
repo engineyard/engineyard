@@ -218,4 +218,10 @@ describe "ey deploy" do
     @ssh_commands.last.should =~ /--repo user@git.host:path\/to\/repo.git/
   end
 
+  it "passes along the web server stack to eysd" do
+    api_scenario "one app, one environment"
+    ey "deploy"
+    @ssh_commands.last.should =~ /--stack nginx_mongrel/
+  end
+
 end
