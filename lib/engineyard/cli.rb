@@ -17,17 +17,17 @@ module EY
       super
     end
 
-    desc "deploy [--environment ENVIRONMENT] [--ref GIT-REF]", <<-DESC
-Deploy specified branch/tag/sha to specified environment.
+    desc "deploy [--environment ENVIRONMENT] [--ref GIT-REF]",
+      "Deploy specified branch, tag, or sha to specified environment."
+    long_desc <<-DESC
+      This command must be run with the current directory containing the app to be
+      deployed. If ey.yml specifies a default branch then the ref parameter can be
+      omitted. Furthermore, if a default branch is specified but a different command
+      is supplied the deploy will fail unless --force is used.
 
-This command must be run with the current directory containing the app to be
-deployed. If ey.yml specifies a default branch then the ref parameter can be
-omitted. Furthermore, if a default branch is specified but a different command
-is supplied the deploy will fail unless --force is used.
-
-Migrations are run by default with 'rake db:migrate'. A different command can be
-specified via --migrate "ruby do_migrations.rb". Migrations can also be skipped
-entirely by using --no-migrate.
+      Migrations are run by default with 'rake db:migrate'. A different command can be
+      specified via --migrate "ruby do_migrations.rb". Migrations can also be skipped
+      entirely by using --no-migrate.
     DESC
     method_option :force, :type => :boolean, :aliases => %w(-f),
       :desc => "Force a deploy of the specified branch even if a default is set"
@@ -70,11 +70,10 @@ entirely by using --no-migrate.
       raise exists ? EnvironmentUnlinkedError.new(options[:environment]) : e
     end
 
-    desc "environments [--all]", <<-DESC
-List environments.
-
-By default, environments for this app are displayed. If the -all option is
-used, all environments are displayed instead.
+    desc "environments [--all]", "List environments."
+    long_desc <<-DESC
+      By default, environments for this app are displayed. The --all option will
+      display all environments, including those for this app.
     DESC
 
     method_option :all, :type => :boolean, :aliases => %(-a)
@@ -85,16 +84,15 @@ used, all environments are displayed instead.
     end
     map "envs" => :environments
 
-    desc "rebuild [--environment ENVIRONMENT]", <<-DESC
-Rebuild specified environment.
+    desc "rebuild [--environment ENVIRONMENT]", "Rebuild specified environment."
+    long_desc <<-DESC
+      Engine Yard's main configuration run occurs on all servers. Mainly used to fix
+      failed configuration of new or existing servers, or to update servers to latest
+      Engine Yard stack (e.g. to apply an Engine Yard supplied security
+      patch).
 
-Engine Yard's main configuration run occurs on all servers. Mainly used to fix
-failed configuration of new or existing servers, or to update servers to latest
-Engine Yard stack (e.g. to apply an Engine Yard supplied security
-patch).
-
-Note that uploaded recipes are also run after the main configuration run has
-successfully completed.
+      Note that uploaded recipes are also run after the main configuration run has
+      successfully completed.
     DESC
 
     method_option :environment, :type => :string, :aliases => %w(-e),
@@ -105,12 +103,11 @@ successfully completed.
       env.rebuild
     end
 
-    desc "rollback [--environment ENVIRONMENT]", <<-DESC
-Rollback to the previous deploy.
-
-Uses code from previous deploy in the "/data/APP_NAME/releases" directory on
-remote server(s) to restart application servers.
-   DESC
+    desc "rollback [--environment ENVIRONMENT]", "Rollback to the previous deploy."
+    long_desc <<-DESC
+      Uses code from previous deploy in the "/data/APP_NAME/releases" directory on
+      remote server(s) to restart application servers.
+    DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment in which to roll back the current application"
     def rollback
@@ -127,11 +124,10 @@ remote server(s) to restart application servers.
       end
     end
 
-    desc "ssh [--environment ENVIRONMENT]", <<-DESC
-Open an ssh session.
-
-If the environment contains just one server, a session to it will be opened. For
-environments with clusters, a session will be opened to the application master.
+    desc "ssh [--environment ENVIRONMENT]", "Open an ssh session."
+    long_desc <<-DESC
+      If the environment contains just one server, a session to it will be opened. For
+      environments with clusters, a session will be opened to the application master.
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment to ssh into"
@@ -145,12 +141,11 @@ environments with clusters, a session will be opened to the application master.
       end
     end
 
-    desc "logs [--environment ENVIRONMENT]", <<-DESC
-Retrieve the latest logs for an environment.
-
-Displays Engine Yard configuration logs for all servers in the environment. If
-recipes were uploaded to the environment & run, their logs will also be
-displayed beneath the main configuration logs.
+    desc "logs [--environment ENVIRONMENT]", "Retrieve the latest logs for an environment."
+    long_desc <<-DESC
+      Displays Engine Yard configuration logs for all servers in the environment. If
+      recipes were uploaded to the environment & run, their logs will also be
+      displayed beneath the main configuration logs.
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment with the interesting logs"
@@ -186,8 +181,31 @@ displayed beneath the main configuration logs.
     desc "help [COMMAND]", "Describe all commands or one specific command."
     def help(*cmds)
       if cmds.empty?
-        super
-        EY.ui.say "See '#{self.class.send(:banner_base)} help [COMMAND]' for more information on a specific command."
+        base = self.class.send(:banner_base)
+        list = self.class.printable_tasks
+
+        EY.ui.say "Deploy commands:"
+        deploy_cmds = %w(deploy environments logs rebuild ssh rollback)
+        deploy_cmds.map! do |name|
+          list.find{|task| task[0] =~ /^#{base} #{name}/ }
+        end
+        list = list - deploy_cmds
+        EY.ui.print_table(deploy_cmds, :ident => 2, :truncate => true)
+        EY.ui.say
+
+        EY::Thor.subcommands.each do |name, klass|
+          list.reject!{|cmd| cmd[0] =~ /^#{base} #{name}/}
+          EY.ui.say "#{name.capitalize} commands:"
+          EY.ui.print_table(klass.printable_tasks, :ident => 2, :truncate => true)
+          EY.ui.say
+        end
+
+        EY.ui.say "Other commands:"
+        EY.ui.print_table(list, :ident => 2, :truncate => true)
+        EY.ui.say
+
+        self.class.class_options_help(shell)
+        EY.ui.say "See '#{base} help COMMAND' for more information on a specific command."
       elsif klass = EY::Thor.subcommands[cmds.first]
         klass.new.help(*cmds[1..-1])
       else

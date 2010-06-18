@@ -27,7 +27,7 @@ module EY
           def help(*args)
             super
             if args.empty?
-              banner = "See '" + self.class.send(:banner_base) + " #{cmd} help [COMMAND]' "
+              banner = "See '" + self.class.send(:banner_base) + " #{cmd} help COMMAND' "
               text = "for more information on a specific subcommand."
               EY.ui.say  banner + text
             end
