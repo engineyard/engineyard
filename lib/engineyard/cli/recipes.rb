@@ -1,11 +1,11 @@
 module EY
   class CLI
     class Recipes < EY::Thor
-      desc "recipes apply [ENVIRONMENT]", <<-DESC
-Run uploaded chef recipes on specified environment.
-
-This is similar to '#{banner_base} rebuild' except Engine Yard's main
-configuration step is skipped.
+      desc "recipes apply [ENVIRONMENT]",
+        "Run uploaded chef recipes on specified environment."
+      long_desc <<-DESC
+        This is similar to '#{banner_base} rebuild' except Engine Yard's main
+        configuration step is skipped.
       DESC
 
       method_option :environment, :type => :string, :aliases => %w(-e),
@@ -16,11 +16,11 @@ configuration step is skipped.
         EY.ui.say "Uploaded recipes started for #{environment.name}"
       end
 
-      desc "recipes upload [ENVIRONMENT]", <<-DESC
-Upload custom chef recipes to specified environment.
-
-The current directory should contain a subdirectory named "cookbooks" to be
-uploaded.
+      desc "recipes upload [ENVIRONMENT]",
+        "Upload custom chef recipes to specified environment."
+      long_desc <<-DESC
+        The current directory should contain a subdirectory named "cookbooks" to be
+        uploaded.
       DESC
 
       method_option :environment, :type => :string, :aliases => %w(-e),
@@ -31,14 +31,14 @@ uploaded.
         EY.ui.say "Recipes uploaded successfully for #{environment.name}"
       end
 
-      desc "recipes download [--environment ENVIRONMENT]", <<-DESC
-Download custom chef recipes from ENVIRONMENT into the current directory.
+      desc "recipes download [--environment ENVIRONMENT]",
+        "Download custom chef recipes from ENVIRONMENT into the current directory."
+      long_desc <<-DESC
+        The recipes will be unpacked into a directory called "cookbooks" in the
+        current directory.
 
-The recipes will be unpacked into a directory called "cookbooks" in the
-current directory.
-
-If the cookbooks directory already exists, an error will be raised.
-DESC
+        If the cookbooks directory already exists, an error will be raised.
+      DESC
       method_option :environment, :type => :string, :aliases => %w(-e),
         :desc => "Environment for which to download the recipes"
       def download
