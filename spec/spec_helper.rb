@@ -14,6 +14,19 @@ end
 require 'fakeweb'
 require 'fakeweb_matcher'
 require 'fakefs/safe'
+module FakeFS
+  def self.activated?
+    Object.const_get(:Dir) == FakeFS::Dir
+  end
+
+  def self.without
+    was_on = activated?
+    deactivate!
+    yield
+    activate! if was_on
+  end
+end
+
 require 'json'
 
 # Engineyard gem

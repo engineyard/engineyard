@@ -197,7 +197,15 @@ describe "ey deploy" do
   context "specifying the application" do
     before(:all) do
       api_scenario "one app, one environment"
+    end
+
+    before(:each) do
+      @_deploy_spec_start_dir = Dir.getwd
       Dir.chdir(File.expand_path("~"))
+    end
+
+    after(:each) do
+      Dir.chdir(@_deploy_spec_start_dir)
     end
 
     it "allows you to specify an app when not in a directory" do
@@ -212,16 +220,21 @@ describe "ey deploy" do
     end
   end
 
-  it "passes along the repository URL to eysd" do
-    api_scenario "one app, one environment", "user@git.host:path/to/repo.git"
-    ey "deploy"
-    @ssh_commands.last.should =~ /--repo user@git.host:path\/to\/repo.git/
-  end
+  context "sending necessary information" do
+    use_git_repo("deploy test")
 
-  it "passes along the web server stack to eysd" do
-    api_scenario "one app, one environment"
-    ey "deploy"
-    @ssh_commands.last.should =~ /--stack nginx_mongrel/
-  end
+    before(:all) do
+      api_scenario "one app, one environment", "user@git.host:path/to/repo.git"
+      ey "deploy"
+      @deploy_command = @ssh_commands.find {|c| c =~ /eysd deploy/ }
+    end
 
+    it "passes along the repository URL to eysd" do
+      @deploy_command.should =~ /--repo user@git.host:path\/to\/repo.git/
+    end
+
+    it "passes along the web server stack to eysd" do
+      @deploy_command.should =~ /--stack nginx_mongrel/
+    end
+  end
 end

@@ -128,10 +128,10 @@ module EY
   class << self
     def fake_awsm
       @fake_awsm ||= begin
-        unless system("ruby -c spec/support/fake_awsm.ru > /dev/null")
+        config_ru = File.join(EY_ROOT, "spec/support/fake_awsm.ru")
+        unless system("ruby -c '#{config_ru}' > /dev/null")
           raise SyntaxError, "There is a syntax error in fake_awsm.ru! fix it!"
         end
-        config_ru = File.join(EY_ROOT, "spec/support/fake_awsm.ru")
         @server = RealWeb.start_server_in_fork(config_ru)
         "http://localhost:#{@server.port}"
       end
