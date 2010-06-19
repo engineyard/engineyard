@@ -1,7 +1,7 @@
 module EY
   class CLI
     class Recipes < EY::Thor
-      desc "recipes apply [ENVIRONMENT]",
+      desc "recipes apply [--environment ENVIRONMENT]",
         "Run uploaded chef recipes on specified environment."
       long_desc <<-DESC
         This is similar to '#{banner_base} rebuild' except Engine Yard's main
@@ -16,7 +16,7 @@ module EY
         EY.ui.say "Uploaded recipes started for #{environment.name}"
       end
 
-      desc "recipes upload [ENVIRONMENT]",
+      desc "recipes upload [--environment ENVIRONMENT]",
         "Upload custom chef recipes to specified environment."
       long_desc <<-DESC
         The current directory should contain a subdirectory named "cookbooks" to be
