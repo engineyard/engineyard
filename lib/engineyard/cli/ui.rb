@@ -96,6 +96,10 @@ module EY
         end
       end
 
+      def print_help(table)
+        print_table(table, :ident => 2, :truncate => true, :colwidth => 20)
+      end
+
       def set_color(string, color, bold=false)
         $stdout.tty? ? super : string
       end
