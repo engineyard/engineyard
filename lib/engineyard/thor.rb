@@ -42,11 +42,17 @@ module EY
       def self.banner_base
         "ey"
       end
+
+      def self.banner(task)
+        scmd = EY::Thor.subcommands.invert[self]
+        [banner_base, scmd, task.name].compact.join(" ")
+      end
+
       def self.printable_tasks(all=true)
         (all ? all_tasks : tasks).map do |_, task|
           item = []
           item << banner(task)
-          item << (task.description ? "# #{task.description.gsub(/\n.*/,'')}" : "")
+          item << (task.description ? "#{task.description.gsub(/\n.*/,'')}" : "")
           item
         end
       end
