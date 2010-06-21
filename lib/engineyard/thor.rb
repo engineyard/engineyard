@@ -39,6 +39,9 @@ module EY
         @@original_args[1..-1]
       end
 
+      def self.banner_base
+        "ey"
+      end
       def self.printable_tasks(all=true)
         (all ? all_tasks : tasks).map do |_, task|
           item = []
