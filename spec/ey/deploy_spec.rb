@@ -28,17 +28,20 @@ describe "ey deploy" do
 
   def command_to_run(options)
     cmd = "deploy"
-    cmd << " -e #{options[:env]}" if options[:env]
+    cmd << " --environment #{options[:env]}" if options[:env]
+    cmd << " --app #{options[:app]}" if options[:app]
+    cmd << " --ref #{options[:ref]}" if options[:ref]
     cmd
   end
 
   def verify_ran(scenario)
     @out.should match(/Running deploy for '#{scenario[:environment]}'/)
-    @ssh_commands.should have_command_like(/eysd deploy/)
+    @ssh_commands.should have_command_like(/eysd deploy.*--app #{scenario[:application]}/)
   end
 
   # common behavior
   it_should_behave_like "it takes an environment name"
+  it_should_behave_like "it takes an app name"
   it_should_behave_like "it invokes eysd"
 end
 
@@ -215,8 +218,10 @@ describe "ey deploy" do
     end
 
     it "requires that you specify a ref when specifying the application" do
-      ey "deploy --app rails232app", :expect_failure => true
-      @err.should match(/you must also specify the ref to deploy/)
+      Dir.chdir(File.expand_path("~")) do
+        ey "deploy --app rails232app", :expect_failure => true
+        @err.should match(/you must also specify the ref to deploy/)
+      end
     end
   end
 

@@ -72,6 +72,44 @@ shared_examples_for "it takes an environment name" do
   end
 end
 
+shared_examples_for "it takes an app name" do
+  include Spec::Helpers::SharedIntegrationTestUtils
+
+  it "allows you to specify a valid app" do
+    api_scenario "one app, one environment"
+    Dir.chdir(Dir.tmpdir) do
+      run_ey({:env => 'giblets', :app => 'rails232app', :ref => 'master'}, {})
+      verify_ran(make_scenario({
+            :environment      => 'giblets',
+            :application      => 'rails232app',
+            :master_hostname  => 'ec2-174-129-198-124.compute-1.amazonaws.com',
+            :ssh_username     => 'turkey',
+          }))
+    end
+  end
+
+  it "can guess the environment from the app" do
+    api_scenario "two apps"
+    Dir.chdir(Dir.tmpdir) do
+      run_ey({:app => 'rails232app', :ref => 'master'}, {})
+      verify_ran(make_scenario({
+            :environment      => 'giblets',
+            :application      => 'rails232app',
+            :master_hostname  => 'ec2-174-129-198-124.compute-1.amazonaws.com',
+            :ssh_username     => 'turkey',
+          }))
+    end
+  end
+
+  it "complains when you specify a nonexistant app" do
+    api_scenario "one app, one environment"
+    run_ey({:env => 'giblets', :app => 'P-time-SAT-solver', :ref => 'master'},
+      {:expect_failure => true})
+    @err.should =~ /no app.*P-time-SAT-solver/i
+  end
+
+end
+
 shared_examples_for "it invokes eysd" do
   include Spec::Helpers::SharedIntegrationTestUtils
 

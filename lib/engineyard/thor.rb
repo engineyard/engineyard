@@ -101,6 +101,10 @@ module EY
       end
     end
 
+    def fetch_app(app_name = nil)
+      api.fetch_app!(app_name) || api.app_for_repo!(repo)
+    end
+
     def get_apps(all_apps = false)
       if all_apps
         api.apps

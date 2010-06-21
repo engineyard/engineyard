@@ -41,7 +41,7 @@ module EY
     method_option :app, :type => :string, :aliases => %w(-a),
       :desc => "Name of the application to deploy"
     def deploy
-      app         = api.fetch_app!(options[:app]) || api.app_for_repo!(repo)
+      app         = fetch_app(options[:app])
       environment = fetch_environment(options[:environment], app)
       deploy_ref  = if options[:app]
                       environment.resolve_branch(options[:ref], options[:force]) ||
@@ -108,11 +108,14 @@ module EY
       Uses code from previous deploy in the "/data/APP_NAME/releases" directory on
       remote server(s) to restart application servers.
     DESC
+
     method_option :environment, :type => :string, :aliases => %w(-e),
-      :desc => "Environment in which to roll back the current application"
+      :desc => "Environment in which to roll back the application"
+    method_option :app, :type => :string, :aliases => %w(-a),
+      :desc => "Name of the application to roll back"
     def rollback
-      app = api.app_for_repo!(repo)
-      env = fetch_environment(options[:environment])
+      app = fetch_app(options[:app])
+      env = fetch_environment(options[:environment], app)
 
       loudly_check_eysd(env)
 

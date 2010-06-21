@@ -26,6 +26,8 @@ class FakeAwsm < Sinatra::Base
                      Scenario::Empty
                    when "one app, one environment, not linked"
                      Scenario::UnlinkedApp
+                   when "two apps"
+                     Scenario::TwoApps
                    when "one app, one environment"
                      Scenario::LinkedApp
                    when "one app, one environment, app master red"
@@ -194,6 +196,7 @@ private
             "public_hostname" => "ec2-184-73-116-228.compute-1.amazonaws.com",
           }]
       end
+      private :_instances
 
       def apps
         [{"name" => "rails232app",
@@ -325,6 +328,96 @@ private
           }]
       end
     end # OneAppTwoEnvs
+
+    class TwoApps < Empty
+      def railsapp_master
+        {
+          "status" => "running",
+          "name" => nil,
+          "role" => "solo",
+          "public_hostname" => "ec2-174-129-7-113.compute-1.amazonaws.com",
+          "id" => 35707,
+          "amazon_id" => "i-0911f063",
+        }
+      end
+      private :railsapp_master
+
+      def keycollector_master
+        {
+          "status" => "running",
+          "name" => nil,
+          "role" => "solo",
+          "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com",
+          "id" => 75428,
+          "amazon_id" => "i-051195b9",
+        }
+      end
+      private :keycollector_master
+
+      def apps
+        [{
+            "id" => 3202,
+            "name" => "keycollector",
+            "repository_uri" => "git@github.com:smerritt/keycollector.git",
+            "instances_count" => 0,
+            "ssh_username" => "deploy",
+            "environments" => [{
+                "apps" => [{
+                    "name" => "keycollector",
+                    "repository_uri" => "git@github.com:smerritt/keycollector.git",
+                    "id" => 3202}],
+                "name" => "keycollector_production",
+                "app_master" => keycollector_master,
+                "instances" => [keycollector_master],
+                "id" => 4359,
+                "stack_name" => "nginx_mongrel"}],
+          }, {
+            "name" => "rails232app",
+            "repository_uri" => "git://github.com/smerritt/rails232app.git",
+            "id" => 6125,
+            "environments" => [{
+                "apps" => [{
+                    "name" => "rails232app",
+                    "repository_uri" => "git://github.com/smerritt/rails232app.git",
+                    "id" => 6125}],
+                "instances_count" => 1,
+                "ssh_username" => "turkey",
+                "name" => "giblets",
+                "app_master" => railsapp_master,
+                "instances" => [railsapp_master],
+                "id" => 200,
+                "stack_name" => "nginx_unicorn"}],
+          }]
+      end
+
+      def environments
+        [{
+            "id" => 200,
+            "name" => "giblets",
+            "ssh_username" => "turkey",
+            "instances_count" => 1,
+            "instances" => [railsapp_master],
+            "app_master" => railsapp_master,
+            "stack_name" => "nginx_unicorn",
+            "apps" => [{
+                "name" => "rails232app",
+                "repository_uri" => "git://github.com/smerritt/rails232app.git",
+                "id" => 6125}],
+          }, {
+            "id" => 4359,
+            "name" => "keycollector_production",
+            "ssh_username" => "deploy",
+            "stack_name" => "nginx_mongrel",
+            "instances_count" => 1,
+            "instances" => [keycollector_master],
+            "app_master" => keycollector_master,
+            "apps" => [{
+                "name" => "keycollector",
+                "repository_uri" => "git@github.com:smerritt/keycollector.git",
+                "id" => 3202}],
+          }]
+      end
+    end # TwoApps
 
     class OneAppManySimilarlyNamedEnvs < Empty
       def apps

@@ -6,6 +6,7 @@ describe "ey rollback" do
   def command_to_run(opts)
     cmd = "rollback"
     cmd << " -e #{opts[:env]}" if opts[:env]
+    cmd << " -a #{opts[:app]}" if opts[:app]
     cmd
   end
 
@@ -16,6 +17,7 @@ describe "ey rollback" do
   end
 
   it_should_behave_like "it takes an environment name"
+  it_should_behave_like "it takes an app name"
   it_should_behave_like "it invokes eysd"
 
   it "passes along the web server stack to eysd" do
