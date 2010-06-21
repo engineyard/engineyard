@@ -189,7 +189,7 @@ module EY
         EY.ui.say
 
         EY.ui.say "Deploy commands:"
-        deploy_cmds = %w(deploy environments logs rebuild ssh rollback)
+        deploy_cmds = %w(deploy environments logs rebuild rollback)
         deploy_cmds.map! do |name|
           list.find{|task| task[0] =~ /^#{base} #{name}/ }
         end
@@ -204,9 +204,12 @@ module EY
           EY.ui.say
         end
 
-        EY.ui.say "Other commands:"
-        EY.ui.print_table(list, :ident => 2, :truncate => true)
-        EY.ui.say
+        %w(help version).each{|n| list.reject!{|c| c[0] =~ /^#{base} #{n}/ } }
+        if list.any?
+          EY.ui.say "Other commands:"
+          EY.ui.print_table(list, :ident => 2, :truncate => true)
+          EY.ui.say
+        end
 
         self.class.class_options_help(shell)
         EY.ui.say "See '#{base} help COMMAND' for more information on a specific command."
