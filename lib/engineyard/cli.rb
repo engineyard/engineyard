@@ -211,7 +211,7 @@ module EY
           EY.ui.say
         end
 
-        self.class.class_options_help(shell)
+        self.class.send(:class_options_help, shell)
         EY.ui.say "See '#{base} help COMMAND' for more information on a specific command."
       elsif klass = EY::Thor.subcommands[cmds.first]
         klass.new.help(*cmds[1..-1])
@@ -219,5 +219,6 @@ module EY
         super
       end
     end
+
   end # CLI
 end # EY
