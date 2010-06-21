@@ -184,6 +184,10 @@ module EY
         base = self.class.send(:banner_base)
         list = self.class.printable_tasks
 
+        EY.ui.say "Usage:"
+        EY.ui.say "  #{base} [--help] [--version] COMMAND [ARGS]"
+        EY.ui.say
+
         EY.ui.say "Deploy commands:"
         deploy_cmds = %w(deploy environments logs rebuild ssh rollback)
         deploy_cmds.map! do |name|
