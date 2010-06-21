@@ -3,7 +3,7 @@ require 'spec_helper'
 describe "ey" do
   context "run without arguments" do
     it "prints usage information" do
-      ey.should include("Commands:")
+      ey.should include("Usage:")
     end
   end
 
