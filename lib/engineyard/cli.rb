@@ -193,21 +193,21 @@ module EY
         deploy_cmds.map! do |name|
           list.find{|task| task[0] =~ /^#{base} #{name}/ }
         end
-        list = list - deploy_cmds
-        EY.ui.print_table(deploy_cmds, :ident => 2, :truncate => true)
+        list -= deploy_cmds
+        EY.ui.print_help(deploy_cmds)
         EY.ui.say
 
         EY::Thor.subcommands.each do |name, klass|
           list.reject!{|cmd| cmd[0] =~ /^#{base} #{name}/}
           EY.ui.say "#{name.capitalize} commands:"
-          EY.ui.print_table(klass.printable_tasks, :ident => 2, :truncate => true)
+          EY.ui.print_help(klass.printable_tasks)
           EY.ui.say
         end
 
         %w(help version).each{|n| list.reject!{|c| c[0] =~ /^#{base} #{n}/ } }
         if list.any?
           EY.ui.say "Other commands:"
-          EY.ui.print_table(list, :ident => 2, :truncate => true)
+          EY.ui.print_help(list)
           EY.ui.say
         end
 
