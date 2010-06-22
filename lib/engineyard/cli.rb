@@ -200,7 +200,8 @@ module EY
         EY::Thor.subcommands.each do |name, klass|
           list.reject!{|cmd| cmd[0] =~ /^#{base} #{name}/}
           EY.ui.say "#{name.capitalize} commands:"
-          EY.ui.print_help(klass.printable_tasks)
+          tasks = klass.printable_tasks.reject{|t| t[0] =~ /help$/ }
+          EY.ui.print_help(tasks)
           EY.ui.say
         end
 
