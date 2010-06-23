@@ -48,9 +48,10 @@ module EY
         "ey"
       end
 
-      def self.banner(task)
+      def self.banner(task, task_help = false)
         scmd = EY::Thor.subcommands.invert[self]
-        [banner_base, scmd, task.name].compact.join(" ")
+        task = (task_help ? task.formatted_usage(self, false) : task.name)
+        [banner_base, scmd, task].compact.join(" ")
       end
     end
 

@@ -172,7 +172,7 @@ class Thor
       handle_no_task_error(meth) unless task
 
       shell.say "Usage:"
-      shell.say "  #{banner(task)}"
+      shell.say "  #{banner(task, true)}"
       shell.say
       class_options_help(shell, nil => task.options.map { |_, o| o })
       if task.long_description
@@ -222,7 +222,7 @@ class Thor
       # the task that is going to be invoked and a boolean which indicates if
       # the namespace should be displayed as arguments.
       #
-      def banner(task)
+      def banner(task, task_help = false)
         "#{banner_base} #{task.formatted_usage(self, banner_base == "thor")}"
       end
 
