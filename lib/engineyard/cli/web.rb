@@ -1,7 +1,7 @@
 module EY
   class CLI
     class Web < EY::Thor
-      desc "web enable [ENVIRONMENT]",
+      desc "enable [--environment/-e ENVIRONMENT]",
         "Remove the maintenance page for this application in the given environment."
       method_option :environment, :type => :string, :aliases => %w(-e),
         :desc => "Environment on which to put up the maintenance page"
@@ -13,7 +13,7 @@ module EY
         environment.take_down_maintenance_page(app)
       end
 
-      desc "web disable [ENVIRONMENT]",
+      desc "disable [--environment/-e ENVIRONMENT]",
         "Put up the maintenance page for this application in the given environment."
       long_desc <<-DESC
         The maintenance page is taken from the app currently being deployed. This means
