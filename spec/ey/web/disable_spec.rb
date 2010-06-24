@@ -11,7 +11,7 @@ describe "ey web disable" do
   end
 
   def verify_ran(scenario)
-    @ssh_commands.should have_command_like(/eysd deploy enable_maintenance_page --app #{scenario[:application]}/)
+    @ssh_commands.should have_command_like(/eysd.*deploy enable_maintenance_page.*--app #{scenario[:application]}/)
   end
 
   it_should_behave_like "it takes an environment name"

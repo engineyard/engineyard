@@ -133,7 +133,7 @@ shared_examples_for "it invokes eysd" do
     @ssh_commands.last.should match(/--instances (#{instance_args.join('|')})/)
   end
 
-  context "eysd install" do
+  context "eysd installation" do
     before(:all) do
       api_scenario "one app, one environment"
     end
@@ -147,7 +147,7 @@ shared_examples_for "it invokes eysd" do
     end
 
     def exiting_ssh(exit_code)
-      "#!/usr/bin/env ruby\n exit!(#{exit_code}) if ARGV.to_s =~ /Base64.decode64/"
+      "#!/usr/bin/env ruby\n exit!(#{exit_code}) if ARGV.to_s =~ /gem list ey-deploy/"
     end
 
     it "raises an error if SSH fails" do
@@ -157,7 +157,7 @@ shared_examples_for "it invokes eysd" do
     end
 
     it "installs ey-deploy if it's missing" do
-      run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(104)}})
+      run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(1)}})
 
       gem_install_command = @ssh_commands.find do |command|
         command =~ /gem install ey-deploy/
@@ -166,25 +166,11 @@ shared_examples_for "it invokes eysd" do
       gem_install_command.should =~ %r{/usr/local/ey_resin/ruby/bin/gem install.*ey-deploy}
     end
 
-    it "upgrades ey-deploy if it's too old" do
-      run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(70)}})
-      @ssh_commands.should have_command_like(/gem uninstall -a -x ey-deploy/)
-      @ssh_commands.should have_command_like(/gem install ey-deploy/)
-    end
-
-    it "raises an error if ey-deploy is too new" do
-      run_ey({:env => 'giblets'},
-        {:prepend_to_path => {'ssh' => exiting_ssh(17)}, :expect_failure => true})
-      @ssh_commands.should_not have_command_like(/gem install ey-deploy/)
-      @ssh_commands.should_not have_command_like(/eysd deploy/)
-      @err.should match(/too new/i)
-    end
-
-    it "does not change ey-deploy if its version is satisfactory" do
+    it "does not try to install ey-deploy if it's already there" do
       run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(0)}})
       @ssh_commands.should_not have_command_like(/gem install ey-deploy/)
-      @ssh_commands.should_not have_command_like(/gem uninstall.* ey-deploy/)
-      @ssh_commands.should have_command_like(/eysd deploy/)
+      ver = Regexp.quote(EY::Model::Instance::EYSD_VERSION)
+      @ssh_commands.should have_command_like(/eysd _#{ver}_ deploy/)
     end
   end
 end

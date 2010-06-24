@@ -36,7 +36,7 @@ describe "ey deploy" do
 
   def verify_ran(scenario)
     @out.should match(/Running deploy for '#{scenario[:environment]}'/)
-    @ssh_commands.should have_command_like(/eysd deploy.*--app #{scenario[:application]}/)
+    @ssh_commands.should have_command_like(/eysd.*deploy.*--app #{scenario[:application]}/)
   end
 
   # common behavior
@@ -87,13 +87,13 @@ describe "ey deploy" do
 
     it "defaults to 'rake db:migrate'" do
       ey "deploy"
-      @ssh_commands.last.should =~ /eysd deploy/
+      @ssh_commands.last.should =~ /eysd.*deploy/
       @ssh_commands.last.should =~ /--migrate 'rake db:migrate'/
     end
 
     it "can be disabled with --no-migrate" do
       ey "deploy --no-migrate"
-      @ssh_commands.last.should =~ /eysd deploy/
+      @ssh_commands.last.should =~ /eysd.*deploy/
       @ssh_commands.last.should_not =~ /--migrate/
     end
   end
@@ -231,7 +231,7 @@ describe "ey deploy" do
     before(:all) do
       api_scenario "one app, one environment", "user@git.host:path/to/repo.git"
       ey "deploy"
-      @deploy_command = @ssh_commands.find {|c| c =~ /eysd deploy/ }
+      @deploy_command = @ssh_commands.find {|c| c =~ /eysd.*deploy/ }
     end
 
     it "passes along the repository URL to eysd" do

@@ -3,27 +3,11 @@ require 'escape'
 module EY
   module Model
     class Instance < ApiStruct.new(:id, :role, :name, :status, :amazon_id, :public_hostname, :environment)
-      EYSD_VERSION = "~>0.6.1"
-      CHECK_SCRIPT = <<-SCRIPT
-require "rubygems"
-requirement = Gem::Requirement.new("#{EYSD_VERSION}")
-required_version = requirement.requirements.last.last # thanks thanks rubygems rubygems
-
-# this will be a ["name-version", Gem::Specification] two-element array if present, nil otherwise
-ey_deploy_geminfo = Gem.source_index.find{ |(name,_)| name =~ /^ey-deploy-\\\d/ }
-exit(104) unless ey_deploy_geminfo
-
-current_version = ey_deploy_geminfo.last.version
-exit(0) if requirement.satisfied_by?(current_version)
-exit(70) if required_version > current_version
-exit(17) # required_version < current_version
-      SCRIPT
+      EYSD_VERSION = "0.6.1"
       EXIT_STATUS = Hash.new { |h,k| raise EY::Error, "ey-deploy version checker exited with unknown status code #{k}" }
       EXIT_STATUS.merge!({
         255 => :ssh_failed,
-        104 => :eysd_missing,
-        70  => :too_old,
-        17  => :too_new,
+        1   => :eysd_missing,
         0   => :ok,
       })
 
@@ -79,11 +63,6 @@ exit(17) # required_version < current_version
         when :eysd_missing
           yield :installing if block_given?
           install_ey_deploy
-        when :too_new
-          raise EnvironmentError, "server-side component too new; please upgrade your copy of the engineyard gem."
-        when :too_old
-          yield :upgrading if block_given?
-          upgrade_ey_deploy
         when :ok
           # no action needed
         else
@@ -92,12 +71,12 @@ exit(17) # required_version < current_version
       end
 
       def ey_deploy_check
-        require 'base64'
-        encoded_script = Base64.encode64(CHECK_SCRIPT).gsub(/\n/, '')
-        ssh "#{ruby_path} -r base64 -e \"eval Base64.decode64(ARGV[0])\" #{encoded_script}", false
+        escaped_eysd_version = EYSD_VERSION.gsub(/\./, '\.')
+
         if ENV["NO_SSH"]
           :ok
         else
+          ssh "#{gem_path} list ey-deploy | grep \"ey-deploy \" | egrep -q '#{escaped_eysd_version}[,)]'"
           EXIT_STATUS[$?.exitstatus]
         end
       end
@@ -111,12 +90,7 @@ exit(17) # required_version < current_version
               #
               # rubygems help suggests that --remote will disable this
               # behavior, but it doesn't.
-              "cd `mktemp -d` && #{gem_path} install ey-deploy --no-rdoc --no-ri -v '#{EYSD_VERSION}'"]))
-      end
-
-      def upgrade_ey_deploy
-        ssh "sudo #{gem_path} uninstall -a -x ey-deploy"
-        install_ey_deploy
+              "cd `mktemp -d` && #{gem_path} install ey-deploy --no-rdoc --no-ri -v #{EYSD_VERSION}"]))
       end
 
     private
@@ -135,7 +109,7 @@ exit(17) # required_version < current_version
       end
 
       def invoke_eysd_deploy(deploy_args)
-        start = [eysd_path, 'deploy']
+        start = [eysd_path, "_#{EYSD_VERSION}_", 'deploy']
         instance_args = environment.instances.inject(['--instances']) do |command, inst|
           instance_tuple = [inst.public_hostname, inst.role]
           instance_tuple << inst.name if inst.name

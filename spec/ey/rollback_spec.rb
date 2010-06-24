@@ -13,7 +13,7 @@ describe "ey rollback" do
   def verify_ran(scenario)
     @out.should match(/Rolling back #{scenario[:environment]}/)
     @err.should be_empty
-    @ssh_commands.last.should match(/eysd deploy rollback --app #{scenario[:application]}/)
+    @ssh_commands.last.should match(/eysd.*deploy rollback.*--app #{scenario[:application]}/)
   end
 
   it_should_behave_like "it takes an environment name"
