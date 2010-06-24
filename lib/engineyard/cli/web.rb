@@ -5,8 +5,10 @@ module EY
         "Remove the maintenance page for this application in the given environment."
       method_option :environment, :type => :string, :aliases => %w(-e),
         :desc => "Environment on which to put up the maintenance page"
+      method_option :app, :type => :string, :aliases => %w(-a),
+        :desc => "Name of the application whose maintenance page will be removed"
       def enable
-        app         = api.app_for_repo!(repo)
+        app         = fetch_app(options[:app])
         environment = fetch_environment(options[:environment], app)
         loudly_check_eysd(environment)
         EY.ui.info "Taking down maintenance page for #{environment.name}"
