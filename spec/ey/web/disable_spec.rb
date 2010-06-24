@@ -6,6 +6,7 @@ describe "ey web disable" do
   def command_to_run(opts)
     cmd = "web disable"
     cmd << " -e #{opts[:env]}" if opts[:env]
+    cmd << " -a #{opts[:app]}" if opts[:app]
     cmd
   end
 
@@ -14,5 +15,6 @@ describe "ey web disable" do
   end
 
   it_should_behave_like "it takes an environment name"
+  it_should_behave_like "it takes an app name"
   it_should_behave_like "it invokes eysd"
 end
