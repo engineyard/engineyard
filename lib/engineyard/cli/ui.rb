@@ -101,7 +101,7 @@ module EY
       end
 
       def set_color(string, color, bold=false)
-        $stdout.tty? ? super : string
+        ($stdout.tty? || ENV['THOR_SHELL']) ? super : string
       end
 
     end
