@@ -76,7 +76,7 @@ module EY
         if ENV["NO_SSH"]
           :ok
         else
-          ssh "#{gem_path} list ey-deploy | grep \"ey-deploy \" | egrep -q '#{escaped_eysd_version}[,)]'"
+          ssh "#{gem_path} list ey-deploy | grep \"ey-deploy \" | egrep -q '#{escaped_eysd_version}[,)]'", false
           EXIT_STATUS[$?.exitstatus]
         end
       end
@@ -100,7 +100,7 @@ module EY
 
         cmd = Escape.shell_command(%w[ssh -o StrictHostKeyChecking=no -q] << "#{user}@#{hostname}" << remote_command)
         cmd << " > /dev/null" unless output
-        output ? puts(cmd) : EY.ui.debug(cmd)
+        EY.ui.debug(cmd)
         unless ENV["NO_SSH"]
           system cmd
         else
