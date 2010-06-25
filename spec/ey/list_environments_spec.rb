@@ -5,7 +5,7 @@ describe "ey environments" do
   given "integration"
 
   before(:all) do
-    api_scenario "one app, two environments"
+    api_scenario "one app, many environments"
   end
 
   it "lists the environments your app is in" do

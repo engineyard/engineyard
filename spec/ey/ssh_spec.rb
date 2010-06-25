@@ -6,7 +6,7 @@ describe "ey ssh" do
   given "integration"
 
   before(:all) do
-    api_scenario "one app, two environments"
+    api_scenario "one app, many environments"
   end
 
   it "complains if it has no app master" do
