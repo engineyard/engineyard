@@ -77,10 +77,18 @@ module EY
     DESC
 
     method_option :all, :type => :boolean, :aliases => %(-a)
+    method_option :simple, :type => :boolean, :aliases => %(-s)
     def environments
-      apps = get_apps(options[:all])
-      EY.ui.warn(NoAppError.new(repo).message) unless apps.any? || options[:all]
-      EY.ui.print_envs(apps, EY.config.default_environment)
+      if options[:all] && options[:simple]
+        # just put each env
+        api.environments.each do |env|
+          puts env.name
+        end
+      else
+        apps = get_apps(options[:all])
+        EY.ui.warn(NoAppError.new(repo).message) unless apps.any? || options[:all]
+        EY.ui.print_envs(apps, EY.config.default_environment, options[:simple])
+      end
     end
     map "envs" => :environments
 
