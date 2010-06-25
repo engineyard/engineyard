@@ -22,4 +22,20 @@ describe "ey environments" do
     end
   end
 
+  it "lists all environments that have apps with -a" do
+    ey "environments -a"
+    @out.should include("bakon")
+    @out.should include("giblets")
+  end
+
+  it "outputs simply with -s" do
+    ey "environments -s"
+    @out.split(/\n/).sort.should == ["bakon", "giblets"]
+  end
+
+  it "outputs all environments (including ones with no apps) simply with -a and -s" do
+    ey "environments -a -s"
+    @out.split(/\n/).sort.should == ["bakon", "beef", "giblets"]
+  end
+
 end
