@@ -32,8 +32,8 @@ class FakeAwsm < Sinatra::Base
                      Scenario::LinkedApp
                    when "one app, one environment, app master red"
                      Scenario::LinkedAppRedMaster
-                   when "one app, two environments"
-                     Scenario::OneAppTwoEnvs
+                   when "one app, many environments"
+                     Scenario::OneAppManyEnvs
                    when "one app, many similarly-named environments"
                      Scenario::OneAppManySimilarlyNamedEnvs
                    else
@@ -252,7 +252,7 @@ private
       end
     end
 
-    class OneAppTwoEnvs < Empty
+    class OneAppManyEnvs < Empty
       def apps
         apps = [{
             "name" => "rails232app",
@@ -324,6 +324,15 @@ private
             "instances_count" => 0,
             "stack_name" => "nginx_passenger",
             "id" => 8371,
+            "app_master" => nil,
+          }, {
+            "ssh_username" => "hamburger",
+            "instances" => [],
+            "name" => "beef",
+            "apps" => [],
+            "instances_count" => 0,
+            "stack_name" => "nginx_passenger",
+            "id" => 8372,
             "app_master" => nil,
           }]
       end

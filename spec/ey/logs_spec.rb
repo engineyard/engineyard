@@ -12,7 +12,7 @@ describe "ey logs" do
   end
 
   it "complains when it can't infer the environment" do
-    api_scenario "one app, two environments"
+    api_scenario "one app, many environments"
     ey "logs", :expect_failure => true
     @err.should =~ /single environment/
   end

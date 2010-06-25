@@ -62,7 +62,7 @@ describe "ey deploy" do
     end
 
     it "complains when environment is not specified and app is in >1 environment" do
-      api_scenario "one app, two environments"
+      api_scenario "one app, many environments"
       ey "deploy", :expect_failure => true
       @err.should match(/single environment.*2/i)
     end
