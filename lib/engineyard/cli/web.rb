@@ -13,7 +13,7 @@ module EY
         app         = fetch_app(options[:app])
         environment = fetch_environment(options[:environment], app)
         loudly_check_eysd(environment)
-        EY.ui.info "Taking down maintenance page for #{environment.name}"
+        EY.ui.info "Taking down maintenance page for '#{app.name}' in '#{environment.name}'"
         environment.take_down_maintenance_page(app, options[:verbose])
       end
 
@@ -40,7 +40,7 @@ module EY
         app         = fetch_app(options[:app])
         environment = fetch_environment(options[:environment], app)
         loudly_check_eysd(environment)
-        EY.ui.info "Putting up maintenance page for #{environment.name}"
+        EY.ui.info "Putting up maintenance page for '#{app.name}' in '#{environment.name}'"
         environment.put_up_maintenance_page(app, options[:verbose])
       end
     end

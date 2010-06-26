@@ -12,7 +12,7 @@ describe "ey rollback" do
   end
 
   def verify_ran(scenario)
-    @out.should match(/Rolling back #{scenario[:environment]}/)
+    @out.should match(/Rolling back.*#{scenario[:application]}.*#{scenario[:environment]}/)
     @err.should be_empty
     @ssh_commands.last.should match(/eysd.*deploy rollback.*--app #{scenario[:application]}/)
   end

@@ -36,7 +36,7 @@ describe "ey deploy" do
   end
 
   def verify_ran(scenario)
-    @out.should match(/Running deploy for '#{scenario[:environment]}'/)
+    @out.should match(/Beginning deploy for.*#{scenario[:application]}.*#{scenario[:environment]}/)
     @ssh_commands.should have_command_like(/eysd.*deploy.*--app #{scenario[:application]}/)
   end
 
@@ -194,7 +194,7 @@ describe "ey deploy" do
 
     it "lets you choose by complete name even if the complete name is ambiguous" do
       ey "deploy --environment railsapp_staging"
-      @out.should match(/Running deploy for 'railsapp_staging'/)
+      @out.should match(/Beginning deploy for.*'railsapp_staging'/)
     end
   end
 

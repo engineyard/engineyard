@@ -58,7 +58,7 @@ module EY
 
       loudly_check_eysd(environment)
 
-      EY.ui.info "Running deploy for '#{environment.name}' on server..."
+      EY.ui.info "Beginning deploy for '#{app.name}' in '#{environment.name}' on server..."
 
       if environment.deploy(app, deploy_ref, options[:migrate], options[:verbose])
         EY.ui.info "Deploy complete"
@@ -131,7 +131,7 @@ module EY
 
       loudly_check_eysd(env)
 
-      EY.ui.info("Rolling back #{env.name}")
+      EY.ui.info("Rolling back '#{app.name}' in '#{env.name}'")
       if env.rollback(app, options[:verbose])
         EY.ui.info "Rollback complete"
       else
