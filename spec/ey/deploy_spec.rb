@@ -31,6 +31,7 @@ describe "ey deploy" do
     cmd << " --environment #{options[:env]}" if options[:env]
     cmd << " --app #{options[:app]}" if options[:app]
     cmd << " --ref #{options[:ref]}" if options[:ref]
+    cmd << " --verbose" if options[:verbose]
     cmd
   end
 

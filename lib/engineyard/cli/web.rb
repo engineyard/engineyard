@@ -7,12 +7,14 @@ module EY
         :desc => "Environment on which to take down the maintenance page"
       method_option :app, :type => :string, :aliases => %w(-a),
         :desc => "Name of the application whose maintenance page will be removed"
+      method_option :verbose, :type => :boolean, :aliases => %w(-v),
+        :desc => "Be verbose"
       def enable
         app         = fetch_app(options[:app])
         environment = fetch_environment(options[:environment], app)
         loudly_check_eysd(environment)
         EY.ui.info "Taking down maintenance page for #{environment.name}"
-        environment.take_down_maintenance_page(app)
+        environment.take_down_maintenance_page(app, options[:verbose])
       end
 
       desc "disable [--environment/-e ENVIRONMENT]",
@@ -32,12 +34,14 @@ module EY
         :desc => "Environment on which to put up the maintenance page"
       method_option :app, :type => :string, :aliases => %w(-a),
         :desc => "Name of the application whose maintenance page will be put up"
+      method_option :verbose, :type => :boolean, :aliases => %w(-v),
+        :desc => "Be verbose"
       def disable
         app         = fetch_app(options[:app])
         environment = fetch_environment(options[:environment], app)
         loudly_check_eysd(environment)
         EY.ui.info "Putting up maintenance page for #{environment.name}"
-        environment.put_up_maintenance_page(app)
+        environment.put_up_maintenance_page(app, options[:verbose])
       end
     end
   end

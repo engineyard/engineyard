@@ -14,7 +14,7 @@ module EY
       alias :hostname :public_hostname
 
 
-      def deploy(app, ref, migration_command=nil, extra_configuration=nil)
+      def deploy(app, ref, migration_command=nil, extra_configuration=nil, verbose=false)
         deploy_args = [
           '--app',    app.name,
           '--repo',   app.repository_uri,
@@ -30,10 +30,10 @@ module EY
           deploy_args << "--migrate" << migration_command
         end
 
-        invoke_eysd_deploy(deploy_args)
+        invoke_eysd_deploy(deploy_args, verbose)
       end
 
-      def rollback(app, extra_configuration=nil)
+      def rollback(app, extra_configuration=nil, verbose=false)
         deploy_args = ['rollback',
           '--app',   app.name,
           '--stack', environment.stack_name,
@@ -43,16 +43,16 @@ module EY
           deploy_args << '--config' << extra_configuration.to_json
         end
 
-        invoke_eysd_deploy(deploy_args)
+        invoke_eysd_deploy(deploy_args, verbose)
       end
 
 
-      def put_up_maintenance_page(app)
-        invoke_eysd_deploy(['enable_maintenance_page', '--app', app.name])
+      def put_up_maintenance_page(app, verbose=false)
+        invoke_eysd_deploy(['enable_maintenance_page', '--app', app.name], verbose)
       end
 
-      def take_down_maintenance_page(app)
-        invoke_eysd_deploy(['disable_maintenance_page', '--app', app.name])
+      def take_down_maintenance_page(app, verbose=false)
+        invoke_eysd_deploy(['disable_maintenance_page', '--app', app.name], verbose)
       end
 
 
@@ -108,7 +108,7 @@ module EY
         end
       end
 
-      def invoke_eysd_deploy(deploy_args)
+      def invoke_eysd_deploy(deploy_args, verbose=false)
         start = [eysd_path, "_#{EYSD_VERSION}_", 'deploy']
         instance_args = environment.instances.inject(['--instances']) do |command, inst|
           instance_tuple = [inst.public_hostname, inst.role]
@@ -117,7 +117,11 @@ module EY
           command << instance_tuple.join(',')
         end
 
-        ssh Escape.shell_command(start + deploy_args + instance_args)
+        verbose_arg = verbose ? ['--verbose'] : []
+
+        cmd = Escape.shell_command(start + deploy_args + instance_args + verbose_arg)
+        puts cmd if verbose
+        ssh cmd
       end
 
       def eysd_path

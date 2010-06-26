@@ -40,6 +40,8 @@ module EY
       :desc => "Git ref to deploy. May be a branch, a tag, or a SHA."
     method_option :app, :type => :string, :aliases => %w(-a),
       :desc => "Name of the application to deploy"
+    method_option :verbose, :type => :boolean, :aliases => %w(-v),
+      :desc => "Be verbose"
     def deploy
       app         = fetch_app(options[:app])
       environment = fetch_environment(options[:environment], app)
@@ -58,7 +60,7 @@ module EY
 
       EY.ui.info "Running deploy for '#{environment.name}' on server..."
 
-      if environment.deploy(app, deploy_ref, options[:migrate])
+      if environment.deploy(app, deploy_ref, options[:migrate], options[:verbose])
         EY.ui.info "Deploy complete"
       else
         raise EY::Error, "Deploy failed"
@@ -121,6 +123,8 @@ module EY
       :desc => "Environment in which to roll back the application"
     method_option :app, :type => :string, :aliases => %w(-a),
       :desc => "Name of the application to roll back"
+    method_option :verbose, :type => :boolean, :aliases => %w(-v),
+      :desc => "Be verbose"
     def rollback
       app = fetch_app(options[:app])
       env = fetch_environment(options[:environment], app)
@@ -128,7 +132,7 @@ module EY
       loudly_check_eysd(env)
 
       EY.ui.info("Rolling back #{env.name}")
-      if env.rollback(app)
+      if env.rollback(app, options[:verbose])
         EY.ui.info "Rollback complete"
       else
         raise EY::Error, "Rollback failed"

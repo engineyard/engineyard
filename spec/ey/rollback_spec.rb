@@ -7,6 +7,7 @@ describe "ey rollback" do
     cmd = "rollback"
     cmd << " -e #{opts[:env]}" if opts[:env]
     cmd << " -a #{opts[:app]}" if opts[:app]
+    cmd << " --verbose" if opts[:verbose]
     cmd
   end
 

@@ -32,20 +32,20 @@ module EY
         app_master!.ensure_eysd_present(&blk)
       end
 
-      def deploy(app, ref, migration_command=nil)
-        app_master!.deploy(app, ref, migration_command, config)
+      def deploy(app, ref, migration_command=nil, verbose=false)
+        app_master!.deploy(app, ref, migration_command, config, verbose)
       end
 
-      def rollback(app)
-        app_master!.rollback(app, config)
+      def rollback(app, verbose=false)
+        app_master!.rollback(app, config, verbose)
       end
 
-      def take_down_maintenance_page(app)
-        app_master!.take_down_maintenance_page(app)
+      def take_down_maintenance_page(app, verbose=false)
+        app_master!.take_down_maintenance_page(app, verbose)
       end
 
-      def put_up_maintenance_page(app)
-        app_master!.put_up_maintenance_page(app)
+      def put_up_maintenance_page(app, verbose=false)
+        app_master!.put_up_maintenance_page(app, verbose)
       end
 
       def rebuild

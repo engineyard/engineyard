@@ -113,6 +113,12 @@ end
 shared_examples_for "it invokes eysd" do
   include Spec::Helpers::SharedIntegrationTestUtils
 
+  it "passes --verbose to eysd" do
+    api_scenario "one app, one environment"
+    run_ey({:env => 'giblets', :verbose => true})
+    @ssh_commands.should have_command_like(/eysd.*deploy.*--verbose/)
+  end
+
   it "passes along instance information to eysd" do
     api_scenario "one app, one environment"
     run_ey({:env => 'giblets'})
