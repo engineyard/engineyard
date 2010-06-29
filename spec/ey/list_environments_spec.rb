@@ -29,12 +29,12 @@ describe "ey environments" do
   end
 
   it "outputs simply with -s" do
-    ey "environments -s"
+    ey "environments -s", :debug => false
     @out.split(/\n/).sort.should == ["bakon", "giblets"]
   end
 
   it "outputs all environments (including ones with no apps) simply with -a and -s" do
-    ey "environments -a -s"
+    ey "environments -a -s", :debug => false
     @out.split(/\n/).sort.should == ["bakon", "beef", "giblets"]
   end
 
