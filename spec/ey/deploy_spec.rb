@@ -175,13 +175,13 @@ describe "ey deploy" do
         @ssh_commands.last.should =~ /--branch master/
       end
 
-      it "complains about a non-default branch without --force" do
+      it "complains about a non-default branch without --ignore-default_branch" do
         ey "deploy -r current-branch", :expect_failure => true
         @err.should =~ /deploy branch is set to "master"/
       end
 
-      it "deploys a non-default branch with --force" do
-        ey "deploy -r current-branch --force"
+      it "deploys a non-default branch with --ignore-default-branch" do
+        ey "deploy -r current-branch --ignore-default-branch"
         @ssh_commands.last.should =~ /--branch current-branch/
       end
     end

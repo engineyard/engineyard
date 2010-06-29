@@ -68,7 +68,7 @@ module EY
   class BranchMismatch < EY::Error
     def initialize(default_branch, branch)
       super %|Your deploy branch is set to "#{default_branch}".\n| +
-        %|If you want to deploy branch "#{branch}", use --force.|
+        %|If you want to deploy branch "#{branch}", use --ignore-default_branch.|
     end
   end
 

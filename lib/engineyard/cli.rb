@@ -23,13 +23,13 @@ module EY
       This command must be run with the current directory containing the app to be
       deployed. If ey.yml specifies a default branch then the ref parameter can be
       omitted. Furthermore, if a default branch is specified but a different command
-      is supplied the deploy will fail unless --force is used.
+      is supplied the deploy will fail unless --ignore-default-branch is used.
 
       Migrations are run by default with 'rake db:migrate'. A different command can be
       specified via --migrate "ruby do_migrations.rb". Migrations can also be skipped
       entirely by using --no-migrate.
     DESC
-    method_option :force, :type => :boolean, :aliases => %w(-f),
+    method_option :ignore_default_branch, :type => :boolean,
       :desc => "Force a deploy of the specified branch even if a default is set"
     method_option :migrate, :type => :string, :aliases => %w(-m),
       :default => 'rake db:migrate',
@@ -46,10 +46,10 @@ module EY
       app         = fetch_app(options[:app])
       environment = fetch_environment(options[:environment], app)
       deploy_ref  = if options[:app]
-                      environment.resolve_branch(options[:ref], options[:force]) ||
+                      environment.resolve_branch(options[:ref], options[:ignore_default_branch]) ||
                         raise(EY::Error, "When specifying the application, you must also specify the ref to deploy\nUsage: ey deploy --app <app name> --ref <branch|tag|ref>")
                     else
-                      environment.resolve_branch(options[:ref], options[:force]) ||
+                      environment.resolve_branch(options[:ref], options[:ignore_default_branch]) ||
                         repo.current_branch ||
                         raise(DeployArgumentError)
                     end
