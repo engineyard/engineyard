@@ -113,31 +113,39 @@ end
 shared_examples_for "it invokes eysd" do
   include Spec::Helpers::SharedIntegrationTestUtils
 
-  it "passes --verbose to eysd" do
-    api_scenario "one app, one environment"
-    run_ey({:env => 'giblets', :verbose => true})
-    @ssh_commands.should have_command_like(/eysd.*deploy.*--verbose/)
-  end
-
-  it "passes along instance information to eysd" do
-    api_scenario "one app, one environment"
-    run_ey({:env => 'giblets'})
-
-    instance_args = [
-      Regexp.quote("ec2-174-129-198-124.compute-1.amazonaws.com,app_master"),
-      Regexp.quote("ec2-174-129-142-53.compute-1.amazonaws.com,db_master"),
-      Regexp.quote("ec2-72-44-46-66.compute-1.amazonaws.com,app"),
-      Regexp.quote("ec2-184-73-116-228.compute-1.amazonaws.com,util,fluffy"),
-    ]
-
-    # they should all be mentioned
-    instance_args.each do |i|
-      @ssh_commands.last.should =~ /#{i}/
+  context "with arguments" do
+    before(:all) do
+      api_scenario "one app, one environment"
+      run_ey({:env => 'giblets', :verbose => true})
     end
 
-    # after the option '--instances'
-    @ssh_commands.last.should match(/--instances (#{instance_args.join('|')})/)
+    it "passes --verbose to eysd" do
+      @ssh_commands.should have_command_like(/eysd.*deploy.*--verbose/)
+    end
+
+    it "passes along instance information to eysd" do
+      instance_args = [
+        Regexp.quote("ec2-174-129-198-124.compute-1.amazonaws.com,app_master"),
+        Regexp.quote("ec2-174-129-142-53.compute-1.amazonaws.com,db_master"),
+        Regexp.quote("ec2-72-44-46-66.compute-1.amazonaws.com,app"),
+        Regexp.quote("ec2-184-73-116-228.compute-1.amazonaws.com,util,fluffy"),
+      ]
+
+      # they should all be mentioned
+      instance_args.each do |i|
+        @ssh_commands.last.should =~ /#{i}/
+      end
+
+      # after the option '--instances'
+      @ssh_commands.last.should match(/--instances (#{instance_args.join('|')})/)
+    end
+
+    it "passes the framework environment" do
+      @ssh_commands.last.should match(/--framework-env production/)
+    end
+
   end
+
 
   context "eysd installation" do
     before(:all) do
