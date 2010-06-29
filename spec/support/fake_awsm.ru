@@ -155,6 +155,7 @@ private
             "instances_count" => 1,
             "stack_name" => "nginx_mongrel",
             "id" => 200,
+            "framework_env" => "production",
             "app_master" => {
               "status" => "running",
               "id" => 27220,
@@ -208,6 +209,7 @@ private
                 "instances_count" => 1,
                 "stack_name" => "nginx_mongrel",
                 "id" => 200,
+                "framework_env" => "production",
                 "app_master" => _instances.first}],
             "repository_uri" => git_remote}]
       end
@@ -223,6 +225,7 @@ private
             "instances_count" => 1,
             "stack_name" => "nginx_mongrel",
             "id" => 200,
+            "framework_env" => "production",
             "app_master" => _instances[0]}]
       end
 
@@ -273,6 +276,7 @@ private
                 "instances_count" => 1,
                 "stack_name" => "nginx_mongrel",
                 "id" => 200,
+                "framework_env" => "production",
                 "app_master" => {
                   "status" => "running",
                   "id" => 27220,
@@ -308,6 +312,7 @@ private
             "instances_count" => 1,
             "stack_name" => "nginx_mongrel",
             "id" => 200,
+            "framework_env" => "production",
             "app_master" => {
               "status" => "running",
               "id" => 27220,
@@ -379,6 +384,7 @@ private
                 "app_master" => keycollector_master,
                 "instances" => [keycollector_master],
                 "id" => 4359,
+                "framework_env" => "production",
                 "stack_name" => "nginx_mongrel"}],
           }, {
             "name" => "rails232app",
@@ -394,6 +400,7 @@ private
                 "name" => "giblets",
                 "app_master" => railsapp_master,
                 "instances" => [railsapp_master],
+                "framework_env" => "production",
                 "id" => 200,
                 "stack_name" => "nginx_unicorn"}],
           }]
@@ -414,6 +421,7 @@ private
                 "id" => 6125}],
           }, {
             "id" => 4359,
+            "framework_env" => "production",
             "name" => "keycollector_production",
             "ssh_username" => "deploy",
             "stack_name" => "nginx_mongrel",
@@ -448,6 +456,7 @@ private
                 "apps" => apps,
                 "instances_count" => 1,
                 "stack_name" => "nginx_mongrel",
+                "framework_env" => "production",
                 "id" => 200,
                 "app_master" => {
                   "status" => "running",
@@ -469,6 +478,7 @@ private
                 "instances_count" => 1,
                 "stack_name" => "nginx_passenger",
                 "id" => 8371,
+                "framework_env" => "production",
                 "app_master" => {
                   "public_hostname" => '127.3.2.1',
                   "status" => "running",
@@ -488,6 +498,7 @@ private
                 "instances_count" => 1,
                 "stack_name" => "nginx_passenger",
                 "id" => 8371,
+                "framework_env" => "production",
                 "app_master" => {
                   "public_hostname" => '127.44.55.66',
                   "status" => "running",
@@ -514,6 +525,7 @@ private
             "instances_count" => 1,
             "stack_name" => "nginx_mongrel",
             "id" => 200,
+            "framework_env" => "production",
             "app_master" => {
               "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com",
               "status" => "running",
@@ -536,6 +548,7 @@ private
             "instances_count" => 1,
             "stack_name" => "nginx_passenger",
             "id" => 8371,
+            "framework_env" => "production",
             "app_master" => {
               "public_hostname" => '127.3.2.1',
               "status" => "running",
@@ -559,6 +572,7 @@ private
             "instances_count" => 1,
             "stack_name" => "nginx_passenger",
             "id" => 8371,
+            "framework_env" => "production",
             "app_master" => {
               "public_hostname" => '127.44.55.66',
               "status" => "running",

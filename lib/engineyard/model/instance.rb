@@ -117,9 +117,11 @@ module EY
           command << instance_tuple.join(',')
         end
 
+        framework_arg = ['--framework-env', environment.framework_env]
+
         verbose_arg = verbose ? ['--verbose'] : []
 
-        cmd = Escape.shell_command(start + deploy_args + instance_args + verbose_arg)
+        cmd = Escape.shell_command(start + deploy_args + framework_arg + instance_args + verbose_arg)
         puts cmd if verbose
         ssh cmd
       end
