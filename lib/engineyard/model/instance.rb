@@ -3,7 +3,7 @@ require 'escape'
 module EY
   module Model
     class Instance < ApiStruct.new(:id, :role, :name, :status, :amazon_id, :public_hostname, :environment)
-      EYSD_VERSION = ENV["EY_DEPLOY_VERSION"] || "0.7.0"
+      EYSD_VERSION = ENV["EY_DEPLOY_VERSION"] || "0.7.1"
       EXIT_STATUS = Hash.new { |h,k| raise EY::Error, "ey-deploy version checker exited with unknown status code #{k}" }
       EXIT_STATUS.merge!({
         255 => :ssh_failed,
