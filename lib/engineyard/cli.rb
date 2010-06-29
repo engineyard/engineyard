@@ -31,6 +31,8 @@ module EY
     DESC
     method_option :ignore_default_branch, :type => :boolean,
       :desc => "Force a deploy of the specified branch even if a default is set"
+    method_option :ignore_bad_master, :type => :boolean,
+      :desc => "Force a deploy even if the master is in a bad state"
     method_option :migrate, :type => :string, :aliases => %w(-m),
       :default => 'rake db:migrate',
       :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations"
@@ -45,6 +47,7 @@ module EY
     def deploy
       app         = fetch_app(options[:app])
       environment = fetch_environment(options[:environment], app)
+      environment.ignore_bad_master = options[:ignore_bad_master]
       deploy_ref  = if options[:app]
                       environment.resolve_branch(options[:ref], options[:ignore_default_branch]) ||
                         raise(EY::Error, "When specifying the application, you must also specify the ref to deploy\nUsage: ey deploy --app <app name> --ref <branch|tag|ref>")

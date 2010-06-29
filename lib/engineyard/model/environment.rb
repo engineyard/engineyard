@@ -1,6 +1,9 @@
 module EY
   module Model
     class Environment < ApiStruct.new(:id, :name, :instances, :instances_count, :apps, :app_master, :username, :stack_name, :api)
+
+      attr_accessor :ignore_bad_master
+
       def self.from_hash(hash)
         super.tap do |env|
           env.username = hash['ssh_username']
@@ -22,7 +25,7 @@ module EY
         master = app_master
         if master.nil?
           raise NoAppMaster.new(name)
-        elsif master.status != "running"
+        elsif !ignore_bad_master && master.status != "running"
           raise BadAppMasterStatus.new(master.status)
         end
         master

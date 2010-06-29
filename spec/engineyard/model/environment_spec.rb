@@ -115,6 +115,13 @@ describe "EY::Model::Environment#app_master!" do
     }.should raise_error(EY::BadAppMasterStatus)
   end
 
+  it "returns the app master if told to ignore the app master being in a non-running state" do
+    env = make_env_with_master("status" => "error")
+    env.ignore_bad_master = true
+    env.app_master!.should_not be_nil
+    env.app_master!.id.should == 44206
+  end
+
   it "raises an error if the app master is absent" do
     env = make_env_with_master(nil)
     lambda {
