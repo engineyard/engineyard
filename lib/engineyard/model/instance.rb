@@ -119,7 +119,7 @@ module EY
 
         framework_arg = ['--framework-env', environment.framework_env]
 
-        verbose_arg = verbose ? ['--verbose'] : []
+        verbose_arg = (verbose || ENV['DEBUG']) ? ['--verbose'] : []
 
         cmd = Escape.shell_command(start + deploy_args + framework_arg + instance_args + verbose_arg)
         puts cmd if verbose
