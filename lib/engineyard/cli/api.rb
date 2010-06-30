@@ -13,7 +13,7 @@ module EY
         begin
           super
         rescue EY::API::InvalidCredentials
-          EY.ui.warn "Credentials rejected, please authenticate again"
+          EY.ui.warn "Credentials rejected; please authenticate again."
           refresh
           retry
         end
@@ -24,15 +24,13 @@ module EY
       end
 
       def self.fetch_token
-        EY.ui.warn("The engineyard gem is prerelease software. Please do not use")
-        EY.ui.warn("this tool to deploy to mission-critical environments, yet.")
-        EY.ui.info("We need to fetch your API token, please login")
+        EY.ui.info("We need to fetch your API token; please log in.")
         begin
           email    = EY.ui.ask("Email: ")
           password = EY.ui.ask("Password: ", true)
           super(email, password)
         rescue EY::API::InvalidCredentials
-          EY.ui.warn "Invalid username or password, please try again"
+          EY.ui.warn "Invalid username or password; please try again."
           retry
         end
       end

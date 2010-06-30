@@ -15,7 +15,7 @@ describe "ey deploy without an eyrc file" do
       input.puts("test")
     end
 
-    @out.should include("We need to fetch your API token, please login")
+    @out.should include("We need to fetch your API token; please log in.")
     @out.should include("Email:")
     @out.should include("Password:")
     @ssh_commands.should_not be_empty
