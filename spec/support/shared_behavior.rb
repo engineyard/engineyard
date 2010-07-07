@@ -126,17 +126,21 @@ shared_examples_for "it invokes eysd" do
     it "passes along instance information to eysd" do
       instance_args = [
         Regexp.quote("ec2-174-129-198-124.compute-1.amazonaws.com,app_master"),
-        Regexp.quote("ec2-174-129-142-53.compute-1.amazonaws.com,db_master"),
         Regexp.quote("ec2-72-44-46-66.compute-1.amazonaws.com,app"),
         Regexp.quote("ec2-184-73-116-228.compute-1.amazonaws.com,util,fluffy"),
       ]
 
-      # they should all be mentioned
+      db_instance = Regexp.quote("ec2-174-129-142-53.compute-1.amazonaws.com,db_master")
+
+      # apps + utilities are all mentioned
       instance_args.each do |i|
         @ssh_commands.last.should =~ /#{i}/
       end
 
-      # after the option '--instances'
+      # but not database instances
+      @ssh_commands.last.should_not =~ /#{db_instance}/
+
+      # and it's all after the option '--instances'
       @ssh_commands.last.should match(/--instances (#{instance_args.join('|')})/)
     end
 

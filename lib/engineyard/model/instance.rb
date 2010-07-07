@@ -56,6 +56,10 @@ module EY
       end
 
 
+      def has_app_code?
+        !["db_master", "db_slave"].include?(role.to_s)
+      end
+
       def ensure_eysd_present
         case ey_deploy_check
         when :ssh_failed
@@ -110,7 +114,9 @@ module EY
 
       def invoke_eysd_deploy(deploy_args, verbose=false)
         start = [eysd_path, "_#{EYSD_VERSION}_", 'deploy']
-        instance_args = environment.instances.inject(['--instances']) do |command, inst|
+        instance_args = environment.instances.find_all do |inst|
+          inst.has_app_code?
+        end.inject(['--instances']) do |command, inst|
           instance_tuple = [inst.public_hostname, inst.role]
           instance_tuple << inst.name if inst.name
 
