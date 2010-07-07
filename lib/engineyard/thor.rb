@@ -102,7 +102,11 @@ module EY
     end
 
     def fetch_app(app_name = nil)
-      api.fetch_app!(app_name) || api.app_for_repo!(repo)
+      if app_name
+        api.apps.match_one!(app_name)
+      else
+        api.app_for_repo!(repo)
+      end      
     end
 
     def get_apps(all_apps = false)

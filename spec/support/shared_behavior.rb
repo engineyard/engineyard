@@ -186,5 +186,59 @@ shared_examples_for "it invokes eysd" do
       ver = Regexp.quote(EY::Model::Instance::EYSD_VERSION)
       @ssh_commands.should have_command_like(/eysd _#{ver}_ deploy/)
     end
+  end  
+end
+
+shared_examples_for "model collections" do
+  describe "#match_one" do
+    it "works when given an unambiguous substring" do
+      @collection.match_one("prod").name.should == "app_production"
+    end
+
+    it "raises an error when given an ambiguous substring" do
+      lambda {
+        @collection.match_one("staging")
+      }.should raise_error(@collection_class.ambiguous_error)
+    end
+
+    it "returns an exact match if one exists" do
+      @collection.match_one("app_staging").name.should == "app_staging"
+    end
+
+    it "returns nil when it can't find anything" do
+      @collection.match_one("dev-and-production").should be_nil
+    end
+  end
+
+  describe "#match_one!" do
+    it "works when given an unambiguous substring" do
+      @collection.match_one!("prod").name.should == "app_production"
+    end
+
+    it "raises an error when given an ambiguous substring" do
+      lambda {
+        @collection.match_one!("staging")
+      }.should raise_error(@collection_class.ambiguous_error)
+    end
+
+    it "returns an exact match if one exists" do
+      @collection.match_one!("app_staging").name.should == "app_staging"
+    end
+
+    it "raises an error when it can't find anything" do
+      lambda {
+        @collection.match_one!("dev-and-production")
+      }.should raise_error(@collection_class.invalid_error)
+    end
+  end
+
+  describe "#named" do
+    it "finds matching by name" do
+      @collection.named("app_staging").name.should == "app_staging"
+    end
+
+    it "returns nil when no name matches" do
+      @collection.named("something else").should be_nil
+    end
   end
 end

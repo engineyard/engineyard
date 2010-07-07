@@ -13,7 +13,7 @@ module EY
         end
       end
 
-      def self.from_array(array, extras={})
+      def self.from_array(*)
         Collection::Environments[*super]
       end
 

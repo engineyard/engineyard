@@ -8,6 +8,10 @@ module EY
         end
       end
 
+      def self.from_array(*)
+        Collection::Apps[*super]
+      end
+
       def sole_environment
         if environments.size == 1
           environments.first

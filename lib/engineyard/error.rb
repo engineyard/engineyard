@@ -1,5 +1,11 @@
 module EY
-  class Error < RuntimeError; end
+  class Error < RuntimeError
+    def ambiguous(type, name, matches)
+      pretty_names = matches.map {|x| "'#{x}'"}.join(', ')
+      "The name '#{name}' is ambiguous; it matches all of the following #{type} names: #{pretty_names}.\n" +
+      "Please use a longer, unambiguous substring or the entire #{type} name."
+    end
+  end
 
   class NoRemotesError < EY::Error
     def initialize(path)
@@ -23,6 +29,12 @@ module EY
     end
   end
 
+  class AmbiguousAppName < EY::Error
+    def initialize(name, matches)
+      super ambiguous("app", name, matches)
+    end
+  end
+
   class NoAppMaster < EY::Error
     def initialize(env_name)
       super "The environment '#{env_name}' does not have a master instance."
@@ -40,9 +52,7 @@ module EY
 
   class AmbiguousEnvironmentName < EY::EnvironmentError
     def initialize(name, matches)
-      pretty_names = matches.map {|x| "'#{x}'"}.join(', ')
-      super "The name '#{name}' is ambiguous; it matches all of the following environment names: #{pretty_names}.\n" +
-      "Please use a longer, unambiguous substring or the entire environment name."
+      super ambiguous("environment", name, matches)
     end
   end
 
