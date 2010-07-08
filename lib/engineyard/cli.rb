@@ -153,7 +153,7 @@ module EY
       env = fetch_environment(options[:environment])
 
       if env.app_master
-        Kernel.exec "ssh", "#{env.username}@#{env.app_master.public_hostname}"
+        system "ssh #{env.username}@#{env.app_master.public_hostname}"
       else
         raise NoAppMaster.new(env.name)
       end
