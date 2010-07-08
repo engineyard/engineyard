@@ -37,13 +37,13 @@ describe "ey deploy" do
 
   def verify_ran(scenario)
     @out.should match(/Beginning deploy for.*#{scenario[:application]}.*#{scenario[:environment]}/)
-    @ssh_commands.should have_command_like(/eysd.*deploy.*--app #{scenario[:application]}/)
+    @ssh_commands.should have_command_like(/ey-deploy.*deploy.*--app #{scenario[:application]}/)
   end
 
   # common behavior
   it_should_behave_like "it takes an environment name"
   it_should_behave_like "it takes an app name"
-  it_should_behave_like "it invokes eysd"
+  it_should_behave_like "it invokes ey-deploy"
 end
 
 describe "ey deploy" do
@@ -81,20 +81,20 @@ describe "ey deploy" do
       api_scenario "one app, one environment"
     end
 
-    it "finds eysd despite its being buried in the filesystem" do
+    it "finds ey-deploy despite its being buried in the filesystem" do
       ey "deploy"
-      @ssh_commands.last.should =~ %r{/usr/local/ey_resin/ruby/bin/eysd}
+      @ssh_commands.last.should =~ %r{/usr/local/ey_resin/ruby/bin/ey-deploy}
     end
 
     it "defaults to 'rake db:migrate'" do
       ey "deploy"
-      @ssh_commands.last.should =~ /eysd.*deploy/
+      @ssh_commands.last.should =~ /ey-deploy.*deploy/
       @ssh_commands.last.should =~ /--migrate 'rake db:migrate'/
     end
 
     it "can be disabled with --no-migrate" do
       ey "deploy --no-migrate"
-      @ssh_commands.last.should =~ /eysd.*deploy/
+      @ssh_commands.last.should =~ /ey-deploy.*deploy/
       @ssh_commands.last.should_not =~ /--migrate/
     end
   end
@@ -155,7 +155,7 @@ describe "ey deploy" do
         File.unlink("ey.yml")
       end
 
-      it "gets passed along to eysd" do
+      it "gets passed along to ey-deploy" do
         ey "deploy"
         @ssh_commands.last.should =~ /--config '\{\"bert\":\"ernie\"\}'/
       end
@@ -232,14 +232,14 @@ describe "ey deploy" do
     before(:all) do
       api_scenario "one app, one environment", "user@git.host:path/to/repo.git"
       ey "deploy"
-      @deploy_command = @ssh_commands.find {|c| c =~ /eysd.*deploy/ }
+      @deploy_command = @ssh_commands.find {|c| c =~ /ey-deploy.*deploy/ }
     end
 
-    it "passes along the repository URL to eysd" do
+    it "passes along the repository URL to ey-deploy" do
       @deploy_command.should =~ /--repo user@git.host:path\/to\/repo.git/
     end
 
-    it "passes along the web server stack to eysd" do
+    it "passes along the web server stack to ey-deploy" do
       @deploy_command.should =~ /--stack nginx_mongrel/
     end
   end

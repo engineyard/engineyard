@@ -77,8 +77,8 @@ module EY
       @repo ||= EY::Repo.new
     end
 
-    def loudly_check_eysd(environment)
-      environment.ensure_eysd_present do |action|
+    def loudly_check_eydeploy(environment)
+      environment.ensure_eydeploy_present do |action|
         case action
         when :installing
           EY.ui.warn "Instance does not have server-side component installed"
