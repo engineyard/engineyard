@@ -3,11 +3,11 @@ require 'escape'
 module EY
   module Model
     class Instance < ApiStruct.new(:id, :role, :name, :status, :amazon_id, :public_hostname, :environment)
-      EYSD_VERSION = ENV["EY_DEPLOY_VERSION"] || "0.8.2"
+      EYDEPLOY_VERSION = ENV["EY_DEPLOY_VERSION"] || "0.9.0"
       EXIT_STATUS = Hash.new { |h,k| raise EY::Error, "ey-deploy version checker exited with unknown status code #{k}" }
       EXIT_STATUS.merge!({
         255 => :ssh_failed,
-        1   => :eysd_missing,
+        1   => :eydeploy_missing,
         0   => :ok,
       })
 
@@ -30,7 +30,7 @@ module EY
           deploy_args << "--migrate" << migration_command
         end
 
-        invoke_eysd_deploy(deploy_args, verbose)
+        invoke_ey_deploy(deploy_args, verbose)
       end
 
       def rollback(app, extra_configuration=nil, verbose=false)
@@ -43,16 +43,16 @@ module EY
           deploy_args << '--config' << extra_configuration.to_json
         end
 
-        invoke_eysd_deploy(deploy_args, verbose)
+        invoke_ey_deploy(deploy_args, verbose)
       end
 
 
       def put_up_maintenance_page(app, verbose=false)
-        invoke_eysd_deploy(['enable_maintenance_page', '--app', app.name], verbose)
+        invoke_ey_deploy(['enable_maintenance_page', '--app', app.name], verbose)
       end
 
       def take_down_maintenance_page(app, verbose=false)
-        invoke_eysd_deploy(['disable_maintenance_page', '--app', app.name], verbose)
+        invoke_ey_deploy(['disable_maintenance_page', '--app', app.name], verbose)
       end
 
 
@@ -60,27 +60,27 @@ module EY
         !["db_master", "db_slave"].include?(role.to_s)
       end
 
-      def ensure_eysd_present
-        case ey_deploy_check
+      def ensure_eydeploy_present
+        case eydeploy_status = ey_deploy_check
         when :ssh_failed
           raise EnvironmentError, "SSH connection to #{hostname} failed"
-        when :eysd_missing
+        when :eydeploy_missing
           yield :installing if block_given?
           install_ey_deploy
         when :ok
           # no action needed
         else
-          raise EY::Error, "Internal error: Unexpected status from Instance#ey_deploy_check; got #{eysd_status.inspect}"
+          raise EY::Error, "Internal error: Unexpected status from Instance#ey_deploy_check; got #{eydeploy_status.inspect}"
         end
       end
 
       def ey_deploy_check
-        escaped_eysd_version = EYSD_VERSION.gsub(/\./, '\.')
+        escaped_eydeploy_version = EYDEPLOY_VERSION.gsub(/\./, '\.')
 
         if ENV["NO_SSH"]
           :ok
         else
-          ssh "#{gem_path} list ey-deploy | grep \"ey-deploy \" | egrep -q '#{escaped_eysd_version}[,)]'", false
+          ssh "#{gem_path} list ey-deploy | grep \"ey-deploy \" | egrep -q '#{escaped_eydeploy_version}[,)]'", false
           EXIT_STATUS[$?.exitstatus]
         end
       end
@@ -94,7 +94,7 @@ module EY
               #
               # rubygems help suggests that --remote will disable this
               # behavior, but it doesn't.
-              "cd `mktemp -d` && #{gem_path} install ey-deploy --no-rdoc --no-ri -v #{EYSD_VERSION}"]))
+              "cd `mktemp -d` && #{gem_path} install ey-deploy --no-rdoc --no-ri -v #{EYDEPLOY_VERSION}"]))
       end
 
     private
@@ -112,8 +112,8 @@ module EY
         end
       end
 
-      def invoke_eysd_deploy(deploy_args, verbose=false)
-        start = [eysd_path, "_#{EYSD_VERSION}_", 'deploy']
+      def invoke_ey_deploy(deploy_args, verbose=false)
+        start = [eydeploy_path, "_#{EYDEPLOY_VERSION}_", 'deploy']
         instance_args = environment.instances.find_all do |inst|
           inst.has_app_code?
         end.inject(['--instances']) do |command, inst|
@@ -132,8 +132,8 @@ module EY
         ssh cmd
       end
 
-      def eysd_path
-        "/usr/local/ey_resin/ruby/bin/eysd"
+      def eydeploy_path
+        "/usr/local/ey_resin/ruby/bin/ey-deploy"
       end
 
       def gem_path

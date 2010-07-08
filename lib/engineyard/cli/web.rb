@@ -12,7 +12,7 @@ module EY
       def enable
         app         = fetch_app(options[:app])
         environment = fetch_environment(options[:environment], app)
-        loudly_check_eysd(environment)
+        loudly_check_eydeploy(environment)
         EY.ui.info "Taking down maintenance page for '#{app.name}' in '#{environment.name}'"
         environment.take_down_maintenance_page(app, options[:verbose])
       end
@@ -39,7 +39,7 @@ module EY
       def disable
         app         = fetch_app(options[:app])
         environment = fetch_environment(options[:environment], app)
-        loudly_check_eysd(environment)
+        loudly_check_eydeploy(environment)
         EY.ui.info "Putting up maintenance page for '#{app.name}' in '#{environment.name}'"
         environment.put_up_maintenance_page(app, options[:verbose])
       end

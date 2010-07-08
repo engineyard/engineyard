@@ -31,8 +31,8 @@ module EY
         master
       end
 
-      def ensure_eysd_present(&blk)
-        app_master!.ensure_eysd_present(&blk)
+      def ensure_eydeploy_present(&blk)
+        app_master!.ensure_eydeploy_present(&blk)
       end
 
       def deploy(app, ref, migration_command=nil, verbose=false)

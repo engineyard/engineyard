@@ -110,7 +110,7 @@ shared_examples_for "it takes an app name" do
 
 end
 
-shared_examples_for "it invokes eysd" do
+shared_examples_for "it invokes ey-deploy" do
   include Spec::Helpers::SharedIntegrationTestUtils
 
   context "with arguments" do
@@ -119,11 +119,11 @@ shared_examples_for "it invokes eysd" do
       run_ey({:env => 'giblets', :verbose => true})
     end
 
-    it "passes --verbose to eysd" do
-      @ssh_commands.should have_command_like(/eysd.*deploy.*--verbose/)
+    it "passes --verbose to ey-deploy" do
+      @ssh_commands.should have_command_like(/ey-deploy.*deploy.*--verbose/)
     end
 
-    it "passes along instance information to eysd" do
+    it "passes along instance information to ey-deploy" do
       instance_args = [
         Regexp.quote("ec2-174-129-198-124.compute-1.amazonaws.com,app_master"),
         Regexp.quote("ec2-72-44-46-66.compute-1.amazonaws.com,app"),
@@ -151,7 +151,7 @@ shared_examples_for "it invokes eysd" do
   end
 
 
-  context "eysd installation" do
+  context "ey-deploy installation" do
     before(:all) do
       api_scenario "one app, one environment"
     end
@@ -187,8 +187,8 @@ shared_examples_for "it invokes eysd" do
     it "does not try to install ey-deploy if it's already there" do
       run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(0)}})
       @ssh_commands.should_not have_command_like(/gem install ey-deploy/)
-      ver = Regexp.quote(EY::Model::Instance::EYSD_VERSION)
-      @ssh_commands.should have_command_like(/eysd _#{ver}_ deploy/)
+      ver = Regexp.quote(EY::Model::Instance::EYDEPLOY_VERSION)
+      @ssh_commands.should have_command_like(/ey-deploy _#{ver}_ deploy/)
     end
   end  
 end
