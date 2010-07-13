@@ -35,13 +35,13 @@ module EY
     end
   end
 
-  class AmbiguousAppName < EY::Error
+  class AmbiguousAppNameError < EY::Error
     def initialize(name, matches)
       super ambiguous("app", name, matches)
     end
   end
 
-  class NoAppMaster < EY::Error
+  class NoAppMasterError < EY::Error
     def initialize(env_name)
       super "The environment '#{env_name}' does not have a master instance."
     end
@@ -53,7 +53,7 @@ module EY
     end
   end
 
-  class BadAppMasterStatus < EY::Error
+  class BadAppMasterStatusError < EY::Error
     def initialize(master_status)
       super "Application master's status is not \"running\" (green); it is \"#{master_status}\"."
     end
@@ -62,7 +62,7 @@ module EY
   class EnvironmentError < EY::Error
   end
 
-  class AmbiguousEnvironmentName < EY::EnvironmentError
+  class AmbiguousEnvironmentNameError < EY::EnvironmentError
     def initialize(name, matches)
       super ambiguous("environment", name, matches)
     end
@@ -87,7 +87,7 @@ module EY
     end
   end
 
-  class BranchMismatch < EY::Error
+  class BranchMismatchError < EY::Error
     def initialize(default_branch, branch)
       super %|Your deploy branch is set to "#{default_branch}".\n| +
         %|If you want to deploy branch "#{branch}", use --ignore-default_branch.|

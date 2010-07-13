@@ -24,9 +24,9 @@ module EY
       def app_master!
         master = app_master
         if master.nil?
-          raise NoAppMaster.new(name)
+          raise NoAppMasterError.new(name)
         elsif !ignore_bad_master && master.status != "running"
-          raise BadAppMasterStatus.new(master.status)
+          raise BadAppMasterStatusError.new(master.status)
         end
         master
       end
@@ -101,7 +101,7 @@ module EY
 
       def resolve_branch(branch, allow_non_default_branch=false)
         if !allow_non_default_branch && branch && default_branch && (branch != default_branch)
-          raise BranchMismatch.new(default_branch, branch)
+          raise BranchMismatchError.new(default_branch, branch)
         end
         branch || default_branch
       end

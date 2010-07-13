@@ -13,7 +13,7 @@ describe EY::CLI do
 
   it "provides error classes" do
     EY::EnvironmentError.should be
-    EY::BranchMismatch.should be
+    EY::BranchMismatchError.should be
     EY::DeployArgumentError.should be
   end
 

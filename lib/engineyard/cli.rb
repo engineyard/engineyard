@@ -174,7 +174,7 @@ module EY
         if env.app_master
           system "ssh #{env.username}@#{env.app_master.public_hostname} #{cmd}"
         else
-          raise NoAppMaster.new(env.name)
+          raise NoAppMasterError.new(env.name)
         end
       end
     end
