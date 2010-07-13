@@ -147,6 +147,11 @@ module EY
       If a command is supplied, it will be run, otherwise a session will be
       opened. The application master is used for environments with clusters.
       Option --all requires a command to be supplied and runs it on all servers.
+
+      Note: this command is a bit picky about its ordering. To run a command with arguments on
+      all servers, like "rm -f /some/file", you need to order it like so:
+
+      $ #{banner_base} ssh "rm -f /some/file" -e my-environment --all
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment to ssh into"
