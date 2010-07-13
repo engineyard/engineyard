@@ -30,6 +30,8 @@ class FakeAwsm < Sinatra::Base
                      Scenario::TwoApps
                    when "one app, one environment"
                      Scenario::LinkedApp
+                   when "one app, one environment, no instances"
+                     Scenario::LinkedAppNotRunning
                    when "one app, one environment, app master red"
                      Scenario::LinkedAppRedMaster
                    when "one app, many environments"
@@ -238,6 +240,42 @@ private
         }]
       end
     end # LinkedApp
+
+    class LinkedAppNotRunning < Empty
+      def apps
+        [{"name" => "rails232app",
+            "environments" => [{"ssh_username" => "turkey",
+                "instances" => [],
+                "name" => "giblets",
+                "apps" => [{"name" => "rails232app",
+                    "repository_uri" => git_remote}],
+                "instances_count" => 0,
+                "stack_name" => "nginx_mongrel",
+                "id" => 200,
+                "framework_env" => "production",
+                "app_master" => {}}],
+            "repository_uri" => git_remote}]
+      end
+
+      def environments
+        [{
+            "ssh_username" => "turkey",
+            "instances" => [],
+            "name" => "giblets",
+            "apps" => [{
+                "name" => "rails232app",
+                "repository_uri" => git_remote}],
+            "instances_count" => 0,
+            "stack_name" => "nginx_mongrel",
+            "id" => 200,
+           "framework_env" => "production",
+           "app_master" => {}}]
+      end
+
+      def logs(env_id)
+        []
+      end
+    end # LinkedAppNotRunning
 
     class LinkedAppRedMaster < LinkedApp
       def apps

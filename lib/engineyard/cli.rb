@@ -142,20 +142,40 @@ module EY
       end
     end
 
-    desc "ssh [--environment ENVIRONMENT]", "Open an ssh session."
+    desc "ssh [COMMAND] [--all] [--environment ENVIRONMENT]", "Open an ssh session, or run a command."
     long_desc <<-DESC
-      If the environment contains just one server, a session to it will be opened. For
-      environments with clusters, a session will be opened to the application master.
+      If a command is supplied, it will be run, otherwise a session will be
+      opened. The application master is used for environments with clusters.
+      Option --all requires a command to be supplied and runs it on all servers.
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment to ssh into"
-    def ssh
+    method_option :all, :type => :boolean, :aliases => %(-a),
+      :desc => "Run command on all servers"
+
+    def ssh(cmd=nil)
       env = fetch_environment(options[:environment])
 
-      if env.app_master
-        system "ssh #{env.username}@#{env.app_master.public_hostname}"
+      if options[:all]
+        raise NoCommandError.new unless cmd
+
+        hosts = env.instances.map do |instance|
+          instance.public_hostname
+        end
+
+        if hosts.empty?
+          raise NoInstancesError.new(env.name)
+        else
+          hosts.each do |host|
+            system "ssh #{env.username}@#{host} #{cmd}"
+          end
+        end
       else
-        raise NoAppMaster.new(env.name)
+        if env.app_master
+          system "ssh #{env.username}@#{env.app_master.public_hostname} #{cmd}"
+        else
+          raise NoAppMaster.new(env.name)
+        end
       end
     end
 

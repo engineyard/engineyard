@@ -7,6 +7,12 @@ module EY
     end
   end
 
+  class NoCommandError < EY::Error
+    def initialize
+      super "Must specify a command to run via ssh"
+    end
+  end
+
   class NoRemotesError < EY::Error
     def initialize(path)
       super "fatal: No git remotes found in #{path}"
@@ -38,6 +44,12 @@ module EY
   class NoAppMaster < EY::Error
     def initialize(env_name)
       super "The environment '#{env_name}' does not have a master instance."
+    end
+  end
+
+  class NoInstancesError < EY::Error
+    def initialize(env_name)
+      super "The environment '#{env_name}' does not have any instances."
     end
   end
 
