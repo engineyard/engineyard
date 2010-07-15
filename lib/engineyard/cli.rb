@@ -184,6 +184,34 @@ module EY
       end
     end
 
+    if RUBY_PLATFORM =~ /darwin/
+      desc "terminal [--environment ENVIRONMENT]", "Open a tabbed terminal on all instances."
+      long_desc <<-DESC
+        Open an SSH session on each instance in an environment, each server is in a new tab on OSX Terminal.app
+
+        $ #{banner_base} terminal -e production
+      DESC
+      method_option :environment, :type => :string, :aliases => %w(-e),
+        :desc => "Environment to ssh into"
+
+      def terminal
+        env            = fetch_environment(options[:environment])
+        instances      = env.instances
+        template_name  = "applescript.ssh.erb"
+        launch_command = "osascript"
+
+        raise(ArgumentError, "terminal only works on OSX currently, sorry") unless RUBY_PLATFORM =~ /darwin/
+
+        script_filename = "#{Dir.tmpdir}.#{options[:environment]}.open_terminals"
+
+        File.open(script_filename, 'w') do |fp|
+          fp.write(ERB.new(File.read(File.dirname(__FILE__) + "/templates/applescript.ssh.erb")).result(binding))
+        end
+
+        %x{#{launch_command} "#{script_filename}" 2>/dev/null}
+      end
+    end
+
     desc "logs [--environment ENVIRONMENT]", "Retrieve the latest logs for an environment."
     long_desc <<-DESC
       Displays Engine Yard configuration logs for all servers in the environment. If

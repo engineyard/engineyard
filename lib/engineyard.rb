@@ -1,4 +1,5 @@
 module EY
+  require 'tmpdir'
   require 'engineyard/ruby_ext'
   require 'engineyard/version'
 

@@ -1,0 +1,66 @@
+global window_id
+global window_name
+set window_id to 0
+set window_name to ""
+
+--
+-- A sub-routine for selecting a sub-menu item in an application
+-- http://www.macosxautomation.com/applescript/uiscripting/index.html
+on do_submenu(app_name, menu_name, menu_item, submenu_item)
+    try
+        -- bring the target application to the front
+        tell application app_name
+            activate
+        end tell
+        tell application "System Events"
+            tell process app_name
+                tell menu bar 1
+                    tell menu bar item menu_name
+                        tell menu menu_name
+                            tell menu item menu_item
+                                tell menu menu_item
+                                    click menu item submenu_item
+                                end tell
+                            end tell
+                        end tell
+                    end tell
+                end tell
+            end tell
+        end tell
+        return true
+    on error error_message
+        return false
+    end try
+end do_submenu
+
+-- MAINLINE
+tell application "Terminal"
+  activate
+
+  -- make a new window with the execution of a trivial command
+  set tabOffset to 0
+  set windowOffset to 1
+  my do_submenu("Terminal", "Shell", "New Window", "Pro")
+
+  -- load up the window id of the window we just created
+  set window_id to id of first window whose frontmost is true
+  set tab_count to count of tabs of window id window_id of application "Terminal"
+
+  -- make tabs 2, 3 and 4
+  repeat with i from 1 to (<%= instances.size %> - windowOffset)
+    my do_submenu("Terminal", "Shell", "New Tab", "Pro")
+  end repeat
+
+  <% instances.each_with_index do |instance, i| %>
+  set curTab to tab (<%= i %> + tabOffset + tab_count) of window id window_id of application "Terminal"
+  set cmd to "clear; ssh -o StrictHostKeyChecking=no <%= env.username %>@<%= instance.public_hostname %>"
+  do script cmd in curTab
+  <% end %>
+
+  -- resize
+  set region to the bounds of window id window_id of application "Terminal"
+  set x to item 1 of region
+  set y to item 2 of region
+  set w to item 3 of region
+  -- set the bounds of the first window to {x,y,w,640}
+end tell
