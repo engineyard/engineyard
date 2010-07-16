@@ -1,6 +1,7 @@
 module EY
   module Model
     class ApiStruct < Struct
+
       def self.new(*args, &block)
         super(*args) do |*block_args|
           block.call(*block_args) if block
