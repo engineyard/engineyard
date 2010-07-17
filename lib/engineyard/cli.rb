@@ -75,7 +75,7 @@ module EY
       raise exists ? EnvironmentUnlinkedError.new(options[:environment]) : e
     end
 
-    desc "environments [--all]", "List environments."
+    desc "environments [--all]", "List environments for this app; use --all to list all environments."
     long_desc <<-DESC
       By default, environments for this app are displayed. The --all option will
       display all environments, including those for this app.
