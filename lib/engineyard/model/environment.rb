@@ -35,8 +35,15 @@ module EY
         app_master!.ensure_eydeploy_present(&blk)
       end
 
-      def deploy(app, ref, migration_command=nil, verbose=false)
-        app_master!.deploy(app, ref, migration_command, config, verbose)
+      def deploy(app, ref, deploy_options={})
+        migration_command = if deploy_options.has_key?('migrate')
+                              deploy_options['migrate']
+                            elsif config.has_key?('migrate')
+                              config['migrate']
+                            else
+                              'rake db:migrate'
+                            end
+        app_master!.deploy(app, ref, migration_command, config, deploy_options[:verbose])
       end
 
       def rollback(app, verbose=false)
@@ -107,7 +114,7 @@ module EY
       end
 
       def configuration
-        EY.config.environments[self.name]
+        EY.config.environments[self.name] || {}
       end
       alias_method :config, :configuration
 

@@ -34,7 +34,6 @@ module EY
     method_option :ignore_bad_master, :type => :boolean,
       :desc => "Force a deploy even if the master is in a bad state"
     method_option :migrate, :type => :string, :aliases => %w(-m),
-      :default => 'rake db:migrate',
       :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations"
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment in which to deploy this application"
@@ -63,7 +62,11 @@ module EY
 
       EY.ui.info "Beginning deploy for '#{app.name}' in '#{environment.name}' on server..."
 
-      if environment.deploy(app, deploy_ref, options[:migrate], options[:verbose])
+      deploy_options = {}
+      deploy_options['migrate'] = options['migrate'] if options.has_key?('migrate')
+      deploy_options['verbose'] = options['verbose'] if options.has_key?('verbose')
+
+      if environment.deploy(app, deploy_ref, deploy_options)
         EY.ui.info "Deploy complete"
       else
         raise EY::Error, "Deploy failed"

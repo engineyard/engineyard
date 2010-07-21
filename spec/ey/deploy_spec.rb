@@ -97,6 +97,22 @@ describe "ey deploy" do
       @ssh_commands.last.should =~ /ey-deploy.*deploy/
       @ssh_commands.last.should_not =~ /--migrate/
     end
+
+    context "disabled in ey.yml" do
+      before { write_yaml({"environments" => {"giblets" => {"migrate" => false}}}) }
+      after  { File.unlink 'ey.yml' }
+
+      it "does not migrate by default" do
+        ey "deploy"
+        @ssh_commands.last.should =~ /ey-deploy.*deploy/
+        @ssh_commands.last.should_not =~ /--migrate/
+      end
+
+      it "can be turned back on with --migrate" do
+        ey "deploy --migrate 'rake fancy:migrate'"
+        @ssh_commands.last.should =~ /--migrate 'rake fancy:migrate'/
+      end
+    end
   end
 
   context "choosing something to deploy" do
