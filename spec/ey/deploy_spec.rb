@@ -103,6 +103,18 @@ describe "ey deploy" do
       @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
     end
 
+    context "customized in ey.yml" do
+      before { write_yaml({"environments" => {"giblets" => {
+                "migration_command" => 'thor fancy:migrate',
+              }}}) }
+      after  { File.unlink 'ey.yml' }
+
+      it "migrates with the custom command by default" do
+        ey "deploy"
+        @ssh_commands.last.should =~ /--migrate 'thor fancy:migrate'/
+      end
+    end
+
     context "disabled in ey.yml" do
       before { write_yaml({"environments" => {"giblets" => {"migrate" => false}}}) }
       after  { File.unlink 'ey.yml' }
@@ -121,6 +133,34 @@ describe "ey deploy" do
       it "migrates with the default when --migrate is specified with no value" do
         ey "deploy --migrate"
         @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
+      end
+    end
+
+    context "explicitly enabled in ey.yml (the default)" do
+      before { write_yaml({"environments" => {"giblets" => {"migrate" => true}}}) }
+      after  { File.unlink 'ey.yml' }
+
+      it "migrates with the default" do
+        ey "deploy"
+        @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
+      end
+    end
+
+    context "customized and disabled in ey.yml" do
+      before { write_yaml({"environments" => {"giblets" => {
+                "migrate" => false,
+                "migration_command" => "thor fancy:migrate",
+              }}}) }
+      after  { File.unlink 'ey.yml' }
+
+      it "does not migrate by default" do
+        ey "deploy"
+        @ssh_commands.last.should_not match(/--migrate/)
+      end
+
+      it "migrates with the custom command when --migrate is specified with no value" do
+        ey "deploy --migrate"
+        @ssh_commands.last.should match(/--migrate 'thor fancy:migrate'/)
       end
     end
   end

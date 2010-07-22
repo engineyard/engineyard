@@ -34,7 +34,7 @@ module EY
     method_option :ignore_bad_master, :type => :boolean,
       :desc => "Force a deploy even if the master is in a bad state"
     method_option :migrate, :type => :string, :aliases => %w(-m),
-      :lazy_default => 'rake db:migrate',
+      :lazy_default => true,
       :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations"
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment in which to deploy this application"
@@ -62,6 +62,11 @@ module EY
       loudly_check_eydeploy(environment)
 
       EY.ui.info "Beginning deploy for '#{app.name}' in '#{environment.name}' on server..."
+
+      # missing means do what the yaml file says
+      # nil means don't do it
+      # true (the lazy default) means do it with the custom command
+      # a string means do it with this specific command
 
       deploy_options = {}
       deploy_options['migrate'] = options['migrate'] if options.has_key?('migrate')

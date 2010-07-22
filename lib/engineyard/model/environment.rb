@@ -36,14 +36,40 @@ module EY
       end
 
       def deploy(app, ref, deploy_options={})
-        migration_command = if deploy_options.has_key?('migrate')
-                              deploy_options['migrate']
-                            elsif config.has_key?('migrate')
-                              config['migrate']
-                            else
-                              'rake db:migrate'
-                            end
-        app_master!.deploy(app, ref, migration_command, config, deploy_options['verbose'])
+        # regarding deploy_options['migrate']:
+        #
+        # missing means migrate how the yaml file says to
+        # nil means don't migrate
+        # true means migrate w/custom command (if present) or default
+        # a string means migrate with this specific command
+
+        default_migration_command = config['migration_command'] || 'rake db:migrate'
+
+        migration_from_config = if config.has_key?('migrate')
+                                  if config['migrate']
+                                    default_migration_command
+                                  else
+                                    nil
+                                  end
+                                else
+                                  default_migration_command
+                                end
+
+        migration_from_command_line = if deploy_options['migrate'].nil?
+                                        nil
+                                      elsif deploy_options['migrate'].respond_to?(:to_str)
+                                        deploy_options['migrate'].to_str
+                                      else
+                                        default_migration_command
+                                      end
+
+        cmd = if deploy_options.has_key?('migrate')
+                migration_from_command_line
+              else
+                migration_from_config
+              end
+
+        app_master!.deploy(app, ref, cmd, config, deploy_options['verbose'])
       end
 
       def rollback(app, verbose=false)
