@@ -43,7 +43,7 @@ module EY
                             else
                               'rake db:migrate'
                             end
-        app_master!.deploy(app, ref, migration_command, config, deploy_options[:verbose])
+        app_master!.deploy(app, ref, migration_command, config, deploy_options['verbose'])
       end
 
       def rollback(app, verbose=false)
