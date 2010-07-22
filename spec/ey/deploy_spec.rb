@@ -98,6 +98,21 @@ describe "ey deploy" do
       @ssh_commands.last.should_not =~ /--migrate/
     end
 
+    it "uses the default when --migrate is specified with no value" do
+      ey "deploy --migrate"
+      @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
+    end
+
+    context "changed in ey.yml" do
+      before { write_yaml({"environments" => {"giblets" => {"migrate" => "rake custom:task"}}}) }
+      after  { File.unlink 'ey.yml' }
+
+      it "uses the custom default when --migrate is specified with no value" do
+        ey "deploy --migrate"
+        @ssh_commands.last.should match(/--migrate 'rake custom:task'/)
+      end
+    end
+
     context "disabled in ey.yml" do
       before { write_yaml({"environments" => {"giblets" => {"migrate" => false}}}) }
       after  { File.unlink 'ey.yml' }
