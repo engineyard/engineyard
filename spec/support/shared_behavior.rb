@@ -32,7 +32,7 @@ shared_examples_for "it takes an environment name" do
     verify_ran(make_scenario({
           :environment      => 'giblets',
           :application      => 'rails232app',
-          :master_hostname  => 'ec2-174-129-198-124.compute-1.amazonaws.com',
+          :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
           :ssh_username     => 'turkey',
         }))
   end
@@ -59,7 +59,7 @@ shared_examples_for "it takes an environment name" do
       verify_ran(make_scenario({
             :environment      => 'railsapp_production',
             :application      => 'rails232app',
-            :master_hostname  => 'ec2-174-129-198-124.compute-1.amazonaws.com',
+            :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
             :ssh_username     => 'turkey',
           }))
     end
@@ -82,7 +82,7 @@ shared_examples_for "it takes an app name" do
       verify_ran(make_scenario({
             :environment      => 'giblets',
             :application      => 'rails232app',
-            :master_hostname  => 'ec2-174-129-198-124.compute-1.amazonaws.com',
+            :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
             :ssh_username     => 'turkey',
           }))
     end
@@ -95,7 +95,7 @@ shared_examples_for "it takes an app name" do
       verify_ran(make_scenario({
             :environment      => 'giblets',
             :application      => 'rails232app',
-            :master_hostname  => 'ec2-174-129-198-124.compute-1.amazonaws.com',
+            :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
             :ssh_username     => 'turkey',
           }))
     end
@@ -125,12 +125,12 @@ shared_examples_for "it invokes ey-deploy" do
 
     it "passes along instance information to ey-deploy" do
       instance_args = [
-        Regexp.quote("ec2-174-129-198-124.compute-1.amazonaws.com,app_master"),
-        Regexp.quote("ec2-72-44-46-66.compute-1.amazonaws.com,app"),
-        Regexp.quote("ec2-184-73-116-228.compute-1.amazonaws.com,util,fluffy"),
+        Regexp.quote("app_master_hostname.compute-1.amazonaws.com,app_master"),
+        Regexp.quote("app_hostname.compute-1.amazonaws.com,app"),
+        Regexp.quote("util_fluffy_hostname.compute-1.amazonaws.com,util,fluffy"),
       ]
 
-      db_instance = Regexp.quote("ec2-174-129-142-53.compute-1.amazonaws.com,db_master")
+      db_instance = Regexp.quote("db_master_hostname.compute-1.amazonaws.com,db_master")
 
       # apps + utilities are all mentioned
       instance_args.each do |i|

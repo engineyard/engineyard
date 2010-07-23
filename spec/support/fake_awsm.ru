@@ -151,7 +151,7 @@ private
                 "id" => 27220,
                 "amazon_id" => 'i-ddbbdd92',
                 "role" => "solo",
-                "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
+                "public_hostname" => "app_master_hostname.compute-1.amazonaws.com"}],
             "name" => "giblets",
             "apps" => [],
             "instances_count" => 1,
@@ -163,7 +163,7 @@ private
               "id" => 27220,
               "amazon_id" => 'i-ddbbdd92',
               "role" => "solo",
-              "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}}]
+              "public_hostname" => "app_master_hostname.compute-1.amazonaws.com"}}]
       end
     end # UnlinkedApp
 
@@ -175,28 +175,28 @@ private
             "name" => nil,
             "status" => "running",
             "amazon_id" => 'i-ddbbdd92',
-            "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com",
+            "public_hostname" => "app_master_hostname.compute-1.amazonaws.com",
           }, {
             "id" => 22721,
             "name" => nil,
             "role" => "db_master",
             "status" => "running",
             "amazon_id" => "i-d4cdddbf",
-            "public_hostname" => "ec2-174-129-142-53.compute-1.amazonaws.com",
+            "public_hostname" => "db_master_hostname.compute-1.amazonaws.com",
           }, {
             "id" => 22722,
             "role" => "app",
             "name" => nil,
             "status" => "building",
             "amazon_id" => "i-d2e3f1b9",
-            "public_hostname" => "ec2-72-44-46-66.compute-1.amazonaws.com",
+            "public_hostname" => "app_hostname.compute-1.amazonaws.com",
           }, {
             "id" => 22723,
             "role" => "util",
             "name" => "fluffy",
             "status" => "running",
             "amazon_id" => "i-80e3f1eb",
-            "public_hostname" => "ec2-184-73-116-228.compute-1.amazonaws.com",
+            "public_hostname" => "util_fluffy_hostname.compute-1.amazonaws.com",
           }]
       end
       private :_instances
@@ -308,7 +308,7 @@ private
                     "id" => 27220,
                     "amazon_id" => 'i-ddbbdd92',
                     "role" => "solo",
-                    "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
+                    "public_hostname" => "app_master_hostname.compute-1.amazonaws.com"}],
                 "name" => "giblets",
                 "apps" => apps,
                 "instances_count" => 1,
@@ -320,7 +320,7 @@ private
                   "id" => 27220,
                   "amazon_id" => 'i-ddbbdd92',
                   "role" => "solo",
-                  "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}
+                  "public_hostname" => "app_master_hostname.compute-1.amazonaws.com"}
               }, {
                 "ssh_username" => "ham",
                 "instances" => [],
@@ -342,7 +342,7 @@ private
                 "id" => 27220,
                 "amazon_id" => 'i-ddbbdd92',
                 "role" => "solo",
-                "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
+                "public_hostname" => "app_master_hostname.compute-1.amazonaws.com"}],
             "name" => "giblets",
             "apps" => [{
                 "name" => "rails232app",
@@ -356,7 +356,7 @@ private
               "id" => 27220,
               "amazon_id" => 'i-ddbbdd92',
               "role" => "solo",
-              "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}
+              "public_hostname" => "app_master_hostname.compute-1.amazonaws.com"}
           }, {
             "ssh_username" => "ham",
             "instances" => [],
@@ -399,7 +399,7 @@ private
           "status" => "running",
           "name" => nil,
           "role" => "solo",
-          "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com",
+          "public_hostname" => "app_master_hostname.compute-1.amazonaws.com",
           "id" => 75428,
           "amazon_id" => "i-051195b9",
         }
@@ -489,7 +489,7 @@ private
                     "id" => 27220,
                     "amazon_id" => 'i-ddbbdd92',
                     "role" => "solo",
-                    "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
+                    "public_hostname" => "app_master_hostname.compute-1.amazonaws.com"}],
                 "name" => "railsapp_production",
                 "apps" => apps,
                 "instances_count" => 1,
@@ -501,7 +501,7 @@ private
                   "id" => 27220,
                   "amazon_id" => 'i-ddbbdd92',
                   "role" => "solo",
-                  "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com",
+                  "public_hostname" => "app_master_hostname.compute-1.amazonaws.com",
                 },
               }, {
                 "ssh_username" => "ham",
@@ -529,7 +529,7 @@ private
                     "status" => "running",
                     "id" => 59395,
                     "role" => "solo",
-                    "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com",
+                    "public_hostname" => "app_master_hostname.compute-1.amazonaws.com",
                   }],
                 "name" => "railsapp_staging_2",
                 "apps" => apps,
@@ -555,7 +555,7 @@ private
                 "id" => 27220,
                 "amazon_id" => 'i-ddbbdd92',
                 "role" => "solo",
-                "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
+                "public_hostname" => "app_master_hostname.compute-1.amazonaws.com"}],
             "name" => "railsapp_production",
             "apps" => [{
                 "name" => "rails232app",
@@ -565,7 +565,7 @@ private
             "id" => 200,
             "framework_env" => "production",
             "app_master" => {
-              "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com",
+              "public_hostname" => "app_master_hostname.compute-1.amazonaws.com",
               "status" => "running",
               "id" => 27220,
               "amazon_id" => 'i-ddbbdd92',
