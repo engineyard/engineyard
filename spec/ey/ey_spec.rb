@@ -13,4 +13,11 @@ describe "ey" do
       @err.should include("Could not find command")
     end
   end
+
+  context "run a command and a bad flag" do
+    it "tells the user that is not a valid flag" do
+      ey "help --expect-failure", :expect_failure => true
+      @err.should include("Unknown switches")
+    end
+  end
 end

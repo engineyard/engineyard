@@ -9,6 +9,8 @@ module EY
     autoload :Recipes, 'engineyard/cli/recipes'
     autoload :Web,     'engineyard/cli/web'
 
+    check_unknown_options!
+
     include Thor::Actions
 
     def self.start(*)
@@ -151,7 +153,7 @@ module EY
       end
     end
 
-    desc "ssh [COMMAND] [--all] [--environment ENVIRONMENT]", "Open an ssh session, or run a command."
+    desc "ssh [COMMAND] [--all] [--environment ENVIRONMENT]", "Open an ssh session to the master app server, or run a command."
     long_desc <<-DESC
       If a command is supplied, it will be run, otherwise a session will be
       opened. The application master is used for environments with clusters.
@@ -166,6 +168,8 @@ module EY
       :desc => "Environment to ssh into"
     method_option :all, :type => :boolean, :aliases => %(-a),
       :desc => "Run command on all servers"
+    method_option :app_servers, :type => :boolean, 
+      :desc => "Run command on all application servers"
 
     def ssh(cmd=nil)
       env = fetch_environment(options[:environment])
@@ -183,6 +187,20 @@ module EY
           hosts.each do |host|
             system "ssh #{env.username}@#{host} #{cmd}"
           end
+        end
+      elsif options[:app_servers]
+        raise NoCommandError.new unless cmd
+
+        hosts = env.instances.select do |instance|
+          %w(app app_master).include?(instance.role)
+        end.map do |instance|
+          instance.public_hostname
+        end
+
+        raise NoInstancesError.new(env.name) if hosts.empty?
+
+        hosts.each do |host|
+          system "ssh #{env.username}@#{host} #{cmd}"
         end
       else
         if env.app_master

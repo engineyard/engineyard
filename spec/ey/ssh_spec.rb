@@ -92,7 +92,6 @@ describe "ey ssh --all without a command" do
   it "raises an error" do
     api_scenario "one app, one environment"
     run_ey({:env => 'giblets', :verbose => true}, :expect_failure => true)
-    @err.grep(/NoCommandError/)
   end
 end
 
@@ -109,6 +108,62 @@ describe "ey ssh --all without servers" do
   it "raises an error" do
     api_scenario "one app, one environment, no instances"
     run_ey({:env => 'giblets', :verbose => true}, :expect_failure => true)
-    @err.grep(/NoInstancesError/)
+  end
+end
+
+describe "ey ssh --app-servers with a command" do
+  it_should_behave_like "running ey ssh"
+
+  def command_to_run(opts)
+    cmd = "ssh ls"
+    cmd << " --app-servers"
+    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd
+  end
+
+  it "runs the command on the right servers" do
+    api_scenario "one app, one environment"
+    run_ey(:env => 'giblets', :verbose => true)
+    @raw_ssh_commands.select do |command|
+      command =~ /^ssh turkey@app_hostname.+ ls$/
+    end.should_not be_empty
+    @raw_ssh_commands.select do |command|
+      command =~ /^ssh turkey@app_master_hostname.+ ls$/
+    end.should_not be_empty
+    @raw_ssh_commands.select do |command|
+      command =~ /^ssh turkey.+ ls$/
+    end.count.should == 2
+  end
+end
+
+describe "ey ssh --app-server without a command" do
+  it_should_behave_like "running ey ssh"
+
+  def command_to_run(opts)
+    cmd = "ssh"
+    cmd << " --app-server"
+    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd
+  end
+
+  it "raises an error" do
+    api_scenario "one app, one environment"
+    run_ey({:env => 'giblets', :verbose => true}, :expect_failure => true)
+  end
+end
+
+describe "ey ssh --app-server without servers" do
+  it_should_behave_like "running ey ssh"
+
+  def command_to_run(opts)
+    cmd = "ssh ls"
+    cmd << " --app-server"
+    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd
+  end
+
+  it "raises an error" do
+    api_scenario "one app, one environment, no instances"
+    run_ey({:env => 'giblets', :verbose => true}, :expect_failure => true)
   end
 end
