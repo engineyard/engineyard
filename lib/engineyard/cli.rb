@@ -168,16 +168,16 @@ module EY
       :desc => "Environment to ssh into"
     method_option :all, :type => :boolean, :aliases => %(-a),
       :desc => "Run command on all servers"
-    method_option :app_servers, :type => :boolean, 
+    method_option :app_servers, :type => :boolean,
       :desc => "Run command on all application servers"
-    method_option :db_servers, :type => :boolean, 
+    method_option :db_servers, :type => :boolean,
       :desc => "Run command on the database servers"
-    method_option :db_master, :type => :boolean, 
+    method_option :db_master, :type => :boolean,
       :desc => "Run command on the master database server"
-    method_option :db_slaves, :type => :boolean, 
+    method_option :db_slaves, :type => :boolean,
       :desc => "Run command on the slave database servers"
-    method_option :utilities, :type => :boolean, 
-      :desc => "Run command on the utility servers"
+    method_option :utilities, :type => :array, :lazy_default => true,
+      :desc => "Run command on the utility servers with the given names. If no names are given, run on all utility servers."
 
     def ssh(cmd=nil)
       env   = fetch_environment(options[:environment])
@@ -192,17 +192,28 @@ module EY
 
     no_tasks do
       def ssh_host_filter(opts)
-        return lambda {|instance| true }                                                if opts[:all]         
-        return lambda {|instance| %w(solo app app_master    ).include?(instance.role) } if opts[:app_servers] 
-        return lambda {|instance| %w(solo db_master db_slave).include?(instance.role) } if opts[:db_servers ] 
-        return lambda {|instance| %w(solo db_master         ).include?(instance.role) } if opts[:db_master  ] 
-        return lambda {|instance| %w(db_slave               ).include?(instance.role) } if opts[:db_slaves  ] 
-        return lambda {|instance| %w(util                   ).include?(instance.role) } if opts[:utilities  ] 
+        return lambda {|instance| true }                                                if opts[:all]
+        return lambda {|instance| %w(solo app app_master    ).include?(instance.role) } if opts[:app_servers]
+        return lambda {|instance| %w(solo db_master db_slave).include?(instance.role) } if opts[:db_servers ]
+        return lambda {|instance| %w(solo db_master         ).include?(instance.role) } if opts[:db_master  ]
+        return lambda {|instance| %w(db_slave               ).include?(instance.role) } if opts[:db_slaves  ]
+        return lambda {|instance| %w(util                   ).include?(instance.role) &&
+                                             opts[:utilities].include?(instance.name) } if opts[:utilities  ]
         return lambda {|instance| %w(solo app_master        ).include?(instance.role) }
       end
 
       def ssh_hosts(opts, env)
-        instances = env.instances.select {|instance| ssh_host_filter(opts).call(instance) }
+        if opts[:utilities] and not opts[:utilities].respond_to?(:include?)
+          includes_everything = []
+          class << includes_everything
+            def include?(*) true end
+          end
+          filter = ssh_host_filter(opts.merge(:utilities => includes_everything))
+        else
+          filter = ssh_host_filter(opts)
+        end
+
+        instances = env.instances.select {|instance| filter[instance] }
         raise NoInstancesError.new(env.name) if instances.empty?
         return instances.map { |instance| instance.public_hostname }
       end

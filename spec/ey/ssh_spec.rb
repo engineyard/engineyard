@@ -166,3 +166,23 @@ describe "ey ssh --utilities" do
   it_should_behave_like "running ey ssh for select role"
 end
 
+describe "ey ssh --utilities fluffy" do
+  before do
+    @ssh_flag = "--utilities fluffy"
+    @hosts = %w(util_fluffy_hostname)
+  end
+
+  it_should_behave_like "running ey ssh"
+  it_should_behave_like "running ey ssh for select role"
+end
+
+describe "ey ssh --utilities fluffy rocky" do
+  before do
+    @ssh_flag = "--utilities fluffy rocky"
+    @hosts = %w(util_fluffy_hostname util_rocky_hostname)
+  end
+
+  it_should_behave_like "running ey ssh"
+  it_should_behave_like "running ey ssh for select role"
+end
+
