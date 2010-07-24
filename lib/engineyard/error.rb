@@ -49,7 +49,7 @@ module EY
 
   class NoInstancesError < EY::Error
     def initialize(env_name)
-      super "The environment '#{env_name}' does not have any instances."
+      super "The environment '#{env_name}' does not have any matching instances."
     end
   end
 

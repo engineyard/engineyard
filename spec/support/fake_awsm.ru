@@ -184,6 +184,20 @@ private
             "amazon_id" => "i-d4cdddbf",
             "public_hostname" => "db_master_hostname.compute-1.amazonaws.com",
           }, {
+            "id" => 22724,
+            "name" => nil,
+            "role" => "db_slave",
+            "status" => "running",
+            "amazon_id" => "i-asdfasdfaj",
+            "public_hostname" => "db_slave_1_hostname.compute-1.amazonaws.com",
+          }, {
+            "id" => 22725,
+            "name" => nil,
+            "role" => "db_slave",
+            "status" => "running",
+            "amazon_id" => "i-asdfasdfaj",
+            "public_hostname" => "db_slave_2_hostname.compute-1.amazonaws.com",
+          }, {
             "id" => 22722,
             "role" => "app",
             "name" => nil,
@@ -197,6 +211,13 @@ private
             "status" => "running",
             "amazon_id" => "i-80e3f1eb",
             "public_hostname" => "util_fluffy_hostname.compute-1.amazonaws.com",
+          }, {
+            "id" => 22727,
+            "role" => "util",
+            "name" => "rocky",
+            "status" => "running",
+            "amazon_id" => "i-80etf1eb",
+            "public_hostname" => "util_rocky_hostname.compute-1.amazonaws.com",
           }]
       end
       private :_instances

@@ -11,6 +11,47 @@ shared_examples_for "running ey ssh" do
   end
 end
 
+shared_examples_for "running ey ssh for select role" do
+  given "integration"
+  include Spec::Helpers::SharedIntegrationTestUtils
+
+  def extra_ey_options
+    {:prepend_to_path => {'ssh' => "#!/bin/sh\necho ssh $*"}}
+  end
+
+  def command_to_run(opts)
+    cmd = "ssh #{opts[:ssh_command]}"
+    cmd << " #{@ssh_flag}"
+    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd
+  end
+
+  it "runs the command on the right servers" do
+    api_scenario "one app, one environment"
+    run_ey(:ssh_command => "ls", :env => 'giblets', :verbose => true)
+    @hosts.each do |host|
+      @raw_ssh_commands.select do |command|
+        command =~ /^ssh turkey@#{host}.+ ls$/
+      end.should_not be_empty
+    end
+    @raw_ssh_commands.select do |command|
+      command =~ /^ssh turkey.+ ls$/
+    end.count.should == @hosts.count
+  end
+
+  it "raises an error when there are no matching hosts" do
+    api_scenario "one app, one environment, no instances"
+    run_ey({:ssh_command => "ls", :env => 'giblets', :verbose => true}, :expect_failure => true)
+  end
+
+  it "responds correctly when there is no command" do
+    if @hosts.count != 1
+      api_scenario "one app, one environment"
+      run_ey({:env => 'giblets', :verbose => true}, :expect_failure => true)
+    end
+  end
+end
+
 describe "ey ssh" do
   it_should_behave_like "running ey ssh"
 
@@ -20,7 +61,7 @@ describe "ey ssh" do
 
   it "complains if it has no app master" do
     ey "ssh -e bakon", :expect_failure => true
-    @err.should =~ /'bakon' does not have a master instance/
+    @err.should =~ /'bakon' does not have any matching instances/
   end
 
 end
@@ -59,111 +100,69 @@ describe "ey ssh with a command" do
   it_should_behave_like "it takes an environment name"
 end
 
+describe "ey ssh --all" do
+  before do
+    @ssh_flag = "--all"
+    @hosts = %w(app_hostname 
+                app_master_hostname 
+                util_fluffy_hostname 
+                util_rocky_hostname 
+                db_master_hostname 
+                db_slave_1_hostname 
+                db_slave_2_hostname)
+  end
 
-describe "ey ssh --all with a command" do
   it_should_behave_like "running ey ssh"
-
-  def command_to_run(opts)
-    cmd = "ssh ls"
-    cmd << " --all"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
-    cmd
-  end
-
-  it "runs the command on all servers" do
-    api_scenario "one app, one environment"
-    run_ey(:env => 'giblets', :verbose => true)
-    @raw_ssh_commands.count do |command|
-      command =~ /^ssh turkey@.+ ls$/
-    end.should == 4
-  end
+  it_should_behave_like "running ey ssh for select role"
 end
 
-describe "ey ssh --all without a command" do
+describe "ey ssh --app-servers" do
+  before do
+    @ssh_flag = "--app-servers"
+    @hosts = %w(app_hostname app_master_hostname)
+  end
+
   it_should_behave_like "running ey ssh"
-
-  def command_to_run(opts)
-    cmd = "ssh"
-    cmd << " --all"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
-    cmd
-  end
-
-  it "raises an error" do
-    api_scenario "one app, one environment"
-    run_ey({:env => 'giblets', :verbose => true}, :expect_failure => true)
-  end
+  it_should_behave_like "running ey ssh for select role"
 end
 
-describe "ey ssh --all without servers" do
+describe "ey ssh --db-master" do
+  before do
+    @ssh_flag = "--db-master"
+    @hosts = %w(db_master_hostname)
+  end
+
   it_should_behave_like "running ey ssh"
-
-  def command_to_run(opts)
-    cmd = "ssh ls"
-    cmd << " --all"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
-    cmd
-  end
-
-  it "raises an error" do
-    api_scenario "one app, one environment, no instances"
-    run_ey({:env => 'giblets', :verbose => true}, :expect_failure => true)
-  end
+  it_should_behave_like "running ey ssh for select role"
 end
 
-describe "ey ssh --app-servers with a command" do
+describe "ey ssh --db-slaves" do
+  before do
+    @ssh_flag = "--db-slaves"
+    @hosts = %w(db_slave_1_hostname db_slave_2_hostname)
+  end
+
   it_should_behave_like "running ey ssh"
-
-  def command_to_run(opts)
-    cmd = "ssh ls"
-    cmd << " --app-servers"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
-    cmd
-  end
-
-  it "runs the command on the right servers" do
-    api_scenario "one app, one environment"
-    run_ey(:env => 'giblets', :verbose => true)
-    @raw_ssh_commands.select do |command|
-      command =~ /^ssh turkey@app_hostname.+ ls$/
-    end.should_not be_empty
-    @raw_ssh_commands.select do |command|
-      command =~ /^ssh turkey@app_master_hostname.+ ls$/
-    end.should_not be_empty
-    @raw_ssh_commands.select do |command|
-      command =~ /^ssh turkey.+ ls$/
-    end.count.should == 2
-  end
+  it_should_behave_like "running ey ssh for select role"
 end
 
-describe "ey ssh --app-server without a command" do
+describe "ey ssh --db-servers" do
+  before do
+    @ssh_flag = "--db-servers"
+    @hosts = %w(db_master_hostname db_slave_1_hostname db_slave_2_hostname)
+  end
+
   it_should_behave_like "running ey ssh"
-
-  def command_to_run(opts)
-    cmd = "ssh"
-    cmd << " --app-server"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
-    cmd
-  end
-
-  it "raises an error" do
-    api_scenario "one app, one environment"
-    run_ey({:env => 'giblets', :verbose => true}, :expect_failure => true)
-  end
+  it_should_behave_like "running ey ssh for select role"
 end
 
-describe "ey ssh --app-server without servers" do
+describe "ey ssh --utilities" do
+  before do
+    @ssh_flag = "--utilities"
+    @hosts = %w(util_fluffy_hostname util_rocky_hostname)
+  end
+
   it_should_behave_like "running ey ssh"
-
-  def command_to_run(opts)
-    cmd = "ssh ls"
-    cmd << " --app-server"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
-    cmd
-  end
-
-  it "raises an error" do
-    api_scenario "one app, one environment, no instances"
-    run_ey({:env => 'giblets', :verbose => true}, :expect_failure => true)
-  end
+  it_should_behave_like "running ey ssh for select role"
 end
+
