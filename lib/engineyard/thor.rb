@@ -82,9 +82,10 @@ module EY
       end
 
       def self.banner(task, task_help = false, subcommand = false)
-        scmd = EY::Thor.subcommands.invert[self]
+        subcommand_banner = to_s.split(/::/).map{|s| s.downcase}[-3..-1]
+        subcommand_banner = subcommand_banner.join(' ') if subcommand_banner
         task = (task_help ? task.formatted_usage(self, false, subcommand) : task.name)
-        [banner_base, scmd, task].compact.join(" ")
+        [banner_base, subcommand_banner, task].compact.join(" ")
       end
 
       def self.handle_no_task_error(task)
