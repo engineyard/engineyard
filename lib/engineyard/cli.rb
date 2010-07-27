@@ -272,10 +272,12 @@ module EY
           list.find{|task| task[0] =~ /^#{base} #{name}/ }
         end
         list -= deploy_cmds
+
         EY.ui.print_help(deploy_cmds)
         EY.ui.say
 
-        EY::Thor.subcommands.each do |name, klass|
+        self.class.subcommands.each do |name|
+          klass = self.class.subcommand_class_for(name)
           list.reject!{|cmd| cmd[0] =~ /^#{base} #{name}/}
           EY.ui.say "#{name.capitalize} commands:"
           tasks = klass.printable_tasks.reject{|t| t[0] =~ /help$/ }
@@ -292,7 +294,7 @@ module EY
 
         self.class.send(:class_options_help, shell)
         EY.ui.say "See '#{base} help COMMAND' for more information on a specific command."
-      elsif klass = EY::Thor.subcommands[cmds.first]
+      elsif klass = self.class.subcommand_class_for(cmds.first)
         klass.new.help(*cmds[1..-1])
       else
         super

@@ -82,8 +82,13 @@ module EY
       end
 
       def self.banner(task, task_help = false, subcommand = false)
-        subcommand_banner = to_s.split(/::/).map{|s| s.downcase}[-3..-1]
-        subcommand_banner = subcommand_banner.join(' ') if subcommand_banner
+        subcommand_banner = to_s.split(/::/).map{|s| s.downcase}[2..-1]
+        subcommand_banner = if subcommand_banner.size > 0
+                              subcommand_banner.join(' ')
+                            else
+                              nil
+                            end
+
         task = (task_help ? task.formatted_usage(self, false, subcommand) : task.name)
         [banner_base, subcommand_banner, task].compact.join(" ")
       end
@@ -91,6 +96,18 @@ module EY
       def self.handle_no_task_error(task)
         raise UndefinedTaskError, "Could not find command #{task.inspect}."
       end
+
+      def self.subcommand(name, klass)
+        @@subcommand_class_for ||= {}
+        @@subcommand_class_for[name] = klass
+        super
+      end
+
+      def self.subcommand_class_for(name)
+        @@subcommand_class_for ||= {}
+        @@subcommand_class_for[name]
+      end
+
     end
 
     protected
