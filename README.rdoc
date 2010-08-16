@@ -1,7 +1,138 @@
 = ey
 
-Description goes here.
 
-== Copyright
+Command:
+  ey deploy
 
-Copyright (c) 2010 Engine Yard. See LICENSE for details.
+  Options:
+    -r, --branch, --tag, [--ref=REF]       # Git ref to deploy. May be a branch, a tag, or a SHA.
+                [--ignore-bad-master]      # Force a deploy even if the master is in a bad state
+    -v, [--verbose]                        # Be verbose
+    -a, [--app=APP]                        # Name of the application to deploy
+    -m, [--migrate=MIGRATE]                # Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations
+                [--ignore-default-branch]  # Force a deploy of the specified branch even if a default is set
+    -e, [--environment=ENVIRONMENT]        # Environment in which to deploy this application
+
+  Description:
+    This command must be run with the current directory containing the app to be deployed. If ey.yml specifies a default branch then the ref parameter can be omitted. Furthermore,
+    if a default branch is specified but a different command is supplied the deploy will fail unless --ignore-default-branch is used.
+
+    Migrations are run by default with 'rake db:migrate'. A different command can be specified via --migrate "ruby do_migrations.rb". Migrations can also be skipped entirely by
+    using --no-migrate.
+
+Command:
+  ey environments
+
+  Options:
+    -s, [--simple]
+    -a, [--all]
+
+  Description:
+    By default, environments for this app are displayed. The --all option will display all environments, including those for this app.
+
+Command:
+  ey logs
+
+  Options:
+    -e, [--environment=ENVIRONMENT]  # Environment with the interesting logs
+
+  Description:
+    Displays Engine Yard configuration logs for all servers in the environment. If recipes were uploaded to the environment & run, their logs will also be displayed beneath the
+    main configuration logs.
+
+Command:
+  ey rebuild
+
+  Options:
+    -e, [--environment=ENVIRONMENT]  # Environment to rebuild
+
+  Description:
+    Engine Yard's main configuration run occurs on all servers. Mainly used to fix failed configuration of new or existing servers, or to update servers to latest Engine Yard stack
+    (e.g. to apply an Engine Yard supplied security patch).
+
+    Note that uploaded recipes are also run after the main configuration run has successfully completed.
+
+Command:
+  ey rollback
+
+  Options:
+    -v, [--verbose]                  # Be verbose
+    -a, [--app=APP]                  # Name of the application to roll back
+    -e, [--environment=ENVIRONMENT]  # Environment in which to roll back the application
+
+  Description:
+    Uses code from previous deploy in the "/data/APP_NAME/releases" directory on remote server(s) to restart application servers.
+
+Command:
+  ey recipes apply
+
+  Options:
+    -e, [--environment=ENVIRONMENT]  # Environment in which to apply recipes
+
+  Description:
+    This is similar to 'ey rebuild' except Engine Yard's main configuration step is skipped.
+
+Command:
+  ey recipes upload
+
+  Options:
+    -e, [--environment=ENVIRONMENT]  # Environment that will receive the recipes
+
+  Description:
+    The current directory should contain a subdirectory named "cookbooks" to be uploaded.
+
+Command:
+  ey recipes download
+
+  Options:
+    -e, [--environment=ENVIRONMENT]  # Environment for which to download the recipes
+
+  Description:
+    The recipes will be unpacked into a directory called "cookbooks" in the current directory.
+
+    If the cookbooks directory already exists, an error will be raised.
+
+Command:
+  ey web enable
+
+  Options:
+    -v, [--verbose]                  # Be verbose
+    -a, [--app=APP]                  # Name of the application whose maintenance page will be removed
+    -e, [--environment=ENVIRONMENT]  # Environment on which to take down the maintenance page
+
+  Remove the maintenance page for this application in the given environment.
+
+Command:
+  ey web disable
+
+  Options:
+    -v, [--verbose]                  # Be verbose
+    -a, [--app=APP]                  # Name of the application whose maintenance page will be put up
+    -e, [--environment=ENVIRONMENT]  # Environment on which to put up the maintenance page
+
+  Description:
+    The maintenance page is taken from the app currently being deployed. This means that you can customize maintenance pages to tell users the reason for downtime on every
+    particular deploy.
+
+    Maintenance pages searched for in order of decreasing priority: * public/maintenance.html.custom * public/maintenance.html.tmp * public/maintenance.html *
+    public/system/maintenance.html.default
+
+Command:
+  ey ssh
+
+  Options:
+        [--utilities=one two three]  # Run command on the utility servers with the given names. If no names are given, run on all utility servers.
+        [--app-servers]              # Run command on all application servers
+        [--db-servers]               # Run command on the database servers
+        [--db-master]                # Run command on the master database server
+    -a, [--all]                      # Run command on all servers
+        [--db-slaves]                # Run command on the slave database servers
+    -e, [--environment=ENVIRONMENT]  # Environment to ssh into
+
+  Description:
+    If a command is supplied, it will be run, otherwise a session will be opened. The application master is used for environments with clusters. Option --all requires a command to
+    be supplied and runs it on all servers.
+
+    Note: this command is a bit picky about its ordering. To run a command with arguments on all servers, like "rm -f /some/file", you need to order it like so:
+
+    $ ey ssh "rm -f /some/file" -e my-environment --all
