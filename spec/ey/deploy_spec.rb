@@ -37,13 +37,13 @@ describe "ey deploy" do
 
   def verify_ran(scenario)
     @out.should match(/Beginning deploy for.*#{scenario[:application]}.*#{scenario[:environment]}/)
-    @ssh_commands.should have_command_like(/ey-deploy.*deploy.*--app #{scenario[:application]}/)
+    @ssh_commands.should have_command_like(/engineyard-serverside.*deploy.*--app #{scenario[:application]}/)
   end
 
   # common behavior
   it_should_behave_like "it takes an environment name"
   it_should_behave_like "it takes an app name"
-  it_should_behave_like "it invokes ey-deploy"
+  it_should_behave_like "it invokes engineyard-serverside"
 end
 
 describe "ey deploy" do
@@ -81,20 +81,20 @@ describe "ey deploy" do
       api_scenario "one app, one environment"
     end
 
-    it "finds ey-deploy despite its being buried in the filesystem" do
+    it "finds engineyard-serverside despite its being buried in the filesystem" do
       ey "deploy"
-      @ssh_commands.last.should =~ %r{/usr/local/ey_resin/ruby/bin/ey-deploy}
+      @ssh_commands.last.should =~ %r{/usr/local/ey_resin/ruby/bin/engineyard-serverside}
     end
 
     it "defaults to 'rake db:migrate'" do
       ey "deploy"
-      @ssh_commands.last.should =~ /ey-deploy.*deploy/
+      @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
       @ssh_commands.last.should =~ /--migrate 'rake db:migrate'/
     end
 
     it "can be disabled with --no-migrate" do
       ey "deploy --no-migrate"
-      @ssh_commands.last.should =~ /ey-deploy.*deploy/
+      @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
       @ssh_commands.last.should_not =~ /--migrate/
     end
 
@@ -121,7 +121,7 @@ describe "ey deploy" do
 
       it "does not migrate by default" do
         ey "deploy"
-        @ssh_commands.last.should =~ /ey-deploy.*deploy/
+        @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
         @ssh_commands.last.should_not =~ /--migrate/
       end
 
@@ -221,7 +221,7 @@ describe "ey deploy" do
         File.unlink("ey.yml")
       end
 
-      it "gets passed along to ey-deploy" do
+      it "gets passed along to engineyard-serverside" do
         ey "deploy"
         @ssh_commands.last.should =~ /--config '\{\"bert\":\"ernie\"\}'/
       end
@@ -298,14 +298,14 @@ describe "ey deploy" do
     before(:all) do
       api_scenario "one app, one environment", "user@git.host:path/to/repo.git"
       ey "deploy"
-      @deploy_command = @ssh_commands.find {|c| c =~ /ey-deploy.*deploy/ }
+      @deploy_command = @ssh_commands.find {|c| c =~ /engineyard-serverside.*deploy/ }
     end
 
-    it "passes along the repository URL to ey-deploy" do
+    it "passes along the repository URL to engineyard-serverside" do
       @deploy_command.should =~ /--repo user@git.host:path\/to\/repo.git/
     end
 
-    it "passes along the web server stack to ey-deploy" do
+    it "passes along the web server stack to engineyard-serverside" do
       @deploy_command.should =~ /--stack nginx_mongrel/
     end
   end

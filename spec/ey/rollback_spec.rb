@@ -14,14 +14,14 @@ describe "ey rollback" do
   def verify_ran(scenario)
     @out.should match(/Rolling back.*#{scenario[:application]}.*#{scenario[:environment]}/)
     @err.should be_empty
-    @ssh_commands.last.should match(/ey-deploy.*deploy rollback.*--app #{scenario[:application]}/)
+    @ssh_commands.last.should match(/engineyard-serverside.*deploy rollback.*--app #{scenario[:application]}/)
   end
 
   it_should_behave_like "it takes an environment name"
   it_should_behave_like "it takes an app name"
-  it_should_behave_like "it invokes ey-deploy"
+  it_should_behave_like "it invokes engineyard-serverside"
 
-  it "passes along the web server stack to ey-deploy" do
+  it "passes along the web server stack to engineyard-serverside" do
     api_scenario "one app, one environment"
     ey "rollback"
     @ssh_commands.last.should =~ /--stack nginx_mongrel/

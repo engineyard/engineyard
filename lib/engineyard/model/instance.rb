@@ -4,7 +4,7 @@ module EY
   module Model
     class Instance < ApiStruct.new(:id, :role, :name, :status, :amazon_id, :public_hostname, :environment)
       EYDEPLOY_VERSION = ENV["EY_DEPLOY_VERSION"] || "1.1.3"
-      EXIT_STATUS = Hash.new { |h,k| raise EY::Error, "ey-deploy version checker exited with unknown status code #{k}" }
+      EXIT_STATUS = Hash.new { |h,k| raise EY::Error, "engineyard-serverside version checker exited with unknown status code #{k}" }
       EXIT_STATUS.merge!({
         255 => :ssh_failed,
         1   => :eydeploy_missing,
@@ -80,7 +80,7 @@ module EY
         if ENV["NO_SSH"]
           :ok
         else
-          ssh "#{gem_path} list ey-deploy | grep \"ey-deploy \" | egrep -q '#{escaped_eydeploy_version}[,)]'", false
+          ssh "#{gem_path} list engineyard-serverside | grep \"engineyard-serverside\" | egrep -q '#{escaped_eydeploy_version}[,)]'", false
           EXIT_STATUS[$?.exitstatus]
         end
       end
@@ -94,7 +94,7 @@ module EY
               #
               # rubygems help suggests that --remote will disable this
               # behavior, but it doesn't.
-              "cd `mktemp -d` && #{gem_path} install ey-deploy --no-rdoc --no-ri -v #{EYDEPLOY_VERSION}"]))
+              "cd `mktemp -d` && #{gem_path} install engineyard-serverside --no-rdoc --no-ri -v #{EYDEPLOY_VERSION}"]))
       end
 
     private
@@ -133,7 +133,7 @@ module EY
       end
 
       def eydeploy_path
-        "/usr/local/ey_resin/ruby/bin/ey-deploy"
+        "/usr/local/ey_resin/ruby/bin/engineyard-serverside"
       end
 
       def gem_path

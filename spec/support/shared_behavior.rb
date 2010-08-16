@@ -110,7 +110,7 @@ shared_examples_for "it takes an app name" do
 
 end
 
-shared_examples_for "it invokes ey-deploy" do
+shared_examples_for "it invokes engineyard-serverside" do
   include Spec::Helpers::SharedIntegrationTestUtils
 
   context "with arguments" do
@@ -119,11 +119,11 @@ shared_examples_for "it invokes ey-deploy" do
       run_ey({:env => 'giblets', :verbose => true})
     end
 
-    it "passes --verbose to ey-deploy" do
-      @ssh_commands.should have_command_like(/ey-deploy.*deploy.*--verbose/)
+    it "passes --verbose to engineyard-serverside" do
+      @ssh_commands.should have_command_like(/engineyard-serverside.*deploy.*--verbose/)
     end
 
-    it "passes along instance information to ey-deploy" do
+    it "passes along instance information to engineyard-serverside" do
       instance_args = [
         Regexp.quote("app_master_hostname.compute-1.amazonaws.com,app_master"),
         Regexp.quote("app_hostname.compute-1.amazonaws.com,app"),
@@ -151,7 +151,7 @@ shared_examples_for "it invokes ey-deploy" do
   end
 
 
-  context "ey-deploy installation" do
+  context "engineyard-serverside installation" do
     before(:all) do
       api_scenario "one app, one environment"
     end
@@ -165,7 +165,7 @@ shared_examples_for "it invokes ey-deploy" do
     end
 
     def exiting_ssh(exit_code)
-      "#!/usr/bin/env ruby\n exit!(#{exit_code}) if ARGV.to_s =~ /gem list ey-deploy/"
+      "#!/usr/bin/env ruby\n exit!(#{exit_code}) if ARGV.to_s =~ /gem list engineyard-serverside/"
     end
 
     it "raises an error if SSH fails" do
@@ -174,21 +174,21 @@ shared_examples_for "it invokes ey-deploy" do
       @err.should =~ /SSH connection to \S+ failed/
     end
 
-    it "installs ey-deploy if it's missing" do
+    it "installs engineyard-serverside if it's missing" do
       run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(1)}})
 
       gem_install_command = @ssh_commands.find do |command|
-        command =~ /gem install ey-deploy/
+        command =~ /gem install engineyard-serverside/
       end
       gem_install_command.should_not be_nil
-      gem_install_command.should =~ %r{/usr/local/ey_resin/ruby/bin/gem install.*ey-deploy}
+      gem_install_command.should =~ %r{/usr/local/ey_resin/ruby/bin/gem install.*engineyard-serverside}
     end
 
-    it "does not try to install ey-deploy if it's already there" do
+    it "does not try to install engineyard-serverside if it's already there" do
       run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(0)}})
-      @ssh_commands.should_not have_command_like(/gem install ey-deploy/)
+      @ssh_commands.should_not have_command_like(/gem install engineyard-serverside/)
       ver = Regexp.quote(EY::Model::Instance::EYDEPLOY_VERSION)
-      @ssh_commands.should have_command_like(/ey-deploy _#{ver}_ deploy/)
+      @ssh_commands.should have_command_like(/engineyard-serverside _#{ver}_ deploy/)
     end
   end  
 end
