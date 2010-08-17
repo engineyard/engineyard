@@ -61,7 +61,7 @@ module EY
 
       EY.ui.info "Connecting to the server..."
 
-      loudly_check_eydeploy(environment)
+      loudly_check_engineyard_serverside(environment)
 
       EY.ui.info "Beginning deploy for '#{app.name}' in '#{environment.name}' on server..."
 
@@ -143,7 +143,7 @@ module EY
       app = fetch_app(options[:app])
       env = fetch_environment(options[:environment], app)
 
-      loudly_check_eydeploy(env)
+      loudly_check_engineyard_serverside(env)
 
       EY.ui.info("Rolling back '#{app.name}' in '#{env.name}'")
       if env.rollback(app, options[:verbose])

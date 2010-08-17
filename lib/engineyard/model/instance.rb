@@ -3,11 +3,11 @@ require 'escape'
 module EY
   module Model
     class Instance < ApiStruct.new(:id, :role, :name, :status, :amazon_id, :public_hostname, :environment)
-      EYDEPLOY_VERSION = ENV["EY_DEPLOY_VERSION"] || "1.1.3"
+      ENGINEYARD_SERVERSIDE_VERSION = ENV["ENGINEYARD_SERVERSIDE_VERSION"] || "1.1.3"
       EXIT_STATUS = Hash.new { |h,k| raise EY::Error, "engineyard-serverside version checker exited with unknown status code #{k}" }
       EXIT_STATUS.merge!({
         255 => :ssh_failed,
-        1   => :eydeploy_missing,
+        1   => :engineyard_serverside_missing,
         0   => :ok,
       })
 
@@ -30,7 +30,7 @@ module EY
           deploy_args << "--migrate" << migration_command
         end
 
-        invoke_ey_deploy(deploy_args, verbose)
+        invoke_engineyard_serverside(deploy_args, verbose)
       end
 
       def rollback(app, extra_configuration=nil, verbose=false)
@@ -43,16 +43,16 @@ module EY
           deploy_args << '--config' << extra_configuration.to_json
         end
 
-        invoke_ey_deploy(deploy_args, verbose)
+        invoke_engineyard_serverside(deploy_args, verbose)
       end
 
 
       def put_up_maintenance_page(app, verbose=false)
-        invoke_ey_deploy(['enable_maintenance_page', '--app', app.name], verbose)
+        invoke_engineyard_serverside(['enable_maintenance_page', '--app', app.name], verbose)
       end
 
       def take_down_maintenance_page(app, verbose=false)
-        invoke_ey_deploy(['disable_maintenance_page', '--app', app.name], verbose)
+        invoke_engineyard_serverside(['disable_maintenance_page', '--app', app.name], verbose)
       end
 
 
@@ -60,32 +60,32 @@ module EY
         !["db_master", "db_slave"].include?(role.to_s)
       end
 
-      def ensure_eydeploy_present
-        case eydeploy_status = ey_deploy_check
+      def ensure_engineyard_serverside_present
+        case engineyard_serverside_status = engineyard_serverside_check
         when :ssh_failed
           raise EnvironmentError, "SSH connection to #{hostname} failed"
-        when :eydeploy_missing
+        when :engineyard_serverside_missing
           yield :installing if block_given?
-          install_ey_deploy
+          install_engineyard_serverside
         when :ok
           # no action needed
         else
-          raise EY::Error, "Internal error: Unexpected status from Instance#ey_deploy_check; got #{eydeploy_status.inspect}"
+          raise EY::Error, "Internal error: Unexpected status from Instance#engineyard_serverside_check; got #{engineyard_serverside_status.inspect}"
         end
       end
 
-      def ey_deploy_check
-        escaped_eydeploy_version = EYDEPLOY_VERSION.gsub(/\./, '\.')
+      def engineyard_serverside_check
+        escaped_engineyard_serverside_version = ENGINEYARD_SERVERSIDE_VERSION.gsub(/\./, '\.')
 
         if ENV["NO_SSH"]
           :ok
         else
-          ssh "#{gem_path} list engineyard-serverside | grep \"engineyard-serverside\" | egrep -q '#{escaped_eydeploy_version}[,)]'", false
+          ssh "#{gem_path} list engineyard-serverside | grep \"engineyard-serverside\" | egrep -q '#{escaped_engineyard_serverside_version}[,)]'", false
           EXIT_STATUS[$?.exitstatus]
         end
       end
 
-      def install_ey_deploy
+      def install_engineyard_serverside
         ssh(Escape.shell_command([
               'sudo', 'sh', '-c',
               # rubygems looks at *.gem in its current directory for
@@ -94,7 +94,7 @@ module EY
               #
               # rubygems help suggests that --remote will disable this
               # behavior, but it doesn't.
-              "cd `mktemp -d` && #{gem_path} install engineyard-serverside --no-rdoc --no-ri -v #{EYDEPLOY_VERSION}"]))
+              "cd `mktemp -d` && #{gem_path} install engineyard-serverside --no-rdoc --no-ri -v #{ENGINEYARD_SERVERSIDE_VERSION}"]))
       end
 
     private
@@ -112,8 +112,8 @@ module EY
         end
       end
 
-      def invoke_ey_deploy(deploy_args, verbose=false)
-        start = [eydeploy_path, "_#{EYDEPLOY_VERSION}_", 'deploy']
+      def invoke_engineyard_serverside(deploy_args, verbose=false)
+        start = [engineyard_serverside_path, "_#{ENGINEYARD_SERVERSIDE_VERSION}_", 'deploy']
         instance_args = environment.instances.find_all do |inst|
           inst.has_app_code?
         end.inject(['--instances']) do |command, inst|
@@ -132,7 +132,7 @@ module EY
         ssh cmd
       end
 
-      def eydeploy_path
+      def engineyard_serverside_path
         "/usr/local/ey_resin/ruby/bin/engineyard-serverside"
       end
 
