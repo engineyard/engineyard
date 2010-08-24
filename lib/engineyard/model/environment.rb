@@ -43,7 +43,7 @@ module EY
         # true means migrate w/custom command (if present) or default
         # a string means migrate with this specific command
 
-        default_migration_command = config['migration_command'] || 'rake db:migrate'
+        default_migration_command = config['migration_command'] || 'rake db:migrate --trace'
 
         migration_from_config = if config.has_key?('migrate')
                                   if config['migrate']

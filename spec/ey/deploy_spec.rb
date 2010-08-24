@@ -89,7 +89,7 @@ describe "ey deploy" do
     it "defaults to 'rake db:migrate'" do
       ey "deploy"
       @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
-      @ssh_commands.last.should =~ /--migrate 'rake db:migrate'/
+      @ssh_commands.last.should =~ /--migrate 'rake db:migrate --trace'/
     end
 
     it "can be disabled with --no-migrate" do
@@ -100,7 +100,7 @@ describe "ey deploy" do
 
     it "uses the default when --migrate is specified with no value" do
       ey "deploy --migrate"
-      @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
+      @ssh_commands.last.should match(/--migrate 'rake db:migrate --trace'/)
     end
 
     context "customized in ey.yml" do
@@ -132,7 +132,7 @@ describe "ey deploy" do
 
       it "migrates with the default when --migrate is specified with no value" do
         ey "deploy --migrate"
-        @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
+        @ssh_commands.last.should match(/--migrate 'rake db:migrate --trace'/)
       end
     end
 
@@ -142,7 +142,7 @@ describe "ey deploy" do
 
       it "migrates with the default" do
         ey "deploy"
-        @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
+        @ssh_commands.last.should match(/--migrate 'rake db:migrate --trace'/)
       end
     end
 
