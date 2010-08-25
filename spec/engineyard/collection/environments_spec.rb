@@ -7,6 +7,8 @@ describe EY::Collection::Environments do
       EY::Model::Environment.from_hash("id" => 1234, "name" => "app_production"),
       EY::Model::Environment.from_hash("id" => 4321, "name" => "app_staging"),
       EY::Model::Environment.from_hash("id" => 8765, "name" => "bigapp_staging"),
+      EY::Model::Environment.from_hash("id" => 4532, "name" => "app_duplicate"),
+      EY::Model::Environment.from_hash("id" => 4533, "name" => "app_duplicate"),
     ])
   end
 

@@ -3,9 +3,17 @@ require 'engineyard/error'
 module EY
   module Collection
     class Abstract < Array
+      COLLAB_MESSAGE = <<-MSG
+\nThis error is due to having access to another account's resources via the beta collaboration feature.
+We are working on letting you specify the account name to resolve this ambiguity.
+MSG
 
       def named(name)
-        find {|x| x.name == name }
+        candidates = find_all {|x| x.name == name }
+        if candidates.size > 1
+          raise ambiguous_error(name, candidates.map {|e| e.name}, COLLAB_MESSAGE )
+        end
+        candidates.first
       end
 
       def match_one(name_part)

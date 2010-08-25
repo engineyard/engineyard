@@ -1,9 +1,9 @@
 module EY
   class Error < RuntimeError
-    def ambiguous(type, name, matches)
+    def ambiguous(type, name, matches, desc="")
       pretty_names = matches.map {|x| "'#{x}'"}.join(', ')
       "The name '#{name}' is ambiguous; it matches all of the following #{type} names: #{pretty_names}.\n" +
-      "Please use a longer, unambiguous substring or the entire #{type} name."
+      "Please use a longer, unambiguous substring or the entire #{type} name." + desc
     end
   end
 
@@ -36,8 +36,8 @@ module EY
   end
 
   class AmbiguousAppNameError < EY::Error
-    def initialize(name, matches)
-      super ambiguous("app", name, matches)
+    def initialize(name, matches, desc="")
+      super ambiguous("app", name, matches, desc)
     end
   end
 
@@ -63,8 +63,8 @@ module EY
   end
 
   class AmbiguousEnvironmentNameError < EY::EnvironmentError
-    def initialize(name, matches)
-      super ambiguous("environment", name, matches)
+    def initialize(name, matches, desc="")
+      super ambiguous("environment", name, matches, desc)
     end
   end
 
