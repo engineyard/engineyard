@@ -187,7 +187,7 @@ shared_examples_for "it invokes engineyard-serverside" do
     it "does not try to install engineyard-serverside if it's already there" do
       run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(0)}})
       @ssh_commands.should_not have_command_like(/gem install engineyard-serverside/)
-      ver = Regexp.quote(EY::Model::Instance::ENGINEYARD_SERVERSIDE_VERSION)
+      ver = Regexp.quote(EY::ENGINEYARD_SERVERSIDE_VERSION)
       @ssh_commands.should have_command_like(/engineyard-serverside _#{ver}_ deploy/)
     end
   end  

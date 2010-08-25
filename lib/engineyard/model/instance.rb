@@ -3,7 +3,6 @@ require 'escape'
 module EY
   module Model
     class Instance < ApiStruct.new(:id, :role, :name, :status, :amazon_id, :public_hostname, :environment)
-      ENGINEYARD_SERVERSIDE_VERSION = ENV["ENGINEYARD_SERVERSIDE_VERSION"] || "1.2.0"
       EXIT_STATUS = Hash.new { |h,k| raise EY::Error, "engineyard-serverside version checker exited with unknown status code #{k}" }
       EXIT_STATUS.merge!({
         255 => :ssh_failed,
