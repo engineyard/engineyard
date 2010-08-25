@@ -35,6 +35,18 @@ def bump
   new_version
 end
 
+def bump_to_latest_serverside
+  require 'engineyard'
+  serverside_version_file = "module EY\n  ENGINEYARD_SERVERSIDE_VERSION = ENV['ENGINEYARD_SERVERSIDE_VERSION'] || '_VERSION_GOES_HERE_'\nend\n"
+
+  new_version = `gem search -r engineyard-serverside`.grep(/^engineyard-serverside /).first.match(/\((.*?)\)/).captures.first
+  puts "Using engineyard-serverside version #{new_version}"
+  File.open('lib/engineyard/serverside_version.rb', 'w') do |f|
+    f.write serverside_version_file.gsub(/_VERSION_GOES_HERE_/, new_version)
+  end
+  new_version
+end
+
 desc "Bump version of this gem"
 task :bump do
   ver = bump
@@ -44,8 +56,10 @@ end
 desc "Release gem"
 task :release do
   new_version = bump
-  system("git add lib/engineyard/version.rb")
-  system("git commit -m 'Bump version for release #{new_version}'")
+  bump_to_latest_serverside
+
+  system("git add lib/engineyard/version.rb lib/engineyard/serverside_version.rb")
+  system("git commit -m 'Bump versions for release #{new_version}'")
   system("git tag v#{new_version}")
 
   system("gem build engineyard.gemspec")
