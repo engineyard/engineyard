@@ -31,7 +31,11 @@ module EY
     end
 
     def app_for_repo(repo)
-      apps.find{|a| repo.urls.include?(a.repository_uri) }
+      candidates = apps.find_all {|a| repo.urls.include?(a.repository_uri) }
+      if candidates.size > 1
+        raise EY::AmbiguousGitUriError.new(repo.urls, candidates.map{|x| x.name})
+      end
+      candidates.first
     end
 
     def app_for_repo!(repo)

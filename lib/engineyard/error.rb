@@ -41,6 +41,18 @@ module EY
     end
   end
 
+  class AmbiguousGitUriError < EY::Error
+    def initialize(uris, matches)
+      message = "The following Git Remote urls match multiple Applications in AppCloud\n"
+      uris.each { |uri| message << "\t#{uri}\n" }
+
+      message << "Please use -a <appname> to specify one of the following applications:\n"
+      matches.each { |app| message << "\t#{app}\n" }
+
+      super message
+    end
+  end
+
   class NoAppMasterError < EY::Error
     def initialize(env_name)
       super "The environment '#{env_name}' does not have a master instance."
