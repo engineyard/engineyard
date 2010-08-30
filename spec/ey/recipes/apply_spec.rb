@@ -15,3 +15,9 @@ describe "ey recipes apply" do
 
   it_should_behave_like "it takes an environment name"
 end
+
+describe "ey recipes apply with an ambiguous git repo" do
+  given "integration"
+  def command_to_run(_) "recipes apply" end
+  it_should_behave_like "it requires an unambiguous git repo"
+end

@@ -35,6 +35,12 @@ module EY
       end
     end
 
+    def fetch_environment_without_app(env_name)
+      fetch_environment(env_name)
+    rescue EY::AmbiguousGitUriError
+      raise EY::AmbiguousEnvironmentGitUriError.new(api.environments)
+    end
+
     def fetch_app(app_name = nil)
       if app_name
         api.apps.match_one!(app_name)
@@ -47,7 +53,11 @@ module EY
       if all_apps
         api.apps
       else
-        [api.app_for_repo(repo)].compact
+        begin
+          [api.app_for_repo(repo)].compact
+        rescue EY::AmbiguousGitUriError
+          raise EY::AmbiguousEnvironmentGitUriError.new(api.environments)
+        end
       end
     end
 

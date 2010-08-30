@@ -39,3 +39,9 @@ describe "ey environments" do
   end
 
 end
+
+describe "ey environments with an ambiguous git repo" do
+  given "integration"
+  def command_to_run(_) "ssh environments" end
+  it_should_behave_like "it requires an unambiguous git repo"
+end

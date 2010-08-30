@@ -80,6 +80,15 @@ module EY
     end
   end
 
+  class AmbiguousEnvironmentGitUriError < EY::EnvironmentError
+    def initialize(environments)
+      message = "The repository url in this directory is ambiguous.\n"
+      message << "Please use -e <envname> to specify one of the following environments:\n"
+      environments.each { |env| message << "\t#{env.name}\n" }
+      super message
+    end
+  end
+
   class NoSingleEnvironmentError < EY::EnvironmentError
     def initialize(app)
       size = app.environments.size

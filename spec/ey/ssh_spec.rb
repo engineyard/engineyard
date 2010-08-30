@@ -66,6 +66,12 @@ describe "ey ssh" do
 
 end
 
+describe "ey ssh with an ambiguous git repo" do
+  it_should_behave_like "running ey ssh"
+  def command_to_run(_) "ssh ls" end
+  it_should_behave_like "it requires an unambiguous git repo"
+end
+
 describe "ey ssh without a command" do
   it_should_behave_like "running ey ssh"
 

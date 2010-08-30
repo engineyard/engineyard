@@ -38,6 +38,8 @@ class FakeAwsm < Sinatra::Base
                      Scenario::OneAppManyEnvs
                    when "one app, many similarly-named environments"
                      Scenario::OneAppManySimilarlyNamedEnvs
+                   when "two apps, same git uri"
+                     Scenario::TwoAppsSameGitUri
                    else
                      status(400)
                      return {"ok" => "false", "message" => "wtf is the #{params[:scenario]} scenario?"}.to_json
@@ -463,6 +465,16 @@ private
           }]
       end
     end # TwoApps
+
+    class TwoAppsSameGitUri < TwoApps
+      def starting_apps
+        apps = super
+        apps.each do |app|
+          app["repository_uri"] = "git://github.com/engineyard/dup.git"
+        end
+        apps
+      end
+    end # TwoAppsSameGitUri
 
     class OneAppManySimilarlyNamedEnvs < Base
       def starting_apps

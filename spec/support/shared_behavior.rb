@@ -22,6 +22,27 @@ module Spec
   end
 end
 
+shared_examples_for "it requires an unambiguous git repo" do
+  include Spec::Helpers::SharedIntegrationTestUtils
+
+  define_git_repo('dup test') do
+    system("git remote add dup git://github.com/engineyard/dup.git")
+  end
+
+  use_git_repo('dup test')
+
+  before(:all) do
+    api_scenario "two apps, same git uri"
+  end
+
+  it "lists disambiguating environments to choose from" do
+    run_ey({}, {:expect_failure => true})
+    @err.should =~ /ambiguous/
+    @err.should =~ /specify one of the following environments/
+    @err.should =~ /giblets/
+    @err.should =~ /keycollector_production/
+  end
+end
 
 shared_examples_for "it takes an environment name" do
   include Spec::Helpers::SharedIntegrationTestUtils

@@ -27,3 +27,9 @@ describe "ey recipes download" do
     @err.should match(/cookbooks.*already exists/i)
   end
 end
+
+describe "ey recipes download with an ambiguous git repo" do
+  given "integration"
+  def command_to_run(_) "recipes download" end
+  it_should_behave_like "it requires an unambiguous git repo"
+end

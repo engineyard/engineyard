@@ -180,7 +180,7 @@ module EY
       :desc => "Run command on the utility servers with the given names. If no names are given, run on all utility servers."
 
     def ssh(cmd=nil)
-      env   = fetch_environment(options[:environment])
+      env = fetch_environment_without_app(options[:environment])
       hosts = ssh_hosts(options, env)
 
       raise NoCommandError.new if cmd.nil? and hosts.count != 1
