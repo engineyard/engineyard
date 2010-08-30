@@ -3,12 +3,8 @@ if self.class.const_defined?(:EY_ROOT)
 end
 
 EY_ROOT = File.expand_path("../..", __FILE__)
-begin
-  require File.join(EY_ROOT, ".bundle/environment.rb")
-rescue LoadError
-  puts "Can't load bundler environment. You need to run `bundle lock`."
-  exit
-end
+require 'rubygems'
+require 'bundler/setup'
 
 # Bundled gems
 require 'fakeweb'

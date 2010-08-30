@@ -1,10 +1,7 @@
 #!/usr/bin/env ruby
-begin
-  require File.expand_path('../../../.bundle/environment', __FILE__)
-rescue LoadError
-  ENV['BUNDLE_GEMFILE'] = File.expand_path('../../../Gemfile', __FILE__)
-  require "rubygems"; require "bundler"; Bundler.setup
-end
+
+require 'rubygems'
+require 'bundler/setup'
 
 $LOAD_PATH.unshift File.expand_path("../../../lib", __FILE__)
 load File.expand_path('../../../bin/ey', __FILE__)
