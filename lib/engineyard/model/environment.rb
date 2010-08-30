@@ -69,7 +69,7 @@ module EY
                 migration_from_config
               end
 
-        app_master!.deploy(app, ref, cmd, config, deploy_options['verbose'])
+        app_master!.deploy(app, ref, cmd, config.merge(deploy_options['extras']), deploy_options['verbose'])
       end
 
       def rollback(app, verbose=false)

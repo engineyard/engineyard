@@ -46,6 +46,8 @@ module EY
       :desc => "Name of the application to deploy"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
+    method_option :extra_deploy_hook_options, :type => :hash, :default => {},
+      :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
     def deploy
       app         = fetch_app(options[:app])
       environment = fetch_environment(options[:environment], app)
@@ -70,7 +72,7 @@ module EY
       # true (the lazy default) means do it with the custom command
       # a string means do it with this specific command
 
-      deploy_options = {}
+      deploy_options = {'extras' => options[:extra_deploy_hook_options]}
       deploy_options['migrate'] = options['migrate'] if options.has_key?('migrate')
       deploy_options['verbose'] = options['verbose'] if options.has_key?('verbose')
 
