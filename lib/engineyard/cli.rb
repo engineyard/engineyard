@@ -67,11 +67,6 @@ module EY
 
       EY.ui.info "Beginning deploy for '#{app.name}' in '#{environment.name}' on server..."
 
-      # missing means do what the yaml file says
-      # nil means don't do it
-      # true (the lazy default) means do it with the custom command
-      # a string means do it with this specific command
-
       deploy_options = {'extras' => options[:extra_deploy_hook_options]}
       deploy_options['migrate'] = options['migrate'] if options.has_key?('migrate')
       deploy_options['verbose'] = options['verbose'] if options.has_key?('verbose')
