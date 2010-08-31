@@ -53,11 +53,7 @@ module EY
       if all_apps
         api.apps
       else
-        begin
-          [api.app_for_repo(repo)].compact
-        rescue EY::AmbiguousGitUriError
-          raise EY::AmbiguousEnvironmentGitUriError.new(api.environments)
-        end
+        api.apps_for_repo(repo)
       end
     end
 

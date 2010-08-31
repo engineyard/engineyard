@@ -30,8 +30,12 @@ module EY
       @apps ||= EY::Model::App.from_array(request('/apps')["apps"], :api => self)
     end
 
+    def apps_for_repo(repo)
+      apps.find_all {|a| repo.urls.include?(a.repository_uri) }
+    end
+
     def app_for_repo(repo)
-      candidates = apps.find_all {|a| repo.urls.include?(a.repository_uri) }
+      candidates = apps_for_repo(repo)
       if candidates.size > 1
         raise EY::AmbiguousGitUriError.new(repo.urls, candidates.map{|x| x.name})
       end

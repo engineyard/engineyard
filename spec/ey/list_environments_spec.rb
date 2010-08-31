@@ -42,6 +42,12 @@ end
 
 describe "ey environments with an ambiguous git repo" do
   given "integration"
-  def command_to_run(_) "ssh environments" end
-  it_should_behave_like "it requires an unambiguous git repo"
+  it_should_behave_like "it has an ambiguous git repo"
+
+  it "lists environments from all apps using the git repo" do
+    ey "environments"
+    @out.should =~ /git repo matches multiple/i
+    @out.should include("giblets")
+    @out.should include("keycollector_production")
+  end
 end

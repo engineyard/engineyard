@@ -22,7 +22,7 @@ module Spec
   end
 end
 
-shared_examples_for "it requires an unambiguous git repo" do
+shared_examples_for "it has an ambiguous git repo" do
   include Spec::Helpers::SharedIntegrationTestUtils
 
   define_git_repo('dup test') do
@@ -34,6 +34,10 @@ shared_examples_for "it requires an unambiguous git repo" do
   before(:all) do
     api_scenario "two apps, same git uri"
   end
+end
+
+shared_examples_for "it requires an unambiguous git repo" do
+  it_should_behave_like "it has an ambiguous git repo"
 
   it "lists disambiguating environments to choose from" do
     run_ey({}, {:expect_failure => true})
