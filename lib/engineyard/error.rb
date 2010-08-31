@@ -7,6 +7,10 @@ module EY
     end
   end
 
+  class ResolveError < EY::Error; end
+  class NoMatchesError < ResolveError; end
+  class MultipleMatchesError < ResolveError; end
+
   class NoCommandError < EY::Error
     def initialize
       super "Must specify a command to run via ssh"

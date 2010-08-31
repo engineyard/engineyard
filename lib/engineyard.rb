@@ -9,6 +9,7 @@ module EY
   autoload :Error,      'engineyard/error'
   autoload :Model,      'engineyard/model'
   autoload :Repo,       'engineyard/repo'
+  autoload :Resolver,   'engineyard/resolver'
 
   class UI
     # stub debug outside of the CLI

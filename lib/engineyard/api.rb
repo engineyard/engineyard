@@ -30,6 +30,10 @@ module EY
       @apps ||= EY::Model::App.from_array(request('/apps')["apps"], :api => self)
     end
 
+    def resolver
+      @resolver ||= Resolver.new(self)
+    end
+
     def apps_for_repo(repo)
       apps.find_all {|a| repo.urls.include?(a.repository_uri) }
     end

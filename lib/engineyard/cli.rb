@@ -47,8 +47,7 @@ module EY
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
     def deploy
-      app         = fetch_app(options[:app])
-      environment = fetch_environment(options[:environment], app)
+      app, environment = fetch_app_and_environment(options[:app], options[:environment])
       environment.ignore_bad_master = options[:ignore_bad_master]
       deploy_ref  = if options[:app]
                       environment.resolve_branch(options[:ref], options[:ignore_default_branch]) ||
@@ -146,13 +145,12 @@ module EY
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
     def rollback
-      app = fetch_app(options[:app])
-      env = fetch_environment(options[:environment], app)
+      app, environment = fetch_app_and_environment(options[:app], options[:environment])
 
-      loudly_check_engineyard_serverside(env)
+      loudly_check_engineyard_serverside(environment)
 
-      EY.ui.info("Rolling back '#{app.name}' in '#{env.name}'")
-      if env.rollback(app, options[:verbose])
+      EY.ui.info("Rolling back '#{app.name}' in '#{environment.name}'")
+      if environment.rollback(app, options[:verbose])
         EY.ui.info "Rollback complete"
       else
         raise EY::Error, "Rollback failed"
@@ -186,7 +184,7 @@ module EY
       :desc => "Run command on the utility servers with the given names. If no names are given, run on all utility servers."
 
     def ssh(cmd=nil)
-      env = fetch_environment_without_app(options[:environment])
+      env = fetch_environment(options[:environment])
       hosts = ssh_hosts(options, env)
 
       raise NoCommandError.new if cmd.nil? and hosts.count != 1

@@ -1,6 +1,6 @@
 module EY
   module Model
-    class App < ApiStruct.new(:name, :repository_uri, :environments, :api)
+    class App < ApiStruct.new(:id, :name, :repository_uri, :environments, :api)
 
       def self.from_hash(hash)
         super.tap do |app|

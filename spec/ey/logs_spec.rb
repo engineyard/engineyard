@@ -14,7 +14,7 @@ describe "ey logs" do
   it "complains when it can't infer the environment" do
     api_scenario "one app, many environments"
     ey "logs", :expect_failure => true
-    @err.should =~ /single environment/
+    @err.should =~ /repository url in this directory is ambiguous/i
   end
 end
 

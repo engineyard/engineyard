@@ -15,7 +15,6 @@ describe "ey web disable" do
     @ssh_commands.should have_command_like(/engineyard-serverside.*deploy enable_maintenance_page.*--app #{scenario[:application]}/)
   end
 
-  it_should_behave_like "it takes an environment name"
-  it_should_behave_like "it takes an app name"
+  it_should_behave_like "it takes an environment name and an app name"
   it_should_behave_like "it invokes engineyard-serverside"
 end
