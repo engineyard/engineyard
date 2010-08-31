@@ -27,4 +27,38 @@ describe "ey rollback" do
     @ssh_commands.last.should =~ /--stack nginx_mongrel/
   end
 
+  context "--extra-deploy-hook-options" do
+    before(:all) do
+      api_scenario "one app, one environment"
+    end
+
+    def extra_deploy_hook_options
+      if @ssh_commands.last =~ /--config (.*?)(?: -|$)/
+        # the echo strips off the layer of shell escaping, leaving us
+        # with pristine JSON
+        JSON.parse `echo #{$1}`
+      end
+    end
+
+    it "passes the extra configuration to engineyard-serverside" do
+      ey "rollback --extra-deploy-hook-options some:stuff more:crap"
+      extra_deploy_hook_options.should_not be_nil
+      extra_deploy_hook_options['some'].should == 'stuff'
+      extra_deploy_hook_options['more'].should == 'crap'
+    end
+
+    context "when ey.yml is present" do
+      before do
+        write_yaml({"environments" => {"giblets" => {"beer" => "stout"}}})
+      end
+
+      after { File.unlink("ey.yml") }
+
+      it "overrides what's in ey.yml" do
+        ey "deploy --extra-deploy-hook-options beer:esb"
+        extra_deploy_hook_options['beer'].should == 'esb'
+      end
+    end
+  end
+
 end

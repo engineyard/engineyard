@@ -142,6 +142,8 @@ module EY
       :desc => "Name of the application to roll back"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
+    method_option :extra_deploy_hook_options, :type => :hash, :default => {},
+      :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
     def rollback
       app = fetch_app(options[:app])
       env = fetch_environment(options[:environment], app)
@@ -149,7 +151,9 @@ module EY
       loudly_check_engineyard_serverside(env)
 
       EY.ui.info("Rolling back '#{app.name}' in '#{env.name}'")
-      if env.rollback(app, options[:verbose])
+      if env.rollback(app,
+          options[:extra_deploy_hook_options],
+          options[:verbose])
         EY.ui.info "Rollback complete"
       else
         raise EY::Error, "Rollback failed"

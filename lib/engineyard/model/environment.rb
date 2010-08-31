@@ -43,8 +43,10 @@ module EY
           deploy_options['verbose'])
       end
 
-      def rollback(app, verbose=false)
-        app_master!.rollback(app, config, verbose)
+      def rollback(app, extra_deploy_hook_options={}, verbose=false)
+        app_master!.rollback(app,
+          config.merge(extra_deploy_hook_options),
+          verbose)
       end
 
       def take_down_maintenance_page(app, verbose=false)
