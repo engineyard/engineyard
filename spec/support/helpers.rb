@@ -142,7 +142,7 @@ module EY
 
     def define_git_repo(name, &setup)
       @git_repo_setup ||= {}
-      raise "Attempted to redefine git repo #{name}; don't do that!" if @git_repo_setup.has_key?(name)
+      return if @git_repo_setup.key?(name)
       @git_repo_setup[name] = setup
     end
 
@@ -162,6 +162,5 @@ module EY
       end
       @git_repo_dir_cache[name] = git_dir
     end
-
   end
 end

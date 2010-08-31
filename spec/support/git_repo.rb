@@ -19,6 +19,5 @@ module Spec
         FakeFS.without { Dir.chdir(@_original_wd.pop) }
       end
     end
-
   end
 end
