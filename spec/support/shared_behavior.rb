@@ -150,12 +150,12 @@ shared_examples_for "it invokes engineyard-serverside" do
 
     it "passes along instance information to engineyard-serverside" do
       instance_args = [
-        Regexp.quote("app_master_hostname.compute-1.amazonaws.com,app_master"),
-        Regexp.quote("app_hostname.compute-1.amazonaws.com,app"),
-        Regexp.quote("util_fluffy_hostname.compute-1.amazonaws.com,util,fluffy"),
+        /--instances app_master[^\s]+ app_hostname[^\s]+ util_fluffy/,
+        /--instance_roles app_master[^\s]+:app_master app_hostname[^\s]+:app util_fluffy[^\s]+:util/,
+        /--instance_names util_fluffy[^\s]+:fluffy/
       ]
 
-      db_instance = Regexp.quote("db_master_hostname.compute-1.amazonaws.com,db_master")
+      db_instance = /db_master/
 
       # apps + utilities are all mentioned
       instance_args.each do |i|
@@ -164,9 +164,6 @@ shared_examples_for "it invokes engineyard-serverside" do
 
       # but not database instances
       @ssh_commands.last.should_not =~ /#{db_instance}/
-
-      # and it's all after the option '--instances'
-      @ssh_commands.last.should match(/--instances (#{instance_args.join('|')})/)
     end
 
     it "passes the framework environment" do

@@ -113,13 +113,18 @@ module EY
 
       def invoke_engineyard_serverside(deploy_args, verbose=false)
         start = [engineyard_serverside_path, "_#{ENGINEYARD_SERVERSIDE_VERSION}_", 'deploy']
-        instance_args = environment.instances.find_all do |inst|
-          inst.has_app_code?
-        end.inject(['--instances']) do |command, inst|
-          instance_tuple = [inst.public_hostname, inst.role]
-          instance_tuple << inst.name if inst.name
 
-          command << instance_tuple.join(',')
+        instances = environment.instances.select { |inst| inst.has_app_code? }
+        instance_args = ['']
+        if !instances.empty?
+          instance_args << '--instances'
+          instance_args += instances.collect { |i| i.public_hostname }
+
+          instance_args << '--instance_roles'
+          instance_args += instances.collect { |i| [i.public_hostname, i.role].join(':') }
+
+          instance_args << '--instance_names'
+          instance_args += instances.collect { |i| i.name ? [i.public_hostname, i.name].join(':') : nil }.compact
         end
 
         framework_arg = ['--framework-env', environment.framework_env]
