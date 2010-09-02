@@ -47,10 +47,11 @@ describe EY::Resolver do
     mock("repo", :urls => [url])
   end
 
-  def should_resolve_to(ad, options)
-    app, environment = resolver.app_and_environment(options)
-    app.name.should == ad[:app_name]
-    environment.name.should == ad[:environment_name]
+  def resolve_to(expected)
+    simple_matcher "resolve to" do |(app,environment), _|
+      app.name.should == expected[:app_name]
+      environment.name.should == expected[:environment_name]
+    end
   end
 
   describe "#fetch" do
@@ -83,27 +84,27 @@ describe EY::Resolver do
     end
 
     it "returns one deployment whene there is only one match" do
-      should_resolve_to(big, :account => "ey", :app_name => "big")
-      should_resolve_to(production, :environment_name => "production")
-      should_resolve_to(big, :repo => repo("git://github.com/repo/bigapp.git"))
-      should_resolve_to(staging, :repo => repo("git://github.com/repo/app.git"), :environment_name => "staging")
+      resolver.app_and_environment(:account => "ey", :app_name => "big").should resolve_to(big)
+      resolver.app_and_environment(:environment_name => "production").should resolve_to(production)
+      resolver.app_and_environment(:repo => repo("git://github.com/repo/bigapp.git")).should resolve_to(big)
+      resolver.app_and_environment(:repo => repo("git://github.com/repo/app.git"), :environment_name => "staging").should resolve_to(staging)
     end
 
     it "returns the match when an app is specified even when there is a repo" do
-      should_resolve_to(big, :account => "ey", :app_name => "bigapp", :repo => repo("git://github.com/repo/app.git"))
+      resolver.app_and_environment(:account => "ey", :app_name => "bigapp", :repo => repo("git://github.com/repo/app.git")).should resolve_to(big)
     end
 
     it "returns the specific match even if there is a partial match" do
-      should_resolve_to(staging, :environment_name => 'app_staging', :app_name => 'app')
-      should_resolve_to(staging, :environment_name => "app_staging")
-      should_resolve_to(staging, :app_name => "app", :environment_name => "staging")
+      resolver.app_and_environment(:environment_name => 'app_staging', :app_name => 'app').should resolve_to(staging)
+      resolver.app_and_environment(:environment_name => "app_staging").should resolve_to(staging)
+      resolver.app_and_environment(:app_name => "app", :environment_name => "staging").should resolve_to(staging)
     end
 
     it "scopes searches under the correct account" do
-      should_resolve_to(ey_dup, :account => "ey", :environment_name => "dup")
-      should_resolve_to(ey_dup, :account => "ey", :app_name => "dup")
-      should_resolve_to(me_dup, :account => "me", :environment_name => "dup")
-      should_resolve_to(me_dup, :account => "me", :app_name => "dup")
+      resolver.app_and_environment(:account => "ey", :environment_name => "dup").should resolve_to(ey_dup)
+      resolver.app_and_environment(:account => "ey", :app_name => "dup").should resolve_to(ey_dup)
+      resolver.app_and_environment(:account => "me", :environment_name => "dup").should resolve_to(me_dup)
+      resolver.app_and_environment(:account => "me", :app_name => "dup").should resolve_to(me_dup)
     end
   end
 end
