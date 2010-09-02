@@ -10,7 +10,7 @@ module EY
       method_option :verbose, :type => :boolean, :aliases => %w(-v),
         :desc => "Be verbose"
       def enable
-        app, environment = fetch_app_and_environment(options[:app], options[:environment])
+        app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
         loudly_check_engineyard_serverside(environment)
         EY.ui.info "Taking down maintenance page for '#{app.name}' in '#{environment.name}'"
         environment.take_down_maintenance_page(app, options[:verbose])
@@ -36,7 +36,7 @@ module EY
       method_option :verbose, :type => :boolean, :aliases => %w(-v),
         :desc => "Be verbose"
       def disable
-        app, environment = fetch_app_and_environment(options[:app], options[:environment])
+        app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
         loudly_check_engineyard_serverside(environment)
         EY.ui.info "Putting up maintenance page for '#{app.name}' in '#{environment.name}'"
         environment.put_up_maintenance_page(app, options[:verbose])

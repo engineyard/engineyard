@@ -122,22 +122,31 @@ private
 
   class CloudMock
     def initialize(initial_conditions)
-      @apps, @envs, @keys, @app_joins, @key_joins = [], [], [], [], []
+      @accounts, @apps, @envs, @keys, @app_joins, @key_joins = [], [], [], [], [], []
       @next_id = 1
 
+      initial_conditions.starting_accounts.each     {|a| add_account(a) }
       initial_conditions.starting_apps.each         {|a| add_app(a) }
       initial_conditions.starting_environments.each {|e| add_environment(e) }
       initial_conditions.starting_app_joins.each    {|(app_id, env_id)| link_app(app_id, env_id) }
     end
 
+    def add_account(acc)
+      acc["id"] ||= next_id
+      @accounts << acc
+      acc
+    end
+
     def add_app(app)
       app["id"] ||= next_id
+      app["account"] ||= @accounts.first
       @apps << app
       app
     end
 
     def add_environment(env)
       env["id"] ||= next_id
+      env["account"] ||= @accounts.first
 
       unless env.has_key?("app_master")
         master = env["instances"].find{ |i| %w[solo app_master].include?(i["role"]) }
@@ -149,8 +158,11 @@ private
     end
 
     def link_app(app_id, env_id)
-      @apps.find {|a| a["id"] == app_id } or raise "No such app id:#{app_id}"
-      @envs.find {|e| e["id"] == env_id } or raise "No such environment id:#{env_id}"
+      app = @apps.find {|a| a["id"] == app_id } or raise "No such app id:#{app_id}"
+      env = @envs.find {|e| e["id"] == env_id } or raise "No such environment id:#{env_id}"
+      if app["account"]["id"] != env["account"]["id"]
+        raise "App #{app_id} in account #{app["account"]["id"]} cannot be attached to environment #{env_id} in account #{env["account"]["id"]}"
+      end
       @app_joins << [app_id, env_id]
       @app_joins.uniq!
     end
@@ -213,6 +225,11 @@ private
         self.git_remote = git_remote
       end
 
+      def main_account
+        {:name => 'main'}
+      end
+
+      def starting_accounts() [main_account] end
       def starting_apps()         [] end
       def starting_environments() [] end
       def starting_app_joins()    [] end

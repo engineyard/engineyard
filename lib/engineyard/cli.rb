@@ -47,7 +47,7 @@ module EY
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
     def deploy
-      app, environment = fetch_app_and_environment(options[:app], options[:environment])
+      app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
       environment.ignore_bad_master = options[:ignore_bad_master]
       deploy_ref  = if options[:app]
                       environment.resolve_branch(options[:ref], options[:ignore_default_branch]) ||
@@ -127,7 +127,7 @@ module EY
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment to rebuild"
     def rebuild
-      env = fetch_environment(options[:environment])
+      env = fetch_environment(options[:environment], options[:account])
       EY.ui.debug("Rebuilding #{env.name}")
       env.rebuild
     end
@@ -145,7 +145,7 @@ module EY
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
     def rollback
-      app, environment = fetch_app_and_environment(options[:app], options[:environment])
+      app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
 
       loudly_check_engineyard_serverside(environment)
 
@@ -184,7 +184,7 @@ module EY
       :desc => "Run command on the utility servers with the given names. If no names are given, run on all utility servers."
 
     def ssh(cmd=nil)
-      env = fetch_environment(options[:environment])
+      env = fetch_environment(options[:environment], options[:account])
       hosts = ssh_hosts(options, env)
 
       raise NoCommandError.new if cmd.nil? and hosts.count != 1
@@ -232,7 +232,7 @@ module EY
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment with the interesting logs"
     def logs
-      env = fetch_environment(options[:environment])
+      env = fetch_environment(options[:environment], options[:account])
       env.logs.each do |log|
         EY.ui.info log.instance_name
 

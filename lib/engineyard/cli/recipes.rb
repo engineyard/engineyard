@@ -11,7 +11,7 @@ module EY
       method_option :environment, :type => :string, :aliases => %w(-e),
         :desc => "Environment in which to apply recipes"
       def apply
-        environment = fetch_environment(options[:environment])
+        environment = fetch_environment(options[:environment], options[:account])
         environment.run_custom_recipes
         EY.ui.say "Uploaded recipes started for #{environment.name}"
       end
@@ -26,7 +26,7 @@ module EY
       method_option :environment, :type => :string, :aliases => %w(-e),
         :desc => "Environment that will receive the recipes"
       def upload
-        environment = fetch_environment(options[:environment])
+        environment = fetch_environment(options[:environment], options[:account])
         environment.upload_recipes
         EY.ui.say "Recipes uploaded successfully for #{environment.name}"
       end
@@ -42,7 +42,7 @@ module EY
       method_option :environment, :type => :string, :aliases => %w(-e),
         :desc => "Environment for which to download the recipes"
       def download
-        environment = fetch_environment(options[:environment])
+        environment = fetch_environment(options[:environment], options[:account])
         environment.download_recipes
         EY.ui.say "Recipes downloaded successfully for #{environment.name}"
       end

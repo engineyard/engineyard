@@ -25,16 +25,18 @@ module EY
       end
     end
 
-    def fetch_environment(environment_name)
+    def fetch_environment(environment_name, account=nil)
       environment_name ||= EY.config.default_environment
       api.resolver.environment(:environment_name => environment_name,
-                               :repo => repo)
+                               :repo => repo,
+                               :account => account)
     end
 
-    def fetch_app_and_environment(app_name = nil, environment_name = nil)
+    def fetch_app_and_environment(app_name = nil, environment_name = nil, account=nil)
       api.resolver.app_and_environment(:app_name => app_name,
                                        :environment_name => environment_name,
-                                       :repo => repo)
+                                       :repo => repo,
+                                       :account => account)
     end
 
     def get_apps(all_apps = false)
