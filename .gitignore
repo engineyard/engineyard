@@ -23,3 +23,5 @@ Gemfile.lock
 
 ## PROJECT::SPECIFIC
 cloud.yml
+
+.rvmrc
