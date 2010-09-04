@@ -48,10 +48,59 @@ shared_examples_for "it requires an unambiguous git repo" do
   end
 end
 
-shared_examples_for "it takes an environment name and an app name" do
-  before { @takes_app_name = true }
-  it_should_behave_like "it takes an environment name"
+shared_examples_for "it takes an environment name and an app name and an account name" do
   it_should_behave_like "it takes an app name"
+  it_should_behave_like "it takes an environment name"
+
+  context "when multiple accounts with collaboration" do
+    before :all do
+      api_scenario "two accounts, two apps, two environments, ambiguous"
+    end
+
+    it "fails when the app and environment are ambiguous across accounts" do
+      run_ey({:env => "giblets", :app => "rails232app", :ref => 'master'}, {:expect_failure => true})
+      @err.should match(/Multiple app deployments possible/i)
+      @err.should match(/ey \S+ --environment='giblets' --app='rails232app' --account='account_2'/i)
+      @err.should match(/ey \S+ --environment='giblets' --app='rails232app' --account='main'/i)
+    end
+
+    it "runs when specifying the account disambiguates the app to deploy" do
+      run_ey({:env => "giblets", :app => "rails232app", :account => "main", :ref => 'master'})
+      verify_ran(make_scenario({
+          :environment      => 'giblets',
+          :application      => 'rails232app',
+          :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
+          :ssh_username     => 'turkey',
+        }))
+    end
+  end
+end
+
+shared_examples_for "it takes an environment name and an account name" do
+  it_should_behave_like "it takes an environment name"
+
+  context "when multiple accounts with collaboration" do
+    before :all do
+      api_scenario "two accounts, two apps, two environments, ambiguous"
+    end
+
+    it "fails when the app and environment are ambiguous across accounts" do
+      run_ey({:env => "giblets"}, {:expect_failure => true})
+      @err.should match(/multiple environments possible/i)
+      @err.should match(/ey \S+ --environment='giblets' --account='account_2'/i)
+      @err.should match(/ey \S+ --environment='giblets' --account='main'/i)
+    end
+
+    it "runs when specifying the account disambiguates the app to deploy" do
+      run_ey({:env => "giblets", :account => "main"})
+      verify_ran(make_scenario({
+          :environment      => 'giblets',
+          :application      => 'rails232app',
+          :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
+          :ssh_username     => 'turkey',
+        }))
+    end
+  end
 end
 
 shared_examples_for "it takes an environment name" do
@@ -84,7 +133,7 @@ shared_examples_for "it takes an environment name" do
       if @takes_app_name
         @err.should match(/multiple app deployments possible/i)
       else
-        @err.should match(/'staging' is ambiguous/i)
+        @err.should match(/multiple environments possible/i)
       end
     end
 
@@ -109,6 +158,7 @@ end
 
 shared_examples_for "it takes an app name" do
   include Spec::Helpers::SharedIntegrationTestUtils
+  before { @takes_app_name = true }
 
   it "allows you to specify a valid app" do
     api_scenario "one app, one environment"

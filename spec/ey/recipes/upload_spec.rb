@@ -12,6 +12,7 @@ describe "ey recipes upload" do
   def command_to_run(opts)
     cmd = "recipes upload"
     cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd << " --account #{opts[:account]}" if opts[:account]
     cmd
   end
 
@@ -19,7 +20,7 @@ describe "ey recipes upload" do
     @out.should =~ /Recipes uploaded successfully for #{scenario[:environment]}/
   end
 
-  it_should_behave_like "it takes an environment name"
+  it_should_behave_like "it takes an environment name and an account name"
 end
 
 describe "ey recipes upload with an ambiguous git repo" do

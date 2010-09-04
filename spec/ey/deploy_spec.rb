@@ -30,6 +30,7 @@ describe "ey deploy" do
     cmd = "deploy"
     cmd << " --environment #{options[:env]}" if options[:env]
     cmd << " --app #{options[:app]}" if options[:app]
+    cmd << " --account #{options[:account]}" if options[:account]
     cmd << " --ref #{options[:ref]}" if options[:ref]
     cmd << " --verbose" if options[:verbose]
     cmd
@@ -41,7 +42,7 @@ describe "ey deploy" do
   end
 
   # common behavior
-  it_should_behave_like "it takes an environment name and an app name"
+  it_should_behave_like "it takes an environment name and an app name and an account name"
   it_should_behave_like "it invokes engineyard-serverside"
 end
 
@@ -308,4 +309,5 @@ describe "ey deploy" do
       @deploy_command.should =~ /--stack nginx_mongrel/
     end
   end
+
 end

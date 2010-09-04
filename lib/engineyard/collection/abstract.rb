@@ -8,8 +8,14 @@ module EY
 We are working on letting you specify the account name to resolve this ambiguity.
 MSG
 
-      def named(name)
-        candidates = find_all {|x| x.name == name }
+      def named(name, account_name=nil)
+        candidates = find_all do |x|
+          if account_name
+            x.name == name && x.account.name == account_name
+          else
+            x.name == name
+          end
+        end
         if candidates.size > 1
           raise ambiguous_error(name, candidates.map {|e| e.name}, COLLAB_MESSAGE )
         end

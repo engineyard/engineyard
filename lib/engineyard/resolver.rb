@@ -8,10 +8,10 @@ module EY
 
     def environment(options)
       raise ArgumentError if options[:app_name]
-      candidates, app_candidates, environment_candidates = filter_candidates(options)
+      candidates, account_candidates, app_candidates, environment_candidates = filter_candidates(options)
 
-      environments = candidates.map{ |c| c[:environment_name] }.uniq.map do |environment_name|
-        api.environments.named(environment_name)
+      environments = candidates.map{ |c| [c[:account_name], c[:environment_name]] }.uniq.map do |account_name, environment_name|
+        api.environments.named(environment_name, account_name)
       end
 
       if environments.empty?
@@ -22,20 +22,25 @@ module EY
         end
       elsif environments.size > 1
         if options[:environment_name]
-          raise EY::AmbiguousEnvironmentNameError.new(options[:environment_name], environments)
+          message = "Multiple environments possible, please be more specific:\n\n"
+          candidates.map{|e| [e[:account_name], e[:environment_name]]}.uniq.each do |account_name, environment_name|
+            message << "\t#{environment_name} # ey <command> --environment='#{environment_name}' --account='#{account_name}'\n"
+          end
+          raise MultipleMatchesError.new(message)
         else
           raise EY::AmbiguousEnvironmentGitUriError.new(environments)
         end
       end
-
       environments.first
     end
 
     def app_and_environment(options)
-      candidates, app_candidates, environment_candidates = filter_candidates(options)
+      candidates, account_candidates, app_candidates, environment_candidates = filter_candidates(options)
 
       if candidates.empty?
-        if app_candidates.empty?
+        if account_candidates.empty? && options[:account_name]
+          raise NoMatchesError.new("There were no accounts that matched #{options[:account_name]}")
+        elsif app_candidates.empty?
           if options[:app_name]
             raise InvalidAppError.new(options[:app_name])
           else
@@ -46,26 +51,27 @@ module EY
         else
           message = "The matched apps & environments do not correspond with each other.\n"
           message << "Applications:\n"
-          app_candidates.map{|ad| ad[:app_name]}.uniq.each do |app_name|
-            app = api.apps.named(app_name)
+          app_candidates.map{|ad| [ad[:account_name], ad[:app_name]]}.uniq.each do |account_name, app_name|
+            app = api.apps.named(app_name, account_name)
             message << "\t#{app.name}\n"
             app.environments.each do |env|
-              message << "\t\t#{env.name} # ey deploy -e #{env.name} -a #{app.name}\n"
+              message << "\t\t#{env.name} # ey <command> -e #{env.name} -a #{app.name}\n"
             end
           end
         end
         raise NoMatchesError.new(message)
       elsif candidates.size > 1
         message = "Multiple app deployments possible, please be more specific:\n\n"
-        candidates.map{|c| c[:app_name]}.uniq.each do |app_name|
+        candidates.map{|c| [c[:account_name], c[:app_name]]}.uniq.each do |account_name, app_name|
           message << "#{app_name}\n"
           candidates.select {|x| x[:app_name] == app_name }.map{|x| x[:environment_name]}.uniq.each do |env_name|
-            message << "\t#{env_name} # ey deploy -e #{env_name} -a #{app_name}\n"
+            message << "\t#{env_name} # ey <command> --environment='#{env_name}' --app='#{app_name}' --account='#{account_name}'\n"
           end
         end
         raise MultipleMatchesError.new(message)
       end
-      [api.apps.named(candidates.first[:app_name]), api.environments.named(candidates.first[:environment_name])]
+      result = candidates.first
+      [api.apps.named(result[:app_name], result[:account_name]), api.environments.named(result[:environment_name], result[:account_name])]
     end
 
     private
@@ -74,10 +80,10 @@ module EY
       @app_deployments ||= api.apps.map do |app|
         app.environments.map do |environment|
           { 
-            :id => app.id * environment.id, 
             :app_name => app.name,
             :repository_uri => app.repository_uri,
             :environment_name => environment.name,
+            :account_name => app.account.name,
           }
         end
       end.flatten
@@ -88,7 +94,7 @@ module EY
 
       candidates = app_deployments
 
-      candidates = filter_candidates_by(:account, options, candidates)
+      account_candidates = filter_candidates_by(:account_name, options, candidates)
 
       app_candidates = if options[:app_name]
                          filter_candidates_by(:app_name, options, candidates)
@@ -99,8 +105,8 @@ module EY
                        end
 
       environment_candidates = filter_candidates_by(:environment_name, options, candidates)
-      candidates = app_candidates & environment_candidates
-      [candidates, app_candidates, environment_candidates]
+      candidates = app_candidates & environment_candidates & account_candidates
+      [candidates, account_candidates, app_candidates, environment_candidates]
     end
 
     def filter_candidates_by(type, options, candidates)

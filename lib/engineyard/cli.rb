@@ -44,6 +44,8 @@ module EY
       :desc => "Git ref to deploy. May be a branch, a tag, or a SHA."
     method_option :app, :type => :string, :aliases => %w(-a),
       :desc => "Name of the application to deploy"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :desc => "Name of the account you want to deploy in"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
     def deploy
@@ -126,6 +128,8 @@ module EY
 
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment to rebuild"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :desc => "Name of the account you want to rebuild in"
     def rebuild
       env = fetch_environment(options[:environment], options[:account])
       EY.ui.debug("Rebuilding #{env.name}")
@@ -142,6 +146,8 @@ module EY
       :desc => "Environment in which to roll back the application"
     method_option :app, :type => :string, :aliases => %w(-a),
       :desc => "Name of the application to roll back"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :desc => "Name of the account you want to roll back in"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
     def rollback
@@ -170,6 +176,8 @@ module EY
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment to ssh into"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :desc => "Name of the account you want to deploy in"
     method_option :all, :type => :boolean, :aliases => %(-a),
       :desc => "Run command on all servers"
     method_option :app_servers, :type => :boolean,
@@ -231,6 +239,8 @@ module EY
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment with the interesting logs"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :desc => "Name of the account you want to deploy in"
     def logs
       env = fetch_environment(options[:environment], options[:account])
       env.logs.each do |log|

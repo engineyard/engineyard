@@ -30,6 +30,8 @@ class FakeAwsm < Sinatra::Base
                      Scenario::TwoApps
                    when "one app, one environment"
                      Scenario::LinkedApp
+                   when "two accounts, two apps, two environments, ambiguous"
+                     Scenario::MultipleAmbiguousAccounts
                    when "one app, one environment, no instances"
                      Scenario::LinkedAppNotRunning
                    when "one app, one environment, app master red"
@@ -225,11 +227,7 @@ private
         self.git_remote = git_remote
       end
 
-      def main_account
-        {:name => 'main'}
-      end
-
-      def starting_accounts() [main_account] end
+      def starting_accounts()     [{"name" => "main"}] end
       def starting_apps()         [] end
       def starting_environments() [] end
       def starting_app_joins()    [] end
@@ -314,6 +312,35 @@ private
       end
 
     end  # LinkedApp
+
+    class MultipleAmbiguousAccounts < LinkedApp
+      def starting_accounts
+        super + [{"name" => "account_2", "id" => 256}]
+      end
+
+      def starting_apps
+        apps = super
+        new_app = apps.first.dup
+        new_app["id"] += 1000
+        new_app["account"] = starting_accounts.last
+        apps + [new_app]
+      end
+
+      def starting_environments
+        envs = super
+        new_env = envs.first.dup
+        new_env["id"] += 1000
+        new_env["account"] = starting_accounts.last
+        envs + [new_env]
+      end
+
+      def starting_app_joins
+        joins = super
+        new_join = [joins.first[0] + 1000, 
+                    joins.first[1] + 1000]
+        joins + [new_join]
+      end
+    end
 
     class UnlinkedApp < Base
       def starting_apps

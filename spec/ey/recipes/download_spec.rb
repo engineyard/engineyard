@@ -10,6 +10,7 @@ describe "ey recipes download" do
   def command_to_run(opts)
     cmd = "recipes download"
     cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd << " --account #{opts[:account]}" if opts[:account]
     cmd
   end
 
@@ -18,7 +19,7 @@ describe "ey recipes download" do
     File.read('cookbooks/README').should == "Remove this file to clone an upstream git repository of cookbooks\n"
   end
 
-  it_should_behave_like "it takes an environment name"
+  it_should_behave_like "it takes an environment name and an account name"
 
   it "fails when cookbooks/ already exists" do
     api_scenario "one app, one environment"

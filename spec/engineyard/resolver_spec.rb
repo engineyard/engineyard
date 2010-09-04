@@ -4,13 +4,13 @@ describe EY::Resolver do
   def api
     return @api if @api
     apps = Object.new
-    def apps.named(name)
+    def apps.named(name, *args)
       result = EY::Model::App.from_hash(:name => name)
       result.stub!(:environments => [])
       result
     end
     environments = Object.new
-    def environments.named(name)
+    def environments.named(name, *args)
       result = EY::Model::Environment.from_hash(:name => name)
       result.stub!(:apps => [])
       result
@@ -29,18 +29,13 @@ describe EY::Resolver do
     options
   end
 
-  let(:production) { new_app_deployment(:environment_name => "app_production", :app_name => "app",           :account => "ey", :repository_uri => "git://github.com/repo/app.git") }
-  let(:staging)    { new_app_deployment(:environment_name => "app_staging"   , :app_name => "app",           :account => "ey", :repository_uri => "git://github.com/repo/app.git") }
-  let(:big)        { new_app_deployment(:environment_name => "bigapp_staging", :app_name => "bigapp",        :account => "ey", :repository_uri => "git://github.com/repo/bigapp.git") }
-  let(:ey_dup)     { new_app_deployment(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account => "ey", :repository_uri => "git://github.com/repo/dup.git") }
-  let(:me_dup)     { new_app_deployment(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account => "me", :repository_uri => "git://github.com/repo/dup.git") }
 
   before do
-    production
-    staging
-    big
-    ey_dup
-    me_dup
+    @production = new_app_deployment(:environment_name => "app_production", :app_name => "app",           :account_name => "ey", :repository_uri => "git://github.com/repo/app.git")
+    @staging    = new_app_deployment(:environment_name => "app_staging"   , :app_name => "app",           :account_name => "ey", :repository_uri => "git://github.com/repo/app.git")
+    @big        = new_app_deployment(:environment_name => "bigapp_staging", :app_name => "bigapp",        :account_name => "ey", :repository_uri => "git://github.com/repo/bigapp.git")
+    @ey_dup     = new_app_deployment(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account_name => "ey", :repository_uri => "git://github.com/repo/dup.git")
+    @me_dup     = new_app_deployment(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account_name => "me", :repository_uri => "git://github.com/repo/dup.git")
   end
 
   def repo(url)
@@ -78,33 +73,33 @@ describe EY::Resolver do
 
     it "raises when there is more than one match" do
       lambda { resolver.app_and_environment(:app_name => "app") }.should raise_error(EY::MultipleMatchesError)
-      lambda { resolver.app_and_environment(:account => "ey", :app_name => "app") }.should raise_error(EY::MultipleMatchesError)
+      lambda { resolver.app_and_environment(:account_name => "ey", :app_name => "app") }.should raise_error(EY::MultipleMatchesError)
       lambda { resolver.app_and_environment(:repo => repo("git://github.com/repo/dup.git")) }.should raise_error(EY::MultipleMatchesError)
       lambda { resolver.app_and_environment(:repo => repo("git://github.com/repo/app.git")) }.should raise_error(EY::MultipleMatchesError)
     end
 
     it "returns one deployment whene there is only one match" do
-      resolver.app_and_environment(:account => "ey", :app_name => "big").should resolve_to(big)
-      resolver.app_and_environment(:environment_name => "production").should resolve_to(production)
-      resolver.app_and_environment(:repo => repo("git://github.com/repo/bigapp.git")).should resolve_to(big)
-      resolver.app_and_environment(:repo => repo("git://github.com/repo/app.git"), :environment_name => "staging").should resolve_to(staging)
+      resolver.app_and_environment(:account_name => "ey", :app_name => "big").should resolve_to(@big)
+      resolver.app_and_environment(:environment_name => "production").should resolve_to(@production)
+      resolver.app_and_environment(:repo => repo("git://github.com/repo/bigapp.git")).should resolve_to(@big)
+      resolver.app_and_environment(:repo => repo("git://github.com/repo/app.git"), :environment_name => "staging").should resolve_to(@staging)
     end
 
     it "returns the match when an app is specified even when there is a repo" do
-      resolver.app_and_environment(:account => "ey", :app_name => "bigapp", :repo => repo("git://github.com/repo/app.git")).should resolve_to(big)
+      resolver.app_and_environment(:account_name => "ey", :app_name => "bigapp", :repo => repo("git://github.com/repo/app.git")).should resolve_to(@big)
     end
 
     it "returns the specific match even if there is a partial match" do
-      resolver.app_and_environment(:environment_name => 'app_staging', :app_name => 'app').should resolve_to(staging)
-      resolver.app_and_environment(:environment_name => "app_staging").should resolve_to(staging)
-      resolver.app_and_environment(:app_name => "app", :environment_name => "staging").should resolve_to(staging)
+      resolver.app_and_environment(:environment_name => 'app_staging', :app_name => 'app').should resolve_to(@staging)
+      resolver.app_and_environment(:environment_name => "app_staging").should resolve_to(@staging)
+      resolver.app_and_environment(:app_name => "app", :environment_name => "staging").should resolve_to(@staging)
     end
 
     it "scopes searches under the correct account" do
-      resolver.app_and_environment(:account => "ey", :environment_name => "dup").should resolve_to(ey_dup)
-      resolver.app_and_environment(:account => "ey", :app_name => "dup").should resolve_to(ey_dup)
-      resolver.app_and_environment(:account => "me", :environment_name => "dup").should resolve_to(me_dup)
-      resolver.app_and_environment(:account => "me", :app_name => "dup").should resolve_to(me_dup)
+      resolver.app_and_environment(:account_name => "ey", :environment_name => "dup").should resolve_to(@ey_dup)
+      resolver.app_and_environment(:account_name => "ey", :app_name => "dup").should resolve_to(@ey_dup)
+      resolver.app_and_environment(:account_name => "me", :environment_name => "dup").should resolve_to(@me_dup)
+      resolver.app_and_environment(:account_name => "me", :app_name => "dup").should resolve_to(@me_dup)
     end
   end
 end

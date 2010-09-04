@@ -9,6 +9,8 @@ module EY
         :desc => "Name of the application whose maintenance page will be removed"
       method_option :verbose, :type => :boolean, :aliases => %w(-v),
         :desc => "Be verbose"
+      method_option :account, :type => :string, :aliases => %w(-c),
+        :desc => "Name of the account you want to deploy in"
       def enable
         app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
         loudly_check_engineyard_serverside(environment)
@@ -35,6 +37,8 @@ module EY
         :desc => "Name of the application whose maintenance page will be put up"
       method_option :verbose, :type => :boolean, :aliases => %w(-v),
         :desc => "Be verbose"
+      method_option :account, :type => :string, :aliases => %w(-c),
+        :desc => "Name of the account you want to deploy in"
       def disable
         app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
         loudly_check_engineyard_serverside(environment)

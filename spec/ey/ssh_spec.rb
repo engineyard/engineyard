@@ -78,6 +78,7 @@ describe "ey ssh without a command" do
   def command_to_run(opts)
     cmd = "ssh"
     cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd << " --account #{opts[:account]}" if opts[:account]
     cmd
   end
 
@@ -86,7 +87,7 @@ describe "ey ssh without a command" do
     @raw_ssh_commands.should == ["ssh #{ssh_target}"]
   end
 
-  it_should_behave_like "it takes an environment name"
+  it_should_behave_like "it takes an environment name and an account name"
 end
 
 describe "ey ssh with a command" do
@@ -95,6 +96,7 @@ describe "ey ssh with a command" do
   def command_to_run(opts)
     cmd = "ssh ls"
     cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd << " --account #{opts[:account]}" if opts[:account]
     cmd
   end
 
@@ -103,7 +105,7 @@ describe "ey ssh with a command" do
     @raw_ssh_commands.should == ["ssh #{ssh_target} ls"]
   end
 
-  it_should_behave_like "it takes an environment name"
+  it_should_behave_like "it takes an environment name and an account name"
 end
 
 describe "ey ssh --all" do

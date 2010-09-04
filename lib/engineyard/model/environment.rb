@@ -8,6 +8,7 @@ module EY
         super.tap do |env|
           env.username = hash['ssh_username']
           env.apps = App.from_array(env.apps, :api => env.api)
+          env.account = Account.from_hash(env.account)
           env.instances = Instance.from_array(hash['instances'], :environment => env)
           env.app_master = Instance.from_hash(env.app_master.merge(:environment => env)) if env.app_master
         end
