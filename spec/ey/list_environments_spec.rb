@@ -10,6 +10,7 @@ describe "ey environments" do
 
   it "lists the environments your app is in" do
     ey "environments"
+    @out.should include('rails232app (main)')
     @out.should =~ /giblets/
     @out.should =~ /bakon/
   end

@@ -67,7 +67,7 @@ module EY
           end
         else
           apps.each do |app|
-            puts app.name
+            puts "#{app.name} (#{app.account.name})"
             if app.environments.any?
               app.environments.each do |env|
                 short_name = env.shorten_name_for(app)
