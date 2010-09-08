@@ -146,6 +146,11 @@ module EY
       @git_repo_setup[name] = setup
     end
 
+    def refresh_git_repo(name)
+      @git_repo_dir_cache ||= {}
+      @git_repo_dir_cache.delete name
+    end
+
     def git_repo_dir(name)
       @git_repo_dir_cache ||= {}
       return @git_repo_dir_cache[name] if @git_repo_dir_cache.has_key?(name)

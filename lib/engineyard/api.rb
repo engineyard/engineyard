@@ -46,10 +46,6 @@ module EY
       candidates.first
     end
 
-    def app_for_repo!(repo)
-      app_for_repo(repo) || raise(NoAppError.new(repo))
-    end
-
     class InvalidCredentials < EY::Error; end
     class RequestFailed < EY::Error; end
 

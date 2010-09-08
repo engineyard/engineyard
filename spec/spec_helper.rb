@@ -42,7 +42,7 @@ support.each{|helper| require helper }
 
 Spec::Runner.configure do |config|
   config.include Spec::Helpers
-  config.extend Spec::GitRepo
+  config.include Spec::GitRepo
   config.extend Spec::Helpers::SemanticNames
 
   config.before(:all) do

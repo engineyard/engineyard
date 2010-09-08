@@ -123,6 +123,26 @@ shared_examples_for "it takes an environment name" do
     @err.should match(/no environment named 'typo-happens-here'/i)
   end
 
+  context "outside a git repo" do
+    define_git_repo("not actually a git repo") do |git_dir|
+      # in case we screw up and are not in a freshly-generated test
+      # git repository, don't blow away the thing we're developing
+      system("rm -rf .git") if `git remote -v`.include?("path/to/repo.git")
+      git_dir.join("cookbooks").mkdir
+    end
+
+    use_git_repo("not actually a git repo")
+
+    before :all do
+      api_scenario "one app, one environment"
+    end
+
+    it "works (and does not complain about git remotes)" do
+      run_ey({:env => 'giblets'}) unless @takes_app_name
+    end
+
+  end
+
   context "given a piece of the environment name" do
     before(:all) do
       api_scenario "one app, many similarly-named environments"

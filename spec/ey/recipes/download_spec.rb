@@ -2,9 +2,16 @@ require 'spec_helper'
 
 describe "ey recipes download" do
   given "integration"
+  use_git_repo('default')
+
+  before(:each) do
+    FileUtils.rm_rf('cookbooks')
+  end
 
   after(:each) do
-    FileUtils.rm_rf('cookbooks')
+    # This test creates + destroys the cookbooks/ directory, thus
+    # rendering the git repo unsuitable for reuse.
+    refresh_git_repo('default')
   end
 
   def command_to_run(opts)
