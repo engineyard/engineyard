@@ -5,7 +5,7 @@ describe "ey recipes apply" do
 
   def command_to_run(opts)
     cmd = "recipes apply"
-    cmd << " -e #{opts[:env]}" if opts[:env]
+    cmd << " -e #{opts[:environment]}" if opts[:environment]
     cmd << " --account #{opts[:account]}" if opts[:account]
     cmd
   end

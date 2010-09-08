@@ -5,7 +5,7 @@ describe "ey web disable" do
 
   def command_to_run(opts)
     cmd = "web disable"
-    cmd << " -e #{opts[:env]}" if opts[:env]
+    cmd << " -e #{opts[:environment]}" if opts[:environment]
     cmd << " -a #{opts[:app]}" if opts[:app]
     cmd << " -c #{opts[:account]}" if opts[:account]
     cmd << " --verbose" if opts[:verbose]

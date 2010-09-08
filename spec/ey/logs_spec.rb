@@ -23,7 +23,7 @@ describe "ey logs" do
 
   def command_to_run(opts)
     cmd = "logs"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd << " --environment #{opts[:environment]}" if opts[:environment]
     cmd << " --account #{opts[:account]}" if opts[:account]
     cmd
   end

@@ -26,13 +26,13 @@ end
 describe "ey deploy" do
   given "integration"
 
-  def command_to_run(options)
+  def command_to_run(opts)
     cmd = "deploy"
-    cmd << " --environment #{options[:env]}" if options[:env]
-    cmd << " --app #{options[:app]}" if options[:app]
-    cmd << " --account #{options[:account]}" if options[:account]
-    cmd << " --ref #{options[:ref]}" if options[:ref]
-    cmd << " --verbose" if options[:verbose]
+    cmd << " --environment #{opts[:environment]}" if opts[:environment]
+    cmd << " --app #{opts[:app]}" if opts[:app]
+    cmd << " --account #{opts[:account]}" if opts[:account]
+    cmd << " --ref #{opts[:ref]}" if opts[:ref]
+    cmd << " --verbose" if opts[:verbose]
     cmd
   end
 

@@ -58,14 +58,14 @@ shared_examples_for "it takes an environment name and an app name and an account
     end
 
     it "fails when the app and environment are ambiguous across accounts" do
-      run_ey({:env => "giblets", :app => "rails232app", :ref => 'master'}, {:expect_failure => true})
+      run_ey({:environment => "giblets", :app => "rails232app", :ref => 'master'}, {:expect_failure => true})
       @err.should match(/Multiple app deployments possible/i)
       @err.should match(/ey \S+ --environment='giblets' --app='rails232app' --account='account_2'/i)
       @err.should match(/ey \S+ --environment='giblets' --app='rails232app' --account='main'/i)
     end
 
     it "runs when specifying the account disambiguates the app to deploy" do
-      run_ey({:env => "giblets", :app => "rails232app", :account => "main", :ref => 'master'})
+      run_ey({:environment => "giblets", :app => "rails232app", :account => "main", :ref => 'master'})
       verify_ran(make_scenario({
           :environment      => 'giblets',
           :application      => 'rails232app',
@@ -85,14 +85,14 @@ shared_examples_for "it takes an environment name and an account name" do
     end
 
     it "fails when the app and environment are ambiguous across accounts" do
-      run_ey({:env => "giblets"}, {:expect_failure => true})
+      run_ey({:environment => "giblets"}, {:expect_failure => true})
       @err.should match(/multiple environments possible/i)
       @err.should match(/ey \S+ --environment='giblets' --account='account_2'/i)
       @err.should match(/ey \S+ --environment='giblets' --account='main'/i)
     end
 
     it "runs when specifying the account disambiguates the app to deploy" do
-      run_ey({:env => "giblets", :account => "main"})
+      run_ey({:environment => "giblets", :account => "main"})
       verify_ran(make_scenario({
           :environment      => 'giblets',
           :application      => 'rails232app',
@@ -108,7 +108,7 @@ shared_examples_for "it takes an environment name" do
 
   it "operates on the current environment by default" do
     api_scenario "one app, one environment"
-    run_ey({:env => nil}, {:debug => true})
+    run_ey({:environment => nil}, {:debug => true})
     verify_ran(make_scenario({
           :environment      => 'giblets',
           :application      => 'rails232app',
@@ -119,7 +119,7 @@ shared_examples_for "it takes an environment name" do
 
   it "complains when you specify a nonexistent environment" do
     api_scenario "one app, one environment"
-    run_ey({:env => 'typo-happens-here'}, {:expect_failure => true})
+    run_ey({:environment => 'typo-happens-here'}, {:expect_failure => true})
     @err.should match(/no environment named 'typo-happens-here'/i)
   end
 
@@ -138,7 +138,7 @@ shared_examples_for "it takes an environment name" do
     end
 
     it "works (and does not complain about git remotes)" do
-      run_ey({:env => 'giblets'}) unless @takes_app_name
+      run_ey({:environment => 'giblets'}) unless @takes_app_name
     end
 
   end
@@ -149,7 +149,7 @@ shared_examples_for "it takes an environment name" do
     end
 
     it "complains when the substring is ambiguous" do
-      run_ey({:env => 'staging'}, {:expect_failure => true})
+      run_ey({:environment => 'staging'}, {:expect_failure => true})
       if @takes_app_name
         @err.should match(/multiple app deployments possible/i)
       else
@@ -159,7 +159,7 @@ shared_examples_for "it takes an environment name" do
 
     it "works when the substring is unambiguous" do
       api_scenario "one app, many similarly-named environments"
-      run_ey({:env => 'prod'}, {:debug => true})
+      run_ey({:environment => 'prod'}, {:debug => true})
       verify_ran(make_scenario({
             :environment      => 'railsapp_production',
             :application      => 'rails232app',
@@ -171,7 +171,7 @@ shared_examples_for "it takes an environment name" do
 
   it "complains when it can't guess the environment and its name isn't specified" do
     api_scenario "one app, one environment, not linked"
-    run_ey({:env => nil}, {:expect_failure => true})
+    run_ey({:environment => nil}, {:expect_failure => true})
     @err.should match(/there is no application configured/i)
   end
 end
@@ -183,7 +183,7 @@ shared_examples_for "it takes an app name" do
   it "allows you to specify a valid app" do
     api_scenario "one app, one environment"
     Dir.chdir(Dir.tmpdir) do
-      run_ey({:env => 'giblets', :app => 'rails232app', :ref => 'master'}, {})
+      run_ey({:environment => 'giblets', :app => 'rails232app', :ref => 'master'}, {})
       verify_ran(make_scenario({
             :environment      => 'giblets',
             :application      => 'rails232app',
@@ -208,7 +208,7 @@ shared_examples_for "it takes an app name" do
 
   it "complains when you specify a nonexistant app" do
     api_scenario "one app, one environment"
-    run_ey({:env => 'giblets', :app => 'P-time-SAT-solver', :ref => 'master'},
+    run_ey({:environment => 'giblets', :app => 'P-time-SAT-solver', :ref => 'master'},
       {:expect_failure => true})
     @err.should =~ /no app.*P-time-SAT-solver/i
   end
@@ -221,7 +221,7 @@ shared_examples_for "it invokes engineyard-serverside" do
   context "with arguments" do
     before(:all) do
       api_scenario "one app, one environment"
-      run_ey({:env => 'giblets', :verbose => true})
+      run_ey({:environment => 'giblets', :verbose => true})
     end
 
     it "passes --verbose to engineyard-serverside" do
@@ -274,13 +274,13 @@ shared_examples_for "it invokes engineyard-serverside" do
     end
 
     it "raises an error if SSH fails" do
-      run_ey({:env => 'giblets'},
+      run_ey({:environment => 'giblets'},
         {:prepend_to_path => {'ssh' => exiting_ssh(255)}, :expect_failure => true})
       @err.should =~ /SSH connection to \S+ failed/
     end
 
     it "installs engineyard-serverside if it's missing" do
-      run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(1)}})
+      run_ey({:environment => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(1)}})
 
       gem_install_command = @ssh_commands.find do |command|
         command =~ /gem install engineyard-serverside/
@@ -290,7 +290,7 @@ shared_examples_for "it invokes engineyard-serverside" do
     end
 
     it "does not try to install engineyard-serverside if it's already there" do
-      run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(0)}})
+      run_ey({:environment => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(0)}})
       @ssh_commands.should_not have_command_like(/gem install engineyard-serverside/)
       ver = Regexp.quote(EY::ENGINEYARD_SERVERSIDE_VERSION)
       @ssh_commands.should have_command_like(/engineyard-serverside _#{ver}_ deploy/)

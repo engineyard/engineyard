@@ -11,7 +11,7 @@ describe "ey recipes upload" do
 
   def command_to_run(opts)
     cmd = "recipes upload"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd << " --environment #{opts[:environment]}" if opts[:environment]
     cmd << " --account #{opts[:account]}" if opts[:account]
     cmd
   end
