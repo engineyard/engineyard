@@ -43,8 +43,8 @@ shared_examples_for "it requires an unambiguous git repo" do
     run_ey({}, {:expect_failure => true})
     @err.should =~ /ambiguous/
     @err.should =~ /specify one of the following environments/
-    @err.should =~ /giblets/
-    @err.should =~ /keycollector_production/
+    @err.should =~ /giblets \(main\)/
+    @err.should =~ /keycollector_production \(main\)/
   end
 end
 
