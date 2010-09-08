@@ -35,6 +35,7 @@ describe EY::Resolver do
     @staging    = new_app_deployment(:environment_name => "app_staging"   , :app_name => "app",           :account_name => "ey", :repository_uri => "git://github.com/repo/app.git")
     @big        = new_app_deployment(:environment_name => "bigapp_staging", :app_name => "bigapp",        :account_name => "ey", :repository_uri => "git://github.com/repo/bigapp.git")
     @ey_dup     = new_app_deployment(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account_name => "ey", :repository_uri => "git://github.com/repo/dup.git")
+    @sumo       = new_app_deployment(:environment_name => "sumo_wrestler" , :app_name => "app_duplicate", :account_name => "ey", :repository_uri => "git://github.com/repo/dup.git")
     @me_dup     = new_app_deployment(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account_name => "me", :repository_uri => "git://github.com/repo/dup.git")
   end
 
@@ -78,6 +79,17 @@ describe EY::Resolver do
       lambda { resolver.app_and_environment(:repo => repo("git://github.com/repo/app.git")) }.should raise_error(EY::MultipleMatchesError)
     end
 
+    it "does not include duplicate copies of apps across accounts when raising a more than one match error" do
+      do_include = "--environment='sumo_wrestler' --app='app_duplicate' --account='ey'"
+      do_not_include = "--environment='sumo_wrestler' --app='app_duplicate' --account='me'"
+      lambda do
+        resolver.app_and_environment(:repo => repo("git://github.com/repo/dup.git"))
+      end.should raise_error(EY::MultipleMatchesError) {|e|
+        e.message.should include(do_include)
+        e.message.should_not include(do_not_include)
+      }
+    end
+
     it "returns one deployment whene there is only one match" do
       resolver.app_and_environment(:account_name => "ey", :app_name => "big").should resolve_to(@big)
       resolver.app_and_environment(:environment_name => "production").should resolve_to(@production)
@@ -96,8 +108,7 @@ describe EY::Resolver do
     end
 
     it "scopes searches under the correct account" do
-      resolver.app_and_environment(:account_name => "ey", :environment_name => "dup").should resolve_to(@ey_dup)
-      resolver.app_and_environment(:account_name => "ey", :app_name => "dup").should resolve_to(@ey_dup)
+      resolver.app_and_environment(:account_name => "ey", :environment_name => "dup", :app_name => "dup").should resolve_to(@ey_dup)
       resolver.app_and_environment(:account_name => "me", :environment_name => "dup").should resolve_to(@me_dup)
       resolver.app_and_environment(:account_name => "me", :app_name => "dup").should resolve_to(@me_dup)
     end

@@ -64,7 +64,7 @@ module EY
         message = "Multiple app deployments possible, please be more specific:\n\n"
         candidates.map{|c| [c[:account_name], c[:app_name]]}.uniq.each do |account_name, app_name|
           message << "#{app_name}\n"
-          candidates.select {|x| x[:app_name] == app_name }.map{|x| x[:environment_name]}.uniq.each do |env_name|
+          candidates.select {|x| x[:app_name] == app_name && x[:account_name] == account_name}.map{|x| x[:environment_name]}.uniq.each do |env_name|
             message << "\t#{env_name} # ey <command> --environment='#{env_name}' --app='#{app_name}' --account='#{account_name}'\n"
           end
         end
