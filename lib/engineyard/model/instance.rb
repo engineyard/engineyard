@@ -96,6 +96,18 @@ module EY
               "cd `mktemp -d` && #{gem_path} install engineyard-serverside --no-rdoc --no-ri -v #{ENGINEYARD_SERVERSIDE_VERSION}"]))
       end
 
+    protected
+
+      def engineyard_serverside_hostname
+        # If we tell engineyard-serverside to use 'localhost', it'll run
+        # commands on the instance directly (#system). If we give it the
+        # instance's actual hostname, it'll SSH to itself.
+        #
+        # Using 'localhost' instead of its EC2 hostname speeds up
+        # deploys on solos and single-app-server clusters significantly.
+        app_master? ? 'localhost' : hostname
+      end
+
     private
 
       def ssh(remote_command, output = true)
@@ -118,13 +130,13 @@ module EY
         instance_args = ['']
         if !instances.empty?
           instance_args << '--instances'
-          instance_args += instances.collect { |i| i.public_hostname }
+          instance_args += instances.collect { |i| i.engineyard_serverside_hostname }
 
           instance_args << '--instance-roles'
-          instance_args += instances.collect { |i| [i.public_hostname, i.role].join(':') }
+          instance_args += instances.collect { |i| [i.engineyard_serverside_hostname, i.role].join(':') }
 
           instance_args << '--instance-names'
-          instance_args += instances.collect { |i| i.name ? [i.public_hostname, i.name].join(':') : nil }.compact
+          instance_args += instances.collect { |i| i.name ? [i.engineyard_serverside_hostname, i.name].join(':') : nil }.compact
         end
 
         framework_arg = ['--framework-env', environment.framework_env]
@@ -138,6 +150,10 @@ module EY
 
       def engineyard_serverside_path
         "/usr/local/ey_resin/ruby/bin/engineyard-serverside"
+      end
+
+      def app_master?
+        environment.app_master == self
       end
 
       def gem_path
