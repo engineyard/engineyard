@@ -151,8 +151,8 @@ shared_examples_for "it invokes engineyard-serverside" do
     it "passes along instance information to engineyard-serverside" do
       instance_args = [
         /--instances app_master[^\s]+ app_hostname[^\s]+ util_fluffy/,
-        /--instance_roles app_master[^\s]+:app_master app_hostname[^\s]+:app util_fluffy[^\s]+:util/,
-        /--instance_names util_fluffy[^\s]+:fluffy/
+        /--instance-roles app_master[^\s]+:app_master app_hostname[^\s]+:app util_fluffy[^\s]+:util/,
+        /--instance-names util_fluffy[^\s]+:fluffy/
       ]
 
       db_instance = /db_master/

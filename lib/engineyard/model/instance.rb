@@ -120,10 +120,10 @@ module EY
           instance_args << '--instances'
           instance_args += instances.collect { |i| i.public_hostname }
 
-          instance_args << '--instance_roles'
+          instance_args << '--instance-roles'
           instance_args += instances.collect { |i| [i.public_hostname, i.role].join(':') }
 
-          instance_args << '--instance_names'
+          instance_args << '--instance-names'
           instance_args += instances.collect { |i| i.name ? [i.public_hostname, i.name].join(':') : nil }.compact
         end
 
