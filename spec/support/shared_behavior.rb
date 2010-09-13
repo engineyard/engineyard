@@ -169,7 +169,17 @@ shared_examples_for "it invokes engineyard-serverside" do
     it "passes the framework environment" do
       @ssh_commands.last.should match(/--framework-env production/)
     end
+  end
 
+  context "when no instances have names" do
+    before(:each) do
+      api_scenario "two apps"
+      run_ey({:env => 'giblets', :app => 'rails232app', :ref => 'master', :verbose => true})
+    end
+
+    it "omits the --instance-names parameter" do
+      @ssh_commands.last.should_not include("--instance-names")
+    end
   end
 
 

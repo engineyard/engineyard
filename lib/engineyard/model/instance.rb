@@ -135,8 +135,11 @@ module EY
           instance_args << '--instance-roles'
           instance_args += instances.collect { |i| [i.engineyard_serverside_hostname, i.role].join(':') }
 
-          instance_args << '--instance-names'
-          instance_args += instances.collect { |i| i.name ? [i.engineyard_serverside_hostname, i.name].join(':') : nil }.compact
+          instance_names = instances.collect { |i| i.name ? [i.engineyard_serverside_hostname, i.name].join(':') : nil }.compact
+          unless instance_names.empty?
+            instance_args << '--instance-names'
+            instance_args += instance_names
+          end
         end
 
         framework_arg = ['--framework-env', environment.framework_env]
