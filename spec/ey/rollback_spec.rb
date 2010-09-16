@@ -55,7 +55,7 @@ describe "ey rollback" do
       after { File.unlink("ey.yml") }
 
       it "overrides what's in ey.yml" do
-        ey "deploy --extra-deploy-hook-options beer:esb"
+        ey "rollback --extra-deploy-hook-options beer:esb"
         extra_deploy_hook_options['beer'].should == 'esb'
       end
     end

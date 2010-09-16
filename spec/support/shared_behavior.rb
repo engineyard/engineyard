@@ -150,8 +150,8 @@ shared_examples_for "it invokes engineyard-serverside" do
 
     it "passes along instance information to engineyard-serverside" do
       instance_args = [
-        /--instances localhost app_hostname[^\s]+ util_fluffy/,
-        /--instance-roles localhost:app_master app_hostname[^\s]+:app util_fluffy[^\s]+:util/,
+        /--instances app_hostname[^\s]+ localhost util_fluffy/,
+        /--instance-roles app_hostname[^\s]+:app localhost:app_master util_fluffy[^\s]+:util/,
         /--instance-names util_fluffy_hostname[^\s]+:fluffy/
       ]
 
@@ -166,9 +166,6 @@ shared_examples_for "it invokes engineyard-serverside" do
       @ssh_commands.last.should_not =~ /#{db_instance}/
     end
 
-    it "passes the framework environment" do
-      @ssh_commands.last.should match(/--framework-env production/)
-    end
   end
 
   context "when no instances have names" do
@@ -181,48 +178,6 @@ shared_examples_for "it invokes engineyard-serverside" do
       @ssh_commands.last.should_not include("--instance-names")
     end
   end
-
-
-  context "engineyard-serverside installation" do
-    before(:all) do
-      api_scenario "one app, one environment"
-    end
-
-    before(:each) do
-      ENV.delete "NO_SSH"
-    end
-
-    after(:each) do
-      ENV['NO_SSH'] = "true"
-    end
-
-    def exiting_ssh(exit_code)
-      "#!/usr/bin/env ruby\n exit!(#{exit_code}) if ARGV.to_s =~ /gem list engineyard-serverside/"
-    end
-
-    it "raises an error if SSH fails" do
-      run_ey({:env => 'giblets'},
-        {:prepend_to_path => {'ssh' => exiting_ssh(255)}, :expect_failure => true})
-      @err.should =~ /SSH connection to \S+ failed/
-    end
-
-    it "installs engineyard-serverside if it's missing" do
-      run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(1)}})
-
-      gem_install_command = @ssh_commands.find do |command|
-        command =~ /gem install engineyard-serverside/
-      end
-      gem_install_command.should_not be_nil
-      gem_install_command.should =~ %r{/usr/local/ey_resin/ruby/bin/gem install.*engineyard-serverside}
-    end
-
-    it "does not try to install engineyard-serverside if it's already there" do
-      run_ey({:env => 'giblets'}, {:prepend_to_path => {'ssh' => exiting_ssh(0)}})
-      @ssh_commands.should_not have_command_like(/gem install engineyard-serverside/)
-      ver = Regexp.quote(EY::ENGINEYARD_SERVERSIDE_VERSION)
-      @ssh_commands.should have_command_like(/engineyard-serverside _#{ver}_ deploy/)
-    end
-  end  
 end
 
 shared_examples_for "model collections" do

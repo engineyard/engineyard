@@ -61,10 +61,6 @@ module EY
                         raise(DeployArgumentError)
                     end
 
-      EY.ui.info "Connecting to the server..."
-
-      loudly_check_engineyard_serverside(environment)
-
       EY.ui.info "Beginning deploy for '#{app.name}' in '#{environment.name}' on server..."
 
       deploy_options = {'extras' => options[:extra_deploy_hook_options]}
@@ -147,8 +143,6 @@ module EY
     def rollback
       app = fetch_app(options[:app])
       env = fetch_environment(options[:environment], app)
-
-      loudly_check_engineyard_serverside(env)
 
       EY.ui.info("Rolling back '#{app.name}' in '#{env.name}'")
       if env.rollback(app,

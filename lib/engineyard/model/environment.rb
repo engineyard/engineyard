@@ -31,10 +31,6 @@ module EY
         master
       end
 
-      def ensure_engineyard_serverside_present(&blk)
-        app_master!.ensure_engineyard_serverside_present(&blk)
-      end
-
       def deploy(app, ref, deploy_options={})
         app_master!.deploy(app,
           ref,
