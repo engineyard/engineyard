@@ -45,8 +45,8 @@ desc "Release gem"
 task :release do
   new_version = bump
 
-  system("git add lib/engineyard/version.rb lib/engineyard/serverside_version.rb")
-  system("git commit -m 'Bump versions for release #{new_version}'")
+  system("git add lib/engineyard/version.rb")
+  system("git commit -m 'Bump version for release #{new_version}'")
   system("git tag v#{new_version}")
 
   system("gem build engineyard.gemspec")
