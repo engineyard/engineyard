@@ -51,7 +51,7 @@ module EY
 
     def self.request(path, opts={})
       require 'rest_client'
-      require 'json/pure'
+      require 'json'
 
       url = EY.config.endpoint + "api/v2#{path}"
       method = ((meth = opts.delete(:method)) && meth.to_s || "get").downcase.to_sym
