@@ -79,6 +79,24 @@ module EY
       raise exists ? EnvironmentUnlinkedError.new(options[:environment]) : e
     end
 
+    desc "metadata [KEY] [--environment ENVIRONMENT] [--keys]", "Get metadata for this environment."
+    long_desc <<-DESC
+      * Get metadata by key, or
+      * Get list of metadata keys (--keys).
+    DESC
+
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :desc => "Environment to use"
+    method_option :keys, :type => :boolean, :aliases => %(-k)
+    def metadata(key=nil)
+      if options[:keys]
+        puts EY::Model::Metadata::KEYS
+      else
+        env = fetch_environment_without_app(options[:environment])
+        puts env.metadata.get(key)
+      end
+    end
+
     desc "environments [--all]", "List environments for this app; use --all to list all environments."
     long_desc <<-DESC
       By default, environments for this app are displayed. The --all option will

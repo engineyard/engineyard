@@ -1,16 +1,21 @@
 module EY
   module Model
-    class Environment < ApiStruct.new(:id, :name, :framework_env, :instances, :instances_count, :apps, :app_master, :username, :stack_name, :api)
+    class Environment < ApiStruct.new(:id, :name, :framework_env, :instances, :instances_count, :apps, :app_master, :stack_name, :api)
 
       attr_accessor :ignore_bad_master
+      attr_accessor :metadata
 
       def self.from_hash(hash)
         super.tap do |env|
-          env.username = hash['ssh_username']
+          env.metadata = EY::Model::Metadata.new hash
           env.apps = App.from_array(env.apps, :api => env.api)
           env.instances = Instance.from_array(hash['instances'], :environment => env)
           env.app_master = Instance.from_hash(env.app_master.merge(:environment => env)) if env.app_master
         end
+      end
+      
+      def username
+        metadata.ssh_username
       end
 
       def self.from_array(*)
