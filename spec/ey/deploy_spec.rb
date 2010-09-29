@@ -165,6 +165,17 @@ describe "ey deploy" do
     end
   end
 
+  context "the --framework-env option" do
+    before(:each) do
+      api_scenario "one app, one environment"
+    end
+
+    it "passes the framework environment" do
+      ey "deploy"
+      @ssh_commands.last.should match(/--framework-env production/)
+    end
+  end
+
   context "choosing something to deploy" do
     define_git_repo('deploy test') do
       # we'll have one commit on master
@@ -188,27 +199,27 @@ describe "ey deploy" do
     context "without a configured default branch" do
       it "defaults to the checked-out local branch" do
         ey "deploy"
-        @ssh_commands.last.should =~ /--branch current-branch/
+        @ssh_commands.last.should =~ /--ref current-branch/
       end
 
       it "deploys another branch if given" do
         ey "deploy --ref master"
-        @ssh_commands.last.should =~ /--branch master/
+        @ssh_commands.last.should =~ /--ref master/
       end
 
       it "deploys a tag if given" do
         ey "deploy --ref v1"
-        @ssh_commands.last.should =~ /--branch v1/
+        @ssh_commands.last.should =~ /--ref v1/
       end
 
       it "allows using --branch to specify a branch" do
         ey "deploy --branch master"
-        @ssh_commands.last.should match(/--branch master/)
+        @ssh_commands.last.should match(/--ref master/)
       end
 
       it "allows using --tag to specify the tag" do
         ey "deploy --tag v1"
-        @ssh_commands.last.should match(/--branch v1/)
+        @ssh_commands.last.should match(/--ref v1/)
       end
     end
 
@@ -238,7 +249,7 @@ describe "ey deploy" do
 
       it "deploys the default branch by default" do
         ey "deploy"
-        @ssh_commands.last.should =~ /--branch master/
+        @ssh_commands.last.should =~ /--ref master/
       end
 
       it "complains about a non-default branch without --ignore-default_branch" do
@@ -248,7 +259,7 @@ describe "ey deploy" do
 
       it "deploys a non-default branch with --ignore-default-branch" do
         ey "deploy -r current-branch --ignore-default-branch"
-        @ssh_commands.last.should =~ /--branch current-branch/
+        @ssh_commands.last.should =~ /--ref current-branch/
       end
     end
   end
@@ -261,6 +272,40 @@ describe "ey deploy" do
     it "lets you choose by complete name even if the complete name is ambiguous" do
       ey "deploy --environment railsapp_staging"
       @out.should match(/Beginning deploy for.*'railsapp_staging'/)
+    end
+  end
+
+  context "--extra-deploy-hook-options" do
+    before(:all) do
+      api_scenario "one app, one environment"
+    end
+
+    def extra_deploy_hook_options
+      if @ssh_commands.last =~ /--config (.*?)(?: -|$)/
+        # the echo strips off the layer of shell escaping, leaving us
+        # with pristine JSON
+        JSON.parse `echo #{$1}`
+      end
+    end
+
+    it "passes the extra configuration to engineyard-serverside" do
+      ey "deploy --extra-deploy-hook-options some:stuff more:crap"
+      extra_deploy_hook_options.should_not be_nil
+      extra_deploy_hook_options['some'].should == 'stuff'
+      extra_deploy_hook_options['more'].should == 'crap'
+    end
+
+    context "when ey.yml is present" do
+      before do
+        write_yaml({"environments" => {"giblets" => {"beer" => "stout"}}})
+      end
+
+      after { File.unlink("ey.yml") }
+
+      it "overrides what's in ey.yml" do
+        ey "deploy --extra-deploy-hook-options beer:esb"
+        extra_deploy_hook_options['beer'].should == 'esb'
+      end
     end
   end
 
@@ -281,7 +326,7 @@ describe "ey deploy" do
     it "allows you to specify an app when not in a directory" do
       ey "deploy --app rails232app --ref master"
       @ssh_commands.last.should match(/--app rails232app/)
-      @ssh_commands.last.should match(/--branch master/)
+      @ssh_commands.last.should match(/--ref master/)
     end
 
     it "requires that you specify a ref when specifying the application" do

@@ -6,6 +6,7 @@ gem "highline",    '~>1.5.2'
 gem "ruby-termios"
 gem "json_pure"
 gem "escape",      "~>0.0.4"
+gem "engineyard-serverside-adapter", '=1.3.3'
 
 group :test do
   gem "open4"
@@ -17,5 +18,4 @@ group :test do
   gem "bundler"
   gem "sinatra"
   gem "realweb", "~>0.1.6"
-  gem "ruby-debug"
 end

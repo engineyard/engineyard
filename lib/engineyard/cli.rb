@@ -48,6 +48,8 @@ module EY
       :desc => "Name of the account you want to deploy in"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
+    method_option :extra_deploy_hook_options, :type => :hash, :default => {},
+      :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
     def deploy
       app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
       environment.ignore_bad_master = options[:ignore_bad_master]
@@ -60,18 +62,9 @@ module EY
                         raise(DeployArgumentError)
                     end
 
-      EY.ui.info "Connecting to the server..."
-
-      loudly_check_engineyard_serverside(environment)
-
       EY.ui.info "Beginning deploy for '#{app.name}' in '#{environment.name}' on server..."
 
-      # missing means do what the yaml file says
-      # nil means don't do it
-      # true (the lazy default) means do it with the custom command
-      # a string means do it with this specific command
-
-      deploy_options = {}
+      deploy_options = {'extras' => options[:extra_deploy_hook_options]}
       deploy_options['migrate'] = options['migrate'] if options.has_key?('migrate')
       deploy_options['verbose'] = options['verbose'] if options.has_key?('verbose')
 
@@ -98,8 +91,8 @@ module EY
     def environments
       if options[:all] && options[:simple]
         # just put each env
-        api.environments.each do |env|
-          puts env.name
+        api.environments.each do |environment|
+          puts environment.name
         end
       else
         apps = get_apps(options[:all])
@@ -131,9 +124,9 @@ module EY
     method_option :account, :type => :string, :aliases => %w(-c),
       :desc => "Name of the account you want to rebuild in"
     def rebuild
-      env = fetch_environment(options[:environment], options[:account])
-      EY.ui.debug("Rebuilding #{env.name}")
-      env.rebuild
+      environment = fetch_environment(options[:environment], options[:account])
+      EY.ui.debug("Rebuilding #{environment.name}")
+      environment.rebuild
     end
 
     desc "rollback [--environment ENVIRONMENT]", "Rollback to the previous deploy."
@@ -150,13 +143,13 @@ module EY
       :desc => "Name of the account you want to roll back in"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
+    method_option :extra_deploy_hook_options, :type => :hash, :default => {},
+      :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
     def rollback
       app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
 
-      loudly_check_engineyard_serverside(environment)
-
       EY.ui.info("Rolling back '#{app.name}' in '#{environment.name}'")
-      if environment.rollback(app, options[:verbose])
+      if environment.rollback(app, options[:extra_deploy_hook_options], options[:verbose])
         EY.ui.info "Rollback complete"
       else
         raise EY::Error, "Rollback failed"
@@ -192,13 +185,13 @@ module EY
       :desc => "Run command on the utility servers with the given names. If no names are given, run on all utility servers."
 
     def ssh(cmd=nil)
-      env = fetch_environment(options[:environment], options[:account])
-      hosts = ssh_hosts(options, env)
+      environment = fetch_environment(options[:environment], options[:account])
+      hosts = ssh_hosts(options, environment)
 
       raise NoCommandError.new if cmd.nil? and hosts.count != 1
 
       hosts.each do |host|
-        system "ssh #{env.username}@#{host} #{cmd}"
+        system "ssh #{environment.username}@#{host} #{cmd}"
       end
     end
 
@@ -214,7 +207,7 @@ module EY
         return lambda {|instance| %w(solo app_master        ).include?(instance.role) }
       end
 
-      def ssh_hosts(opts, env)
+      def ssh_hosts(opts, environment)
         if opts[:utilities] and not opts[:utilities].respond_to?(:include?)
           includes_everything = []
           class << includes_everything
@@ -225,8 +218,8 @@ module EY
           filter = ssh_host_filter(opts)
         end
 
-        instances = env.instances.select {|instance| filter[instance] }
-        raise NoInstancesError.new(env.name) if instances.empty?
+        instances = environment.instances.select {|instance| filter[instance] }
+        raise NoInstancesError.new(environment.name) if instances.empty?
         return instances.map { |instance| instance.public_hostname }
       end
     end
@@ -242,17 +235,17 @@ module EY
     method_option :account, :type => :string, :aliases => %w(-c),
       :desc => "Name of the account you want to deploy in"
     def logs
-      env = fetch_environment(options[:environment], options[:account])
-      env.logs.each do |log|
+      environment = fetch_environment(options[:environment], options[:account])
+      environment.logs.each do |log|
         EY.ui.info log.instance_name
 
         if log.main
-          EY.ui.info "Main logs for #{env.name}:"
+          EY.ui.info "Main logs for #{environment.name}:"
           EY.ui.say  log.main
         end
 
         if log.custom
-          EY.ui.info "Custom logs for #{env.name}:"
+          EY.ui.info "Custom logs for #{environment.name}:"
           EY.ui.say  log.custom
         end
       end

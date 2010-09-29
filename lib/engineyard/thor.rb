@@ -11,20 +11,6 @@ module EY
       @repo ||= EY::Repo.new
     end
 
-    def loudly_check_engineyard_serverside(environment)
-      environment.ensure_engineyard_serverside_present do |action|
-        case action
-        when :installing
-          EY.ui.warn "Instance does not have server-side component installed"
-          EY.ui.info "Installing server-side component..."
-        when :upgrading
-          EY.ui.info "Upgrading server-side component..."
-        else
-          # nothing slow is happening, so there's nothing to say
-        end
-      end
-    end
-
     def fetch_environment(environment_name, account_name=nil)
       environment_name ||= EY.config.default_environment
       options = {

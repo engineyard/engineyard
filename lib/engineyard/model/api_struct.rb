@@ -14,8 +14,10 @@ module EY
 
           def self.from_hash(hash)
             return nil unless hash
-            members = new.members
-            values = members.map{|a| hash.has_key?(a.to_sym) ? hash[a.to_sym] : hash[a] }
+            # in ruby 1.8, #members is an array of strings
+            # in ruby 1.9, #members is an array of symbols
+            members = new.members.map {|m| m.to_sym}
+            values = members.map{|a| hash.has_key?(a) ? hash[a] : hash[a.to_s] }
             new(*values)
           end
 

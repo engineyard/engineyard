@@ -32,49 +32,18 @@ module EY
         master
       end
 
-      def ensure_engineyard_serverside_present(&blk)
-        app_master!.ensure_engineyard_serverside_present(&blk)
-      end
-
       def deploy(app, ref, deploy_options={})
-        # regarding deploy_options['migrate']:
-        #
-        # missing means migrate how the yaml file says to
-        # nil means don't migrate
-        # true means migrate w/custom command (if present) or default
-        # a string means migrate with this specific command
-
-        default_migration_command = config['migration_command'] || 'rake db:migrate --trace'
-
-        migration_from_config = if config.has_key?('migrate')
-                                  if config['migrate']
-                                    default_migration_command
-                                  else
-                                    nil
-                                  end
-                                else
-                                  default_migration_command
-                                end
-
-        migration_from_command_line = if deploy_options['migrate'].nil?
-                                        nil
-                                      elsif deploy_options['migrate'].respond_to?(:to_str)
-                                        deploy_options['migrate'].to_str
-                                      else
-                                        default_migration_command
-                                      end
-
-        cmd = if deploy_options.has_key?('migrate')
-                migration_from_command_line
-              else
-                migration_from_config
-              end
-
-        app_master!.deploy(app, ref, cmd, config, deploy_options['verbose'])
+        app_master!.deploy(app,
+          ref,
+          migration_command(deploy_options),
+          config.merge(deploy_options['extras']),
+          deploy_options['verbose'])
       end
 
-      def rollback(app, verbose=false)
-        app_master!.rollback(app, config, verbose)
+      def rollback(app, extra_deploy_hook_options={}, verbose=false)
+        app_master!.rollback(app,
+          config.merge(extra_deploy_hook_options),
+          verbose)
       end
 
       def take_down_maintenance_page(app, verbose=false)
@@ -152,7 +121,50 @@ module EY
       def shorten_name_for(app)
         name.gsub(/^#{Regexp.quote(app.name)}_/, '')
       end
+
+      private
+
+      def migration_command(deploy_options)
+        # regarding deploy_options['migrate']:
+        #
+        # missing means migrate how the yaml file says to
+        # nil means don't migrate
+        # true means migrate w/custom command (if present) or default
+        # a string means migrate with this specific command
+        if deploy_options.has_key?('migrate')
+          migration_command_from_command_line(deploy_options)
+        else
+          migration_command_from_config
+        end
+      end
+
+      def migration_command_from_config
+        if config.has_key?('migrate')
+          if config['migrate']
+            default_migration_command
+          else
+            nil
+          end
+        else
+          default_migration_command
+        end
+      end
+
+      def migration_command_from_command_line(deploy_options)
+        if deploy_options['migrate'].nil?
+          nil
+        elsif deploy_options['migrate'].respond_to?(:to_str)
+          deploy_options['migrate'].to_str
+        else
+          default_migration_command
+        end
+      end
+
+
+      def default_migration_command
+        config['migration_command'] || 'rake db:migrate --trace'
+      end
+
     end
   end
-
 end

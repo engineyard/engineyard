@@ -13,7 +13,6 @@ module EY
         :desc => "Name of the account you want to deploy in"
       def enable
         app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
-        loudly_check_engineyard_serverside(environment)
         EY.ui.info "Taking down maintenance page for '#{app.name}' in '#{environment.name}'"
         environment.take_down_maintenance_page(app, options[:verbose])
       end
@@ -41,7 +40,6 @@ module EY
         :desc => "Name of the account you want to deploy in"
       def disable
         app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
-        loudly_check_engineyard_serverside(environment)
         EY.ui.info "Putting up maintenance page for '#{app.name}' in '#{environment.name}'"
         environment.put_up_maintenance_page(app, options[:verbose])
       end
