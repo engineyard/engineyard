@@ -110,15 +110,15 @@ module EY
 
   class BranchMismatchError < EY::Error
     def initialize(default_branch, branch)
-      super %|Your deploy branch is set to "#{default_branch}".\n| +
-        %|If you want to deploy branch "#{branch}", use --ignore-default_branch.|
+      super(%|Your deploy branch is set to "#{default_branch}".\n| +
+        %|If you want to deploy branch "#{branch}", use --ignore-default_branch.|)
     end
   end
 
   class DeployArgumentError < EY::Error
     def initialize
-      super %("deploy" was called incorrectly. Call as "deploy [--environment <env>] [--ref <branch|tag|ref>]"\n) +
-        %|You can set default environments and branches in ey.yml|
+      super(%("deploy" was called incorrectly. Call as "deploy [--environment <env>] [--ref <branch|tag|ref>]"\n) +
+        %|You can set default environments and branches in ey.yml|)
     end
   end
 end
