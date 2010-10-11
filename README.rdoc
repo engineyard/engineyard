@@ -1,5 +1,8 @@
 = ey
 
+Provides the <tt>ey</tt> command and also helpers for capistrano tasks.
+
+== The ey command
 
 Command:
   ey deploy
@@ -146,3 +149,52 @@ Command:
     Note: this command is a bit picky about its ordering. To run a command with arguments on all servers, like "rm -f /some/file", you need to order it like so:
 
     $ ey ssh "rm -f /some/file" -e my-environment --all
+
+== capistrano helpers
+
+If you want to use this gem's capistrano helpers, then add this to your <tt>Capfile</tt>
+
+    load "#{Gem.searcher.find('engineyard').full_gem_path}/lib/engineyard/capistrano_tasks.rb"
+    [...]
+    task :my_app_production do
+      [...]
+      set :engineyard_environment, 'my_app_production'
+      [...]
+      find_and_execute_task 'engineyard_roles'
+    end
+
+Then you can create your own tasks that depend on these roles (<tt>app_master</tt>, <tt>db_master</tt>, <tt>app_slave</tt>, <tt>db_slave</tt>, <tt>app</tt>, <tt>db</tt>, <tt>util</tt>, and <tt>solo</tt>)
+
+    task :tail_delayed_job, :roles => :util do
+      run "#{sudo} tail -f /data/my_app/shared/log/delayed_job.log" do |channel, stream, data|
+        puts
+        puts "== #{channel[:server]}"
+        puts data.chomp
+        break if stream == :err
+      end
+    end
+
+You would call your custom task like this
+
+    $ cap my_app_production tail_delayed_job
+    [...tail of delayed job log files on utility instances...]
+
+If you want to use *traditional* eycap deploy recipes, add these lines in your <tt>Capfile</tt>
+
+    require 'eycap/recipes'
+    [...]
+    set :user, 'deploy'
+    set :runner, 'deploy'
+    ssh_options[:compression] = false
+    [...]
+    task :my_app_production do
+      [...]
+      set :rails_env, 'production'
+      set :deploy_to, '/data/my_app'
+      [...]
+    end
+
+Then you can use old stuff like monit:status
+
+    $ cap my_app_production monit:status
+    [...status of monit daemons on all your app servers...]
