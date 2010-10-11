@@ -41,6 +41,16 @@ Command:
     main configuration logs.
 
 Command:
+  ey metadata
+
+  Options:
+    -k, [--keys]                     
+    -e, [--environment=ENVIRONMENT]  # Environment to use
+
+  Description:
+    Lookup metadata about the EngineYard AppCloud environment you are operating in. Use --keys to list all available keys.
+
+Command:
   ey rebuild
 
   Options:

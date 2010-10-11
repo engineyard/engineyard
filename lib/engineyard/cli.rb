@@ -79,10 +79,9 @@ module EY
       raise exists ? EnvironmentUnlinkedError.new(options[:environment]) : e
     end
 
-    desc "metadata [KEY] [--environment ENVIRONMENT] [--keys]", "Get metadata for this environment."
+    desc "metadata [KEY] [--environment ENVIRONMENT] [--keys]", "Get metadata for this environment; use --keys to list all available metadata."
     long_desc <<-DESC
-      * Get metadata by key, or
-      * Get list of metadata keys (--keys).
+      Lookup metadata about the EngineYard AppCloud environment you are operating in. Use --keys to list all available keys.
     DESC
 
     method_option :environment, :type => :string, :aliases => %w(-e),
@@ -91,9 +90,15 @@ module EY
     def metadata(key=nil)
       if options[:keys]
         puts EY::Model::Metadata::KEYS
+      elsif key.nil?
+        $stderr.puts "No key specified. Use --keys to list all available keys."
       else
-        env = fetch_environment_without_app(options[:environment])
-        puts env.metadata.get(key)
+        begin
+          env = fetch_environment_without_app(options[:environment])
+          puts env.metadata.get(key)
+        rescue EY::Model::Metadata::UnknownKey
+          $stderr.puts "Unknown key: #{key}. Use --keys to list all available keys."
+        end
       end
     end
 

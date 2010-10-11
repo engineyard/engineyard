@@ -3,6 +3,7 @@
 module EY
   module Model
     class Metadata
+      class UnknownKey < StandardError; end
       KEYS = %w{
         database_password
         database_username
@@ -19,7 +20,7 @@ module EY
         app_slaves
         db_slaves
         environment_name
-      }
+      }.sort
       
       attr_reader :environment
       attr_reader :data
@@ -39,9 +40,10 @@ module EY
       # Get metadata for this key.
       def get(key)
         if KEYS.include? key
-          send key
+          retval = send key
+          retval.nil? ? '' : retval
         else
-          $stderr.puts "Unknown key: #{key}"
+          raise UnknownKey
         end
       end
       
