@@ -22,13 +22,13 @@ shared_examples_for "running ey ssh for select role" do
   def command_to_run(opts)
     cmd = "ssh #{opts[:ssh_command]}"
     cmd << " #{@ssh_flag}"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd << " --environment #{opts[:environment]}" if opts[:environment]
     cmd
   end
 
   it "runs the command on the right servers" do
     api_scenario "one app, one environment"
-    run_ey(:ssh_command => "ls", :env => 'giblets', :verbose => true)
+    run_ey(:ssh_command => "ls", :environment => 'giblets', :verbose => true)
     @hosts.each do |host|
       @raw_ssh_commands.select do |command|
         command =~ /^ssh turkey@#{host}.+ ls$/
@@ -41,13 +41,13 @@ shared_examples_for "running ey ssh for select role" do
 
   it "raises an error when there are no matching hosts" do
     api_scenario "one app, one environment, no instances"
-    run_ey({:ssh_command => "ls", :env => 'giblets', :verbose => true}, :expect_failure => true)
+    run_ey({:ssh_command => "ls", :environment => 'giblets', :verbose => true}, :expect_failure => true)
   end
 
   it "responds correctly when there is no command" do
     if @hosts.count != 1
       api_scenario "one app, one environment"
-      run_ey({:env => 'giblets', :verbose => true}, :expect_failure => true)
+      run_ey({:environment => 'giblets', :verbose => true}, :expect_failure => true)
     end
   end
 end
@@ -77,7 +77,8 @@ describe "ey ssh without a command" do
 
   def command_to_run(opts)
     cmd = "ssh"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd << " --environment #{opts[:environment]}" if opts[:environment]
+    cmd << " --account #{opts[:account]}" if opts[:account]
     cmd
   end
 
@@ -86,7 +87,7 @@ describe "ey ssh without a command" do
     @raw_ssh_commands.should == ["ssh #{ssh_target}"]
   end
 
-  it_should_behave_like "it takes an environment name"
+  it_should_behave_like "it takes an environment name and an account name"
 end
 
 describe "ey ssh with a command" do
@@ -94,7 +95,8 @@ describe "ey ssh with a command" do
 
   def command_to_run(opts)
     cmd = "ssh ls"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd << " --environment #{opts[:environment]}" if opts[:environment]
+    cmd << " --account #{opts[:account]}" if opts[:account]
     cmd
   end
 
@@ -103,7 +105,7 @@ describe "ey ssh with a command" do
     @raw_ssh_commands.should == ["ssh #{ssh_target} ls"]
   end
 
-  it_should_behave_like "it takes an environment name"
+  it_should_behave_like "it takes an environment name and an account name"
 end
 
 describe "ey ssh --all" do

@@ -30,20 +30,12 @@ module EY
       @apps ||= EY::Model::App.from_array(request('/apps')["apps"], :api => self)
     end
 
+    def resolver
+      @resolver ||= Resolver.new(self)
+    end
+
     def apps_for_repo(repo)
       apps.find_all {|a| repo.urls.include?(a.repository_uri) }
-    end
-
-    def app_for_repo(repo)
-      candidates = apps_for_repo(repo)
-      if candidates.size > 1
-        raise EY::AmbiguousGitUriError.new(repo.urls, candidates.map{|x| x.name})
-      end
-      candidates.first
-    end
-
-    def app_for_repo!(repo)
-      app_for_repo(repo) || raise(NoAppError.new(repo))
     end
 
     class InvalidCredentials < EY::Error; end

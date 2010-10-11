@@ -43,8 +43,63 @@ shared_examples_for "it requires an unambiguous git repo" do
     run_ey({}, {:expect_failure => true})
     @err.should =~ /ambiguous/
     @err.should =~ /specify one of the following environments/
-    @err.should =~ /giblets/
-    @err.should =~ /keycollector_production/
+    @err.should =~ /giblets \(main\)/
+    @err.should =~ /keycollector_production \(main\)/
+  end
+end
+
+shared_examples_for "it takes an environment name and an app name and an account name" do
+  it_should_behave_like "it takes an app name"
+  it_should_behave_like "it takes an environment name"
+
+  context "when multiple accounts with collaboration" do
+    before :all do
+      api_scenario "two accounts, two apps, two environments, ambiguous"
+    end
+
+    it "fails when the app and environment are ambiguous across accounts" do
+      run_ey({:environment => "giblets", :app => "rails232app", :ref => 'master'}, {:expect_failure => true})
+      @err.should match(/Multiple app deployments possible/i)
+      @err.should match(/ey \S+ --environment='giblets' --app='rails232app' --account='account_2'/i)
+      @err.should match(/ey \S+ --environment='giblets' --app='rails232app' --account='main'/i)
+    end
+
+    it "runs when specifying the account disambiguates the app to deploy" do
+      run_ey({:environment => "giblets", :app => "rails232app", :account => "main", :ref => 'master'})
+      verify_ran(make_scenario({
+          :environment      => 'giblets',
+          :application      => 'rails232app',
+          :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
+          :ssh_username     => 'turkey',
+        }))
+    end
+  end
+end
+
+shared_examples_for "it takes an environment name and an account name" do
+  it_should_behave_like "it takes an environment name"
+
+  context "when multiple accounts with collaboration" do
+    before :all do
+      api_scenario "two accounts, two apps, two environments, ambiguous"
+    end
+
+    it "fails when the app and environment are ambiguous across accounts" do
+      run_ey({:environment => "giblets"}, {:expect_failure => true})
+      @err.should match(/multiple environments possible/i)
+      @err.should match(/ey \S+ --environment='giblets' --account='account_2'/i)
+      @err.should match(/ey \S+ --environment='giblets' --account='main'/i)
+    end
+
+    it "runs when specifying the account disambiguates the app to deploy" do
+      run_ey({:environment => "giblets", :account => "main"})
+      verify_ran(make_scenario({
+          :environment      => 'giblets',
+          :application      => 'rails232app',
+          :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
+          :ssh_username     => 'turkey',
+        }))
+    end
   end
 end
 
@@ -53,7 +108,7 @@ shared_examples_for "it takes an environment name" do
 
   it "operates on the current environment by default" do
     api_scenario "one app, one environment"
-    run_ey({:env => nil}, {:debug => true})
+    run_ey({:environment => nil}, {:debug => true})
     verify_ran(make_scenario({
           :environment      => 'giblets',
           :application      => 'rails232app',
@@ -64,8 +119,28 @@ shared_examples_for "it takes an environment name" do
 
   it "complains when you specify a nonexistent environment" do
     api_scenario "one app, one environment"
-    run_ey({:env => 'typo-happens-here'}, {:expect_failure => true})
+    run_ey({:environment => 'typo-happens-here'}, {:expect_failure => true})
     @err.should match(/no environment named 'typo-happens-here'/i)
+  end
+
+  context "outside a git repo" do
+    define_git_repo("not actually a git repo") do |git_dir|
+      # in case we screw up and are not in a freshly-generated test
+      # git repository, don't blow away the thing we're developing
+      system("rm -rf .git") if `git remote -v`.include?("path/to/repo.git")
+      git_dir.join("cookbooks").mkdir
+    end
+
+    use_git_repo("not actually a git repo")
+
+    before :all do
+      api_scenario "one app, one environment"
+    end
+
+    it "works (and does not complain about git remotes)" do
+      run_ey({:environment => 'giblets'}) unless @takes_app_name
+    end
+
   end
 
   context "given a piece of the environment name" do
@@ -74,13 +149,17 @@ shared_examples_for "it takes an environment name" do
     end
 
     it "complains when the substring is ambiguous" do
-      run_ey({:env => 'staging'}, {:expect_failure => true})
-      @err.should match(/'staging' is ambiguous/)
+      run_ey({:environment => 'staging'}, {:expect_failure => true})
+      if @takes_app_name
+        @err.should match(/multiple app deployments possible/i)
+      else
+        @err.should match(/multiple environments possible/i)
+      end
     end
 
     it "works when the substring is unambiguous" do
       api_scenario "one app, many similarly-named environments"
-      run_ey({:env => 'prod'}, {:debug => true})
+      run_ey({:environment => 'prod'}, {:debug => true})
       verify_ran(make_scenario({
             :environment      => 'railsapp_production',
             :application      => 'rails232app',
@@ -92,18 +171,19 @@ shared_examples_for "it takes an environment name" do
 
   it "complains when it can't guess the environment and its name isn't specified" do
     api_scenario "one app, one environment, not linked"
-    run_ey({:env => nil}, {:expect_failure => true})
-    @err.should =~ /single environment/i
+    run_ey({:environment => nil}, {:expect_failure => true})
+    @err.should match(/there is no application configured/i)
   end
 end
 
 shared_examples_for "it takes an app name" do
   include Spec::Helpers::SharedIntegrationTestUtils
+  before { @takes_app_name = true }
 
   it "allows you to specify a valid app" do
     api_scenario "one app, one environment"
     Dir.chdir(Dir.tmpdir) do
-      run_ey({:env => 'giblets', :app => 'rails232app', :ref => 'master'}, {})
+      run_ey({:environment => 'giblets', :app => 'rails232app', :ref => 'master'}, {})
       verify_ran(make_scenario({
             :environment      => 'giblets',
             :application      => 'rails232app',
@@ -128,7 +208,7 @@ shared_examples_for "it takes an app name" do
 
   it "complains when you specify a nonexistant app" do
     api_scenario "one app, one environment"
-    run_ey({:env => 'giblets', :app => 'P-time-SAT-solver', :ref => 'master'},
+    run_ey({:environment => 'giblets', :app => 'P-time-SAT-solver', :ref => 'master'},
       {:expect_failure => true})
     @err.should =~ /no app.*P-time-SAT-solver/i
   end
@@ -141,7 +221,7 @@ shared_examples_for "it invokes engineyard-serverside" do
   context "with arguments" do
     before(:all) do
       api_scenario "one app, one environment"
-      run_ey({:env => 'giblets', :verbose => true})
+      run_ey({:environment => 'giblets', :verbose => true})
     end
 
     it "passes --verbose to engineyard-serverside" do

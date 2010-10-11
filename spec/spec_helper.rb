@@ -29,6 +29,9 @@ require 'json'
 $LOAD_PATH.unshift(File.join(EY_ROOT, "lib"))
 require 'engineyard'
 
+#autoload hax
+EY::Error
+
 # Spec stuff
 require 'spec/autorun'
 require 'tmpdir'
@@ -39,7 +42,7 @@ support.each{|helper| require helper }
 
 Spec::Runner.configure do |config|
   config.include Spec::Helpers
-  config.extend Spec::GitRepo
+  config.include Spec::GitRepo
   config.extend Spec::Helpers::SemanticNames
 
   config.before(:all) do

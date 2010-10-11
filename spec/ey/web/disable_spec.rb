@@ -5,8 +5,9 @@ describe "ey web disable" do
 
   def command_to_run(opts)
     cmd = "web disable"
-    cmd << " -e #{opts[:env]}" if opts[:env]
+    cmd << " -e #{opts[:environment]}" if opts[:environment]
     cmd << " -a #{opts[:app]}" if opts[:app]
+    cmd << " -c #{opts[:account]}" if opts[:account]
     cmd << " --verbose" if opts[:verbose]
     cmd
   end
@@ -15,7 +16,6 @@ describe "ey web disable" do
     @ssh_commands.should have_command_like(/engineyard-serverside.*deploy enable_maintenance_page.*--app #{scenario[:application]}/)
   end
 
-  it_should_behave_like "it takes an environment name"
-  it_should_behave_like "it takes an app name"
+  it_should_behave_like "it takes an environment name and an app name and an account name"
   it_should_behave_like "it invokes engineyard-serverside"
 end

@@ -9,9 +9,10 @@ module EY
         :desc => "Name of the application whose maintenance page will be removed"
       method_option :verbose, :type => :boolean, :aliases => %w(-v),
         :desc => "Be verbose"
+      method_option :account, :type => :string, :aliases => %w(-c),
+        :desc => "Name of the account you want to deploy in"
       def enable
-        app         = fetch_app(options[:app])
-        environment = fetch_environment(options[:environment], app)
+        app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
         EY.ui.info "Taking down maintenance page for '#{app.name}' in '#{environment.name}'"
         environment.take_down_maintenance_page(app, options[:verbose])
       end
@@ -35,9 +36,10 @@ module EY
         :desc => "Name of the application whose maintenance page will be put up"
       method_option :verbose, :type => :boolean, :aliases => %w(-v),
         :desc => "Be verbose"
+      method_option :account, :type => :string, :aliases => %w(-c),
+        :desc => "Name of the account you want to deploy in"
       def disable
-        app         = fetch_app(options[:app])
-        environment = fetch_environment(options[:environment], app)
+        app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
         EY.ui.info "Putting up maintenance page for '#{app.name}' in '#{environment.name}'"
         environment.put_up_maintenance_page(app, options[:verbose])
       end

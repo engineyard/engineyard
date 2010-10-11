@@ -1,6 +1,6 @@
 module EY
   module Model
-    class Environment < ApiStruct.new(:id, :name, :framework_env, :instances, :instances_count, :apps, :app_master, :stack_name, :api)
+    class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count, :apps, :app_master, :stack_name, :api)
 
       attr_accessor :ignore_bad_master
       attr_accessor :metadata
@@ -9,6 +9,7 @@ module EY
         super.tap do |env|
           env.metadata = EY::Model::Metadata.new env, hash
           env.apps = App.from_array(env.apps, :api => env.api)
+          env.account = Account.from_hash(env.account)
           env.instances = Instance.from_array(hash['instances'], :environment => env)
           env.app_master = Instance.from_hash(env.app_master.merge(:environment => env)) if env.app_master
         end

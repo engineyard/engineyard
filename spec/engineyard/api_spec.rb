@@ -53,34 +53,4 @@ describe EY::API do
     }.should raise_error(EY::Error)
   end
 
-  it "raises an error when using a git repo that is attached to multiple applications" do
-    repo = mock("repo", :urls => %w[git://github.com/engineyard/dup.git])
-    apps = {"apps" => [
-                      {"id" => 1234, "name" => "app_production", :repository_uri => 'git://github.com/engineyard/prod.git'},
-                      {"id" => 4532, "name" => "app_dup1", :repository_uri => 'git://github.com/engineyard/dup.git'},
-                      {"id" => 4533, "name" => "app_dup2", :repository_uri => 'git://github.com/engineyard/dup.git'},
-                     ]}
-
-    FakeWeb.register_uri(:get, "https://cloud.engineyard.com/api/v2/apps", :status => 200, :content_type => 'application/json',
-                         :body => apps.to_json)
-
-    lambda do
-      EY::API.new("asdf").app_for_repo(repo)
-    end.should raise_error(EY::AmbiguousGitUriError)
-  end
-
-  it "returns the application when given a unique git repo" do
-    repo = mock("repo", :urls => %w[git://github.com/engineyard/prod.git])
-    apps = {"apps" => [
-                      {"id" => 1234, "name" => "app_production", :repository_uri => 'git://github.com/engineyard/prod.git'},
-                      {"id" => 4532, "name" => "app_dup1", :repository_uri => 'git://github.com/engineyard/dup.git'},
-                      {"id" => 4533, "name" => "app_dup2", :repository_uri => 'git://github.com/engineyard/dup.git'},
-                     ]}
-
-    FakeWeb.register_uri(:get, "https://cloud.engineyard.com/api/v2/apps", :status => 200, :content_type => 'application/json',
-                         :body => apps.to_json)
-
-    EY::API.new("asdf").app_for_repo(repo).name.should == "app_production"
-  end
-
 end

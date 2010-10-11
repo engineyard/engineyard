@@ -7,8 +7,12 @@ module EY
       @path = path
     end
 
+    def exists?
+      File.directory?(File.join(@path, ".git"))
+    end
+
     def current_branch
-      if File.directory?(File.join(@path, ".git"))
+      if exists?
         head = File.read(File.join(@path, ".git/HEAD")).chomp
         if head.gsub!("ref: refs/heads/", "")
           head

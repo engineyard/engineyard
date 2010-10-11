@@ -7,6 +7,10 @@ module EY
     end
   end
 
+  class ResolveError < EY::Error; end
+  class NoMatchesError < ResolveError; end
+  class MultipleMatchesError < ResolveError; end
+
   class NoCommandError < EY::Error
     def initialize
       super "Must specify a command to run via ssh"
@@ -41,18 +45,6 @@ module EY
     end
   end
 
-  class AmbiguousGitUriError < EY::Error
-    def initialize(uris, matches)
-      message = "The following Git Remote urls match multiple Applications in AppCloud\n"
-      uris.each { |uri| message << "\t#{uri}\n" }
-
-      message << "Please use -a <appname> to specify one of the following applications:\n"
-      matches.each { |app| message << "\t#{app}\n" }
-
-      super message
-    end
-  end
-
   class NoAppMasterError < EY::Error
     def initialize(env_name)
       super "The environment '#{env_name}' does not have a master instance."
@@ -84,7 +76,13 @@ module EY
     def initialize(environments)
       message = "The repository url in this directory is ambiguous.\n"
       message << "Please use -e <envname> to specify one of the following environments:\n"
-      environments.each { |env| message << "\t#{env.name}\n" }
+      environments.sort do |a, b|
+        if a.account == b.account
+          a.name <=> b.name
+        else
+          a.account.name <=> b.account.name
+        end
+      end.each { |env| message << "\t#{env.name} (#{env.account.name})\n" }
       super message
     end
   end
@@ -110,15 +108,15 @@ module EY
 
   class BranchMismatchError < EY::Error
     def initialize(default_branch, branch)
-      super %|Your deploy branch is set to "#{default_branch}".\n| +
-        %|If you want to deploy branch "#{branch}", use --ignore-default_branch.|
+      super(%|Your deploy branch is set to "#{default_branch}".\n| +
+        %|If you want to deploy branch "#{branch}", use --ignore-default_branch.|)
     end
   end
 
   class DeployArgumentError < EY::Error
     def initialize
-      super %("deploy" was called incorrectly. Call as "deploy [--environment <env>] [--ref <branch|tag|ref>]"\n) +
-        %|You can set default environments and branches in ey.yml|
+      super(%("deploy" was called incorrectly. Call as "deploy [--environment <env>] [--ref <branch|tag|ref>]"\n) +
+        %|You can set default environments and branches in ey.yml|)
     end
   end
 end

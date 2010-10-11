@@ -14,7 +14,7 @@ describe "ey logs" do
   it "complains when it can't infer the environment" do
     api_scenario "one app, many environments"
     ey "logs", :expect_failure => true
-    @err.should =~ /single environment/
+    @err.should =~ /repository url in this directory is ambiguous/i
   end
 end
 
@@ -23,7 +23,8 @@ describe "ey logs" do
 
   def command_to_run(opts)
     cmd = "logs"
-    cmd << " --environment #{opts[:env]}" if opts[:env]
+    cmd << " --environment #{opts[:environment]}" if opts[:environment]
+    cmd << " --account #{opts[:account]}" if opts[:account]
     cmd
   end
 
@@ -31,5 +32,5 @@ describe "ey logs" do
     @out.should match(/Main logs for #{scenario[:environment]}/)
   end
 
-  it_should_behave_like "it takes an environment name"
+  it_should_behave_like "it takes an environment name and an account name"
 end

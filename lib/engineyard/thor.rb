@@ -11,28 +11,24 @@ module EY
       @repo ||= EY::Repo.new
     end
 
-    # if an app is supplied, it is used as a constraint for implied environment lookup
-    def fetch_environment(env_name, app = nil)
-      env_name ||= EY.config.default_environment
-      if env_name
-        (app || api).environments.match_one!(env_name)
-      else
-        (app || api.app_for_repo!(repo)).sole_environment!
-      end
+    def fetch_environment(environment_name, account_name=nil)
+      environment_name ||= EY.config.default_environment
+      options = {
+        :environment_name => environment_name,
+        :account_name => account_name
+      }
+      options.merge! :repo => repo if repo.exists?
+      api.resolver.environment(options)
     end
 
-    def fetch_environment_without_app(env_name)
-      fetch_environment(env_name)
-    rescue EY::AmbiguousGitUriError
-      raise EY::AmbiguousEnvironmentGitUriError.new(api.environments)
-    end
-
-    def fetch_app(app_name = nil)
-      if app_name
-        api.apps.match_one!(app_name)
-      else
-        api.app_for_repo!(repo)
-      end
+    def fetch_app_and_environment(app_name = nil, environment_name = nil, account_name=nil)
+      options = {
+        :app_name => app_name,
+        :environment_name => environment_name,
+        :account_name => account_name
+      }
+      options.merge! :repo => repo if repo.exists?
+      api.resolver.app_and_environment(options)
     end
 
     def get_apps(all_apps = false)
