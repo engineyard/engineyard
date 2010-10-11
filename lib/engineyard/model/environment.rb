@@ -7,7 +7,7 @@ module EY
 
       def self.from_hash(hash)
         super.tap do |env|
-          env.metadata = EY::Model::Metadata.new hash
+          env.metadata = EY::Model::Metadata.new env, hash
           env.apps = App.from_array(env.apps, :api => env.api)
           env.instances = Instance.from_array(hash['instances'], :environment => env)
           env.app_master = Instance.from_hash(env.app_master.merge(:environment => env)) if env.app_master

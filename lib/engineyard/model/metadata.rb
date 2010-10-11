@@ -14,12 +14,26 @@ module EY
         utilities
         app_master
         db_master
+        solo
+        ssh_aliases
+        app_slaves
+        db_slaves
+        environment_name
       }
       
+      attr_reader :environment
       attr_reader :data
       
-      def initialize(data)
+      def initialize(environment, data)
+        @environment = environment
         @data = data
+      end
+      
+      # The name of the EngineYard AppCloud environment.
+      #
+      # Not to be confused with the application name or your Rails environment.
+      def environment_name
+        environment.name
       end
       
       # Get metadata for this key.
@@ -27,7 +41,7 @@ module EY
         if KEYS.include? key
           send key
         else
-          data[key]
+          $stderr.puts "Unknown key: #{key}"
         end
       end
       
@@ -73,6 +87,16 @@ module EY
         data['instances'].select { |i| %w{ db_master db_slave solo }.include? i['role'] }.map { |i| i['public_hostname'] }.sort.join ','
       end
       
+      # The public hostnames of all the db slaves, separated by commas.
+      def db_slaves
+        data['instances'].select { |i| i['role'] == 'db_slave' }.map { |i| i['public_hostname'] }.sort.join ','
+      end
+      
+      # The public hostnames of all the app slaves (i.e. non-masters), separated by commas.
+      def app_slaves
+        data['instances'].select { |i| i['role'] == 'app' }.map { |i| i['public_hostname'] }.sort.join ','
+      end
+      
       # The public hostnames of all the utility servers, separated by commas.
       #
       # If you're on a solo app, it counts the solo as a utility.
@@ -82,16 +106,59 @@ module EY
       
       # The public hostname of the app_master.
       def app_master
-        i = data['instances'].detect { |i| i['role'] == 'app_master' } ||
-            data['instances'].detect { |i| i['role'] == 'solo' }
-        i['public_hostname']
+        if x = data['instances'].detect { |i| i['role'] == 'app_master' }
+          x['public_hostname']
+        else
+          solo
+        end
       end
       
       # The public hostname of the db_master,
       def db_master
-        i = data['instances'].detect { |i| i['role'] == 'db_master' } ||
-            data['instances'].detect { |i| i['role'] == 'solo' }
-        i['public_hostname']
+        if x = data['instances'].detect { |i| i['role'] == 'db_master' }
+          x['public_hostname']
+        else
+          solo
+        end
+      end
+      
+      # The public hostname of the solo.
+      def solo
+        if x = data['instances'].detect { |i| i['role'] == 'solo' }
+          x['public_hostname']
+        end
+      end
+      
+      # Aliases like 'my_env-app_master' or 'my_env-utilities-5' that go in .ssh/config
+      #
+      # For example:
+      #   Host my_env-app_master
+      #     Hostname ec2-111-111-111-111.compute-1.amazonaws.com
+      #     User deploy
+      #     StrictHostKeyChecking no
+      def ssh_aliases
+        counter = Hash.new 0
+        %w{ app_master db_master db_slaves app_slaves utilities }.map do |role_group|
+          send(role_group).split(',').map do |public_hostname|
+            ssh_alias counter, role_group, public_hostname
+          end
+        end.flatten.join("\n")
+      end
+      
+      private
+      
+      def ssh_alias(counter, role_group, public_hostname)
+        id = case role_group
+        when 'db_slaves', 'app_slaves', 'utilities'
+          "#{role_group}-#{counter[role_group] += 1}"
+        else
+          role_group
+        end
+        %{Host #{environment_name}-#{id}
+  Hostname #{public_hostname}
+  User #{ssh_username}
+  StrictHostKeyChecking no
+}        
       end
     end
   end

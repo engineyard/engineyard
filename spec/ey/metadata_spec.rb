@@ -50,6 +50,11 @@ describe "ey metadata" do
     ey 'metadata app_master'
     @out.should =~ /\napp_master_hostname.compute-1.amazonaws.com\n\z/
   end
+  
+  it 'prints helpful SSH aliases' do
+    ey 'metadata ssh_aliases'
+    @out.should =~ /Host giblets-app_master\n  Hostname app_master_hostname.compute-1.amazonaws.com/
+  end
 
   # Not currently available
   # it 'prints the db password' do
@@ -66,8 +71,18 @@ describe "ey metadata with multiple environments" do
     api_scenario "one app, many environments"
   end
 
+  it 'prints the solo host' do
+    ey 'metadata solo --environment giblets'
+    @out.should =~ /\napp_master_hostname.compute-1.amazonaws.com\n\z/
+  end
+
   it 'prints the db host' do
     ey 'metadata database_host --environment giblets'
+    @out.should =~ /\napp_master_hostname.compute-1.amazonaws.com\n\z/
+  end
+  
+  it 'prints the db master' do
+    ey 'metadata db_master --environment giblets'
     @out.should =~ /\napp_master_hostname.compute-1.amazonaws.com\n\z/
   end
   
@@ -84,6 +99,11 @@ describe "ey metadata with multiple environments" do
   it 'prints the utility server hostnames' do
     ey 'metadata utilities --environment giblets'
     @out.should =~ /\napp_master_hostname.compute-1.amazonaws.com\n\z/
+  end
+
+  it 'prints helpful SSH aliases' do
+    ey 'metadata ssh_aliases --environment giblets'
+    @out.should =~ /Host giblets-app_master\n  Hostname app_master_hostname.compute-1.amazonaws.com/
   end
 
   # Not currently available
