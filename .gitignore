@@ -25,3 +25,4 @@ Gemfile.lock
 cloud.yml
 
 .rvmrc
+*.rbc
