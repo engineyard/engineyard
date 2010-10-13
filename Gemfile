@@ -10,12 +10,12 @@ gem "engineyard-serverside-adapter", '=1.3.3'
 
 group :test do
   gem "open4"
-  gem "rspec", :require => "spec"
+  gem "rspec", '~>1.3.0', :require => "spec"
   gem "rake"
   gem "fakeweb"
   gem "fakeweb-matcher"
   gem "fakefs"
-  gem "bundler"
+  gem "bundler", '~>1.0.0'
   gem "sinatra"
   gem "realweb", "~>0.1.6"
 end
