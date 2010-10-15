@@ -36,26 +36,62 @@ def bump
   new_version
 end
 
+def bump_serverside_adapter
+  latest_adapter_version = `gem search -r engineyard-serverside-adapter`.
+    grep(/^engineyard-serverside-adapter /).
+    first.
+    match(/\((.*?)\)/).
+    captures.
+    first
+
+  File.open('Gemfile', 'r') do |read_gemfile|
+    File.unlink('Gemfile')
+    File.open('Gemfile', 'w') do |write_gemfile|
+      read_gemfile.each_line do |line|
+        if line =~ /gem "engineyard-serverside-adapter"/
+          write_gemfile.write("gem \"engineyard-serverside-adapter\", \"=#{latest_adapter_version}\"   # This line maintained by rake; edits may be stomped on\n")
+        else
+          write_gemfile.write(line)
+        end
+      end
+    end
+  end
+end
+
 desc "Bump version of this gem"
 task :bump do
   ver = bump
   puts "New version is #{ver}"
 end
 
+def run_commands(*cmds)
+  cmds.flatten.each do |c|
+    system(c) or raise "Command "#{c}" failed to execute; aborting!"
+  end
+end
+
 desc "Release gem"
 task :release do
+  # Make sure we work with the latest version of serverside(-adapter)
+  bump_serverside_adapter
+  run_commands(
+    "bundle install",
+    "rake spec") # can't invoke directly; new gems won't get picked up
+
   new_version = bump
 
-  system("git add lib/engineyard/version.rb")
-  system("git commit -m 'Bump version for release #{new_version}'")
-  system("git tag v#{new_version}")
-
-  system("gem build engineyard.gemspec")
+  run_commands(
+    "git add Gemfile lib/engineyard/version.rb",
+    "git commit -m 'Bump versions for release #{new_version}'",
+    "gem build engineyard.gemspec")
 
   load 'lib/engineyard/version.rb'
   bump
-  system("git add lib/engineyard/version.rb")
-  system("git commit -m 'Add .pre for next release'")
+
+  run_commands(
+    "git add lib/engineyard/version.rb",
+    "git commit -m 'Add .pre for next release'",
+    "git tag v#{new_version} HEAD^")
 
   puts '********************************************************************************'
   puts
