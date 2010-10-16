@@ -44,6 +44,8 @@ module EY
   class Thor < ::Thor
     include UtilityMethods
 
+    check_unknown_options!
+
     no_tasks do
       def self.subcommand_help(cmd)
         desc "#{cmd} help [COMMAND]", "Describe all subcommands or one specific subcommand."

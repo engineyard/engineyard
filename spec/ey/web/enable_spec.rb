@@ -18,4 +18,9 @@ describe "ey web enable" do
 
   it_should_behave_like "it takes an environment name and an app name and an account name"
   it_should_behave_like "it invokes engineyard-serverside"
+
+  it "fails when given a bad option" do
+    ey "web enable --lots --of --bogus --options", :expect_failure => true
+    @err.should include("Unknown switches")
+  end
 end

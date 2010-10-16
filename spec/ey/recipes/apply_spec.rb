@@ -15,6 +15,11 @@ describe "ey recipes apply" do
   end
 
   it_should_behave_like "it takes an environment name and an account name"
+
+  it "fails when given a bad option" do
+    ey "web enable --lots --of --bogus --options", :expect_failure => true
+    @err.should include("Unknown switches")
+  end
 end
 
 describe "ey recipes apply with an ambiguous git repo" do

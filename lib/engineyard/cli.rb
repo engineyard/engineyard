@@ -9,8 +9,6 @@ module EY
     autoload :Recipes, 'engineyard/cli/recipes'
     autoload :Web,     'engineyard/cli/web'
 
-    check_unknown_options!
-
     include Thor::Actions
 
     def self.start(*)
