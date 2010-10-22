@@ -32,11 +32,6 @@ describe EY::Repo do
       @r.urls.should include(other_url)
     end
 
-    it "raises EY::NoRemotesError if there is no origin remote" do
-      clear_urls
-      lambda { @r.urls }.should raise_error(EY::NoRemotesError)
-    end
-
     def config_path
       @path+"config"
     end

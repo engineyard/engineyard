@@ -59,10 +59,6 @@ describe EY::Resolver do
       lambda { resolver.app_and_environment(:environment_name => 'app_duplicate', :app_name => 'smallapp') }.should raise_error(EY::InvalidAppError)
     end
 
-    it "raises when the git repo does not match any apps" do
-      lambda { resolver.app_and_environment(:environment_name => 'app_duplicate', :repo => repo("git://github.com/no-such/app.git")) }.should raise_error(EY::NoAppError)
-    end
-
     it "raises when there is no environment match" do
       lambda { resolver.app_and_environment(:environment_name => 'gibberish', :app_name => 'app') }.should raise_error(EY::NoEnvironmentError)
     end

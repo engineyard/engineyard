@@ -3,6 +3,8 @@ require 'escape'
 module EY
   class Repo
 
+    attr_reader :path
+
     def initialize(path=File.expand_path('.'))
       @path = path
     end
@@ -26,7 +28,6 @@ module EY
 
     def urls
       lines = `git config -f #{Escape.shell_command([@path])}/.git/config --get-regexp 'remote.*.url'`.split(/\n/)
-      raise NoRemotesError.new(@path) if lines.empty?
       lines.map { |c| c.split.last }
     end
 

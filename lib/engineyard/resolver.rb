@@ -99,7 +99,7 @@ module EY
       app_candidates = if options[:app_name]
                          filter_candidates_by(:app_name, options, candidates)
                        elsif options[:repo]
-                         candidates.select {|c| options[:repo].urls.include?(c[:repository_uri]) }
+                         filter_by_repo(candidates, options[:repo])
                        else
                          candidates
                        end
@@ -107,6 +107,18 @@ module EY
       environment_candidates = filter_candidates_by(:environment_name, options, candidates)
       candidates = app_candidates & environment_candidates & account_candidates
       [candidates, account_candidates, app_candidates, environment_candidates]
+    end
+
+    def filter_by_repo(candidates, repo)
+      results = candidates.select do |c|
+        repo.urls.include?(c[:repository_uri])
+      end
+
+      if results.empty?
+        candidates
+      else
+        results
+      end
     end
 
     def filter_candidates_by(type, options, candidates)

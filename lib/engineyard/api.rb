@@ -35,6 +35,7 @@ module EY
     end
 
     def apps_for_repo(repo)
+      raise NoRemotesError.new(repo.path) if repo.urls.empty?
       apps.find_all {|a| repo.urls.include?(a.repository_uri) }
     end
 
