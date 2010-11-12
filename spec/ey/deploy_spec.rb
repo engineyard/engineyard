@@ -325,14 +325,14 @@ describe "ey deploy" do
     end
 
     it "allows you to specify an app when not in a directory" do
-      ey "deploy --app rails232app --ref master"
+      fast_ey %w[deploy --app rails232app --ref master]
       @ssh_commands.last.should match(/--app rails232app/)
       @ssh_commands.last.should match(/--ref resolved-master/)
     end
 
     it "requires that you specify a ref when specifying the application" do
       Dir.chdir(File.expand_path("~")) do
-        ey "deploy --app rails232app", :expect_failure => true
+        fast_failing_ey %w[deploy --app rails232app]
         @err.should match(/you must also specify the ref to deploy/)
       end
     end
@@ -343,7 +343,7 @@ describe "ey deploy" do
 
     before(:all) do
       api_scenario "one app, one environment", "user@git.host:path/to/repo.git"
-      ey "deploy"
+      fast_ey ["deploy"]
       @deploy_command = @ssh_commands.find {|c| c =~ /engineyard-serverside.*deploy/ }
     end
 

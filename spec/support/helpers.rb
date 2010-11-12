@@ -1,6 +1,9 @@
+require 'engineyard/cli'
+
 require 'realweb'
-require "rest_client"
+require 'rest_client'
 require 'open4'
+require 'stringio'
 
 module Spec
   module Helpers
@@ -15,6 +18,56 @@ module Spec
     end
     NonzeroExitStatus = Class.new(UnexpectedExit)
     ZeroExitStatus = Class.new(UnexpectedExit)
+
+    def fast_ey(args)
+      err, out = StringIO.new, StringIO.new
+      capture_stderr_into(err) do
+        capture_stdout_into(out) do
+          with_env('DEBUG' => 'true') do
+            EY::CLI.start(args)
+          end
+        end
+      end
+    ensure
+      @err, @out = err.string, out.string
+      @raw_ssh_commands, @ssh_commands = extract_ssh_commands(@out)
+    end
+
+    def fast_failing_ey(*args)
+      begin
+        fast_ey(*args)
+        raise ZeroExitStatus
+      rescue SystemExit => exit_status
+        # SystemExit typically indicates a bogus command, which we
+        # here in expected-to-fail land are entirely happy with.
+        nil
+      rescue EY::Error => e
+        more_err, more_out = StringIO.new, StringIO.new
+
+        capture_stderr_into(more_err) do
+          capture_stdout_into(more_out) do
+            EY.ui.print_exception(e)
+          end
+        end
+
+        @err << more_err.string
+        @out << more_out.string
+      end
+    end
+
+    def capture_stderr_into(stream)
+      $stderr = stream
+      yield
+    ensure
+      $stderr = STDERR
+    end
+
+    def capture_stdout_into(stream)
+      $stdout = stream
+      yield
+    ensure
+      $stdout = STDOUT
+    end
 
     def ey(cmd = nil, options = {}, &block)
       hide_err = options.has_key?(:hide_err) ? options[:hide_err] : options[:expect_failure]
@@ -54,11 +107,18 @@ module Spec
         end
       end
 
-      @raw_ssh_commands = @out.split(/\n/).find_all do |line|
+      @raw_ssh_commands, @ssh_commands = extract_ssh_commands(@out)
+
+      puts @err unless @err.empty? || hide_err
+      @out
+    end
+
+    def extract_ssh_commands(output)
+      raw_ssh_commands = @out.split(/\n/).find_all do |line|
         line =~ /^bash -lc/ || line =~ /^ssh/
       end
 
-      @ssh_commands = @raw_ssh_commands.map do |cmd|
+      ssh_commands = raw_ssh_commands.map do |cmd|
         # Strip off everything up to and including user@host, leaving
         # just the command that the remote system would run
         #
@@ -77,8 +137,7 @@ module Spec
         `echo #{just_the_remote_command}`.strip
       end
 
-      puts @err unless @err.empty? || hide_err
-      @out
+      [raw_ssh_commands, ssh_commands]
     end
 
     def api_scenario(scenario, remote = "user@git.host:path/to/repo.git")
