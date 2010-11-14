@@ -53,25 +53,25 @@ describe "ey deploy" do
   context "with invalid input" do
     it "complains when there is no app" do
       api_scenario "empty"
-      ey "deploy", :expect_failure => true
+      fast_failing_ey ["deploy"]
       @err.should include(%|no application configured|)
     end
 
     it "complains when the specified environment does not contain the app" do
       api_scenario "one app, one environment, not linked"
-      ey "deploy -e giblets -r master", :expect_failure => true
+      fast_failing_ey %w[deploy -e giblets -r master]
       @err.should match(/there is no application configured/i)
     end
 
     it "complains when environment is not specified and app is in >1 environment" do
       api_scenario "one app, many environments"
-      ey "deploy", :expect_failure => true
+      fast_failing_ey %w[deploy]
       @err.should match(/multiple app deployments possible/i)
     end
 
     it "complains when the app master is in a non-running state" do
       api_scenario "one app, one environment, app master red"
-      ey "deploy --environment giblets --ref master", :expect_failure => true
+      fast_failing_ey %w[deploy --environment giblets --ref master]
       @err.should_not match(/No running instances/i)
       @err.should match(/running.*\(green\)/)
     end
@@ -83,24 +83,24 @@ describe "ey deploy" do
     end
 
     it "finds engineyard-serverside despite its being buried in the filesystem" do
-      ey "deploy"
+      fast_ey %w[deploy]
       @ssh_commands.last.should =~ %r{/usr/local/ey_resin/ruby/bin/engineyard-serverside}
     end
 
     it "defaults to 'rake db:migrate'" do
-      ey "deploy"
+      fast_ey %w[deploy]
       @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
       @ssh_commands.last.should =~ /--migrate 'rake db:migrate --trace'/
     end
 
     it "can be disabled with --no-migrate" do
-      ey "deploy --no-migrate"
+      fast_ey %w[deploy --no-migrate]
       @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
       @ssh_commands.last.should_not =~ /--migrate/
     end
 
     it "uses the default when --migrate is specified with no value" do
-      ey "deploy --migrate"
+      fast_ey %w[deploy --migrate]
       @ssh_commands.last.should match(/--migrate 'rake db:migrate --trace'/)
     end
 
@@ -111,7 +111,7 @@ describe "ey deploy" do
       after  { File.unlink 'ey.yml' }
 
       it "migrates with the custom command by default" do
-        ey "deploy"
+        fast_ey %w[deploy]
         @ssh_commands.last.should =~ /--migrate 'thor fancy:migrate'/
       end
     end
@@ -121,18 +121,18 @@ describe "ey deploy" do
       after  { File.unlink 'ey.yml' }
 
       it "does not migrate by default" do
-        ey "deploy"
+        fast_ey %w[deploy]
         @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
         @ssh_commands.last.should_not =~ /--migrate/
       end
 
       it "can be turned back on with --migrate" do
-        ey "deploy --migrate 'rake fancy:migrate'"
+        fast_ey ["deploy", "--migrate", "rake fancy:migrate"]
         @ssh_commands.last.should =~ /--migrate 'rake fancy:migrate'/
       end
 
       it "migrates with the default when --migrate is specified with no value" do
-        ey "deploy --migrate"
+        fast_ey %w[deploy --migrate]
         @ssh_commands.last.should match(/--migrate 'rake db:migrate --trace'/)
       end
     end
@@ -142,7 +142,7 @@ describe "ey deploy" do
       after  { File.unlink 'ey.yml' }
 
       it "migrates with the default" do
-        ey "deploy"
+        fast_ey %w[deploy]
         @ssh_commands.last.should match(/--migrate 'rake db:migrate --trace'/)
       end
     end
@@ -155,12 +155,12 @@ describe "ey deploy" do
       after  { File.unlink 'ey.yml' }
 
       it "does not migrate by default" do
-        ey "deploy"
+        fast_ey %w[deploy]
         @ssh_commands.last.should_not match(/--migrate/)
       end
 
       it "migrates with the custom command when --migrate is specified with no value" do
-        ey "deploy --migrate"
+        fast_ey %w[deploy --migrate]
         @ssh_commands.last.should match(/--migrate 'thor fancy:migrate'/)
       end
     end
@@ -172,7 +172,7 @@ describe "ey deploy" do
     end
 
     it "passes the framework environment" do
-      ey "deploy"
+      fast_ey %w[deploy]
       @ssh_commands.last.should match(/--framework-env production/)
     end
   end
@@ -199,27 +199,27 @@ describe "ey deploy" do
 
     context "without a configured default branch" do
       it "defaults to the checked-out local branch" do
-        ey "deploy"
+        fast_ey %w[deploy]
         @ssh_commands.last.should =~ /--ref resolved-current-branch/
       end
 
       it "deploys another branch if given" do
-        ey "deploy --ref master"
+        fast_ey %w[deploy --ref master]
         @ssh_commands.last.should =~ /--ref resolved-master/
       end
 
       it "deploys a tag if given" do
-        ey "deploy --ref v1"
+        fast_ey %w[deploy --ref v1]
         @ssh_commands.last.should =~ /--ref resolved-v1/
       end
 
       it "allows using --branch to specify a branch" do
-        ey "deploy --branch master"
+        fast_ey %w[deploy --branch master]
         @ssh_commands.last.should match(/--ref resolved-master/)
       end
 
       it "allows using --tag to specify the tag" do
-        ey "deploy --tag v1"
+        fast_ey %w[deploy --tag v1]
         @ssh_commands.last.should match(/--ref resolved-v1/)
       end
     end
@@ -234,7 +234,7 @@ describe "ey deploy" do
       end
 
       it "gets passed along to engineyard-serverside" do
-        ey "deploy"
+        fast_ey %w[deploy]
         @ssh_commands.last.should =~ /--config '\{\"bert\":\"ernie\"\}'/
       end
     end
@@ -249,17 +249,17 @@ describe "ey deploy" do
       end
 
       it "deploys the default branch by default" do
-        ey "deploy"
+        fast_ey %w[deploy]
         @ssh_commands.last.should =~ /--ref resolved-master/
       end
 
       it "complains about a non-default branch without --ignore-default_branch" do
-        ey "deploy -r current-branch", :expect_failure => true
+        fast_failing_ey %w[deploy -r current-branch]
         @err.should =~ /deploy branch is set to "master"/
       end
 
       it "deploys a non-default branch with --ignore-default-branch" do
-        ey "deploy -r current-branch --ignore-default-branch"
+        fast_ey %w[deploy -r current-branch --ignore-default-branch]
         @ssh_commands.last.should =~ /--ref resolved-current-branch/
       end
     end
@@ -271,7 +271,7 @@ describe "ey deploy" do
     end
 
     it "lets you choose by complete name even if the complete name is ambiguous" do
-      ey "deploy --environment railsapp_staging"
+      fast_ey %w[deploy --environment railsapp_staging]
       @out.should match(/Beginning deploy for.*'railsapp_staging'/)
     end
   end
@@ -304,7 +304,7 @@ describe "ey deploy" do
       after { File.unlink("ey.yml") }
 
       it "overrides what's in ey.yml" do
-        ey "deploy --extra-deploy-hook-options beer:esb"
+        fast_ey %w[deploy --extra-deploy-hook-options beer:esb]
         extra_deploy_hook_options['beer'].should == 'esb'
       end
     end
