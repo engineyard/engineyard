@@ -2,10 +2,13 @@ module EY
   class CLI
     class Recipes < EY::Thor
       desc "apply [--environment ENVIRONMENT]",
-        "Run uploaded chef recipes on specified environment."
+        "Run chef recipes uploaded by the 'recipes upload' command on the specified environment."
       long_desc <<-DESC
         This is similar to '#{banner_base} rebuild' except Engine Yard's main
         configuration step is skipped.
+
+        The cookbook uploaded by the 'recipes upload' command will be run when
+        you run 'recipes apply'.
       DESC
 
       method_option :environment, :type => :string, :aliases => %w(-e),
@@ -19,10 +22,12 @@ module EY
       end
 
       desc "upload [--environment ENVIRONMENT]",
-        "Upload custom chef recipes to specified environment."
+        "Upload custom chef recipes to specified environment so they can be applied."
       long_desc <<-DESC
-        The current directory should contain a subdirectory named "cookbooks" to be
-        uploaded.
+        The current working directory should contain a subdirectory named "cookbooks"
+        that is the collection of recipes to be uploaded.
+
+        The uploaded cookbook will be run when executing 'recipes apply'.
       DESC
 
       method_option :environment, :type => :string, :aliases => %w(-e),
@@ -36,10 +41,10 @@ module EY
       end
 
       desc "download [--environment ENVIRONMENT]",
-        "Download custom chef recipes from ENVIRONMENT into the current directory."
+        "Download a copy of the custom chef recipes from this environment into the current directory."
       long_desc <<-DESC
         The recipes will be unpacked into a directory called "cookbooks" in the
-        current directory.
+        current directory. This is the opposite of 'recipes upload'.
 
         If the cookbooks directory already exists, an error will be raised.
       DESC
