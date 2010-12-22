@@ -43,7 +43,7 @@ module EY
     method_option :app, :type => :string, :aliases => %w(-a),
       :desc => "Name of the application to deploy"
     method_option :account, :type => :string, :aliases => %w(-c),
-      :desc => "Name of the account you want to deploy in"
+      :desc => "Name of the account in which the environment can be found"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
     method_option :extra_deploy_hook_options, :type => :hash, :default => {},
@@ -120,7 +120,7 @@ module EY
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment to rebuild"
     method_option :account, :type => :string, :aliases => %w(-c),
-      :desc => "Name of the account you want to rebuild in"
+      :desc => "Name of the account in which the environment can be found"
     def rebuild
       environment = fetch_environment(options[:environment], options[:account])
       EY.ui.debug("Rebuilding #{environment.name}")
@@ -138,7 +138,7 @@ module EY
     method_option :app, :type => :string, :aliases => %w(-a),
       :desc => "Name of the application to roll back"
     method_option :account, :type => :string, :aliases => %w(-c),
-      :desc => "Name of the account you want to roll back in"
+      :desc => "Name of the account in which the environment can be found"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
     method_option :extra_deploy_hook_options, :type => :hash, :default => {},
@@ -168,7 +168,7 @@ module EY
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment to ssh into"
     method_option :account, :type => :string, :aliases => %w(-c),
-      :desc => "Name of the account you want to deploy in"
+      :desc => "Name of the account in which the environment can be found"
     method_option :all, :type => :boolean, :aliases => %(-a),
       :desc => "Run command on all servers"
     method_option :app_servers, :type => :boolean,
@@ -231,7 +231,7 @@ module EY
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment with the interesting logs"
     method_option :account, :type => :string, :aliases => %w(-c),
-      :desc => "Name of the account you want to deploy in"
+      :desc => "Name of the account in which the environment can be found"
     def logs
       environment = fetch_environment(options[:environment], options[:account])
       environment.logs.each do |log|

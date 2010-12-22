@@ -14,7 +14,7 @@ module EY
       method_option :environment, :type => :string, :aliases => %w(-e),
         :desc => "Environment in which to apply recipes"
       method_option :account, :type => :string, :aliases => %w(-c),
-        :desc => "Name of the account you want to deploy in"
+        :desc => "Name of the account in which the environment can be found"
       def apply
         environment = fetch_environment(options[:environment], options[:account])
         environment.run_custom_recipes
@@ -33,7 +33,7 @@ module EY
       method_option :environment, :type => :string, :aliases => %w(-e),
         :desc => "Environment that will receive the recipes"
       method_option :account, :type => :string, :aliases => %w(-c),
-        :desc => "Name of the account you want to deploy in"
+        :desc => "Name of the account in which the environment can be found"
       def upload
         environment = fetch_environment(options[:environment], options[:account])
         environment.upload_recipes
@@ -51,7 +51,7 @@ module EY
       method_option :environment, :type => :string, :aliases => %w(-e),
         :desc => "Environment for which to download the recipes"
       method_option :account, :type => :string, :aliases => %w(-c),
-        :desc => "Name of the account you want to deploy in"
+        :desc => "Name of the account in which the environment can be found"
       def download
         environment = fetch_environment(options[:environment], options[:account])
         environment.download_recipes

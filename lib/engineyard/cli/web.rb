@@ -10,7 +10,7 @@ module EY
       method_option :verbose, :type => :boolean, :aliases => %w(-v),
         :desc => "Be verbose"
       method_option :account, :type => :string, :aliases => %w(-c),
-        :desc => "Name of the account you want to deploy in"
+        :desc => "Name of the account in which the environment can be found"
       def enable
         app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
         EY.ui.info "Taking down maintenance page for '#{app.name}' in '#{environment.name}'"
@@ -37,7 +37,7 @@ module EY
       method_option :verbose, :type => :boolean, :aliases => %w(-v),
         :desc => "Be verbose"
       method_option :account, :type => :string, :aliases => %w(-c),
-        :desc => "Name of the account you want to deploy in"
+        :desc => "Name of the account in which the environment can be found"
       def disable
         app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
         EY.ui.info "Putting up maintenance page for '#{app.name}' in '#{environment.name}'"
