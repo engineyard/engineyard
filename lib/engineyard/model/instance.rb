@@ -68,10 +68,10 @@ module EY
         cmd = Escape.shell_command(%w[ssh -o StrictHostKeyChecking=no -q] << "#{user}@#{hostname}" << remote_command)
         cmd << " > /dev/null" unless output
         EY.ui.debug(cmd)
-        unless ENV["NO_SSH"]
-          system cmd
-        else
+        if ENV["NO_SSH"]
           true
+        else
+          system cmd
         end
       end
 
