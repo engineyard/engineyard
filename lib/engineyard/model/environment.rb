@@ -55,7 +55,7 @@ module EY
       end
 
       def rebuild
-        api.request("/environments/#{id}/rebuild", :method => :put)
+        api.request("/environments/#{id}/update_instances", :method => :put)
       end
 
       def run_custom_recipes

@@ -11,13 +11,13 @@ describe "EY::Model::Environment#rebuild" do
 
     FakeWeb.register_uri(
       :put,
-      "https://cloud.engineyard.com/api/v2/environments/#{env.id}/rebuild",
+      "https://cloud.engineyard.com/api/v2/environments/#{env.id}/update_instances",
       :body => ''
     )
 
     env.rebuild
 
-    FakeWeb.should have_requested(:put, "https://cloud.engineyard.com/api/v2/environments/#{env.id}/rebuild")
+    FakeWeb.should have_requested(:put, "https://cloud.engineyard.com/api/v2/environments/#{env.id}/update_instances")
   end
 end
 
