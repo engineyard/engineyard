@@ -38,6 +38,7 @@ describe "ey deploy" do
 
   def verify_ran(scenario)
     @out.should match(/Beginning deploy for.*#{scenario[:application]}.*#{scenario[:environment]}/)
+    @out.should match(/Deployment recorded in AppCloud/)
     @ssh_commands.should have_command_like(/engineyard-serverside.*deploy.*--app #{scenario[:application]}/)
   end
 

@@ -19,13 +19,17 @@ module EY
       private :adapter
 
       def deploy(app, ref, migration_command=nil, extra_configuration=nil, verbose=false)
+        deployment = Deployment.started(environment, app, ref, migration_command)
+
         deploy_command = adapter(app, verbose).deploy do |args|
           args.config  = extra_configuration if extra_configuration
           args.migrate = migration_command if migration_command
           args.ref     = ref
         end
 
-        invoke deploy_command
+        successful, output = [invoke(deploy_command), ""]
+        deployment.finished(successful, output)
+        successful
       end
 
       def rollback(app, extra_configuration=nil, verbose=false)
@@ -66,7 +70,7 @@ module EY
         user = environment.username
 
         cmd = Escape.shell_command(%w[ssh -o StrictHostKeyChecking=no -q] << "#{user}@#{hostname}" << remote_command)
-        cmd << " > /dev/null" unless output
+        cmd << " 2>&1" unless output
         EY.ui.debug(cmd)
         if ENV["NO_SSH"]
           true

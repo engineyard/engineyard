@@ -96,7 +96,7 @@ class FakeAwsm < Sinatra::Base
     end
   end
 
-  put "/api/v2/environments/:env_id/rebuild" do
+  put "/api/v2/environments/:env_id/update_instances" do
     status(202)
     ""
   end
@@ -104,6 +104,10 @@ class FakeAwsm < Sinatra::Base
   put "/api/v2/environments/:env_id/run_custom_recipes" do
     status(202)
     ""
+  end
+
+  post "/api/v2/apps/:app_id/environments/:environment_id/deployments" do
+    {"deployment" => params[:deployment].merge({"id" => 2, "commit" => 'a'*40})}.to_json
   end
 
   post "/api/v2/authenticate" do
