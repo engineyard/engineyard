@@ -1,4 +1,5 @@
 require 'escape'
+require 'open4'
 
 module EY
   module Model
@@ -27,7 +28,7 @@ module EY
           args.ref     = ref
         end
 
-        successful, output = [invoke(deploy_command), ""]
+        successful, output = invoke_with_output(deploy_command)
         deployment.finished(successful, output)
         successful
       end
@@ -66,20 +67,29 @@ module EY
 
     private
 
-      def ssh(remote_command, output = true)
+      def ssh(remote_command)
         user = environment.username
+        out = ""
+        handler = lambda do |chunk|
+          out << chunk
+          $stdout << chunk
+        end
 
         cmd = Escape.shell_command(%w[ssh -o StrictHostKeyChecking=no -q] << "#{user}@#{hostname}" << remote_command)
-        cmd << " 2>&1" unless output
         EY.ui.debug(cmd)
         if ENV["NO_SSH"]
-          true
+          [true, "NO_SSH is set."]
         else
-          system cmd
+          status = Open4.spawn(cmd, :out => handler, :err => handler, :quiet => true)
+          [status.success?, out]
         end
       end
 
       def invoke(action)
+        invoke_with_output(action).first
+      end
+
+      def invoke_with_output(action)
         action.call do |cmd|
           puts cmd if action.verbose
           ssh cmd
