@@ -95,7 +95,7 @@ task :release do
 
   puts '********************************************************************************'
   puts
-  puts "Don't forget to `gem push` and `git push --tags`!"
+  puts "Don't forget to `gem push` and `git push origin master --tags`!"
   puts
   puts '********************************************************************************'
 end
