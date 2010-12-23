@@ -49,6 +49,15 @@ describe "ey recipes upload from a separate cookbooks directory" do
 
       ey %w[recipes upload -e giblets]
       @out.should =~ /Recipes uploaded successfully/
+      @out.should_not =~ /Uploaded recipes started for giblets/
+    end
+
+    it "applies the recipes with --apply" do
+      api_scenario "one app, one environment"
+
+      ey %w[recipes upload -e giblets --apply]
+      @out.should =~ /Recipes uploaded successfully/
+      @out.should =~ /Uploaded recipes started for giblets/
     end
   end
 

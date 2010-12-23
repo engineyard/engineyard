@@ -34,10 +34,16 @@ module EY
         :desc => "Environment that will receive the recipes"
       method_option :account, :type => :string, :aliases => %w(-c),
         :desc => "Name of the account in which the environment can be found"
+      method_option :apply, :type => :boolean,
+        :desc => "Apply the recipes after they are uploaded"
       def upload
         environment = fetch_environment(options[:environment], options[:account])
         environment.upload_recipes
         EY.ui.say "Recipes uploaded successfully for #{environment.name}"
+        if options[:apply]
+          environment.run_custom_recipes
+          EY.ui.say "Uploaded recipes started for #{environment.name}"
+        end
       end
 
       desc "download [--environment ENVIRONMENT]",
