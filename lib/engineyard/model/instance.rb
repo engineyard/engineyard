@@ -70,7 +70,7 @@ module EY
       def ssh(remote_command)
         user = environment.username
         out = ""
-        handler = lambda do |chunk|
+        tee = lambda do |chunk|
           out << chunk
           $stdout << chunk
         end
@@ -80,7 +80,7 @@ module EY
         if ENV["NO_SSH"]
           [true, "NO_SSH is set."]
         else
-          status = Open4.spawn(cmd, :out => handler, :err => handler, :quiet => true)
+          status = Open4.spawn(cmd, :out => tee, :err => tee, :quiet => true)
           [status.success?, out]
         end
       end
