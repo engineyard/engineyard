@@ -9,14 +9,14 @@ module EY
           :environment       => environment,
           :migration_command => migration_command,
           :ref               => ref,
-          :created_at        => Time.now,
+          :created_at        => Time.now.utc,
         })
       end
 
       def finished(successful, output)
         self.successful = successful
         self.output = output
-        self.finished_at = Time.now
+        self.finished_at = Time.now.utc
         post_to_appcloud!
       end
 
