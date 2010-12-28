@@ -6,7 +6,7 @@ gem "highline",    '~>1.6.1'
 gem "json_pure"
 gem "escape",      "~>0.0.4"
 gem "engineyard-serverside-adapter", "=1.4.0"   # This line maintained by rake; edits may be stomped on
-gem "open4"
+gem "open4",       "~>1.0.1"
 
 group :test do
   gem "rspec", '1.3.0', :require => "spec"
