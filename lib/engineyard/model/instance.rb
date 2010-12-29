@@ -20,17 +20,21 @@ module EY
       private :adapter
 
       def deploy(app, ref, migration_command=nil, extra_configuration=nil, verbose=false)
+        successful, output = false, ""
         deployment = Deployment.started(environment, app, ref, migration_command)
 
         deploy_command = adapter(app, verbose).deploy do |args|
           args.config  = extra_configuration if extra_configuration
           args.migrate = migration_command if migration_command
-          args.ref     = ref
+          args.ref     = deployment.resolved_ref
         end
 
-        successful, output = invoke_with_output(deploy_command)
-        deployment.finished(successful, output)
-        successful
+        successful = invoke(deploy_command) { |chunk| output << chunk }
+      ensure
+        if deployment
+          deployment.finished(successful, output)
+          EY.ui.info "#{successful ? 'Successful' : 'Failed'} deployment recorded in AppCloud"
+        end
       end
 
       def rollback(app, extra_configuration=nil, verbose=false)
@@ -67,32 +71,27 @@ module EY
 
     private
 
-      def ssh(remote_command)
+      def ssh(remote_command, &block)
+        raise(ArgumentError, "Block required!") unless block_given?
         user = environment.username
-        out = ""
-        tee = lambda do |chunk|
-          out << chunk
-          $stdout << chunk
-        end
-
         cmd = Escape.shell_command(%w[ssh -o StrictHostKeyChecking=no -q] << "#{user}@#{hostname}" << remote_command)
         EY.ui.debug(cmd)
         if ENV["NO_SSH"]
-          [true, "NO_SSH is set."]
+          block.call("NO_SSH is set. No output.")
+          true
         else
-          status = Open4.spawn(cmd, :out => tee, :err => tee, :quiet => true)
-          [status.success?, out]
+          status = Open4.spawn(cmd, :out => block, :err => block, :quiet => true)
+          status.success?
         end
       end
 
-      def invoke(action)
-        invoke_with_output(action).first
-      end
-
-      def invoke_with_output(action)
+      def invoke(action, &block)
         action.call do |cmd|
           puts cmd if action.verbose
-          ssh cmd
+          ssh cmd do |chunk|
+            $stdout << chunk
+            block.call(chunk) if block
+          end
         end
       end
 

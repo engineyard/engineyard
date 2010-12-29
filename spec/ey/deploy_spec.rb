@@ -38,7 +38,7 @@ describe "ey deploy" do
 
   def verify_ran(scenario)
     @out.should match(/Beginning deploy for.*#{scenario[:application]}.*#{scenario[:environment]}/)
-    @out.should match(/Deployment recorded in AppCloud/)
+    @out.should match(/deployment recorded in AppCloud/i)
     @ssh_commands.should have_command_like(/engineyard-serverside.*deploy.*--app #{scenario[:application]}/)
   end
 
@@ -200,27 +200,27 @@ describe "ey deploy" do
     context "without a configured default branch" do
       it "defaults to the checked-out local branch" do
         ey "deploy"
-        @ssh_commands.last.should =~ /--ref current-branch/
+        @ssh_commands.last.should =~ /--ref resolved-current-branch/
       end
 
       it "deploys another branch if given" do
         ey "deploy --ref master"
-        @ssh_commands.last.should =~ /--ref master/
+        @ssh_commands.last.should =~ /--ref resolved-master/
       end
 
       it "deploys a tag if given" do
         ey "deploy --ref v1"
-        @ssh_commands.last.should =~ /--ref v1/
+        @ssh_commands.last.should =~ /--ref resolved-v1/
       end
 
       it "allows using --branch to specify a branch" do
         ey "deploy --branch master"
-        @ssh_commands.last.should match(/--ref master/)
+        @ssh_commands.last.should match(/--ref resolved-master/)
       end
 
       it "allows using --tag to specify the tag" do
         ey "deploy --tag v1"
-        @ssh_commands.last.should match(/--ref v1/)
+        @ssh_commands.last.should match(/--ref resolved-v1/)
       end
     end
 
@@ -250,7 +250,7 @@ describe "ey deploy" do
 
       it "deploys the default branch by default" do
         ey "deploy"
-        @ssh_commands.last.should =~ /--ref master/
+        @ssh_commands.last.should =~ /--ref resolved-master/
       end
 
       it "complains about a non-default branch without --ignore-default_branch" do
@@ -260,7 +260,7 @@ describe "ey deploy" do
 
       it "deploys a non-default branch with --ignore-default-branch" do
         ey "deploy -r current-branch --ignore-default-branch"
-        @ssh_commands.last.should =~ /--ref current-branch/
+        @ssh_commands.last.should =~ /--ref resolved-current-branch/
       end
     end
   end
@@ -327,7 +327,7 @@ describe "ey deploy" do
     it "allows you to specify an app when not in a directory" do
       ey "deploy --app rails232app --ref master"
       @ssh_commands.last.should match(/--app rails232app/)
-      @ssh_commands.last.should match(/--ref master/)
+      @ssh_commands.last.should match(/--ref resolved-master/)
     end
 
     it "requires that you specify a ref when specifying the application" do

@@ -107,7 +107,11 @@ class FakeAwsm < Sinatra::Base
   end
 
   post "/api/v2/apps/:app_id/environments/:environment_id/deployments" do
-    {"deployment" => params[:deployment].merge({"id" => 2, "commit" => 'a'*40})}.to_json
+    {"deployment" => params[:deployment].merge({"id" => 2, "commit" => 'a'*40, "resolved_ref" => "resolved-#{params[:deployment][:ref]}"})}.to_json
+  end
+
+  put "/api/v2/apps/:app_id/environments/:environment_id/deployments/:deployment_id/finished" do
+    {"deployment" => params[:deployment].merge({"id" => 2, "finished_at" => Time.now})}.to_json
   end
 
   post "/api/v2/authenticate" do
