@@ -95,7 +95,7 @@ task :release do
 
   puts '********************************************************************************'
   puts
-  puts "Don't forget to `gem push` and `git push origin master --tags`!"
+  puts "Don't forget to `ey-gem rubygems engineyard-#{new_version}.gem` and `git push origin master v#{new_version}`!"
   puts
   puts '********************************************************************************'
 end
