@@ -71,11 +71,17 @@ module EY
 
     private
 
-      def ssh(remote_command, &block)
-        raise(ArgumentError, "Block required!") unless block_given?
-        user = environment.username
-        cmd = Escape.shell_command(%w[ssh -o StrictHostKeyChecking=no -q] << "#{user}@#{hostname}" << remote_command)
+      def ssh(remote_command, verbose, &block)
+        raise(ArgumentError, "Block required!") unless block
+
+        raw_cmd = %w[ssh -o StrictHostKeyChecking=no]
+        raw_cmd << '-q' unless verbose
+        raw_cmd << "#{environment.username}@#{hostname}"
+        raw_cmd << remote_command
+
+        cmd = Escape.shell_command(raw_cmd)
         EY.ui.debug(cmd)
+        puts cmd if verbose
         if ENV["NO_SSH"]
           block.call("NO_SSH is set. No output.")
           true
@@ -87,8 +93,7 @@ module EY
 
       def invoke(action, &block)
         action.call do |cmd|
-          puts cmd if action.verbose
-          ssh cmd do |chunk|
+          ssh cmd, action.verbose do |chunk|
             $stdout << chunk
             block.call(chunk) if block
           end
