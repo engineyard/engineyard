@@ -42,7 +42,7 @@ module EY
       def update_with_response(response)
         data = response['deployment']
         data.each do |key,val|
-          self[key] = val if members.include?(key)
+          self.send("#{key}=", val) if respond_to?("#{key}=")
         end
       end
 
