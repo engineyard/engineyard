@@ -1,7 +1,7 @@
 source :gemcutter
 
 gem "thor",        "~>0.14.6"
-gem "rest-client", "~>1.4.2", :require => "rest_client"
+gem "rest-client", "~>1.6.0", :require => "rest_client"
 gem "highline",    '~>1.6.1'
 gem "json_pure"
 gem "escape",      "~>0.0.4"
