@@ -36,7 +36,7 @@ module Spec
     def fast_failing_ey(*args)
       begin
         fast_ey(*args)
-        raise ZeroExitStatus
+        raise ZeroExitStatus.new(@out, @err)
       rescue SystemExit => exit_status
         # SystemExit typically indicates a bogus command, which we
         # here in expected-to-fail land are entirely happy with.

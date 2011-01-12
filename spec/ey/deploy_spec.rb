@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'net/ssh'
 
 describe "ey deploy without an eyrc file" do
 
@@ -49,6 +50,23 @@ end
 
 describe "ey deploy" do
   given "integration"
+
+  context "without ssh keys (with ssh enabled)" do
+    before do
+      ENV['NO_SSH'] = nil
+      Net::SSH.stub!(:start).and_raise(Net::SSH::AuthenticationFailed.new("no key"))
+    end
+
+    after do
+      ENV['NO_SSH'] = 'true'
+    end
+
+    it "tells you that you need to add an appropriate ssh key" do
+      api_scenario "one app, one environment"
+      fast_failing_ey ["deploy"]
+      @err.should include("Authentication Failed")
+    end
+  end
 
   context "with invalid input" do
     it "complains when there is no app" do
