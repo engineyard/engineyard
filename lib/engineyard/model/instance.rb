@@ -1,5 +1,5 @@
 require 'escape'
-require 'open4'
+require 'net/ssh'
 
 module EY
   module Model
@@ -74,20 +74,47 @@ module EY
       def ssh(remote_command, verbose, &block)
         raise(ArgumentError, "Block required!") unless block
 
-        raw_cmd = %w[ssh -o StrictHostKeyChecking=no]
-        raw_cmd << '-q' unless verbose
-        raw_cmd << "#{environment.username}@#{hostname}"
-        raw_cmd << remote_command
-
-        cmd = Escape.shell_command(raw_cmd)
+        exit_code = nil
+        cmd = Escape.shell_command(['bash', '-lc', remote_command])
         EY.ui.debug(cmd)
         puts cmd if verbose
         if ENV["NO_SSH"]
           block.call("NO_SSH is set. No output.")
           true
         else
-          status = Open4.spawn(cmd, :out => block, :err => block, :quiet => true)
-          status.success?
+          begin
+            Net::SSH.start(hostname, environment.username, :paranoid => false) do |net_ssh|
+              net_ssh.open_channel do |channel|
+                channel.exec cmd do |_, success|
+                  unless success
+                    block.call "Remote command execution failed"
+                    return false
+                  end
+
+                  channel.on_data do |_, data|
+                    block.call data
+                  end
+
+                  channel.on_extended_data do |_, _, data|
+                    block.call data
+                  end
+
+                  channel.on_request("exit-status") do |_, data|
+                    exit_code = data.read_long
+                  end
+
+                  channel.on_request("exit-signal") do |_, data|
+                    exit_code = 255
+                  end
+                end
+              end
+
+              net_ssh.loop
+            end
+            exit_code.zero?
+          rescue Net::SSH::AuthenticationFailed
+            raise EY::Error, "Authentication Failed: Please add your environment's ssh key with: ssh-add path/to/key"
+          end
         end
       end
 

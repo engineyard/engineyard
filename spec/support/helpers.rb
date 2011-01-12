@@ -55,13 +55,18 @@ module Spec
       end
 
       @raw_ssh_commands = @out.split(/\n/).find_all do |line|
-        line =~ /^ssh/
+        line =~ /^bash -lc/ || line =~ /^ssh/
       end
 
       @ssh_commands = @raw_ssh_commands.map do |cmd|
         # Strip off everything up to and including user@host, leaving
         # just the command that the remote system would run
-        ssh_prefix_removed = cmd.gsub(/^.*?\w+@\S*\s*/, '')
+        #
+        # XXX: this is a really icky icky.
+        # engineyard gem was written as if shelling out to run serverside
+        # and running an ssh command will always be the same. This is a nasty
+        # hack to get it working with Net::SSH for now so we can repair 1.9.2.
+        ssh_prefix_removed = cmd.gsub(/^bash -lc /, '').gsub(/^ssh .*?\w+@\S*\s*/, '')
 
         # Its arguments have been double-escaped: one layer is to get
         # them through our local shell and into ssh, and the other
