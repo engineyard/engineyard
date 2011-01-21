@@ -38,6 +38,7 @@ end
 
 def bump_serverside_adapter
   latest_adapter_version = `gem search -r engineyard-serverside-adapter`.
+    lines.
     grep(/^engineyard-serverside-adapter /).
     first.
     match(/\(([\.0-9a-z]*).*\)/).
