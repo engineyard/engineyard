@@ -13,6 +13,7 @@ Gem::Specification.new do |s|
   s.homepage = "http://github.com/engineyard/engineyard"
   s.summary = "Command-line deployment for the Engine Yard cloud"
   s.description = "This gem allows you to deploy your rails application to the Engine Yard cloud directly from the command line."
+  s.post_install_message = File.read("PostInstall.txt")
 
   s.files = Dir.glob("{bin,lib}/**/*") + %w(LICENSE README.rdoc)
   s.executables = ["ey"]
