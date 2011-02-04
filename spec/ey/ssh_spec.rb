@@ -7,7 +7,13 @@ shared_examples_for "running ey ssh" do
   include Spec::Helpers::SharedIntegrationTestUtils
 
   def extra_ey_options
-    {:prepend_to_path => {'ssh' => "#!/bin/sh\necho ssh $*"}}
+    ssh_cmd = <<-RUBY
+#!#{`which ruby`}
+require "rubygems"
+require "escape"
+puts "ssh \#{Escape.shell_command(ARGV)}"
+    RUBY
+    {:prepend_to_path => {'ssh' => ssh_cmd}}
   end
 end
 
@@ -102,6 +108,24 @@ describe "ey ssh with a command" do
   def verify_ran(scenario)
     ssh_target = scenario[:ssh_username] + '@' + scenario[:master_hostname]
     @raw_ssh_commands.should == ["ssh #{ssh_target} ls"]
+  end
+
+  it_should_behave_like "it takes an environment name and an account name"
+end
+
+describe "ey ssh with a multi-part command" do
+  it_should_behave_like "running ey ssh"
+
+  def command_to_run(opts)
+    cmd = ['ssh', 'echo "echo"']
+    cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--account"     << opts[:account]     if opts[:account]
+    cmd
+  end
+
+  def verify_ran(scenario)
+    ssh_target = scenario[:ssh_username] + '@' + scenario[:master_hostname]
+    @raw_ssh_commands.should == ["ssh #{ssh_target} 'echo \"echo\"'"]
   end
 
   it_should_behave_like "it takes an environment name and an account name"
