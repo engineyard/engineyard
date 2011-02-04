@@ -37,9 +37,7 @@ def bump
   new_version
 end
 
-desc "bump serverside adapter"
-task :bumpserver do
-# def bump_serverside_adapter
+def bump_serverside_adapter
   latest_adapter_version = `gem search -r engineyard-serverside-adapter`.
     lines.
     grep(/^engineyard-serverside-adapter /).
