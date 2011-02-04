@@ -37,7 +37,9 @@ def bump
   new_version
 end
 
-def bump_serverside_adapter
+desc "bump serverside adapter"
+task :bumpserver do
+# def bump_serverside_adapter
   latest_adapter_version = `gem search -r engineyard-serverside-adapter`.
     lines.
     grep(/^engineyard-serverside-adapter /).
@@ -46,12 +48,12 @@ def bump_serverside_adapter
     captures.
     first
 
-  File.open('Gemfile', 'r') do |read_gemfile|
-    File.unlink('Gemfile')
-    File.open('Gemfile', 'w') do |write_gemfile|
+  File.open('engineyard.gemspec', 'r') do |read_gemfile|
+    File.unlink('engineyard.gemspec')
+    File.open('engineyard.gemspec', 'w') do |write_gemfile|
       read_gemfile.each_line do |line|
-        if line =~ /gem "engineyard-serverside-adapter"/
-          write_gemfile.write("gem \"engineyard-serverside-adapter\", \"=#{latest_adapter_version}\"   # This line maintained by rake; edits may be stomped on\n")
+        if line =~ /s.add_dependency\('engineyard-serverside-adapter',/
+          write_gemfile.write("  s.add_dependency(\'engineyard-serverside-adapter\', \'=#{latest_adapter_version}\')   # This line maintained by rake; edits may be stomped on\n")
         else
           write_gemfile.write(line)
         end

@@ -22,5 +22,21 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.6}
   s.test_files = Dir.glob("spec/**/*")
 
-  s.add_bundler_dependencies
+  s.add_dependency('thor', '~>0.14.6')
+  s.add_dependency('rest-client', '~>1.6.0')
+  s.add_dependency('highline', '~>1.6.1')
+  s.add_dependency('json_pure')
+  s.add_dependency('escape', '~>0.0.4')
+  s.add_dependency('engineyard-serverside-adapter', '=1.4.0')   # This line maintained by rake; edits may be stomped on
+  s.add_dependency('net-ssh', '~>2.1.0')
+  
+  s.add_development_dependency('rspec', '1.3.0')
+  s.add_development_dependency('rake')
+  s.add_development_dependency('fakeweb')
+  s.add_development_dependency('fakeweb-matcher')
+  s.add_development_dependency('fakefs')
+  s.add_development_dependency('bundler', '~>1.0.0')
+  s.add_development_dependency('sinatra')
+  s.add_development_dependency('realweb', '~>0.1.6')
+  s.add_development_dependency('open4', '~>1.0.1')
 end
