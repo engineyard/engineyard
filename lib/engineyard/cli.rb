@@ -189,7 +189,7 @@ module EY
       raise NoCommandError.new if cmd.nil? and hosts.count != 1
 
       hosts.each do |host|
-        system "ssh #{environment.username}@#{host} #{cmd}"
+        system "ssh #{environment.username}@#{host} '#{cmd}'"
       end
     end
 
