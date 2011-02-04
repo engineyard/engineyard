@@ -4,6 +4,7 @@ Spec::Rake::SpecTask.new(:spec) do |spec|
   spec.spec_files = FileList['spec/**/*_spec.rb']
   spec.spec_opts = ["--color", "--format specdoc"]
 end
+task :test => :spec
 task :default => :spec
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), 'lib'))
