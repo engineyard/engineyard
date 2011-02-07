@@ -188,8 +188,9 @@ module EY
 
       raise NoCommandError.new if cmd.nil? and hosts.count != 1
 
+      esc_cmd = Escape.shell_command(cmd)
       hosts.each do |host|
-        system "ssh #{environment.username}@#{host} '#{cmd}'"
+        system "ssh #{environment.username}@#{host} #{esc_cmd}"
       end
     end
 
