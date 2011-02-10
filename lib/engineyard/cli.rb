@@ -311,18 +311,10 @@ module EY
   end # CLI
 end # EY
 
-
-require "thor/group"
-class Migrate < Thor::Group
-  class_option :test_framework, :type => :string
-  
-  def migrate
-    p options
-    puts "Do migration"
+class EY::CLI
+  desc "migrate PATH", "description"
+  method_option :account, :desc => "Account to use"
+  def migrate(path)
+    puts "migrate migrate ... #{options.inspect}"
   end
 end
-
-usage       = "Migrate an application from Heroku to AppCloud"
-description = usage + "..."
-options     = {:desc => "Help!"}
-EY::CLI.register(Migrate, :migrate, usage, description, options)
