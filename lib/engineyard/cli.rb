@@ -266,6 +266,8 @@ module EY
       if cmds.empty?
         base = self.class.send(:banner_base)
         list = self.class.printable_tasks
+        require "ap"
+        ap list
 
         EY.ui.say "Usage:"
         EY.ui.say "  #{base} [--help] [--version] COMMAND [ARGS]"
@@ -308,3 +310,19 @@ module EY
 
   end # CLI
 end # EY
+
+
+require "thor/group"
+class Migrate < Thor::Group
+  class_option :test_framework, :type => :string
+  
+  def migrate
+    p options
+    puts "Do migration"
+  end
+end
+
+usage       = "Migrate an application from Heroku to AppCloud"
+description = usage + "..."
+options     = {:desc => "Help!"}
+EY::CLI.register(Migrate, :migrate, usage, description, options)

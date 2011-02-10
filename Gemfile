@@ -7,6 +7,7 @@ gem "json_pure"
 gem "escape",      "~>0.0.4"
 gem "engineyard-serverside-adapter", "=1.4.0"   # This line maintained by rake; edits may be stomped on
 gem 'net-ssh',     "~>2.0.23"
+gem "awesome_print"
 
 group :test do
   gem "rspec", '1.3.0', :require => "spec"
