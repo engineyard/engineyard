@@ -100,6 +100,21 @@ shared_examples_for "it takes an environment name and an account name" do
           :ssh_username     => 'turkey',
         }))
     end
+
+    context "when the backend raises an error" do
+      before do
+        failed_response = RestClient::Response.create(
+          '{ "message": "Important infos about how you failed!"}', OpenStruct.new(:code => 400), nil)
+        RestClient.stub!(:send).and_raise(RestClient::RequestFailed.new(failed_response))
+      end
+
+      it "returns the error message to the user" do
+        lambda do
+          fast_ey(command_to_run({:environment => "giblets", :account => "main"}).split(" "))
+        end.should raise_error(EY::Error, /400.*Important infos/)
+      end
+    end
+
   end
 end
 

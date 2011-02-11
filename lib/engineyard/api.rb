@@ -68,7 +68,7 @@ module EY
       rescue RestClient::ResourceNotFound
         raise RequestFailed, "The requested resource could not be found"
       rescue RestClient::RequestFailed => e
-        raise RequestFailed, "#{e.message}"
+        raise RequestFailed, "#{e.message} #{e.response}"
       rescue OpenSSL::SSL::SSLError
         raise RequestFailed, "SSL is misconfigured on your cloud"
       end
