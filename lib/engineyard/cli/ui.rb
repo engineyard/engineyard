@@ -9,9 +9,11 @@ module EY
             @answers << arg
           end
           def ask(*args, &block)
-            puts args
+            @questions ||= []
+            @questions << args.first
             @answers.pop
           end
+          attr_reader :questions
         end
         def self.enable_mock!
           @backend = Mock.new

@@ -26,14 +26,11 @@ describe EY::CLI::API do
       EY::CLI::UI::Prompter.backend.next_answer = "my@email.example.com"
       EY::CLI::UI::Prompter.backend.next_answer = "secret"
 
-      capture_stdout do
-        @token = EY::CLI::API.new
-      end
+      @token = EY::CLI::API.new
     end
 
     it "asks you for your credentials" do
-      @out.should include("Email:")
-      @out.should include("Password:")
+      EY::CLI::UI::Prompter.backend.questions.should == ["Email: ","Password: "]
     end
 
     it "gets the api token" do
