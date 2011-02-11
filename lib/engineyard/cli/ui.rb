@@ -68,7 +68,9 @@ module EY
 
       def ask(message, password = false)
         begin
-          if password
+          if not $stdin.tty?
+            Prompter.ask(message)
+          elsif password
             Prompter.ask(message) {|q| q.echo = "*" }
           else
             Prompter.ask(message) {|q| q.readline = true }
