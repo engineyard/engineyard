@@ -22,14 +22,19 @@ describe EY::CLI::API do
     before(:each) do
       FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
 
-      capture_stdio("\n\n") do
-        @token = EY::CLI::API.new
-      end
+      @ask_calls = []
+      require 'highline'
+      require 'mocha'
+      HighLine.any_instance.expects(:ask).with do |arg1, arg2, block|
+        @ask_calls << arg1
+        true
+      end.returns("").twice
+
+      @token = EY::CLI::API.new
     end
 
     it "asks you for your credentials" do
-      @out.should include("Email:")
-      @out.should include("Password:")
+      @ask_calls.should == ["Email: ", "Password: "]
     end
 
     it "gets the api token" do

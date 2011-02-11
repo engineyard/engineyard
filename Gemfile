@@ -18,4 +18,5 @@ group :test do
   gem "sinatra"
   gem "realweb", "~>0.1.6"
   gem "open4",   "~>1.0.1"
+  gem "mocha"
 end

@@ -47,9 +47,7 @@ module EY
         begin
           require 'highline'
           @hl ||= HighLine.new($stdin)
-          if not $stdin.tty?
-            @hl.ask(message)
-          elsif password
+          if password
             @hl.ask(message) {|q| q.echo = "*" }
           else
             @hl.ask(message) {|q| q.readline = true }
