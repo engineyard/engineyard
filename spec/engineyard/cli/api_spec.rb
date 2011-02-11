@@ -22,7 +22,11 @@ describe EY::CLI::API do
     before(:each) do
       FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
 
-      capture_stdio("\n\n") do
+      EY::CLI::UI::Prompter.enable_mock!
+      EY::CLI::UI::Prompter.backend.next_answer = "my@email.example.com"
+      EY::CLI::UI::Prompter.backend.next_answer = "secret"
+
+      capture_stdout do
         @token = EY::CLI::API.new
       end
     end

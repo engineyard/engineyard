@@ -4,6 +4,7 @@ require 'engineyard/cli'
 describe EY::CLI do
 
   it "sets up EY.ui" do
+    EY.instance_eval{ @ui = nil }
     EY.ui.should be_an(EY::UI)
     capture_stdout do
       EY::CLI.start(["help"])

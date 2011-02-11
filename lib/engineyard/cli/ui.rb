@@ -2,6 +2,29 @@ module EY
   class CLI
     class UI < Thor::Base.shell
 
+      class Prompter
+        class Mock
+          def next_answer=(arg)
+            @answers ||= []
+            @answers << arg
+          end
+          def ask(*args, &block)
+            puts args
+            @answers.pop
+          end
+        end
+        def self.enable_mock!
+          @backend = Mock.new
+        end
+        def self.backend
+          require 'highline'
+          @backend ||= HighLine.new($stdin)
+        end
+        def self.ask(*args, &block)
+          backend.ask(*args, &block)
+        end
+      end
+
       def error(name, message = nil)
         begin
           orig_out, $stdout = $stdout, $stderr
@@ -45,14 +68,10 @@ module EY
 
       def ask(message, password = false)
         begin
-          require 'highline'
-          @hl ||= HighLine.new($stdin)
-          if not $stdin.tty?
-            @hl.ask(message)
-          elsif password
-            @hl.ask(message) {|q| q.echo = "*" }
+          if password
+            Prompter.ask(message) {|q| q.echo = "*" }
           else
-            @hl.ask(message) {|q| q.readline = true }
+            Prompter.ask(message) {|q| q.readline = true }
           end
         rescue EOFError
           return ''
