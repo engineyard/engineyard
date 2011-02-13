@@ -38,8 +38,13 @@ module EY
         :desc => "Be verbose"
       def add(name, command, crontab)
         environment = fetch_environment(options[:environment], options[:account])
-
-        EY.ui.say "Cron added to #{environment.name}.", :green
+        parts = crontab.strip.split(/\s+/)
+        if parts.length != 5
+          EY.ui.error "CRONTAB is a 5-part string. For example, '0 * * * *'."
+        else
+          environment.create_cron(name, command, *parts)
+          EY.ui.say "Cron added to #{environment.name}.", :green
+        end
       end
 
     end

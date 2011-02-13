@@ -66,6 +66,10 @@ class FakeAwsm < Sinatra::Base
     {"crons" => @@cloud_mock.crons(params[:env_id].to_i)}.to_json
   end
 
+  post "/api/v2/environments/:env_id/crons" do
+    status(201)
+  end
+
   get "/api/v2/environments/:env_id/recipes" do
     redirect '/fakes3/recipe'
   end

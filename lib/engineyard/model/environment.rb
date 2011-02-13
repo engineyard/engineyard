@@ -25,6 +25,12 @@ module EY
       def crons
         Cron.from_array(api_get("/environments/#{id}/crons")["crons"])
       end
+      
+      def create_cron(name, command, minute, hour, day, month, weekday)
+        api_post("/environments/#{id}/crons", {
+          :name => name, :command => command, 
+          :minute => minute, :hour => hour, :day => day, :month => month, :weekday => weekday})
+      end
 
       def app_master!
         master = app_master
