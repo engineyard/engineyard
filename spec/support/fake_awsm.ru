@@ -62,6 +62,10 @@ class FakeAwsm < Sinatra::Base
     {"logs" => @@cloud_mock.logs(params[:env_id].to_i)}.to_json
   end
 
+  get "/api/v2/environments/:env_id/crons" do
+    {"crons" => @@cloud_mock.crons(params[:env_id].to_i)}.to_json
+  end
+
   get "/api/v2/environments/:env_id/recipes" do
     redirect '/fakes3/recipe'
   end
@@ -132,12 +136,13 @@ private
 
   class CloudMock
     def initialize(initial_conditions)
-      @accounts, @apps, @envs, @keys, @app_joins, @key_joins = [], [], [], [], [], []
+      @accounts, @apps, @envs, @crons, @keys, @app_joins, @key_joins = [], [], [], [], [], [], []
       @next_id = 1
 
       initial_conditions.starting_accounts.each     {|a| add_account(a) }
       initial_conditions.starting_apps.each         {|a| add_app(a) }
       initial_conditions.starting_environments.each {|e| add_environment(e) }
+      initial_conditions.starting_crons.each        {|c| add_cron(c) }
       initial_conditions.starting_app_joins.each    {|(app_id, env_id)| link_app(app_id, env_id) }
     end
 
@@ -167,6 +172,12 @@ private
       env
     end
 
+    def add_cron(cron)
+      cron["id"] ||= next_id
+      @crons << cron
+      cron
+    end
+
     def link_app(app_id, env_id)
       app = @apps.find {|a| a["id"] == app_id } or raise "No such app id:#{app_id}"
       env = @envs.find {|e| e["id"] == env_id } or raise "No such environment id:#{env_id}"
@@ -190,6 +201,10 @@ private
           "main" => "MAIN LOG OUTPUT",
           "custom" => "CUSTOM LOG OUTPUT"
         }]
+    end
+    
+    def crons(env_id)
+      @crons
     end
 
     def environments
@@ -238,6 +253,7 @@ private
       def starting_accounts()     [{"name" => "main"}] end
       def starting_apps()         [] end
       def starting_environments() [] end
+      def starting_crons()        [] end
       def starting_app_joins()    [] end
 
     end
@@ -313,6 +329,19 @@ private
             "instances_count" => 4,
             "stack_name" => "nginx_mongrel",
             "framework_env" => "production"}]
+      end
+
+      def starting_crons
+        [{
+           "minute" => "0",
+             "name" => "rake cron",
+          "command" => "cd /data/giblets/current && RAILS_ENV=production rake cron",
+            "month" => "*",
+             "hour" => "1",
+              "day" => "*/1",
+             "user" => "deploy",
+          "weekday" => "*"
+        }]
       end
 
       def starting_app_joins

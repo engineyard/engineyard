@@ -22,6 +22,10 @@ module EY
         Log.from_array(api_get("/environments/#{id}/logs")["logs"])
       end
 
+      def crons
+        Cron.from_array(api_get("/environments/#{id}/crons")["crons"])
+      end
+
       def app_master!
         master = app_master
         if master.nil?

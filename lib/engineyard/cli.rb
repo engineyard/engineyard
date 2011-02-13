@@ -153,7 +153,7 @@ module EY
         raise EY::Error, "Rollback failed"
       end
     end
-
+    
     desc "ssh [COMMAND] [--all] [--environment ENVIRONMENT]", "Open an ssh session to the master app server, or run a command."
     long_desc <<-DESC
       If a command is supplied, it will be run, otherwise a session will be
@@ -246,6 +246,29 @@ module EY
           EY.ui.info "Custom logs for #{environment.name}:"
           EY.ui.say  log.custom
         end
+      end
+    end
+
+    desc "cron  [--environment ENVIRONMENT]", "List cron configuration for the environment."
+    method_options :name => :default
+    long_desc <<-DESC
+      Manage your crontab configuration.
+    DESC
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :desc => "Environment in which to roll back the application"
+    method_option :app, :type => :string, :aliases => %w(-a),
+      :desc => "Name of the application to roll back"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :desc => "Name of the account in which the environment can be found"
+    method_option :verbose, :type => :boolean, :aliases => %w(-v),
+      :desc => "Be verbose"
+    def cron
+      app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
+      
+      EY.ui.say "Cron for #{environment.name}:"
+      EY.ui.say EY::Model::Cron.header
+      environment.crons.each do |cron|
+        EY.ui.say cron.crontab
       end
     end
 

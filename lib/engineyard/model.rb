@@ -6,6 +6,7 @@ module EY
     autoload :Deployment,    'engineyard/model/deployment'
     autoload :Environment,   'engineyard/model/environment'
     autoload :Log,           'engineyard/model/log'
+    autoload :Cron,          'engineyard/model/cron'
     autoload :Instance,      'engineyard/model/instance'
   end
 end
