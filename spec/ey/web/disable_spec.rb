@@ -4,11 +4,11 @@ describe "ey web disable" do
   given "integration"
 
   def command_to_run(opts)
-    cmd = "web disable"
-    cmd << " -e #{opts[:environment]}" if opts[:environment]
-    cmd << " -a #{opts[:app]}" if opts[:app]
-    cmd << " -c #{opts[:account]}" if opts[:account]
-    cmd << " --verbose" if opts[:verbose]
+    cmd = %w[web disable]
+    cmd << "-e" << opts[:environment] if opts[:environment]
+    cmd << "-a" << opts[:app]         if opts[:app]
+    cmd << "-c" << opts[:account]     if opts[:account]
+    cmd << "--verbose"                if opts[:verbose]
     cmd
   end
 

@@ -11,7 +11,7 @@ describe "ey deploy without an eyrc file" do
   end
 
   it "prompts for authentication before continuing" do
-    ey("deploy", :hide_err => true) do |input|
+    ey(%w[deploy], :hide_err => true) do |input|
       input.puts("test@test.test")
       input.puts("test")
     end
@@ -28,12 +28,12 @@ describe "ey deploy" do
   given "integration"
 
   def command_to_run(opts)
-    cmd = "deploy"
-    cmd << " --environment #{opts[:environment]}" if opts[:environment]
-    cmd << " --app #{opts[:app]}" if opts[:app]
-    cmd << " --account #{opts[:account]}" if opts[:account]
-    cmd << " --ref #{opts[:ref]}" if opts[:ref]
-    cmd << " --verbose" if opts[:verbose]
+    cmd = ["deploy"]
+    cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--app"         << opts[:app]         if opts[:app]
+    cmd << "--account"     << opts[:account]     if opts[:account]
+    cmd << "--ref"         << opts[:ref]         if opts[:ref]
+    cmd << "--verbose"                           if opts[:verbose]
     cmd
   end
 
@@ -308,7 +308,7 @@ describe "ey deploy" do
     end
 
     it "passes the extra configuration to engineyard-serverside" do
-      ey "deploy --extra-deploy-hook-options some:stuff more:crap"
+      ey %w[deploy --extra-deploy-hook-options some:stuff more:crap]
       extra_deploy_hook_options.should_not be_nil
       extra_deploy_hook_options['some'].should == 'stuff'
       extra_deploy_hook_options['more'].should == 'crap'

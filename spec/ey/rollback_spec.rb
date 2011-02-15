@@ -4,11 +4,11 @@ describe "ey rollback" do
   given "integration"
 
   def command_to_run(opts)
-    cmd = "rollback"
-    cmd << " -e #{opts[:environment]}" if opts[:environment]
-    cmd << " -a #{opts[:app]}" if opts[:app]
-    cmd << " -c #{opts[:account]}" if opts[:account]
-    cmd << " --verbose" if opts[:verbose]
+    cmd = ["rollback"]
+    cmd << "-e" << opts[:environment] if opts[:environment]
+    cmd << "-a" << opts[:app]         if opts[:app]
+    cmd << "-c" << opts[:account]     if opts[:account]
+    cmd << "--verbose"                if opts[:verbose]
     cmd
   end
 
@@ -23,7 +23,7 @@ describe "ey rollback" do
 
   it "passes along the web server stack to engineyard-serverside" do
     api_scenario "one app, one environment"
-    ey "rollback"
+    ey %w[rollback]
     @ssh_commands.last.should =~ /--stack nginx_mongrel/
   end
 
@@ -41,7 +41,7 @@ describe "ey rollback" do
     end
 
     it "passes the extra configuration to engineyard-serverside" do
-      ey "rollback --extra-deploy-hook-options some:stuff more:crap"
+      ey %w[rollback --extra-deploy-hook-options some:stuff more:crap]
       extra_deploy_hook_options.should_not be_nil
       extra_deploy_hook_options['some'].should == 'stuff'
       extra_deploy_hook_options['more'].should == 'crap'
@@ -55,7 +55,7 @@ describe "ey rollback" do
       after { File.unlink("ey.yml") }
 
       it "overrides what's in ey.yml" do
-        ey "rollback --extra-deploy-hook-options beer:esb"
+        ey %w[rollback --extra-deploy-hook-options beer:esb]
         extra_deploy_hook_options['beer'].should == 'esb'
       end
     end

@@ -15,9 +15,9 @@ describe "ey recipes download" do
   end
 
   def command_to_run(opts)
-    cmd = "recipes download"
-    cmd << " --environment #{opts[:environment]}" if opts[:environment]
-    cmd << " --account #{opts[:account]}" if opts[:account]
+    cmd = %w[recipes download]
+    cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--account"     << opts[:account]     if opts[:account]
     cmd
   end
 
@@ -31,13 +31,13 @@ describe "ey recipes download" do
   it "fails when cookbooks/ already exists" do
     api_scenario "one app, one environment"
     Dir.mkdir("cookbooks")
-    ey "recipes download", :expect_failure => true
+    ey %w[recipes download], :expect_failure => true
     @err.should match(/cookbooks.*already exists/i)
   end
 end
 
 describe "ey recipes download with an ambiguous git repo" do
   given "integration"
-  def command_to_run(_) "recipes download" end
+  def command_to_run(_) %w[recipes download] end
   it_should_behave_like "it requires an unambiguous git repo"
 end

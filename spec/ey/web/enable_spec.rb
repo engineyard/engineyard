@@ -4,11 +4,11 @@ describe "ey web enable" do
   given "integration"
 
   def command_to_run(opts)
-    cmd = "web enable"
-    cmd << " -e #{opts[:environment]}" if opts[:environment]
-    cmd << " -a #{opts[:app]}" if opts[:app]
-    cmd << " -c #{opts[:account]}" if opts[:account]
-    cmd << " --verbose" if opts[:verbose]
+    cmd = %w[web enable]
+    cmd << "-e" << opts[:environment] if opts[:environment]
+    cmd << "-a" << opts[:app]         if opts[:app]
+    cmd << "-c" << opts[:account]     if opts[:account]
+    cmd << "--verbose"                if opts[:verbose]
     cmd
   end
 
@@ -20,7 +20,7 @@ describe "ey web enable" do
   it_should_behave_like "it invokes engineyard-serverside"
 
   it "fails when given a bad option" do
-    ey "web enable --lots --of --bogus --options", :expect_failure => true
+    ey %w[web enable --lots --of --bogus --options], :expect_failure => true
     @err.should include("Unknown switches")
   end
 end

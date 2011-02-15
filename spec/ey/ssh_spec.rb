@@ -20,9 +20,8 @@ shared_examples_for "running ey ssh for select role" do
   end
 
   def command_to_run(opts)
-    cmd = "ssh #{opts[:ssh_command]}"
-    cmd << " #{@ssh_flag}"
-    cmd << " --environment #{opts[:environment]}" if opts[:environment]
+    cmd = ["ssh", opts[:ssh_command]].compact + (@ssh_flag || [])
+    cmd << "--environment" << opts[:environment] if opts[:environment]
     cmd
   end
 
@@ -60,7 +59,7 @@ describe "ey ssh" do
   end
 
   it "complains if it has no app master" do
-    ey "ssh -e bakon", :expect_failure => true
+    ey %w[ssh -e bakon], :expect_failure => true
     @err.should =~ /'bakon' does not have any matching instances/
   end
 
@@ -68,7 +67,7 @@ end
 
 describe "ey ssh with an ambiguous git repo" do
   it_should_behave_like "running ey ssh"
-  def command_to_run(_) "ssh ls" end
+  def command_to_run(_) %w[ssh ls] end
   it_should_behave_like "it requires an unambiguous git repo"
 end
 
@@ -76,9 +75,9 @@ describe "ey ssh without a command" do
   it_should_behave_like "running ey ssh"
 
   def command_to_run(opts)
-    cmd = "ssh"
-    cmd << " --environment #{opts[:environment]}" if opts[:environment]
-    cmd << " --account #{opts[:account]}" if opts[:account]
+    cmd = ["ssh"]
+    cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--account"     << opts[:account]     if opts[:account]
     cmd
   end
 
@@ -94,9 +93,9 @@ describe "ey ssh with a command" do
   it_should_behave_like "running ey ssh"
 
   def command_to_run(opts)
-    cmd = "ssh ls"
-    cmd << " --environment #{opts[:environment]}" if opts[:environment]
-    cmd << " --account #{opts[:account]}" if opts[:account]
+    cmd = %w[ssh ls]
+    cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--account"     << opts[:account]     if opts[:account]
     cmd
   end
 
@@ -110,7 +109,7 @@ end
 
 describe "ey ssh --all" do
   before do
-    @ssh_flag = "--all"
+    @ssh_flag = %w[--all]
     @hosts = %w(app_hostname 
                 app_master_hostname 
                 util_fluffy_hostname 
@@ -126,7 +125,7 @@ end
 
 describe "ey ssh --app-servers" do
   before do
-    @ssh_flag = "--app-servers"
+    @ssh_flag = %w[--app-servers]
     @hosts = %w(app_hostname app_master_hostname)
   end
 
@@ -136,7 +135,7 @@ end
 
 describe "ey ssh --db-master" do
   before do
-    @ssh_flag = "--db-master"
+    @ssh_flag = %w[--db-master]
     @hosts = %w(db_master_hostname)
   end
 
@@ -146,7 +145,7 @@ end
 
 describe "ey ssh --db-slaves" do
   before do
-    @ssh_flag = "--db-slaves"
+    @ssh_flag = %w[--db-slaves]
     @hosts = %w(db_slave_1_hostname db_slave_2_hostname)
   end
 
@@ -156,7 +155,7 @@ end
 
 describe "ey ssh --db-servers" do
   before do
-    @ssh_flag = "--db-servers"
+    @ssh_flag = %w[--db-servers]
     @hosts = %w(db_master_hostname db_slave_1_hostname db_slave_2_hostname)
   end
 
@@ -166,7 +165,7 @@ end
 
 describe "ey ssh --utilities" do
   before do
-    @ssh_flag = "--utilities"
+    @ssh_flag = %w[--utilities]
     @hosts = %w(util_fluffy_hostname util_rocky_hostname)
   end
 
@@ -176,7 +175,7 @@ end
 
 describe "ey ssh --utilities fluffy" do
   before do
-    @ssh_flag = "--utilities fluffy"
+    @ssh_flag = %w[--utilities fluffy]
     @hosts = %w(util_fluffy_hostname)
   end
 
@@ -186,7 +185,7 @@ end
 
 describe "ey ssh --utilities fluffy rocky" do
   before do
-    @ssh_flag = "--utilities fluffy rocky"
+    @ssh_flag = %w[--utilities fluffy rocky]
     @hosts = %w(util_fluffy_hostname util_rocky_hostname)
   end
 

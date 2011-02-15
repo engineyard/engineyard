@@ -69,7 +69,7 @@ module Spec
       $stdout = STDOUT
     end
 
-    def ey(cmd = nil, options = {}, &block)
+    def ey(args = [], options = {}, &block)
       hide_err = options.has_key?(:hide_err) ? options[:hide_err] : options[:expect_failure]
       path_prepends = options[:prepend_to_path]
 
@@ -94,7 +94,7 @@ module Spec
       eybin = File.expand_path('../bundled_ey', __FILE__)
 
       with_env(ey_env) do
-        exit_status = Open4::open4("#{eybin} #{cmd}") do |pid, stdin, stdout, stderr|
+        exit_status = Open4::open4("#{eybin} #{Escape.shell_command(args)}") do |pid, stdin, stdout, stderr|
           block.call(stdin) if block
           @err = stderr.read
           @out = stdout.read

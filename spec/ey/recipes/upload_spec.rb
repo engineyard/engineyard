@@ -10,9 +10,9 @@ describe "ey recipes upload" do
   use_git_repo('+cookbooks')
 
   def command_to_run(opts)
-    cmd = "recipes upload"
-    cmd << " --environment #{opts[:environment]}" if opts[:environment]
-    cmd << " --account #{opts[:account]}" if opts[:account]
+    cmd = %w[recipes upload]
+    cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--account"     << opts[:account]     if opts[:account]
     cmd
   end
 
@@ -25,7 +25,7 @@ end
 
 describe "ey recipes upload with an ambiguous git repo" do
   given "integration"
-  def command_to_run(_) "recipes upload" end
+  def command_to_run(_) %w[recipes upload] end
   it_should_behave_like "it requires an unambiguous git repo"
 end
 
@@ -47,7 +47,7 @@ describe "ey recipes upload from a separate cookbooks directory" do
     it "takes the environment specified by -e" do
       api_scenario "one app, one environment"
 
-      ey "recipes upload -e giblets"
+      ey %w[recipes upload -e giblets]
       @out.should =~ /Recipes uploaded successfully/
     end
   end
@@ -69,7 +69,7 @@ describe "ey recipes upload from a separate cookbooks directory" do
     it "takes the environment specified by -e" do
       api_scenario "one app, one environment"
 
-      ey "recipes upload -e giblets"
+      ey %w[recipes upload -e giblets]
       @out.should =~ /Recipes uploaded successfully/
     end
 
