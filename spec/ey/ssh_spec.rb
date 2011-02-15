@@ -126,7 +126,6 @@ describe "ey ssh with a multi-part command" do
 
   def verify_ran(scenario)
     ssh_target = scenario[:ssh_username] + '@' + scenario[:master_hostname]
-    puts "RAW_SSH_COMMANDS: #{@raw_ssh_commands.inspect}"
     @raw_ssh_commands.should == ["ssh #{ssh_target} 'cd /path/to/place; ls'"]
   end
 
