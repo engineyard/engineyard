@@ -96,8 +96,8 @@ module Spec
       with_env(ey_env) do
         exit_status = Open4::open4("#{eybin} #{Escape.shell_command(args)}") do |pid, stdin, stdout, stderr|
           block.call(stdin) if block
-          @err = stderr.read
           @out = stdout.read
+          @err = stderr.read
         end
 
         if !exit_status.success? && !options[:expect_failure]
