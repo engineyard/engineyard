@@ -38,13 +38,9 @@ def bump
 end
 
 def bump_serverside_adapter
-  latest_adapter_version = `gem search -r engineyard-serverside-adapter`.
-    lines.
-    grep(/^engineyard-serverside-adapter /).
-    first.
-    match(/\(([\.0-9a-z]*).*\)/).
-    captures.
-    first
+  specs = Gem::SpecFetcher.fetcher.fetch(Gem::Dependency.new("engineyard-serverside-adapter"))
+  versions = specs.map {|spec,| spec.version}.sort
+  latest_adapter_version = versions.last.to_s
 
   File.open('engineyard.gemspec', 'r') do |read_gemfile|
     File.unlink('engineyard.gemspec')
