@@ -11,13 +11,13 @@ describe "EY::Model::Environment#rebuild" do
 
     FakeWeb.register_uri(
       :put,
-      "https://cloud.engineyard.com/api/v2/environments/#{env.id}/update_instances",
+      "https://appcloud-engineyard.apigee.com/api/v2/environments/#{env.id}/update_instances",
       :body => ''
     )
 
     env.rebuild
 
-    FakeWeb.should have_requested(:put, "https://cloud.engineyard.com/api/v2/environments/#{env.id}/update_instances")
+    FakeWeb.should have_requested(:put, "https://appcloud-engineyard.apigee.com/api/v2/environments/#{env.id}/update_instances")
   end
 end
 
@@ -32,14 +32,14 @@ describe "EY::Model::Environment#run_custom_recipes" do
 
     FakeWeb.register_uri(
       :put,
-      "https://cloud.engineyard.com/api/v2/environments/#{env.id}/run_custom_recipes",
+      "https://appcloud-engineyard.apigee.com/api/v2/environments/#{env.id}/run_custom_recipes",
       :body => '',
       :content_type => 'application/json'
     )
 
     env.run_custom_recipes
 
-    FakeWeb.should have_requested(:put, "https://cloud.engineyard.com/api/v2/environments/#{env.id}/run_custom_recipes")
+    FakeWeb.should have_requested(:put, "https://appcloud-engineyard.apigee.com/api/v2/environments/#{env.id}/run_custom_recipes")
   end
 end
 
@@ -74,7 +74,7 @@ describe "EY::Model::Environment#instances" do
       })
 
     FakeWeb.register_uri(:get,
-      "https://cloud.engineyard.com/api/v2/environments/#{env.id}/instances",
+      "https://appcloud-engineyard.apigee.com/api/v2/environments/#{env.id}/instances",
       :body => {"instances" => [instance_data]}.to_json,
       :content_type => 'application/json'
     )

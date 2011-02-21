@@ -44,7 +44,7 @@ module EY
     end
 
     def default_endpoint
-      URI.parse("https://cloud.engineyard.com/")
+      URI.parse("https://appcloud-engineyard.apigee.com/")
     end
 
     def default_endpoint?

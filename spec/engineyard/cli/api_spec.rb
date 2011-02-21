@@ -20,7 +20,7 @@ describe EY::CLI::API do
 
   context "without saved api token" do
     before(:each) do
-      FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
+      FakeWeb.register_uri(:post, "https://appcloud-engineyard.apigee.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
 
       EY::CLI::UI::Prompter.enable_mock!
       EY::CLI::UI::Prompter.backend.next_answer = "my@email.example.com"

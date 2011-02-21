@@ -8,7 +8,7 @@ describe EY::API do
 
   context "fetching the token from EY cloud" do
     before(:each) do
-      FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
+      FakeWeb.register_uri(:post, "https://appcloud-engineyard.apigee.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
       @token = EY::API.fetch_token("a@b.com", "foo")
     end
 
@@ -46,7 +46,7 @@ describe EY::API do
   end
 
   it "raises InvalidCredentials when the credentials are invalid" do
-    FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :status => 401, :content_type => 'application/json')
+    FakeWeb.register_uri(:post, "https://appcloud-engineyard.apigee.com/api/v2/authenticate", :status => 401, :content_type => 'application/json')
 
     lambda {
       EY::API.fetch_token("a@b.com", "foo")
