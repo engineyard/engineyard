@@ -28,43 +28,33 @@ module EY
       end
 
       def error(name, message = nil)
-        begin
-          orig_out, $stdout = $stdout, $stderr
-          if message
-            say_status name, message, :red
-          elsif name
-            say name, :red
-          end
-        ensure
-          $stdout = orig_out
-        end
+        $stdout = $stderr
+        say_with_status(name, message, :red)
+      ensure
+        $stdout = STDOUT
       end
 
       def warn(name, message = nil)
-        if message
-          say_status name, message, :yellow
-        elsif name
-          say name, :yellow
-        end
+        say_with_status(name, message, :yellow)
       end
 
       def info(name, message = nil)
-        if message
-          say_status name, message, :green
-        elsif name
-          say name, :green
-        end
+        say_with_status(name, message, :green)
       end
 
       def debug(name, message = nil)
-        return unless ENV["DEBUG"]
+        if ENV["DEBUG"]
+          name    = name.inspect    unless name.nil? or name.is_a?(String)
+          message = message.inspect unless message.nil? or message.is_a?(String)
+          say_with_status(name, message, :blue)
+        end
+      end
 
+      def say_with_status(name, message=nil, color=nil)
         if message
-          message = message.inspect unless message.is_a?(String)
-          say_status name, message, :blue
+          say_status name, message, color
         elsif name
-          name = name.inspect unless name.is_a?(String)
-          say name, :cyan
+          say name, color
         end
       end
 
