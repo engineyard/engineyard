@@ -67,6 +67,8 @@ module EY
         raise RequestFailed, "Could not reach the cloud API"
       rescue RestClient::ResourceNotFound
         raise RequestFailed, "The requested resource could not be found"
+      rescue RestClient::BadGateway
+        raise RequestFailed, "AppCloud API is temporarily unavailable. Please try again soon."
       rescue RestClient::RequestFailed => e
         raise RequestFailed, "#{e.message} #{e.response}"
       rescue OpenSSL::SSL::SSLError

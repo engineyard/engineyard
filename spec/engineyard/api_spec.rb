@@ -53,4 +53,11 @@ describe EY::API do
     }.should raise_error(EY::Error)
   end
 
+  it "raises RequestFailed with a friendly error when cloud is under maintenance" do
+    FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :status => 502, :content_type => 'text/html')
+
+    lambda {
+      EY::API.fetch_token("a@b.com", "foo")
+    }.should raise_error(EY::API::RequestFailed, /AppCloud API is temporarily unavailable/)
+  end
 end
