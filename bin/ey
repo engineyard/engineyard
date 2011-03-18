@@ -3,6 +3,8 @@ require 'engineyard/cli'
 
 begin
   EY::CLI.start
+rescue SocketError => e
+  EY.ui.error("Cannot connect, perhaps there is a network error. Quitting...")
 rescue EY::Error => e
   EY.ui.print_exception(e)
   exit(1)
