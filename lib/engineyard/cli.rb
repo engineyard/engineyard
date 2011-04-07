@@ -186,7 +186,7 @@ module EY
       environment = fetch_environment(options[:environment], options[:account])
       hosts = ssh_hosts(options, environment)
 
-      raise NoCommandError.new if cmd.nil? and hosts.count != 1
+      raise NoCommandError.new if cmd.nil? and hosts.size != 1
 
       hosts.each do |host|
         system Escape.shell_command(['ssh', "#{environment.username}@#{host}", cmd].compact)
