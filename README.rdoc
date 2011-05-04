@@ -5,14 +5,16 @@ Command:
   ey deploy
 
   Options:
-    -r, --branch, --tag, [--ref=REF]       # Git ref to deploy. May be a branch, a tag, or a SHA.
-        [--ignore-bad-master]              # Force a deploy even if the master is in a bad state
-    -v, [--verbose]                        # Be verbose
-    -a, [--app=APP]                        # Name of the application to deploy
-    -m, [--migrate=MIGRATE]                # Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations
-        [--ignore-default-branch]          # Force a deploy of the specified branch even if a default is set
-    -e, [--environment=ENVIRONMENT]        # Environment in which to deploy this application
-    -c, [--account=ACCOUNT]                # Name of the account in which the environment can be found
+    -r, --branch, --tag, [--ref=REF]          # Git ref to deploy. May be a branch, a tag, or a SHA.
+        [--ignore-bad-master]                 # Force a deploy even if the master is in a bad state
+    -v, [--verbose]                           # Be verbose
+    -a, [--app=APP]                           # Name of the application to deploy
+    -m, [--migrate=MIGRATE]                   # Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations
+        [--ignore-default-branch]             # Force a deploy of the specified branch even if a default is set
+    -e, [--environment=ENVIRONMENT]           # Environment in which to deploy this application
+    -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
+        [--extra-deploy-hook-options key:val] # Additional options to be made available in deploy hooks (in the 'config' hash)
+
 
   Description:
     This command must be run with the current directory containing the app to be deployed. If ey.yml specifies a default branch then the ref parameter can be omitted. Furthermore,
