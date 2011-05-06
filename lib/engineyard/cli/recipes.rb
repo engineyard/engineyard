@@ -2,13 +2,13 @@ module EY
   class CLI
     class Recipes < EY::Thor
       desc "apply [--environment ENVIRONMENT]",
-        "Run chef recipes uploaded by the 'recipes upload' command on the specified environment."
+        "Run chef recipes uploaded by '#{banner_base} recipes upload' on the specified environment."
       long_desc <<-DESC
         This is similar to '#{banner_base} rebuild' except Engine Yard's main
         configuration step is skipped.
 
-        The cookbook uploaded by the 'recipes upload' command will be run when
-        you run 'recipes apply'.
+        The cookbook uploaded by the '#{banner_base} recipes upload' command will be run when
+        you run '#{banner_base} recipes apply'.
       DESC
 
       method_option :environment, :type => :string, :aliases => %w(-e),
@@ -23,10 +23,15 @@ module EY
       desc "upload [--environment ENVIRONMENT]",
         "Upload custom chef recipes to specified environment so they can be applied."
       long_desc <<-DESC
-        The current working directory should contain a subdirectory named "cookbooks"
-        that is the collection of recipes to be uploaded.
+        Make an archive of the "cookbooks/" subdirectory in your current working
+        directory and upload it to AppCloud's recipe storage.
 
-        The uploaded cookbook will be run when executing 'recipes apply'.
+        Alternatively, specify a .tgz of a cookbooks/ directory yourself as follows:
+
+        $ #{banner_base} recipes upload -f path/to/recipes.tgz
+
+        The uploaded cookbooks will be run when executing '#{banner_base} recipes apply'
+        and also automatically each time you update/rebuild your instances.
       DESC
 
       method_option :environment, :type => :string, :aliases => %w(-e),
@@ -34,9 +39,9 @@ module EY
       method_option :account, :type => :string, :aliases => %w(-c),
         :desc => "Name of the account in which the environment can be found"
       method_option :apply, :type => :boolean,
-        :desc => "Apply the recipes after they are uploaded"
+        :desc => "Apply the recipes immediately after they are uploaded"
       method_option :file, :type => :string, :aliases => %w(-f),
-        :desc => "Specify a gzipped tar file (.tgz) for upload instead of using cookbooks/ directory"
+        :desc => "Specify a gzipped tar file (.tgz) for upload instead of cookbooks/ directory"
       def upload
         environment = fetch_environment(options[:environment], options[:account])
         upload_recipes(environment, options[:file])
