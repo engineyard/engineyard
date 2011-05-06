@@ -4,6 +4,8 @@ module EY
   class API
     attr_reader :token
 
+    USER_AGENT_STRING = "EngineYardCLI/#{VERSION}"
+
     def initialize(token = nil)
       @token ||= token
       @token ||= self.class.read_token
@@ -47,10 +49,11 @@ module EY
       require 'json'
 
       url = EY.config.endpoint + "api/v2#{path}"
-      method = ((meth = opts.delete(:method)) && meth.to_s || "get").downcase.to_sym
+      method = (opts.delete(:method) || 'get').to_s.downcase.to_sym
       params = opts.delete(:params) || {}
       headers = opts.delete(:headers) || {}
       headers["Accept"] ||= "application/json"
+      headers["User-Agent"] = USER_AGENT_STRING
 
       begin
         EY.ui.debug("Request", "#{method.to_s.upcase} #{url}")

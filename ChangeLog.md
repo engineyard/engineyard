@@ -6,6 +6,7 @@
   * Add --apply option which automatically runs recipes uploaded with `ey recipes upload`.
   * Improve recipes documentation.
   * Alias ey update to ey rebuild to conform to the terminology on the AppCloud dashboard.
-  * Improve the documentation in the README file
+  * Improve the documentation in the README file.
+  * Send a User-Agent header with all API requests.
 
 ## Begin ChangeLog (2011-05-05)
