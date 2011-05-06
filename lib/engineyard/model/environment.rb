@@ -71,6 +71,7 @@ module EY
         tmp = Tempfile.new("recipes")
         tmp.write(api.request("/environments/#{id}/recipes"))
         tmp.flush
+        tmp.close
 
         cmd = "tar xzf '#{tmp.path}' cookbooks"
 
@@ -79,27 +80,36 @@ module EY
         end
       end
 
-      def upload_recipes(file_to_upload = recipe_file)
-        api.request("/environments/#{id}/recipes",
-          :method => :post,
-          :params => {:file => file_to_upload}
-          )
+      def upload_recipes_at_path(recipes_path)
+        recipes_path = Pathname.new(recipes_path)
+        if recipes_path.exist?
+          upload_recipes recipes_path.open('r')
+        else
+          raise EY::Error, "Recipes file not found: #{recipes_path}"
+        end
       end
 
-      def recipe_file
+      def tar_and_upload_recipes_in_cookbooks_dir
         require 'tempfile'
         unless File.exist?("cookbooks")
           raise EY::Error, "Could not find chef recipes. Please run from the root of your recipes repo."
         end
 
-        tmp = Tempfile.new("recipes")
-        cmd = "tar czf '#{tmp.path}' cookbooks/"
+        recipes_file = Tempfile.new("recipes")
+        cmd = "tar czf '#{recipes_file.path}' cookbooks/"
 
         unless system(cmd)
           raise EY::Error, "Could not archive recipes.\nCommand `#{cmd}` exited with an error."
         end
 
-        tmp
+        upload_recipes(recipes_file)
+      end
+
+      def upload_recipes(file_to_upload)
+        api.request("/environments/#{id}/recipes", {
+          :method => :post,
+          :params => {:file => file_to_upload}
+        })
       end
 
       def resolve_branch(branch, allow_non_default_branch=false)

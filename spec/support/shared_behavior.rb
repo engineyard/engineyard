@@ -139,11 +139,13 @@ shared_examples_for "it takes an environment name" do
   end
 
   context "outside a git repo" do
+
     define_git_repo("not actually a git repo") do |git_dir|
       # in case we screw up and are not in a freshly-generated test
       # git repository, don't blow away the thing we're developing
       system("rm -rf .git") if `git remote -v`.include?("path/to/repo.git")
       git_dir.join("cookbooks").mkdir
+      link_recipes_tgz(git_dir)
     end
 
     use_git_repo("not actually a git repo")

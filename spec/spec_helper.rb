@@ -45,6 +45,7 @@ Spec::Runner.configure do |config|
   config.include Spec::Helpers
   config.include Spec::GitRepo
   config.extend Spec::Helpers::SemanticNames
+  config.extend Spec::Helpers::Fixtures
 
   config.before(:all) do
     FakeWeb.allow_net_connect = false

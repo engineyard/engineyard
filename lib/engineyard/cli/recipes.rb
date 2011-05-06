@@ -17,8 +17,7 @@ module EY
         :desc => "Name of the account in which the environment can be found"
       def apply
         environment = fetch_environment(options[:environment], options[:account])
-        environment.run_custom_recipes
-        EY.ui.say "Uploaded recipes started for #{environment.name}"
+        apply_recipes(environment)
       end
 
       desc "upload [--environment ENVIRONMENT]",
@@ -36,13 +35,30 @@ module EY
         :desc => "Name of the account in which the environment can be found"
       method_option :apply, :type => :boolean,
         :desc => "Apply the recipes after they are uploaded"
+      method_option :file, :type => :string, :aliases => %w(-f),
+        :desc => "Specify a gzipped tar file (.tgz) for upload instead of using cookbooks/ directory"
       def upload
         environment = fetch_environment(options[:environment], options[:account])
-        environment.upload_recipes
-        EY.ui.say "Recipes uploaded successfully for #{environment.name}"
+        upload_recipes(environment, options[:file])
         if options[:apply]
+          apply_recipes(environment)
+        end
+      end
+
+      no_tasks do
+        def apply_recipes(environment)
           environment.run_custom_recipes
           EY.ui.say "Uploaded recipes started for #{environment.name}"
+        end
+
+        def upload_recipes(environment, filename)
+          if options[:file]
+            environment.upload_recipes_at_path(options[:file])
+            EY.ui.say "Recipes file #{options[:file]} uploaded successfully for #{environment.name}"
+          else
+            environment.tar_and_upload_recipes_in_cookbooks_dir
+            EY.ui.say "Recipes in cookbooks/ uploaded successfully for #{environment.name}"
+          end
         end
       end
 

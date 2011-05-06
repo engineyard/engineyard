@@ -17,10 +17,50 @@ describe "ey recipes upload" do
   end
 
   def verify_ran(scenario)
-    @out.should =~ /Recipes uploaded successfully for #{scenario[:environment]}/
+    @out.should =~ %r|Recipes in cookbooks/ uploaded successfully for #{scenario[:environment]}|
   end
 
   it_should_behave_like "it takes an environment name and an account name"
+end
+
+describe "ey recipes upload -f recipes.tgz" do
+  given "integration"
+
+  define_git_repo('+recipes') do |git_dir|
+    link_recipes_tgz(git_dir)
+  end
+  use_git_repo('+recipes')
+
+  def command_to_run(opts)
+    cmd = %w[recipes upload]
+    cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--account"     << opts[:account]     if opts[:account]
+    cmd << "-f" << "recipes.tgz"
+    cmd
+  end
+
+  def verify_ran(scenario)
+    @out.should =~ %r|Recipes file recipes.tgz uploaded successfully for #{scenario[:environment]}|
+  end
+
+  it_should_behave_like "it takes an environment name and an account name"
+end
+
+describe "ey recipes upload -f with a missing filenamen" do
+  given "integration"
+  def command_to_run(opts)
+    cmd = %w[recipes upload]
+    cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--account"     << opts[:account]     if opts[:account]
+    cmd << "-f" << "recipes.tgz"
+    cmd
+  end
+
+  it "errors with file not found" do
+    api_scenario "one app, one environment"
+    ey(%w[recipes upload --environment giblets -f recipes.tgz], :expect_failure => true)
+    @err.should match(/Recipes file not found: recipes.tgz/i)
+  end
 end
 
 describe "ey recipes upload with an ambiguous git repo" do
@@ -48,7 +88,7 @@ describe "ey recipes upload from a separate cookbooks directory" do
       api_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets]
-      @out.should =~ /Recipes uploaded successfully/
+      @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|
       @out.should_not =~ /Uploaded recipes started for giblets/
     end
 
@@ -56,7 +96,7 @@ describe "ey recipes upload from a separate cookbooks directory" do
       api_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets --apply]
-      @out.should =~ /Recipes uploaded successfully/
+      @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|
       @out.should =~ /Uploaded recipes started for giblets/
     end
   end
@@ -79,7 +119,7 @@ describe "ey recipes upload from a separate cookbooks directory" do
       api_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets]
-      @out.should =~ /Recipes uploaded successfully/
+      @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|
     end
 
   end

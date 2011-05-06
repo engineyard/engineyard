@@ -187,6 +187,16 @@ module Spec
       end
 
     end
+
+    module Fixtures
+      def fixture_recipes_tgz
+        File.expand_path('../fixture_recipes.tgz', __FILE__)
+      end
+
+      def link_recipes_tgz(git_dir)
+        system("ln -s #{fixture_recipes_tgz} #{git_dir.join('recipes.tgz')}")
+      end
+    end
   end
 end
 
