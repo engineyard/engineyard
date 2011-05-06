@@ -126,6 +126,7 @@ module EY
       EY.ui.debug("Rebuilding #{environment.name}")
       environment.rebuild
     end
+    map "update" => :rebuild
 
     desc "rollback [--environment ENVIRONMENT]", "Rollback to the previous deploy."
     long_desc <<-DESC
