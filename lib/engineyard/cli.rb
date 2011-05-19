@@ -180,6 +180,31 @@ module EY
       end
     end
 
+    desc "create [--account ACCOUNT] [--name APP_NAME] [--type (rails3|rails2|rack|merb)]", "Create a new undeployed application."
+    long_desc <<-DESC
+      Create an Application by discovering the name, type, and repository URI
+      using the current git repository or specified options.
+
+      You must specify an account if you are a collaborator on more than one account.
+    DESC
+    method_option :rame, :type => :string, :aliases => %w(-n),
+      :desc => "Application name. Defaults to the last part of repository git URI."
+    method_option :type, :type => :string, :aliases => %w(-t),
+      :desc => "Application type. Defaults to auto-discovery. Must be one of rails3, rails2, rack (incl. sinatra), or merb."
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :desc => "Name of the account in which to create the Application."
+    method_option :repo, :type => :string, :aliases => %w(-r --repository),
+      :desc => "Git repository containing the application. Defaults to git config for remote.origin.url."
+    def create
+      App.create(
+        :name => options[:name],
+        :type => options[:type],
+        :repository_uri => options[:repo],
+        :account => options[:account]
+      )
+      EY.ui.info "Application created: #{app.name} (#{app.repository_uri})"
+    end
+
     desc "ssh [COMMAND] [--all] [--environment ENVIRONMENT]", "Open an ssh session to the master app server, or run a command."
     long_desc <<-DESC
       If a command is supplied, it will be run, otherwise a session will be

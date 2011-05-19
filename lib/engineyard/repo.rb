@@ -27,6 +27,10 @@ module EY
       end
     end
 
+    def origin_url
+      `git config -f #{Escape.shell_command([@path])}/.git/config --get-regexp 'remote.origin.url'`.split.last
+    end
+
     def urls
       @urls ||= config('remote.*.url').map { |c| c.split.last }
     end
