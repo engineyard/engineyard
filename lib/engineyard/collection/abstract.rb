@@ -4,9 +4,9 @@ module EY
   module Collection
     class Abstract < Array
       COLLAB_MESSAGE = <<-MSG
-\nThis error is due to having access to another account's resources via the beta collaboration feature.
-We are working on letting you specify the account name to resolve this ambiguity.
-MSG
+\nThis error is due to having access to another account's resources via the collaboration feature.
+Specify --account ACCOUNT_NAME to resolve this ambiguity.
+      MSG
 
       def named(name, account_name=nil)
         candidates = find_all do |x|
