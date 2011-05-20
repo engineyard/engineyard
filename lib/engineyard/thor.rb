@@ -31,14 +31,6 @@ module EY
       api.resolver.app_and_environment(options)
     end
 
-    def get_apps(all_apps = false)
-      if all_apps
-        api.apps
-      else
-        api.apps_for_repo(repo)
-      end
-    end
-
   end # UtilityMethods
 
   class Thor < ::Thor

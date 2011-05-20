@@ -89,18 +89,21 @@ module EY
     def environments
       if options[:all] && options[:simple]
         # just put each env
-        api.environments.each do |environment|
-          puts environment.name
-        end
+        puts api.environments.map {|env| env.name}
+      elsif options[:all]
+        EY.ui.print_envs(api.apps, EY.config.default_environment, options[:simple])
       else
-        apps = get_apps(options[:all])
-        if !options[:all] && apps.size > 1
+        apps = api.apps_for_repo(repo)
+
+        if apps.size > 1
           message = "This git repo matches multiple Applications in AppCloud:\n"
           apps.each { |app| message << "\t#{app.name}\n" }
           message << "The following environments contain those applications:\n\n"
           EY.ui.warn(message)
+        elsif apps.empty?
+          EY.ui.warn(NoAppError.new(repo).message)
         end
-        EY.ui.warn(NoAppError.new(repo).message) unless apps.any? || options[:all]
+
         EY.ui.print_envs(apps, EY.config.default_environment, options[:simple])
       end
     end
