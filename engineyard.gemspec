@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_dependency('escape', '~>0.0.4')
   s.add_dependency('engineyard-serverside-adapter', '=1.4.1')   # This line maintained by rake; edits may be stomped on
   s.add_dependency('net-ssh', '~>2.1.0')
-
+  
   s.add_development_dependency('rspec', '1.3.0')
   s.add_development_dependency('rake')
   s.add_development_dependency('fakeweb')
@@ -40,5 +40,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency('sinatra')
   s.add_development_dependency('realweb', '~>0.1.6')
   s.add_development_dependency('open4', '~>1.0.1')
-  s.add_development_dependency('ruby-debug')
 end
