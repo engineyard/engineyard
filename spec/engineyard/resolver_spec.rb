@@ -40,7 +40,9 @@ describe EY::Resolver do
   end
 
   def repo(url)
-    mock("repo", :urls => [url])
+    r = mock("repo", :has_remote? => false)
+    r.stub!(:has_remote?).with(url).and_return(true)
+    r
   end
 
   def resolve_to(expected)

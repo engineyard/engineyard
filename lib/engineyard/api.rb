@@ -37,8 +37,8 @@ module EY
     end
 
     def apps_for_repo(repo)
-      raise NoRemotesError.new(repo.path) if repo.urls.empty?
-      apps.find_all {|a| repo.urls.include?(a.repository_uri) }
+      repo.fail_on_no_remotes!
+      apps.find_all {|a| repo.has_remote?(a.repository_uri) }
     end
 
     class InvalidCredentials < EY::Error; end

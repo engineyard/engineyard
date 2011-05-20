@@ -25,17 +25,17 @@ module EY
 
   class NoAppError < Error
     def initialize(repo)
-      error = [%|There is no application configured for any of the following remotes:|]
-      repo.urls.each{|url| error << %|\t#{url}| }
-      error << %|You can add this application at #{EY.config.endpoint}|
-      super error.join("\n")
+      super <<-ERROR
+There is no application configured for any of the following remotes:
+\t#{repo ? repo.urls.join("\n\t") : "No remotes found."}
+You can add this application at #{EY.config.endpoint}
+      ERROR
     end
   end
 
   class InvalidAppError < Error
     def initialize(name)
-      error = %|There is no app configured with the name "#{name}"|
-        super error
+      super %|There is no app configured with the name "#{name}"|
     end
   end
 

@@ -110,8 +110,8 @@ module EY
     end
 
     def filter_by_repo(candidates, repo)
-      results = candidates.select do |c|
-        repo.urls.include?(c[:repository_uri])
+      results = candidates.select do |candidate|
+        repo.has_remote?(candidate[:repository_uri])
       end
 
       if results.empty?

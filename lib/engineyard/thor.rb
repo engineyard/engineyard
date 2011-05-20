@@ -17,7 +17,7 @@ module EY
         :environment_name => environment_name,
         :account_name => account_name
       }
-      options.merge! :repo => repo if repo.exists?
+      options.merge! :repo => repo if repo.exist?
       api.resolver.environment(options)
     end
 
@@ -27,7 +27,7 @@ module EY
         :environment_name => environment_name,
         :account_name => account_name
       }
-      options.merge! :repo => repo if repo.exists?
+      options.merge! :repo => repo if repo.exist?
       api.resolver.app_and_environment(options)
     end
 
