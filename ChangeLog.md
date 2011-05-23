@@ -1,5 +1,9 @@
 # ChangeLog
 
+## v1.3.19 (not released)
+
+  * `ey status` shows most recent deployment status of an app and environment.
+
 ## v1.3.18 (2011-05-08)
 
   * Add --file (-f) option to specify a .tgz file containing the custom cookbooks dirctory.
