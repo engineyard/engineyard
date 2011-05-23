@@ -1,6 +1,6 @@
 # ChangeLog
 
-## v1.3.19 (not released)
+## v1.3.19 (2011-05-23)
 
   * `ey status` shows most recent deployment status of an app and environment.
 
