@@ -99,6 +99,37 @@ module EY
         end
       end
 
+      def show_deployment(dep)
+        puts "# Status of last deployment of #{dep.app.account.name}/#{dep.app.name}/#{dep.environment.name}:"
+        puts "#"
+
+        output = []
+        output << ["Account",         dep.app.account.name]
+        output << ["Application",     dep.app.name]
+        output << ["Environment",     dep.environment.name]
+        output << ["Input Ref",       dep.ref]
+        output << ["Resolved Ref",    dep.ref]
+        output << ["Commit",          dep.commit || '(Unable to resolve)']
+        output << ["Migrate",         dep.migrate]
+        output << ["Migrate command", dep.migrate_command] if dep.migrate
+        output << ["Deployed by",     dep.user_name]
+        output << ["Created at",      dep.created_at]
+        output << ["Finished at",     dep.finished_at]
+
+        output.each do |att, val|
+          puts "#    %-15s %s" % ["#{att}:", val.to_s]
+        end
+        puts "#"
+
+        if dep.successful?
+          info 'Deployment was successful.'
+        elsif dep.finished_at.nil?
+          warn 'Deployment is not finished.'
+        else
+          say_with_status('Deployment failed.', nil, :red)
+        end
+      end
+
       def print_exception(e)
         if e.message.empty? || (e.message == e.class.to_s)
           message = nil

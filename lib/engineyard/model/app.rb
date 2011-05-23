@@ -23,6 +23,10 @@ module EY
         sole_environment or raise NoSingleEnvironmentError.new(self)
       end
 
+      def last_deployment_on(environment)
+        Deployment.last(self, environment, api)
+      end
+
     end
   end
 end

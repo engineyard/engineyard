@@ -78,6 +78,27 @@ module EY
       raise exists ? EnvironmentUnlinkedError.new(options[:environment]) : e
     end
 
+    desc "status", "Show the deployment status of the app"
+    long_desc <<-DESC
+      Show the current status of most recent deployment of the specified
+      application and environment.
+    DESC
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :desc => "Environment where the application is deployed"
+    method_option :app, :type => :string, :aliases => %w(-a),
+      :desc => "Name of the application"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :desc => "Name of the account in which the application can be found"
+    def status
+      app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
+      deployment = app.last_deployment_on(environment)
+      if deployment
+        EY.ui.show_deployment(deployment)
+      else
+        raise EY::Error, "Application #{app.name} hass not been deployed on #{environment.name}."
+      end
+    end
+
     desc "environments [--all]", "List environments for this app; use --all to list all environments."
     long_desc <<-DESC
       By default, environments for this app are displayed. The --all option will

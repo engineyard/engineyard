@@ -100,6 +100,22 @@ class FakeAwsm < Sinatra::Base
     ""
   end
 
+  get "/api/v2/apps/:app_id/environments/:environment_id/deployments/last" do
+    {
+      "deployment" => {
+        "id" => 3,
+        "ref" => "HEAD",
+        "resolved_ref" => "HEAD",
+        "commit" => 'a'*40,
+        "user_name" => "User",
+        "migrate_command" => "rake db:migrate --trace",
+        "created_at" => Time.now.utc - 3600,
+        "finished_at" => Time.now.utc - 3400,
+        "successful" => true,
+      }
+    }.to_json
+  end
+
   post "/api/v2/apps/:app_id/environments/:environment_id/deployments" do
     {"deployment" => params[:deployment].merge({"id" => 2, "commit" => 'a'*40, "resolved_ref" => "resolved-#{params[:deployment][:ref]}"})}.to_json
   end

@@ -2,7 +2,28 @@ require 'escape'
 
 module EY
   module Model
-    class Deployment < ApiStruct.new(:id, :app, :created_at, :commit, :environment, :finished_at, :migrate_command, :output, :ref, :resolved_ref, :successful)
+    class Deployment < ApiStruct.new(:id, :app, :created_at, :commit, :environment, :finished_at, :migrate_command, :output, :ref, :resolved_ref, :successful, :user_name)
+      def self.api_root(app_id, environment_id)
+        "/apps/#{app_id}/environments/#{environment_id}/deployments"
+      end
+
+      def self.last(app, environment, api)
+        get(app, environment, 'last', api)
+      end
+
+      def self.get(app, environment, id, api)
+        response = api.request(api_root(app.id, environment.id) + "/#{id}", :method => :get)
+        load_from_response app, environment, response
+      end
+
+      def self.load_from_response(app, environment, response)
+        dep = new
+        dep.app = app
+        dep.environment = environment
+        dep.update_with_response(response)
+        dep
+      end
+
       def self.started(environment, app, ref, migrate_command)
         deployment = from_hash({
           :app             => app,
@@ -14,9 +35,15 @@ module EY
         deployment
       end
 
+      def migrate
+        !!migrate_command
+      end
+
+      alias successful? successful
+
       def start
         post_to_api({
-          :migrate         => !!migrate_command,
+          :migrate         => migrate,
           :migrate_command => migrate_command,
           :output          => output,
           :ref             => ref,
@@ -29,6 +56,12 @@ module EY
         put_to_api({:successful => successful, :output => output})
       end
 
+      def update_with_response(response)
+        response['deployment'].each do |key,val|
+          send("#{key}=", val) if respond_to?("#{key}=")
+        end
+      end
+
       private
 
       def post_to_api(params)
@@ -39,19 +72,12 @@ module EY
         update_with_response api.request(member_uri("/finished"), :method => :put, :params => {:deployment => params})
       end
 
-      def update_with_response(response)
-        data = response['deployment']
-        data.each do |key,val|
-          self.send("#{key}=", val) if respond_to?("#{key}=")
-        end
-      end
-
       def collection_uri
-        "/apps/#{app.id}/environments/#{environment.id}/deployments"
+        self.class.api_root(app.id, environment.id)
       end
 
       def member_uri(path = nil)
-        "/apps/#{app.id}/environments/#{environment.id}/deployments/#{id}#{path}"
+        collection_uri + "/#{id}#{path}"
       end
 
       def api
