@@ -82,7 +82,7 @@ module Scenario
           "instances" => _instances,
           "name" => "giblets",
           "instances_count" => 4,
-          "stack_name" => "nginx_mongrel",
+          "app_server_stack_name" => "nginx_mongrel",
           "load_balancer_ip_address" => '127.0.0.0',
           "framework_env" => "production"}]
     end
@@ -141,8 +141,8 @@ module Scenario
               "public_hostname" => "ec2-174-129-198-124.compute-1.amazonaws.com"}],
           "name" => "giblets",
           "instances_count" => 1,
-          "stack_name" => "nginx_mongrel",
           "id" => 200,
+          "app_server_stack_name" => "nginx_mongrel",
           "load_balancer_ip_address" => '127.0.0.0',
           "framework_env" => "production"}]
     end
@@ -162,8 +162,8 @@ module Scenario
           "instances" => [],
           "name" => "giblets",
           "instances_count" => 0,
-          "stack_name" => "nginx_mongrel",
           "id" => 200,
+          "app_server_stack_name" => "nginx_mongrel",
           "load_balancer_ip_address" => '127.0.0.0',
           "framework_env" => "production"}]
     end
@@ -207,8 +207,8 @@ module Scenario
               "public_hostname" => "app_master_hostname.compute-1.amazonaws.com"}],
           "name" => "giblets",
           "instances_count" => 1,
-          "stack_name" => "nginx_mongrel",
           "id" => 200,
+          "app_server_stack_name" => "nginx_mongrel",
           "load_balancer_ip_address" => '127.0.0.0',
           "framework_env" => "production",
         }, {
@@ -216,7 +216,7 @@ module Scenario
           "instances" => [],
           "name" => "bakon",
           "instances_count" => 0,
-          "stack_name" => "nginx_passenger",
+          "app_server_stack_name" => "nginx_passenger",
           "load_balancer_ip_address" => '127.0.0.0',
           "id" => 202,
         }, {
@@ -224,7 +224,7 @@ module Scenario
           "instances" => [],
           "name" => "beef",
           "instances_count" => 0,
-          "stack_name" => "nginx_passenger",
+          "app_server_stack_name" => "nginx_passenger",
           "load_balancer_ip_address" => '127.0.0.0',
           "id" => 206,
         }]
@@ -282,16 +282,16 @@ module Scenario
           "ssh_username" => "turkey",
           "instances_count" => 1,
           "instances" => [railsapp_master],
-          "stack_name" => "nginx_unicorn",
+          "app_server_stack_name" => "nginx_unicorn",
           "load_balancer_ip_address" => '127.0.0.0',
         }, {
           "id" => 439,
           "framework_env" => "production",
           "name" => "keycollector_production",
           "ssh_username" => "deploy",
-          "stack_name" => "nginx_mongrel",
           "instances_count" => 1,
           "load_balancer_ip_address" => '127.0.0.0',
+          "app_server_stack_name" => "nginx_mongrel",
           "instances" => [keycollector_master],
         }]
     end
@@ -327,8 +327,8 @@ module Scenario
               "public_hostname" => "app_master_hostname.compute-1.amazonaws.com"}],
           "name" => "railsapp_production",
           "instances_count" => 1,
-          "stack_name" => "nginx_mongrel",
           "load_balancer_ip_address" => '127.0.0.0',
+          "app_server_stack_name" => "nginx_mongrel",
           "framework_env" => "production",
         }, {
           "id" => 202,
@@ -341,8 +341,8 @@ module Scenario
             }],
           "name" => "railsapp_staging",
           "instances_count" => 1,
-          "stack_name" => "nginx_passenger",
           "load_balancer_ip_address" => '127.3.2.1',
+          "app_server_stack_name" => "nginx_passenger",
           "framework_env" => "production",
         }, {
           "ssh_username" => "ham",
@@ -354,7 +354,7 @@ module Scenario
             }],
           "name" => "railsapp_staging_2",
           "instances_count" => 1,
-          "stack_name" => "nginx_passenger",
+          "app_server_stack_name" => "nginx_passenger",
           "id" => 204,
           "load_balancer_ip_address" => '127.0.0.2',
           "framework_env" => "production",

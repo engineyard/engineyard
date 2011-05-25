@@ -1,6 +1,6 @@
 module EY
   module Model
-    class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count, :apps, :app_master, :username, :stack_name, :load_balancer_ip_address, :api)
+    class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count, :apps, :app_master, :username, :app_server_stack_name, :load_balancer_ip_address, :api)
 
       attr_accessor :ignore_bad_master
 

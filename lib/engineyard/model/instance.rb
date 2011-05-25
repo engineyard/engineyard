@@ -13,7 +13,7 @@ module EY
           args.repo          = app.repository_uri
           args.instances     = instances_data
           args.verbose       = verbose || ENV['DEBUG']
-          args.stack         = environment.stack_name
+          args.stack         = environment.app_server_stack_name
           args.framework_env = environment.framework_env
         end
       end
