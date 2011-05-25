@@ -117,7 +117,7 @@ module EY
         output << ["Finished at",     dep.finished_at]
 
         output.each do |att, val|
-          puts "#    %-15s %s" % ["#{att}:", val.to_s]
+          puts "#\t%-15s %s" % ["#{att}:", val.to_s]
         end
         puts "#"
 
