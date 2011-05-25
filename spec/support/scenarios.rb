@@ -83,6 +83,7 @@ module Scenario
           "name" => "giblets",
           "instances_count" => 4,
           "stack_name" => "nginx_mongrel",
+          "load_balancer_ip_address" => '127.0.0.0',
           "framework_env" => "production"}]
     end
 
@@ -142,6 +143,7 @@ module Scenario
           "instances_count" => 1,
           "stack_name" => "nginx_mongrel",
           "id" => 200,
+          "load_balancer_ip_address" => '127.0.0.0',
           "framework_env" => "production"}]
     end
   end # UnlinkedApp
@@ -162,6 +164,7 @@ module Scenario
           "instances_count" => 0,
           "stack_name" => "nginx_mongrel",
           "id" => 200,
+          "load_balancer_ip_address" => '127.0.0.0',
           "framework_env" => "production"}]
     end
 
@@ -206,6 +209,7 @@ module Scenario
           "instances_count" => 1,
           "stack_name" => "nginx_mongrel",
           "id" => 200,
+          "load_balancer_ip_address" => '127.0.0.0',
           "framework_env" => "production",
         }, {
           "ssh_username" => "ham",
@@ -213,6 +217,7 @@ module Scenario
           "name" => "bakon",
           "instances_count" => 0,
           "stack_name" => "nginx_passenger",
+          "load_balancer_ip_address" => '127.0.0.0',
           "id" => 202,
         }, {
           "ssh_username" => "hamburger",
@@ -220,6 +225,7 @@ module Scenario
           "name" => "beef",
           "instances_count" => 0,
           "stack_name" => "nginx_passenger",
+          "load_balancer_ip_address" => '127.0.0.0',
           "id" => 206,
         }]
     end
@@ -277,6 +283,7 @@ module Scenario
           "instances_count" => 1,
           "instances" => [railsapp_master],
           "stack_name" => "nginx_unicorn",
+          "load_balancer_ip_address" => '127.0.0.0',
         }, {
           "id" => 439,
           "framework_env" => "production",
@@ -284,6 +291,7 @@ module Scenario
           "ssh_username" => "deploy",
           "stack_name" => "nginx_mongrel",
           "instances_count" => 1,
+          "load_balancer_ip_address" => '127.0.0.0',
           "instances" => [keycollector_master],
         }]
     end
@@ -320,6 +328,7 @@ module Scenario
           "name" => "railsapp_production",
           "instances_count" => 1,
           "stack_name" => "nginx_mongrel",
+          "load_balancer_ip_address" => '127.0.0.0',
           "framework_env" => "production",
         }, {
           "id" => 202,
@@ -333,6 +342,7 @@ module Scenario
           "name" => "railsapp_staging",
           "instances_count" => 1,
           "stack_name" => "nginx_passenger",
+          "load_balancer_ip_address" => '127.3.2.1',
           "framework_env" => "production",
         }, {
           "ssh_username" => "ham",
@@ -346,6 +356,7 @@ module Scenario
           "instances_count" => 1,
           "stack_name" => "nginx_passenger",
           "id" => 204,
+          "load_balancer_ip_address" => '127.0.0.2',
           "framework_env" => "production",
         }]
     end
