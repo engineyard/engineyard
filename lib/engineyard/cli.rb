@@ -297,7 +297,7 @@ module EY
         EY.ui.say
 
         EY.ui.say "Deploy commands:"
-        deploy_cmds = %w(deploy environments logs rebuild rollback)
+        deploy_cmds = %w(deploy environments logs rebuild rollback status)
         deploy_cmds.map! do |name|
           list.find{|task| task[0] =~ /^#{base} #{name}/ }
         end
