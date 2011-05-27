@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v1.3.20 (2011-05-27)
+
   * Start recording the new load_balance_ip_address from the environment API.
   * Fix for deprecated API key "stack_name"
 
