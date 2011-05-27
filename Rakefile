@@ -37,6 +37,18 @@ def bump
   new_version
 end
 
+def release_changelog(version)
+  clog = Pathname.new('ChangeLog.md')
+  new_clog = clog.read.sub(/^## NEXT$/, <<-SUB.chomp)
+## NEXT
+
+  *
+
+## v#{version} (#{Date.today})
+  SUB
+  clog.open('w') { |f| f.puts new_clog }
+end
+
 def bump_serverside_adapter
   specs = Gem::SpecFetcher.fetcher.fetch(Gem::Dependency.new("engineyard-serverside-adapter"))
   versions = specs.map {|spec,| spec.version}.sort
@@ -77,9 +89,10 @@ task :release do
     "rake spec") # can't invoke directly; new gems won't get picked up
 
   new_version = bump
+  release_changelog(new_version)
 
   run_commands(
-    "git add Gemfile lib/engineyard/version.rb",
+    "git add Gemfile ChangeLog.md lib/engineyard/version.rb",
     "git commit -m 'Bump versions for release #{new_version}'",
     "gem build engineyard.gemspec")
 
