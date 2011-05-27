@@ -1,9 +1,12 @@
 # ChangeLog
 
-## v1.3.19 (2011-05-23)
+## NEXT
 
   * Start recording the new load_balance_ip_address from the environment API.
   * Fix for deprecated API key "stack_name"
+
+## v1.3.19 (2011-05-23)
+
   * `ey status` shows most recent deployment status of an app and environment.
 
 ## v1.3.18 (2011-05-08)
