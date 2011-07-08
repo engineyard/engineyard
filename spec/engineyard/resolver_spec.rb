@@ -95,6 +95,11 @@ describe EY::Resolver do
       resolver.app_and_environment(:repo => repo("git://github.com/repo/app.git"), :environment_name => "staging").should resolve_to(@staging)
     end
 
+    it "doesn't care about case" do
+      resolver.app_and_environment(:account_name => "EY", :app_name => "big").should resolve_to(@big)
+      resolver.app_and_environment(:account_name => "ey", :app_name => "BiG").should resolve_to(@big)
+    end
+
     it "returns the match when an app is specified even when there is a repo" do
       resolver.app_and_environment(:account_name => "ey", :app_name => "bigapp", :repo => repo("git://github.com/repo/app.git")).should resolve_to(@big)
     end

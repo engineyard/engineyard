@@ -11,9 +11,9 @@ Specify --account ACCOUNT_NAME to resolve this ambiguity.
       def named(name, account_name=nil)
         candidates = find_all do |x|
           if account_name
-            x.name == name && x.account.name == account_name
+            x.name.downcase == name.downcase && x.account.name.downcase == account_name.downcase
           else
-            x.name == name
+            x.name.downcase == name.downcase
           end
         end
         if candidates.size > 1
@@ -33,7 +33,7 @@ Specify --account ACCOUNT_NAME to resolve this ambiguity.
     private
 
       def find_by_unambiguous_substring(name_part)
-        candidates = find_all{|e| e.name[name_part] }
+        candidates = find_all{|e| e.name.downcase[name_part.downcase] }
         if candidates.size > 1
           raise ambiguous_error(name_part, candidates.map {|e| e.name})
         end

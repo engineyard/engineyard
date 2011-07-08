@@ -64,7 +64,7 @@ module EY
         message = "Multiple app deployments possible, please be more specific:\n\n"
         candidates.map{|c| [c[:account_name], c[:app_name]]}.uniq.each do |account_name, app_name|
           message << "#{app_name}\n"
-          candidates.select {|x| x[:app_name] == app_name && x[:account_name] == account_name}.map{|x| x[:environment_name]}.uniq.each do |env_name|
+          candidates.select {|c| c[:app_name] == app_name && c[:account_name] == account_name}.map{|c| c[:environment_name]}.uniq.each do |env_name|
             message << "\t#{env_name} # ey <command> --environment='#{env_name}' --app='#{app_name}' --account='#{account_name}'\n"
           end
         end
@@ -80,10 +80,10 @@ module EY
       @app_deployments ||= api.apps.map do |app|
         app.environments.map do |environment|
           { 
-            :app_name => app.name,
+            :app_name => app.name.downcase,
             :repository_uri => app.repository_uri,
-            :environment_name => environment.name,
-            :account_name => app.account.name,
+            :environment_name => environment.name.downcase,
+            :account_name => app.account.name.downcase,
           }
         end
       end.flatten
@@ -122,10 +122,10 @@ module EY
     end
 
     def filter_candidates_by(type, options, candidates)
-      if options[type] && candidates.any?{|c| c[type] == options[type] }
-        candidates.select {|c| c[type] == options[type] }
+      if options[type] && candidates.any?{|c| c[type] == options[type].downcase }
+        candidates.select {|c| c[type] == options[type].downcase }
       elsif options[type]
-        candidates.select {|c| c[type][options[type]] }
+        candidates.select {|c| c[type][options[type].downcase] }
       else
         candidates
       end
