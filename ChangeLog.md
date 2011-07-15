@@ -2,7 +2,7 @@
 
 ## NEXT
 
-  *
+  * Suggest ey environments --all when no environments match.
 
 ## v1.3.20 (2011-05-27)
 

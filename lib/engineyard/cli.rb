@@ -122,7 +122,7 @@ module EY
           message << "The following environments contain those applications:\n\n"
           EY.ui.warn(message)
         elsif apps.empty?
-          EY.ui.warn(NoAppError.new(repo).message)
+          EY.ui.warn(NoAppError.new(repo).message + "\nUse #{self.class.send(:banner_base)} environments --all to see all environments.")
         end
 
         EY.ui.print_envs(apps, EY.config.default_environment, options[:simple])
