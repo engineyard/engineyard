@@ -1,5 +1,24 @@
 = ey
 
+== Login
+
+The first command you run will notice that you are not logged in and will ask you for your AppCloud email and password.
+
+== Configuration
+
+The ey.yml file allows options to be saved for each environment to which an application is deployed. Here's an example ey.yml file in RAILS_ROOT/config/ey.yml:
+
+    $ cat config/ey.yml
+    ---
+    environments:
+      env_production:
+        migrate: false
+        migration_command: rake fancy:migrate
+        branch: deploy
+
+This ey.yml file wile turn off default migrations, set the default command to "rake fancy:migrate" and set the default deploy branch to "deploy".
+
+== Commands
 
 Command:
   ey deploy
@@ -17,11 +36,15 @@ Command:
 
 
   Description:
-    This command must be run with the current directory containing the app to be deployed. If ey.yml specifies a default branch then the ref parameter can be omitted. Furthermore,
-    if a default branch is specified but a different command is supplied the deploy will fail unless --ignore-default-branch is used.
+    This command must be run with the current directory containing the app to be
+    deployed. If ey.yml specifies a default branch then the ref parameter can be
+    omitted. Furthermore, if a default branch is specified but a different
+    command is supplied the deploy will fail unless --ignore-default-branch
+    is used.
 
-    Migrations are run by default with 'rake db:migrate'. A different command can be specified via --migrate "ruby do_migrations.rb". Migrations can also be skipped entirely by
-    using --no-migrate.
+    Migrations are run by default with 'rake db:migrate'. A different command
+    can be specified via --migrate "ruby do_migrations.rb". Migrations can also
+    be skipped entirely by using --no-migrate.
 
 Command:
   ey environments

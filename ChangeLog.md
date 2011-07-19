@@ -2,6 +2,7 @@
 
 ## NEXT
 
+  * Update README to include more info about the ey.yml config.
   * Suggest ey environments --all when no environments match.
 
 ## v1.3.20 (2011-05-27)
