@@ -83,7 +83,7 @@ module EY
       def upload_recipes_at_path(recipes_path)
         recipes_path = Pathname.new(recipes_path)
         if recipes_path.exist?
-          upload_recipes recipes_path.open('r')
+          upload_recipes recipes_path.open('rb')
         else
           raise EY::Error, "Recipes file not found: #{recipes_path}"
         end
