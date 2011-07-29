@@ -4,6 +4,7 @@
 
   * Update README to include more info about the ey.yml config.
   * Suggest ey environments --all when no environments match.
+  * Fix an issue with uploading recipe tgz files on windows.
 
 ## v1.3.20 (2011-05-27)
 
