@@ -46,6 +46,7 @@ module EY
 
     def self.request(path, opts={})
       require 'rest_client'
+      require 'engineyard/rest_client_ext'
       require 'json'
 
       url = EY.config.endpoint + "api/v2#{path}"
