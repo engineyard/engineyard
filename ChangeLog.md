@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v1.3.22 (2011-08-09)
+
   * Patch RestClient to stop sending cookies - they interfere with AWS S3.
 
 ## v1.3.21 (2011-08-03)
