@@ -5,7 +5,7 @@ module EY
     class Demo < EY::Thor
       
       desc "example [--environment/-e ENVIRONMENT]",
-        "Put up the maintenance page for this application in the given environment."
+        "Listen to tower of power. Awesome groove, really. Unrelated to this specific task, but hey."
       long_desc <<-DESC
       
       About time isn't it?
@@ -19,7 +19,7 @@ module EY
         :desc => "Be verbose"
       method_option :account, :type => :string, :aliases => %w(-c),
         :desc => "Name of the account in which the environment can be found"
-      def disable
+      def example
         app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
         EY.ui.info "Bla for '#{app.name}' in '#{environment.name}'"
         environment.put_up_maintenance_page(app, options[:verbose])
