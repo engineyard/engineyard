@@ -32,6 +32,8 @@ Gem::Specification.new do |s|
 
   s.add_development_dependency('rspec', '1.3.0')
   s.add_development_dependency('rake')
+  s.add_development_dependency('hoe')
+  s.add_development_dependency('hoe-gemspec')
   s.add_development_dependency('fakeweb')
   s.add_development_dependency('fakeweb-matcher')
   s.add_development_dependency('fakefs')

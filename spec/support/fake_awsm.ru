@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'sinatra/base'
 require 'json'
-require File.expand_path('../scenarios', __FILE__)
+require ::File.expand_path('../scenarios', __FILE__)
 
 class FakeAwsm < Sinatra::Base
   SCENARIOS = {

@@ -1,19 +1,21 @@
 require 'engineyard'
 require 'engineyard/error'
 require 'engineyard/thor'
+require 'engineyard/cli/command_manager'
 
 module EY
   class CLI < EY::Thor
     autoload :API,     'engineyard/cli/api'
     autoload :UI,      'engineyard/cli/ui'
-    autoload :Recipes, 'engineyard/cli/recipes'
-    autoload :Web,     'engineyard/cli/web'
-
+    autoload :Recipes, 'engineyard/cli/commands/recipes'
+    autoload :Web,     'engineyard/cli/commands/web'
+    
     include Thor::Actions
 
     def self.start(*)
       Thor::Base.shell = EY::CLI::UI
       EY.ui = EY::CLI::UI.new
+      EY::CLI::CommandManager.init_plugins!
       super
     end
 
