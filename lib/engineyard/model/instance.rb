@@ -44,7 +44,6 @@ module EY
         invoke rollback
       end
 
-
       def put_up_maintenance_page(app, verbose=false)
         invoke adapter(app, verbose).enable_maintenance_page
       end
@@ -55,6 +54,10 @@ module EY
 
       def has_app_code?
         !["db_master", "db_slave"].include?(role.to_s)
+      end
+
+      def hostname_url
+        "http://#{hostname}" if hostname
       end
 
     protected

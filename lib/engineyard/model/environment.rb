@@ -1,6 +1,7 @@
 module EY
   module Model
     class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count, :apps, :app_master, :username, :app_server_stack_name, :load_balancer_ip_address, :api)
+      require 'launchy'
 
       attr_accessor :ignore_bad_master
 
@@ -130,6 +131,10 @@ module EY
 
       def shorten_name_for(app)
         name.gsub(/^#{Regexp.quote(app.name)}_/, '')
+      end
+
+      def launch
+        Launchy.open(app_master!.hostname_url)
       end
 
       private

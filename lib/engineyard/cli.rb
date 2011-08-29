@@ -331,5 +331,15 @@ module EY
       end
     end
 
+    desc "launch [--environment ENVIRONMENT] [--account ACCOUNT]", "Open application in browser."
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :desc => "Environment with the interesting logs"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :desc => "Name of the account in which the environment can be found"
+    def launch
+      environment = fetch_environment(options[:environment], options[:account])
+      environment.launch
+    end
+
   end # CLI
 end # EY
