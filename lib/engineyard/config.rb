@@ -7,8 +7,8 @@ module EY
     def initialize(file = nil)
       require 'yaml'
       @file = file || CONFIG_FILES.find{|f| File.exists?(f) }
-      @config = @file ? YAML.load_file(@file) : {}
-      @config.merge!("environments" => {}) unless @config["environments"]
+      @config = (@file ? YAML.load_file(@file) : {}) || {} # load_file returns `false' when the file is empty
+      @config["environments"] = {} unless @config["environments"]
     end
 
     def method_missing(meth, *args, &blk)
