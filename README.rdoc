@@ -171,3 +171,13 @@ Command:
     Note: this command is a bit picky about its ordering. To run a command with arguments on all servers, like "rm -f /some/file", you need to order it like so:
 
     $ ey ssh "rm -f /some/file" -e my-environment --all
+
+Command:
+  ey launch
+
+  Options:
+    -e, [--environment=ENVIRONMENT]  # Environment to ssh into
+    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+
+  Description:
+    Open the application in a browser.
