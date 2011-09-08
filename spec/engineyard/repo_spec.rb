@@ -4,6 +4,7 @@ describe EY::Repo do
   before(:all) do
     FakeFS.deactivate!
     @path = Pathname.new("/tmp/ey-test/.git/")
+    @path.mkpath
     @r = EY::Repo.new("/tmp/ey-test")
   end
   after(:all) { FakeFS.activate! }
