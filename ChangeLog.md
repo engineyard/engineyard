@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v1.3.23 (2011-09-08)
+
   * Update version of serverside gem for rails 3.1 assets support.
 
 ## v1.3.22 (2011-08-09)
