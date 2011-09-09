@@ -1,6 +1,7 @@
 require 'engineyard'
 require 'engineyard/error'
 require 'engineyard/thor'
+require 'launchy'
 
 module EY
   class CLI < EY::Thor
@@ -180,29 +181,39 @@ module EY
       end
     end
 
-    desc "create [--account ACCOUNT] [--name APP_NAME] [--type (rails3|rails2|rack|merb)]", "Create a new undeployed application."
+    desc "create [--account ACCOUNT] [--name APP_NAME] [--type (rails3|rails2|rack)] [--defaults]",
+      "Create a new undeployed application."
     long_desc <<-DESC
       Create an Application by discovering the name, type, and repository URI
       using the current git repository or specified options.
 
       You must specify an account if you are a collaborator on more than one account.
     DESC
-    method_option :rame, :type => :string, :aliases => %w(-n),
+    method_option :name, :type => :string, :aliases => %w(-n),
       :desc => "Application name. Defaults to the last part of repository git URI."
     method_option :type, :type => :string, :aliases => %w(-t),
-      :desc => "Application type. Defaults to auto-discovery. Must be one of rails3, rails2, rack (incl. sinatra), or merb."
+      :desc => "Application type. Defaults to auto-discovery. Must be one of rails3, rails2 or rack (incl. sinatra)."
     method_option :account, :type => :string, :aliases => %w(-c),
       :desc => "Name of the account in which to create the Application."
     method_option :repo, :type => :string, :aliases => %w(-r --repository),
       :desc => "Git repository containing the application. Defaults to git config for remote.origin.url."
+    method_option :defaults, :type => :string, :aliases => %w(-d), :lazy_default => true,
+      :desc => "Create a default environment for that application with the default values provided by Engine Yard. Use --no-defaults if you want to configure your own environment."
     def create
-      App.create(
+      app = App.create(
         :name => options[:name],
         :type => options[:type],
         :repository_uri => options[:repo],
         :account => options[:account]
       )
       EY.ui.info "Application created: #{app.name} (#{app.repository_uri})"
+
+      if options[:defaults]
+        # create here the environment and the cluster with our default options and the app name as the environment name.
+      else
+        EY.ui.info "We're opening the environments page where you can configure the new environment."
+        Launchy.open(app.new_environment_url)
+      end
     end
 
     desc "ssh [COMMAND] [--all] [--environment ENVIRONMENT]", "Open an ssh session to the master app server, or run a command."

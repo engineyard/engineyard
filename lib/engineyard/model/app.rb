@@ -27,6 +27,9 @@ module EY
         Deployment.last(self, environment, api)
       end
 
+      def new_environment_url
+        "#{EY.config.endpoint}/apps/#{id}/environments/new"
+      end
     end
   end
 end
