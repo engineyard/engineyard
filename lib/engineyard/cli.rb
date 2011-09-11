@@ -68,7 +68,7 @@ module EY
 
       if environment.deploy(app, deploy_ref, deploy_options)
         EY.ui.info "Deploy complete"
-        EY.ui.info "Now you can run `ey launch' to open the applicaiton in a browser."
+        EY.ui.info "Now you can run `ey launch' to open the application in a browser."
       else
         raise EY::Error, "Deploy failed"
       end
