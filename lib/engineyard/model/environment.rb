@@ -1,6 +1,7 @@
 module EY
   module Model
     class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count, :apps, :app_master, :username, :app_server_stack_name, :load_balancer_ip_address, :api)
+      extend EY::UtilityMethods
       require 'launchy'
 
       attr_accessor :ignore_bad_master
@@ -17,6 +18,16 @@ module EY
 
       def self.from_array(*)
         Collection::Environments[*super]
+      end
+
+      def self.create(options)
+        app = options[:app]
+        env = {
+          :name => options[:name]
+        }
+
+        data = api.request("/accounts/#{app.account.id}/environments", {:params => {:environment => env, :app_id => app.id}, :method => :post})
+        from_hash(data["environment"])
       end
 
       def logs

@@ -28,6 +28,10 @@ module EY
         api.request(uri, options.merge(:method => :get))
       end
 
+      def api_post(uri, options = {})
+        api.request(uri, options.merge(:method => :post))
+      end
+
     end
   end
 end

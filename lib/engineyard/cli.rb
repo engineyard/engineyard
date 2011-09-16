@@ -200,15 +200,12 @@ module EY
     method_option :defaults, :type => :string, :aliases => %w(-d), :lazy_default => true,
       :desc => "Create a default environment for that application with the default values provided by Engine Yard. Use --no-defaults if you want to configure your own environment."
     def create
-      app = App.create(
-        :name => options[:name],
-        :type => options[:type],
-        :repository_uri => options[:repo],
-        :account => options[:account]
-      )
-      EY.ui.info "Application created: #{app.name} (#{app.repository_uri})"
+      app = EY::Model::App.create(options)
+      EY.ui.info "~> Application created: #{app.name} (#{app.repository_uri})"
 
       if options[:defaults]
+        env = EY::Model::Environment.create({:name => 'default', :app => app})
+        EY.ui.info "~> Environment created for #{app.name}: #{env.name}"
         # create here the environment and the cluster with our default options and the app name as the environment name.
       else
         EY.ui.info "We're opening the environments page where you can configure the new environment."
