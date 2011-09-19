@@ -1,6 +1,8 @@
 module EY
   module Model
-    class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count, :apps, :app_master, :username, :app_server_stack_name, :load_balancer_ip_address, :api)
+    class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count,
+                                      :apps, :app_master, :username, :app_server_stack_name, :migrate,
+                                      :load_balancer_ip_address, :api)
       require 'launchy'
 
       attr_accessor :ignore_bad_master
@@ -137,8 +139,6 @@ module EY
         Launchy.open(app_master!.hostname_url)
       end
 
-      private
-
       def migration_command(deploy_options)
         # regarding deploy_options['migrate']:
         #
@@ -146,40 +146,38 @@ module EY
         # nil means don't migrate
         # true means migrate w/custom command (if present) or default
         # a string means migrate with this specific command
-        if deploy_options.has_key?('migrate')
-          migration_command_from_command_line(deploy_options)
-        else
-          migration_command_from_config
-        end
+        migration_command_from_command_line(deploy_options) ||
+          migration_command_from_config ||
+          migration_command_from_environment
       end
 
+      private
+
       def migration_command_from_config
-        if config.has_key?('migrate')
-          if config['migrate']
-            default_migration_command
-          else
-            nil
-          end
-        else
-          default_migration_command
-        end
+        migration_command_from config
       end
 
       def migration_command_from_command_line(deploy_options)
-        if deploy_options['migrate'].nil?
-          nil
-        elsif deploy_options['migrate'].respond_to?(:to_str)
-          deploy_options['migrate'].to_str
-        else
+        migration_command_from deploy_options
+      end
+
+      def migration_command_from(hash)
+        return nil unless hash['migrate']
+
+        if hash['migrate'] == true
           default_migration_command
+        elsif hash['migrate'].respond_to?(:to_str)
+          hash['migrate'].to_str
         end
       end
 
-
-      def default_migration_command
-        config['migration_command'] || 'rake db:migrate --trace'
+      def migration_command_from_environment
+        self.migrate['command'] if self.migrate['perform']
       end
 
+      def default_migration_command
+        'rake db:migrate'
+      end
     end
   end
 end
