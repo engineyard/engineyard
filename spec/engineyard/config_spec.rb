@@ -37,6 +37,10 @@ describe EY::Config do
   end
 
   describe "files" do
+    before do
+      FakeFS::FileSystem.add('config')
+    end
+
     it "looks for config/ey.yml" do
       write_yaml({"endpoint" => "http://something/"}, "ey.yml")
       write_yaml({"endpoint" => "http://localhost/"}, "config/ey.yml")

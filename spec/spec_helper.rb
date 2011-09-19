@@ -56,6 +56,7 @@ Spec::Runner.configure do |config|
 
   config.before(:each) do
     FakeFS::FileSystem.clear
+    FakeFS::FileSystem.add(ENV['HOME'])
     EY.instance_eval{ @config = nil }
   end
 end
