@@ -153,3 +153,52 @@ describe "EY::Model::Environment#shorten_name_for(app)" do
     short('dev', 'dev').should == 'dev'
   end
 end
+
+describe "EY::Model::Environment#migration_command" do
+  before do
+    @app = EY::Model::App.from_hash({:name => 'fake'})
+    @migrate = EY::Model::Environment.from_hash({
+        "id" => 10291,
+        "api" => @api,
+        'name' => 'migrate',
+        'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => true}}}
+    })
+
+    @no_migrate = EY::Model::Environment.from_hash({
+        "id" => 10291,
+        "api" => @api,
+        'name' => 'no_migrate',
+        'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => false}}}
+    })
+  end
+
+  it "returns the migration command for the environment when the perform flag is true" do
+    @migrate.migration_command(@app, {}).should == 'fake db:migrate'
+  end
+
+  it "returns nil when the perform flag in the environment is false" do
+    @no_migrate.migration_command(@app, {}).should == nil
+  end
+
+  context "with the migrate deploy option" do
+    it "returns the default migration command when is true" do
+      @migrate.migration_command(@app, {'migrate' => true}).should == 'rake db:migrate'
+    end
+
+    it "return the custom migration command when is a string" do
+      @migrate.migration_command(@app, {'migrate' => 'foo migrate'}).should == 'foo migrate'
+    end
+  end
+
+  context "with the migrate option in the global configuration" do
+    it "return the default migration command when the option is true" do
+      EY.config.environments['migrate'] = {'migrate' => true, 'migration_command' => 'bar migrate'}
+      @migrate.migration_command(@app, {}).should == 'bar migrate'
+    end
+
+    it "return the custom migration command when the option is a string" do
+      EY.config.environments['migrate'] = {'migration_command' => 'bar migrate'}
+      @migrate.migration_command(@app, {}).should == 'bar migrate'
+    end
+  end
+end
