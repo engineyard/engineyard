@@ -146,28 +146,29 @@ module EY
         # nil means don't migrate
         # true means migrate w/custom command (if present) or default
         # a string means migrate with this specific command
-        migration_command_from_command_line(deploy_options) ||
-          migration_command_from_config ||
-          migration_command_from_environment(app)
+        return nil if no_migrate?(deploy_options)
+        command = migration_command_from_command_line(deploy_options)
+        unless command
+          return nil if no_migrate?(config)
+          command = migration_command_from_config
+        end
+        command = migration_command_from_environment(app) unless command
+        command
       end
 
       private
 
+      def no_migrate?(hash)
+        hash.key?('migrate') && hash['migrate'] == false
+      end
+
       def migration_command_from_config
-        migration_command_from config
+        config['migration_command'] if config['migrate'] || config['migration_command']
       end
 
       def migration_command_from_command_line(deploy_options)
-        migration_command_from deploy_options
-      end
-
-      def migration_command_from(hash)
-        return nil unless hash['migrate']
-
-        if hash['migrate'] == true
-          default_migration_command
-        elsif hash['migrate'].respond_to?(:to_str)
-          hash['migrate'].to_str
+        if migrate = deploy_options['migrate']
+          migrate.respond_to?(:to_str) ? migrate.to_str : (config['migration_command'] || default_migration_command)
         end
       end
 

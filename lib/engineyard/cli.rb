@@ -63,8 +63,11 @@ module EY
       EY.ui.info "Beginning deploy for '#{app.name}' in '#{environment.name}' on server..."
 
       deploy_options = {'extras' => options[:extra_deploy_hook_options]}
-      deploy_options['migrate'] = options['migrate'] if options.has_key?('migrate')
+      if options.has_key?('migrate') # thor set migrate => nil when --no-migrate
+        deploy_options['migrate'] = options['migrate'].respond_to?(:to_str) ? options['migrate'] : !!options['migrate']
+      end
       deploy_options['verbose'] = options['verbose'] if options.has_key?('verbose')
+
 
       if environment.deploy(app, deploy_ref, deploy_options)
         EY.ui.info "Deploy complete"
