@@ -1,7 +1,7 @@
 module EY
   module Model
     class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count,
-                                      :apps, :app_master, :username, :app_server_stack_name, :migrate,
+                                      :apps, :app_master, :username, :app_server_stack_name, :deployment_configurations,
                                       :load_balancer_ip_address, :api)
       require 'launchy'
 
@@ -38,7 +38,7 @@ module EY
       def deploy(app, ref, deploy_options={})
         app_master!.deploy(app,
           ref,
-          migration_command(deploy_options),
+          migration_command(app, deploy_options),
           config.merge(deploy_options['extras']),
           deploy_options['verbose'])
       end
@@ -139,7 +139,7 @@ module EY
         Launchy.open(app_master!.hostname_url)
       end
 
-      def migration_command(deploy_options)
+      def migration_command(app, deploy_options)
         # regarding deploy_options['migrate']:
         #
         # missing means migrate how the yaml file says to
@@ -148,7 +148,7 @@ module EY
         # a string means migrate with this specific command
         migration_command_from_command_line(deploy_options) ||
           migration_command_from_config ||
-          migration_command_from_environment
+          migration_command_from_environment(app)
       end
 
       private
@@ -171,8 +171,10 @@ module EY
         end
       end
 
-      def migration_command_from_environment
-        self.migrate['command'] if self.migrate['perform']
+      def migration_command_from_environment(app)
+        if deploy_config = deployment_configurations[app.name]
+          deploy_config['migrate']['command'] if deploy_config['migrate']['perform']
+        end
       end
 
       def default_migration_command
