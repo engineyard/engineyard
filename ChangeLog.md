@@ -4,6 +4,11 @@
 
   *
 
+## v1.3.32 (2011-09-23)
+
+  * Use the environments API to check whether run migrations or not when the flag is
+    not provided.
+
 ## v1.3.31 (2011-09-21)
 
   *
