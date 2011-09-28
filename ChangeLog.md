@@ -4,6 +4,10 @@
 
   *
 
+## v1.3.33 (2011-09-27)
+
+  *
+
 ## v1.3.32 (2011-09-23)
 
   * Use the environments API to check whether run migrations or not when the flag is
