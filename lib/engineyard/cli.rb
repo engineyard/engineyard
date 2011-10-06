@@ -25,9 +25,10 @@ module EY
       omitted. Furthermore, if a default branch is specified but a different command
       is supplied the deploy will fail unless --ignore-default-branch is used.
 
-      Migrations are run by default with 'rake db:migrate'. A different command can be
-      specified via --migrate "ruby do_migrations.rb". Migrations can also be skipped
-      entirely by using --no-migrate.
+      Migrations are run based on the 'Migrate?' setting you define in your dashboard
+      for the application. If you want to override these settings, a different
+      command can be specified via --migrate "ruby do_migrations.rb". Migrations
+      can also be skipped entirely by using --no-migrate.
     DESC
     method_option :ignore_default_branch, :type => :boolean,
       :desc => "Force a deploy of the specified branch even if a default is set"
