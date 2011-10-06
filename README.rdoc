@@ -16,7 +16,7 @@ The ey.yml file allows options to be saved for each environment to which an appl
         migration_command: rake fancy:migrate
         branch: deploy
 
-This ey.yml file wile turn off default migrations, set the default command to "rake fancy:migrate" and set the default deploy branch to "deploy".
+This ey.yml file will turn off default migrations, set the default command to "rake fancy:migrate" and set the default deploy branch to "deploy".
 
 == Commands
 
