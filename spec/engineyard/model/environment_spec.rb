@@ -156,19 +156,19 @@ end
 
 describe "EY::Model::Environment#migration_command" do
   before do
-    @app = EY::Model::App.from_hash({:id => 1, :name => 'fake'})
+    @app = EY::Model::App.from_hash({:name => 'fake'})
     @migrate = EY::Model::Environment.from_hash({
         "id" => 10291,
         "api" => @api,
         'name' => 'migrate',
-        'deployment_configurations' => {'1' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => true}}}
+        'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => true}}}
     })
 
     @no_migrate = EY::Model::Environment.from_hash({
         "id" => 10291,
         "api" => @api,
         'name' => 'no_migrate',
-        'deployment_configurations' => {'1' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => false}}}
+        'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => false}}}
     })
   end
 
