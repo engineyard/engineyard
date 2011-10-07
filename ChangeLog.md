@@ -2,7 +2,7 @@
 
 ## NEXT
 
-  *
+  * Remove bundler 0.9 support in engineyard-serverside.
 
 ## v1.3.33 (2011-09-27)
 
