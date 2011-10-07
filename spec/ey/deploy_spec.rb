@@ -1,5 +1,4 @@
 require 'spec_helper'
-require 'net/ssh'
 
 describe "ey deploy without an eyrc file" do
 

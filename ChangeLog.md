@@ -3,6 +3,7 @@
 ## NEXT
 
   * Remove bundler 0.9 support in engineyard-serverside.
+  * `ey whoami` will tell you who you're logged in as.
 
 ## v1.3.33 (2011-09-27)
 

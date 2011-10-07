@@ -41,6 +41,10 @@ module EY
       apps.find_all {|a| repo.has_remote?(a.repository_uri) }
     end
 
+    def user
+      EY::Model::User.from_hash(request('/current_user')['user'])
+    end
+
     class InvalidCredentials < EY::Error; end
     class RequestFailed < EY::Error; end
 

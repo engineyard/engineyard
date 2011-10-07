@@ -43,6 +43,10 @@ class FakeAwsm < Sinatra::Base
     {"ok" => "true"}.to_json
   end
 
+  get "/api/v2/current_user" do
+    { "user" => { "id" => 1, "name" => "User", "email" => "test@engineyard.com" } }.to_json
+  end
+
   get "/api/v2/apps" do
     raise('No user agent header') unless env['HTTP_USER_AGENT'] =~ %r#^EngineYardCLI/#
     {"apps" => @@cloud_mock.apps}.to_json

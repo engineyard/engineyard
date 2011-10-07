@@ -345,5 +345,11 @@ module EY
       environment.launch
     end
 
+    desc "whoami", "Who am I logged in as?"
+    def whoami
+      user = api.user
+      EY.ui.say "#{user.name} (#{user.email})"
+    end
+
   end # CLI
 end # EY

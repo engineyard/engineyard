@@ -7,5 +7,6 @@ module EY
     autoload :Environment,   'engineyard/model/environment'
     autoload :Log,           'engineyard/model/log'
     autoload :Instance,      'engineyard/model/instance'
+    autoload :User,          'engineyard/model/user'
   end
 end
