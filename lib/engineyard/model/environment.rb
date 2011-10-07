@@ -173,7 +173,7 @@ module EY
       end
 
       def migration_command_from_environment(app)
-        if deploy_config = deployment_configurations[app.id.to_s]
+        if deploy_config = deployment_configurations[app.name]
           deploy_config['migrate']['command'] if deploy_config['migrate']['perform']
         end
       end
