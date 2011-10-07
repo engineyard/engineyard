@@ -85,7 +85,7 @@ module Scenario
           "app_server_stack_name" => "nginx_mongrel",
           "load_balancer_ip_address" => '127.0.0.0',
           "deployment_configurations" => {
-            "rails232app" => {
+            "1001" => {
               'migrate' => {'command' => 'rake db:migrate', 'perform' => true}
             }
           },
@@ -171,7 +171,7 @@ module Scenario
           "app_server_stack_name" => "nginx_mongrel",
           "load_balancer_ip_address" => '127.0.0.0',
           "deployment_configurations" => {
-            "rails232app" => {
+            "1001" => {
               'migrate' => {'command' => 'rake db:migrate', 'perform' => true}
             }
           },
@@ -222,7 +222,7 @@ module Scenario
           "load_balancer_ip_address" => '127.0.0.0',
           "framework_env" => "production",
           "deployment_configurations" => {
-            "rails232app" => {
+            "1001" => {
               'migrate' => {'command' => 'rake db:migrate', 'perform' => true}
             }
           },
@@ -235,7 +235,7 @@ module Scenario
           "load_balancer_ip_address" => '127.0.0.0',
           "id" => 202,
           "deployment_configurations" => {
-            "rails232app" => {
+            "1001" => {
               'migrate' => {'command' => 'rake db:migrate', 'perform' => true}
             }
           },
@@ -305,7 +305,7 @@ module Scenario
           "app_server_stack_name" => "nginx_unicorn",
           "load_balancer_ip_address" => '127.0.0.0',
           "deployment_configurations" => {
-            "rails232app" => {
+            "6125" => {
               'migrate' => {'command' => 'rake db:migrate', 'perform' => true}
             }
           },
@@ -319,7 +319,7 @@ module Scenario
           "app_server_stack_name" => "nginx_mongrel",
           "instances" => [keycollector_master],
           "deployment_configurations" => {
-            "keycollector" => {
+            "3202" => {
               'migrate' => {'command' => 'rake db:migrate', 'perform' => true}
             }
           },
