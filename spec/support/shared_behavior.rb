@@ -1,29 +1,4 @@
-module Spec
-  module Helpers
-    module SharedIntegrationTestUtils
-
-      def run_ey(command_options, ey_options={})
-        if respond_to?(:extra_ey_options)   # needed for ssh tests
-          ey_options.merge!(extra_ey_options)
-        end
-
-        ey(command_to_run(command_options), ey_options)
-      end
-
-      def make_scenario(hash)
-        # since nil will silently turn to empty string when interpolated,
-        # and there's a lot of string matching involved in integration
-        # testing, it would be nice to have early notification of typos.
-        scenario = Hash.new { |h,k| raise "Tried to get key #{k.inspect}, but it's missing!" }
-        scenario.merge!(hash)
-      end
-
-    end
-  end
-end
-
 shared_examples_for "it has an ambiguous git repo" do
-  include Spec::Helpers::SharedIntegrationTestUtils
 
   define_git_repo('dup test') do
     system("git remote add dup git://github.com/engineyard/dup.git")
@@ -119,8 +94,6 @@ shared_examples_for "it takes an environment name and an account name" do
 end
 
 shared_examples_for "it takes an environment name" do
-  include Spec::Helpers::SharedIntegrationTestUtils
-
   it "operates on the current environment by default" do
     api_scenario "one app, one environment"
     run_ey({:environment => nil}, {:debug => true})
@@ -194,7 +167,6 @@ shared_examples_for "it takes an environment name" do
 end
 
 shared_examples_for "it takes an app name" do
-  include Spec::Helpers::SharedIntegrationTestUtils
   before { @takes_app_name = true }
 
   it "allows you to specify a valid app" do
@@ -233,8 +205,6 @@ shared_examples_for "it takes an app name" do
 end
 
 shared_examples_for "it invokes engineyard-serverside" do
-  include Spec::Helpers::SharedIntegrationTestUtils
-
   context "with arguments" do
     before(:all) do
       api_scenario "one app, one environment"
@@ -296,7 +266,7 @@ shared_examples_for "model collections" do
     it "returns nil when it can't find anything" do
       @collection.match_one("dev-and-production").should be_nil
     end
- end
+  end
 
   describe "#match_one!" do
     it "works when given an unambiguous substring" do

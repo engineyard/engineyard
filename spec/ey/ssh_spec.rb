@@ -4,7 +4,6 @@ print_my_args_ssh = "#!/bin/sh\necho ssh $*"
 
 shared_examples_for "running ey ssh" do
   given "integration"
-  include Spec::Helpers::SharedIntegrationTestUtils
 
   def extra_ey_options
     ssh_cmd = <<-RUBY
@@ -19,7 +18,6 @@ end
 
 shared_examples_for "running ey ssh for select role" do
   given "integration"
-  include Spec::Helpers::SharedIntegrationTestUtils
 
   def extra_ey_options
     {:prepend_to_path => {'ssh' => "#!/bin/sh\necho ssh $*"}}

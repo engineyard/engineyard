@@ -11,7 +11,7 @@ describe "ey recipes download" do
   after(:each) do
     # This test creates + destroys the cookbooks/ directory, thus
     # rendering the git repo unsuitable for reuse.
-    refresh_git_repo('default')
+    EY.refresh_git_repo('default')
   end
 
   def command_to_run(opts)

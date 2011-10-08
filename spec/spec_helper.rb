@@ -43,10 +43,12 @@ support = Dir[File.join(EY_ROOT,'/spec/support/*.rb')]
 support.each{|helper| require helper }
 
 Spec::Runner.configure do |config|
-  config.include Spec::Helpers
-  config.include Spec::GitRepo
-  config.extend Spec::Helpers::SemanticNames
-  config.extend Spec::Helpers::Fixtures
+  config.include SpecHelpers
+  config.include SpecHelpers::IntegrationHelpers
+
+  config.extend SpecHelpers::GitRepoHelpers
+  config.extend SpecHelpers::Given
+  config.extend SpecHelpers::Fixtures
 
   config.before(:all) do
     FakeWeb.allow_net_connect = false
