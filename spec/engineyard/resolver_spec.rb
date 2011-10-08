@@ -45,13 +45,6 @@ describe EY::Resolver do
     r
   end
 
-  def resolve_to(expected)
-    simple_matcher "resolve to" do |(app,environment), _|
-      app.name.should == expected[:app_name]
-      environment.name.should == expected[:environment_name]
-    end
-  end
-
   describe "#fetch" do
     it "raises argument error if the conditions are empty" do
       lambda { resolver.app_and_environment({}) }.should raise_error(ArgumentError)

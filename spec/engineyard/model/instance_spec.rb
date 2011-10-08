@@ -1,11 +1,6 @@
 require 'spec_helper'
 
 describe "EY::Model::Instance#has_app_code?" do
-
-  def have_app_code
-    simple_matcher("has app code") { |given| given.has_app_code? }
-  end
-
   it "is true for solos" do
     EY::Model::Instance.from_hash("role" => "solo").should have_app_code
   end
