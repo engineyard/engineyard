@@ -1,12 +1,10 @@
 require 'spec_helper'
 
 describe "EY::Model::Environment#rebuild" do
-  given "it has an api"
-
   it "hits the rebuild action in the API" do
     env = EY::Model::Environment.from_hash({
         "id" => 46534,
-        "api" => @api,
+        "api" => ey_api,
       })
 
     FakeWeb.register_uri(
@@ -22,12 +20,10 @@ describe "EY::Model::Environment#rebuild" do
 end
 
 describe "EY::Model::Environment#run_custom_recipes" do
-  given "it has an api"
-
   it "hits the rebuild action in the API" do
     env = EY::Model::Environment.from_hash({
         "id" => 46534,
-        "api" => @api,
+        "api" => ey_api,
       })
 
     FakeWeb.register_uri(
@@ -57,8 +53,6 @@ describe "EY::Model::Environment.from_array" do
 end
 
 describe "EY::Model::Environment#instances" do
-  given "it has an api"
-
   it "returns instances" do
     instance_data = {
       "id" => "1",
@@ -69,7 +63,7 @@ describe "EY::Model::Environment#instances" do
 
     env = EY::Model::Environment.from_hash({
         "id" => 10291,
-        "api" => @api,
+        "api" => ey_api,
         "instances" => [instance_data],
       })
 
@@ -159,14 +153,14 @@ describe "EY::Model::Environment#migration_command" do
     @app = EY::Model::App.from_hash({:name => 'fake'})
     @migrate = EY::Model::Environment.from_hash({
         "id" => 10291,
-        "api" => @api,
+        "api" => ey_api,
         'name' => 'migrate',
         'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => true}}}
     })
 
     @no_migrate = EY::Model::Environment.from_hash({
         "id" => 10291,
-        "api" => @api,
+        "api" => ey_api,
         'name' => 'no_migrate',
         'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => false}}}
     })

@@ -19,6 +19,10 @@ module Spec
     NonzeroExitStatus = Class.new(UnexpectedExit)
     ZeroExitStatus = Class.new(UnexpectedExit)
 
+    def ey_api
+      @api ||= EY::API.new('asdf')
+    end
+
     def fast_ey(args)
       err, out = StringIO.new, StringIO.new
       capture_stderr_into(err) do

@@ -111,11 +111,3 @@ shared_examples_for "integration" do
     File.open(ENV['EYRC'], "w"){|f| YAML.dump(token, f) }
   end
 end
-
-shared_examples_for "it has an api" do
-  before(:all) do
-    @api = EY::API.new('asdf')
-  end
-end
-
-

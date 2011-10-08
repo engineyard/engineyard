@@ -1,8 +1,8 @@
 require 'spec_helper'
 
 describe EY::Resolver do
-  def api
-    return @api if @api
+  def mock_api
+    return @mock_api if @mock_api
     apps = Object.new
     def apps.named(name, *args)
       result = EY::Model::App.from_hash(:name => name)
@@ -15,11 +15,11 @@ describe EY::Resolver do
       result.stub!(:apps => [])
       result
     end
-    @api = mock("api", :apps => apps, :environments => environments)
+    @mock_api = mock("api", :apps => apps, :environments => environments)
   end
 
   def resolver
-    @resolver ||= EY::Resolver.new(api).tap do |r|
+    @resolver ||= EY::Resolver.new(mock_api).tap do |r|
       r.instance_variable_set("@app_deployments", [])
     end
   end
