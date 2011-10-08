@@ -44,7 +44,7 @@ class FakeAwsm < Sinatra::Base
   end
 
   get "/api/v2/current_user" do
-    { "user" => { "id" => 1, "name" => "User", "email" => "test@engineyard.com" } }.to_json
+    { "user" => { "id" => 1, "name" => "User", "email" => "test@test.test" } }.to_json
   end
 
   get "/api/v2/apps" do

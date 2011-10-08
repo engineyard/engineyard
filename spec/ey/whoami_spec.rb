@@ -10,7 +10,7 @@ describe "ey whoami" do
 
     it "outputs the currently logged in user" do
       ey %w[whoami]
-      @out.should =~ /User\s+\(test@engineyard.com\)/
+      @out.should include("User (test@test.test)")
     end
   end
 
@@ -24,7 +24,7 @@ describe "ey whoami" do
 
     it "prompts for authentication before outputting the logged in user" do
       ey(%w[whoami], :hide_err => true) do |input|
-        input.puts("test@engineyard.com")
+        input.puts("test@test.test")
         input.puts("test")
       end
 
@@ -32,7 +32,7 @@ describe "ey whoami" do
       @out.should include("Email:")
       @out.should include("Password:")
 
-      @out.should include("User (test@engineyard.com)")
+      @out.should include("User (test@test.test)")
     end
   end
 end
