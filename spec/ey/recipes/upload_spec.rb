@@ -20,7 +20,7 @@ describe "ey recipes upload" do
     @out.should =~ %r|Recipes in cookbooks/ uploaded successfully for #{scenario[:environment]}|
   end
 
-  it_should_behave_like "it takes an environment name and an account name"
+  include_examples "it takes an environment name and an account name"
 end
 
 describe "ey recipes upload -f recipes.tgz" do
@@ -43,7 +43,7 @@ describe "ey recipes upload -f recipes.tgz" do
     @out.should =~ %r|Recipes file recipes.tgz uploaded successfully for #{scenario[:environment]}|
   end
 
-  it_should_behave_like "it takes an environment name and an account name"
+  include_examples "it takes an environment name and an account name"
 end
 
 describe "ey recipes upload -f with a missing filenamen" do
@@ -66,7 +66,7 @@ end
 describe "ey recipes upload with an ambiguous git repo" do
   given "integration"
   def command_to_run(_) %w[recipes upload] end
-  it_should_behave_like "it requires an unambiguous git repo"
+  include_examples "it requires an unambiguous git repo"
 end
 
 describe "ey recipes upload from a separate cookbooks directory" do

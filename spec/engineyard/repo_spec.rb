@@ -1,14 +1,17 @@
 require 'spec_helper'
 
 describe EY::Repo do
-  before(:all) do
+  before(:each) do
     FakeFS.deactivate!
     @path = Pathname.new("/tmp/ey-test/.git/")
     @path.mkpath
     @r = EY::Repo.new("/tmp/ey-test")
   end
-  after(:all) { FakeFS.activate! }
-  after(:each) { clear_urls }
+
+  after(:each) do
+    clear_urls
+    FakeFS.activate!
+  end
 
   def set_head(head)
     @path.join("HEAD").open('w') {|f| f.write(head) }
@@ -51,8 +54,8 @@ describe EY::Repo do
       other_url = "git@github.com:engineyard/engineyard.git"
       set_url origin_url, "origin"
       set_url other_url,  "other"
-      @r.should be_has_remote(origin_url)
-      @r.should be_has_remote(other_url)
+      @r.should have_remote(origin_url)
+      @r.should have_remote(other_url)
     end
   end # url
 

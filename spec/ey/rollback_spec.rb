@@ -18,8 +18,8 @@ describe "ey rollback" do
     @ssh_commands.last.should match(/engineyard-serverside.*deploy rollback.*--app #{scenario[:application]}/)
   end
 
-  it_should_behave_like "it takes an environment name and an app name and an account name"
-  it_should_behave_like "it invokes engineyard-serverside"
+  include_examples "it takes an environment name and an app name and an account name"
+  include_examples "it invokes engineyard-serverside"
 
   it "passes along the web server stack to engineyard-serverside" do
     api_scenario "one app, one environment"

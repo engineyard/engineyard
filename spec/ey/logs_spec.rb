@@ -32,5 +32,5 @@ describe "ey logs" do
     @out.should match(/Main logs for #{scenario[:environment]}/)
   end
 
-  it_should_behave_like "it takes an environment name and an account name"
+  include_examples "it takes an environment name and an account name"
 end

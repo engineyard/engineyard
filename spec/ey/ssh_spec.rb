@@ -56,7 +56,7 @@ shared_examples_for "running ey ssh for select role" do
 end
 
 describe "ey ssh" do
-  it_should_behave_like "running ey ssh"
+  include_examples "running ey ssh"
 
   before(:all) do
     api_scenario "one app, many environments"
@@ -70,13 +70,13 @@ describe "ey ssh" do
 end
 
 describe "ey ssh with an ambiguous git repo" do
-  it_should_behave_like "running ey ssh"
+  include_examples "running ey ssh"
   def command_to_run(_) %w[ssh ls] end
-  it_should_behave_like "it requires an unambiguous git repo"
+  include_examples "it requires an unambiguous git repo"
 end
 
 describe "ey ssh without a command" do
-  it_should_behave_like "running ey ssh"
+  include_examples "running ey ssh"
 
   def command_to_run(opts)
     cmd = ["ssh"]
@@ -90,11 +90,11 @@ describe "ey ssh without a command" do
     @raw_ssh_commands.should == ["ssh #{ssh_target}"]
   end
 
-  it_should_behave_like "it takes an environment name and an account name"
+  include_examples "it takes an environment name and an account name"
 end
 
 describe "ey ssh with a command" do
-  it_should_behave_like "running ey ssh"
+  include_examples "running ey ssh"
 
   def command_to_run(opts)
     cmd = %w[ssh ls]
@@ -108,11 +108,11 @@ describe "ey ssh with a command" do
     @raw_ssh_commands.should == ["ssh #{ssh_target} ls"]
   end
 
-  it_should_behave_like "it takes an environment name and an account name"
+  include_examples "it takes an environment name and an account name"
 end
 
 describe "ey ssh with a multi-part command" do
-  it_should_behave_like "running ey ssh"
+  include_examples "running ey ssh"
 
   def command_to_run(opts)
     cmd = ['ssh', 'echo "echo"']
@@ -126,7 +126,7 @@ describe "ey ssh with a multi-part command" do
     @raw_ssh_commands.should == ["ssh #{ssh_target} 'echo \"echo\"'"]
   end
 
-  it_should_behave_like "it takes an environment name and an account name"
+  include_examples "it takes an environment name and an account name"
 end
 
 describe "ey ssh --all" do
@@ -141,8 +141,8 @@ describe "ey ssh --all" do
                 db_slave_2_hostname)
   end
 
-  it_should_behave_like "running ey ssh"
-  it_should_behave_like "running ey ssh for select role"
+  include_examples "running ey ssh"
+  include_examples "running ey ssh for select role"
 end
 
 describe "ey ssh --app-servers" do
@@ -151,8 +151,8 @@ describe "ey ssh --app-servers" do
     @hosts = %w(app_hostname app_master_hostname)
   end
 
-  it_should_behave_like "running ey ssh"
-  it_should_behave_like "running ey ssh for select role"
+  include_examples "running ey ssh"
+  include_examples "running ey ssh for select role"
 end
 
 describe "ey ssh --db-master" do
@@ -161,8 +161,8 @@ describe "ey ssh --db-master" do
     @hosts = %w(db_master_hostname)
   end
 
-  it_should_behave_like "running ey ssh"
-  it_should_behave_like "running ey ssh for select role"
+  include_examples "running ey ssh"
+  include_examples "running ey ssh for select role"
 end
 
 describe "ey ssh --db-slaves" do
@@ -171,8 +171,8 @@ describe "ey ssh --db-slaves" do
     @hosts = %w(db_slave_1_hostname db_slave_2_hostname)
   end
 
-  it_should_behave_like "running ey ssh"
-  it_should_behave_like "running ey ssh for select role"
+  include_examples "running ey ssh"
+  include_examples "running ey ssh for select role"
 end
 
 describe "ey ssh --db-servers" do
@@ -181,8 +181,8 @@ describe "ey ssh --db-servers" do
     @hosts = %w(db_master_hostname db_slave_1_hostname db_slave_2_hostname)
   end
 
-  it_should_behave_like "running ey ssh"
-  it_should_behave_like "running ey ssh for select role"
+  include_examples "running ey ssh"
+  include_examples "running ey ssh for select role"
 end
 
 describe "ey ssh --utilities" do
@@ -191,8 +191,8 @@ describe "ey ssh --utilities" do
     @hosts = %w(util_fluffy_hostname util_rocky_hostname)
   end
 
-  it_should_behave_like "running ey ssh"
-  it_should_behave_like "running ey ssh for select role"
+  include_examples "running ey ssh"
+  include_examples "running ey ssh for select role"
 end
 
 describe "ey ssh --utilities fluffy" do
@@ -201,8 +201,8 @@ describe "ey ssh --utilities fluffy" do
     @hosts = %w(util_fluffy_hostname)
   end
 
-  it_should_behave_like "running ey ssh"
-  it_should_behave_like "running ey ssh for select role"
+  include_examples "running ey ssh"
+  include_examples "running ey ssh for select role"
 end
 
 describe "ey ssh --utilities fluffy rocky" do
@@ -211,7 +211,7 @@ describe "ey ssh --utilities fluffy rocky" do
     @hosts = %w(util_fluffy_hostname util_rocky_hostname)
   end
 
-  it_should_behave_like "running ey ssh"
-  it_should_behave_like "running ey ssh for select role"
+  include_examples "running ey ssh"
+  include_examples "running ey ssh for select role"
 end
 

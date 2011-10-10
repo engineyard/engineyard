@@ -12,5 +12,5 @@ describe EY::Collection::Apps do
     ])
   end
 
-    it_should_behave_like "model collections"
+    include_examples "model collections"
 end

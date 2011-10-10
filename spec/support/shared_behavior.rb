@@ -1,3 +1,5 @@
+require 'ostruct'
+
 shared_examples_for "it has an ambiguous git repo" do
 
   define_git_repo('dup test') do
@@ -12,7 +14,7 @@ shared_examples_for "it has an ambiguous git repo" do
 end
 
 shared_examples_for "it requires an unambiguous git repo" do
-  it_should_behave_like "it has an ambiguous git repo"
+  include_examples "it has an ambiguous git repo"
 
   it "lists disambiguating environments to choose from" do
     run_ey({}, {:expect_failure => true})
@@ -24,8 +26,8 @@ shared_examples_for "it requires an unambiguous git repo" do
 end
 
 shared_examples_for "it takes an environment name and an app name and an account name" do
-  it_should_behave_like "it takes an app name"
-  it_should_behave_like "it takes an environment name"
+  include_examples "it takes an app name"
+  include_examples "it takes an environment name"
 
   context "when multiple accounts with collaboration" do
     before :all do
@@ -52,7 +54,7 @@ shared_examples_for "it takes an environment name and an app name and an account
 end
 
 shared_examples_for "it takes an environment name and an account name" do
-  it_should_behave_like "it takes an environment name"
+  include_examples "it takes an environment name"
 
   context "when multiple accounts with collaboration" do
     before :all do

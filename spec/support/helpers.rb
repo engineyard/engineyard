@@ -8,7 +8,7 @@ require 'stringio'
 module SpecHelpers
   module Given
     def given(name)
-      it_should_behave_like name
+      include_examples name
     end
   end
 

@@ -14,5 +14,5 @@ describe "ey rebuild" do
     @out.should =~ /Rebuilding #{scenario[:environment]}/
   end
 
-  it_should_behave_like "it takes an environment name and an account name"
+  include_examples "it takes an environment name and an account name"
 end

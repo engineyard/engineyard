@@ -55,7 +55,7 @@ end
 
 describe "ey environments with an ambiguous git repo" do
   given "integration"
-  it_should_behave_like "it has an ambiguous git repo"
+  include_examples "it has an ambiguous git repo"
 
   it "lists environments from all apps using the git repo" do
     ey %w[environments]

@@ -35,14 +35,14 @@ require 'engineyard'
 EY::Error
 
 # Spec stuff
-require 'spec/autorun'
+require 'rspec'
 require 'tmpdir'
 require 'yaml'
 require 'pp'
 support = Dir[File.join(EY_ROOT,'/spec/support/*.rb')]
 support.each{|helper| require helper }
 
-Spec::Runner.configure do |config|
+RSpec.configure do |config|
   config.include SpecHelpers
   config.include SpecHelpers::IntegrationHelpers
 

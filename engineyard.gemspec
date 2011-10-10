@@ -31,7 +31,7 @@ Gem::Specification.new do |s|
   s.add_dependency('net-ssh', '~>2.1.0')
   s.add_dependency('launchy', '2.0.5')
 
-  s.add_development_dependency('rspec', '1.3.0')
+  s.add_development_dependency('rspec', '~>2.0')
   s.add_development_dependency('rake')
   s.add_development_dependency('fakeweb')
   s.add_development_dependency('fakeweb-matcher')

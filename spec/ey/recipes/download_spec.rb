@@ -26,7 +26,7 @@ describe "ey recipes download" do
     File.read('cookbooks/README').should == "Remove this file to clone an upstream git repository of cookbooks\n"
   end
 
-  it_should_behave_like "it takes an environment name and an account name"
+  include_examples "it takes an environment name and an account name"
 
   it "fails when cookbooks/ already exists" do
     api_scenario "one app, one environment"
@@ -39,5 +39,5 @@ end
 describe "ey recipes download with an ambiguous git repo" do
   given "integration"
   def command_to_run(_) %w[recipes download] end
-  it_should_behave_like "it requires an unambiguous git repo"
+  include_examples "it requires an unambiguous git repo"
 end

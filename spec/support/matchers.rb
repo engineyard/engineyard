@@ -1,6 +1,6 @@
-require 'spec/matchers'
+require 'rspec/matchers'
 
-Spec::Matchers.define :have_command_like do |regex|
+RSpec::Matchers.define :have_command_like do |regex|
   match do |command_list|
     @found = command_list.find{|c| c =~ regex }
     !!@found
@@ -15,7 +15,7 @@ Spec::Matchers.define :have_command_like do |regex|
   end
 end
 
-Spec::Matchers.define :have_app_code do
+RSpec::Matchers.define :have_app_code do
   match { |instance| instance.has_app_code? }
 
   failure_message_for_should do |instance|
@@ -27,16 +27,18 @@ Spec::Matchers.define :have_app_code do
   end
 end
 
-Spec::Matchers.define :resolve_to do |expected|
-  match do |(app,environment)|
-    app.name == expected[:app_name] && environment.name == expected[:environment_name]
+RSpec::Matchers.define :resolve_to do |expected|
+  match do |pair|
+    app, env = *pair
+    app.name == expected[:app_name] && env.name == expected[:environment_name]
   end
 
-  failure_message_for_should do |(app,environment)|
-    "Expected: #{expected[:app_name]}, #{expected[:environment_name]}; Got: #{app.name}, #{environment.name}"
+  failure_message_for_should do |pair|
+    app, env = *pair
+    "Expected: #{expected[:app_name]}, #{expected[:environment_name]}; Got: #{app.name}, #{env.name}"
   end
 
-  failure_message_for_should_not do |instance|
+  failure_message_for_should_not do |pair|
     "Expected to not match: #{expected[:app_name]}, #{expected[:environment_name]}"
   end
 end
