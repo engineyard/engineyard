@@ -47,7 +47,7 @@ describe "EY::Model::Environment.from_array" do
     ]
 
     collection = EY::Model::Environment.from_array(api_data)
-    collection.should be_kind_of(Array)
+    collection.should respond_to(:each)
     collection.should respond_to(:match_one)
   end
 end

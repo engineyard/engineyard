@@ -2,14 +2,28 @@ require 'engineyard/error'
 
 module EY
   module Collection
-    class Abstract < Array
+    class Abstract
       COLLAB_MESSAGE = <<-MSG
 \nThis error is due to having access to another account's resources via the collaboration feature.
 Specify --account ACCOUNT_NAME to resolve this ambiguity.
       MSG
 
+      include Enumerable
+
+      def self.[](*args)
+        new(args)
+      end
+
+      def initialize(contents)
+        @contents = contents
+      end
+
+      def each(&block)
+        @contents.each(&block)
+      end
+
       def named(name, account_name=nil)
-        candidates = find_all do |x|
+        candidates = @contents.find_all do |x|
           if account_name
             x.name.downcase == name.downcase && x.account.name.downcase == account_name.downcase
           else
@@ -33,7 +47,7 @@ Specify --account ACCOUNT_NAME to resolve this ambiguity.
     private
 
       def find_by_unambiguous_substring(name_part)
-        candidates = find_all{|e| e.name.downcase[name_part.downcase] }
+        candidates = @contents.find_all{|e| e.name.downcase[name_part.downcase] }
         if candidates.size > 1
           raise ambiguous_error(name_part, candidates.map {|e| e.name})
         end
