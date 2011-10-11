@@ -74,8 +74,8 @@ module EY
 
       def print_envs(apps, default_env_name = nil, simple = false)
         if simple
-          envs = apps.map{ |a| a.environments }
-          puts envs.flatten.map{|x| x.name}.uniq
+          envs = apps.map{ |app| app.environments.to_a }
+          puts envs.flatten.map{|env| env.name }.uniq
         else
           apps.each do |app|
             puts "#{app.name} (#{app.account.name})"

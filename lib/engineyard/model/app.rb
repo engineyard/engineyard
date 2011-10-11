@@ -10,7 +10,7 @@ module EY
       end
 
       def self.from_array(*)
-        Collection::Apps[*super]
+        Collection::Apps.new(super)
       end
 
       def sole_environment

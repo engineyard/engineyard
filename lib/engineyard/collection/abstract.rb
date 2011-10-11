@@ -10,16 +10,16 @@ Specify --account ACCOUNT_NAME to resolve this ambiguity.
 
       include Enumerable
 
-      def self.[](*args)
-        new(args)
-      end
-
       def initialize(contents)
-        @contents = contents
+        @contents = contents ? contents.dup.flatten : []
       end
 
       def each(&block)
         @contents.each(&block)
+      end
+
+      def to_a
+        @contents
       end
 
       def named(name, account_name=nil)

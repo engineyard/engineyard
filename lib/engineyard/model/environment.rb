@@ -18,7 +18,7 @@ module EY
       end
 
       def self.from_array(*)
-        Collection::Environments[*super]
+        Collection::Environments.new(super)
       end
 
       def logs
