@@ -4,6 +4,12 @@
 
   *
 
+## v1.4.1 (2011-10-18)
+
+  * Improve warning messages during deploys.
+  * Exclude bundler environment variables explicitly on bundler install during deploy.
+
+
 ## v1.4.0 (2011-10-07)
 
   * Remove bundler 0.9 support in engineyard-serverside.
