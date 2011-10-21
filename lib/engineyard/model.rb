@@ -1,13 +1,12 @@
 module EY
   module Model
+    autoload :ApiStruct,     'engineyard/model/api_struct'
+    autoload :Account,       'engineyard/model/account'
+    autoload :App,           'engineyard/model/app'
+    autoload :Deployment,    'engineyard/model/deployment'
+    autoload :Environment,   'engineyard/model/environment'
+    autoload :Log,           'engineyard/model/log'
+    autoload :Instance,      'engineyard/model/instance'
+    autoload :User,          'engineyard/model/user'
   end
 end
-
-require 'engineyard/model/api_struct'
-require 'engineyard/model/account'
-require 'engineyard/model/app'
-require 'engineyard/model/deployment'
-require 'engineyard/model/environment'
-require 'engineyard/model/log'
-require 'engineyard/model/instance'
-require 'engineyard/model/user'
