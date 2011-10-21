@@ -1,11 +1,11 @@
 require 'uri'
-require 'yaml'
 
 module EY
   class Config
     CONFIG_FILES = ["config/ey.yml", "ey.yml"]
 
     def initialize(file = nil)
+      require 'yaml'
       @file = file || CONFIG_FILES.find{|f| File.exists?(f) }
       @config = (@file ? YAML.load_file(@file) : {}) || {} # load_file returns `false' when the file is empty
       @config["environments"] = {} unless @config["environments"]

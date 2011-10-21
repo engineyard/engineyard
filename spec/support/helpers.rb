@@ -149,7 +149,7 @@ module SpecHelpers
     eybin = File.expand_path('../bundled_ey', __FILE__)
 
     with_env(ey_env) do
-      exit_status = Open4::open4("#{Gem.ruby} #{eybin} #{Escape.shell_command(args)}") do |pid, stdin, stdout, stderr|
+      exit_status = Open4::open4("#{eybin} #{Escape.shell_command(args)}") do |pid, stdin, stdout, stderr|
         block.call(stdin) if block
         @out = stdout.read
         @err = stderr.read

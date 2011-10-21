@@ -33,12 +33,6 @@ require 'engineyard'
 
 #autoload hax
 EY::Error
-EY::API
-EY::Collection
-EY::Config
-EY::Model
-EY::Repo
-EY::Resolver
 
 # Spec stuff
 require 'rspec'
@@ -47,10 +41,6 @@ require 'yaml'
 require 'pp'
 support = Dir[File.join(EY_ROOT,'/spec/support/*.rb')]
 support.each{|helper| require helper }
-
-Dir[File.join(EY_ROOT, "/lib/engineyard/model/*.rb")].each do |f|
-  require f
-end
 
 RSpec.configure do |config|
   config.include SpecHelpers

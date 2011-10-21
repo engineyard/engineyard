@@ -1,6 +1,5 @@
 require 'spec_helper'
 require 'engineyard/cli'
-require 'highline'
 
 describe EY::CLI::API do
   before(:all) do
