@@ -1,6 +1,7 @@
+require 'stringio'
+
 module Kernel
   def capture_stdio(input = nil, &block)
-    require 'stringio'
     org_stdin, $stdin = $stdin, StringIO.new(input) if input
     org_stdout, $stdout = $stdout, StringIO.new
     yield

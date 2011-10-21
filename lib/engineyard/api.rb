@@ -1,4 +1,9 @@
 require 'engineyard/model'
+require 'yaml'
+require 'rest_client'
+require 'engineyard/rest_client_ext'
+require 'json'
+
 
 module EY
   class API
@@ -49,10 +54,6 @@ module EY
     class RequestFailed < EY::Error; end
 
     def self.request(path, opts={})
-      require 'rest_client'
-      require 'engineyard/rest_client_ext'
-      require 'json'
-
       url = EY.config.endpoint + "api/v2#{path}"
       method = (opts.delete(:method) || 'get').to_s.downcase.to_sym
       params = opts.delete(:params) || {}
@@ -111,8 +112,6 @@ module EY
       file ||= ENV['EYRC'] || File.expand_path("~/.eyrc")
       return false unless File.exists?(file)
 
-      require 'yaml'
-
       data = YAML.load_file(file)
       if EY.config.default_endpoint?
         data["api_token"]
@@ -123,7 +122,6 @@ module EY
 
     def self.save_token(token, file = nil)
       file ||= ENV['EYRC'] || File.expand_path("~/.eyrc")
-      require 'yaml'
 
       data = File.exists?(file) ? YAML.load_file(file) : {}
       if EY.config.default_endpoint?

@@ -1,5 +1,9 @@
 require 'spec_helper'
 require 'engineyard/cli'
+require 'engineyard/cli/api'
+require 'engineyard/cli/ui'
+require 'engineyard/cli/recipes'
+require 'engineyard/cli/web'
 
 describe EY::CLI do
 
