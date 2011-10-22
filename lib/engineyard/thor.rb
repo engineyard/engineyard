@@ -1,4 +1,7 @@
 require 'thor'
+require 'engineyard'
+require 'engineyard/cli/api'
+require 'engineyard/repo'
 
 module EY
   module UtilityMethods

@@ -1,3 +1,7 @@
+require "engineyard/cli"
+require 'thor/base'
+
+puts "ui"
 module EY
   class CLI
     class UI < Thor::Base.shell

@@ -1,9 +1,11 @@
+require 'engineyard'
+require 'engineyard/version'
 require 'engineyard/model'
+require 'engineyard/error'
 require 'yaml'
 require 'rest_client'
 require 'engineyard/rest_client_ext'
 require 'json'
-
 
 module EY
   class API

@@ -1,13 +1,12 @@
 require 'engineyard'
-require 'engineyard/error'
 require 'engineyard/thor'
+require 'engineyard/error'
+require 'engineyard/version'
+require 'escape'
+require 'thor/base'
 
 module EY
   class CLI < EY::Thor
-    autoload :API,     'engineyard/cli/api'
-    autoload :UI,      'engineyard/cli/ui'
-    autoload :Recipes, 'engineyard/cli/recipes'
-    autoload :Web,     'engineyard/cli/web'
 
     include Thor::Actions
 
@@ -354,3 +353,7 @@ module EY
 
   end # CLI
 end # EY
+
+require 'engineyard/cli/ui'
+require 'engineyard/cli/recipes'
+require 'engineyard/cli/web'

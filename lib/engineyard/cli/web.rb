@@ -1,3 +1,7 @@
+require 'engineyard/cli'
+require 'engineyard/thor'
+
+puts "web"
 module EY
   class CLI
     class Web < EY::Thor

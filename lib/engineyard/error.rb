@@ -1,3 +1,5 @@
+require 'engineyard'
+
 module EY
   class Error < RuntimeError
     def ambiguous(type, name, matches, desc="")

@@ -1,5 +1,6 @@
 require 'escape'
 require 'net/ssh'
+require 'engineyard/error'
 
 module EY
   module Model

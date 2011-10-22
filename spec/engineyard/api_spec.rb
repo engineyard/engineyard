@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'engineyard/api'
 
 describe EY::API do
   it "gets the api token from ~/.eyrc if possible" do

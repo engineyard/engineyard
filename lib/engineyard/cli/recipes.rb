@@ -1,3 +1,8 @@
+require 'engineyard'
+require 'engineyard/cli'
+require 'engineyard/thor'
+
+puts "recipes"
 module EY
   class CLI
     class Recipes < EY::Thor

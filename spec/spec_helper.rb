@@ -31,15 +31,6 @@ require 'json'
 $LOAD_PATH.unshift(File.join(EY_ROOT, "lib"))
 require 'engineyard'
 
-#autoload hax
-EY::Error
-EY::API
-EY::Collection
-EY::Config
-EY::Model
-EY::Repo
-EY::Resolver
-
 # Spec stuff
 require 'rspec'
 require 'tmpdir'

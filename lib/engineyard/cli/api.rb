@@ -1,3 +1,9 @@
+require 'engineyard'
+require 'engineyard/cli'
+require 'engineyard/api'
+require 'engineyard/error'
+
+puts "api"
 module EY
   class CLI
     class API < EY::API

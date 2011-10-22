@@ -1,3 +1,5 @@
+require 'engineyard/error'
+
 module EY
   module Model
     class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count,
