@@ -91,7 +91,7 @@ task :release do
   release_changelog(new_version)
 
   run_commands(
-    "git add Gemfile ChangeLog.md lib/engineyard/version.rb",
+    "git add Gemfile ChangeLog.md lib/engineyard/version.rb engineyard.gemspec",
     "git commit -m 'Bump versions for release #{new_version}'",
     "gem build engineyard.gemspec")
 

@@ -2,13 +2,13 @@
 
 ## NEXT
 
-  *
+  * bundle\_without: ey.yml option allows you to specify custom bundle install --without string (list of space separated groups, replaces the default 'test development') Put the option in your ey.yml file under the environment name key.
+  * Includes a fix for Gemfile detection in engineyard-serverside.
 
 ## v1.4.1 (2011-10-18)
 
   * Improve warning messages during deploys.
   * Exclude bundler environment variables explicitly on bundler install during deploy.
-
 
 ## v1.4.0 (2011-10-07)
 
