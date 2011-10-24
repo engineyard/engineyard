@@ -7,7 +7,7 @@ task :test => :spec
 task :default => :spec
 
 $LOAD_PATH.unshift(File.join(File.dirname(__FILE__), 'lib'))
-require 'rake/rdoctask'
+require 'rdoc/task'
 require File.expand_path("../lib/engineyard", __FILE__)
 Rake::RDocTask.new do |rdoc|
   rdoc.rdoc_dir = 'rdoc'
