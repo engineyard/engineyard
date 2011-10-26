@@ -14,7 +14,7 @@ module EY
     end
 
     def git_repo_dir(name)
-      return git_repo_dir_cache[name] if git_repo_dir_cache.has_key?(name)
+      return git_repo_dir_cache[name] if git_repo_dir_cache[name]
       raise ArgumentError, "No definition for git repo #{name}" unless git_repo_setup[name]
 
       git_dir = Pathname.new("/tmp/engineyard_test_repo_#{Time.now.tv_sec}_#{Time.now.tv_usec}_#{$$}")

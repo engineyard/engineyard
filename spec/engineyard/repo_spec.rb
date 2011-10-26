@@ -1,48 +1,42 @@
 require 'spec_helper'
 
 describe EY::Repo do
+  let(:path) { p = Pathname.new(Dir.tmpdir).join('ey-test'); p.mkpath; p }
+
   before(:each) do
-    @path = Pathname.new("/tmp/ey-test/.git/")
-    @path.mkpath
-    @r = EY::Repo.new("/tmp/ey-test")
+    Dir.chdir(path) { `git init -q` }
+    ENV['GIT_DIR'] = path.join('.git').to_s
   end
 
   after(:each) do
-    clear_urls
+    EY.reset
+    path.rmtree
+    ENV.delete('GIT_DIR')
   end
 
   def set_head(head)
-    @path.join("HEAD").open('w') {|f| f.write(head) }
-  end
-
-  def config_path
-    @path.join("config")
+    path.join('.git','HEAD').open('w') {|f| f.write(head) }
   end
 
   def set_url(url, remote)
-    system("mkdir -p #{@path} && cd #{@path} && git init -q")
-    system("git config -f #{config_path} remote.#{remote}.url #{url}")
-  end
-
-  def clear_urls
-    system("rm -rf #{config_path}")
+    `git remote add #{remote} #{url}`
   end
 
   describe "current_branch method" do
     it "returns the name of the current branch" do
       set_head "ref: refs/heads/master"
-      @r.current_branch.should == "master"
+      EY.repo.current_branch.should == "master"
     end
 
     it "returns nil if there is no current branch" do
       set_head "20bf478ab6a91ec5771130aa4c8cfd3d150c4146"
-      @r.current_branch.should be_nil
+      EY.repo.current_branch.should be_nil
     end
   end # current_branch
 
   describe "#fail_on_no_remotes!" do
     it "raises when there are no remotes" do
-      lambda { @r.fail_on_no_remotes! }.should raise_error(EY::NoRemotesError)
+      lambda { EY.repo.fail_on_no_remotes! }.should raise_error(EY::NoRemotesError)
     end
   end
 
@@ -52,8 +46,8 @@ describe EY::Repo do
       other_url = "git@github.com:engineyard/engineyard.git"
       set_url origin_url, "origin"
       set_url other_url,  "other"
-      @r.should have_remote(origin_url)
-      @r.should have_remote(other_url)
+      EY.repo.should have_remote(origin_url)
+      EY.repo.should have_remote(other_url)
     end
   end # url
 

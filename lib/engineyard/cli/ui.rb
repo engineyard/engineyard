@@ -4,7 +4,7 @@ module EY
 
       class Prompter
         class Mock
-          def next_answer=(arg)
+          def next_answer(arg)
             @answers ||= []
             @answers << arg
           end

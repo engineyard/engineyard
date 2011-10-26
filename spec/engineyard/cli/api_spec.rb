@@ -2,11 +2,11 @@ require 'spec_helper'
 require 'engineyard/cli'
 
 describe EY::CLI::API do
-  before(:all) do
+  before(:each) do
     EY.ui = EY::CLI::UI.new
   end
 
-  after(:all) do
+  after(:each) do
     EY.ui = EY::UI.new
   end
 
@@ -17,13 +17,13 @@ describe EY::CLI::API do
 
   context "without saved api token" do
     before(:each) do
-      FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
+      FakeWeb.register_uri(:post, "http://fake.local/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
 
       EY::CLI::UI::Prompter.enable_mock!
-      EY::CLI::UI::Prompter.backend.next_answer = "my@email.example.com"
-      EY::CLI::UI::Prompter.backend.next_answer = "secret"
+      EY::CLI::UI::Prompter.backend.next_answer "my@email.example.com"
+      EY::CLI::UI::Prompter.backend.next_answer "secret"
 
-      @api = EY::CLI::API.new
+      @api = EY::CLI::API.new(nil)
     end
 
     it "asks you for your credentials" do
@@ -31,7 +31,7 @@ describe EY::CLI::API do
     end
 
     it "gets the api token" do
-      @api.should == EY::CLI::API.new("asdf")
+      @api.token.should == "asdf"
     end
 
     it "saves the api token to ~/.eyrc" do

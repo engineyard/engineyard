@@ -36,21 +36,20 @@ RSpec.configure do |config|
 
   def clean_eyrc
     ENV['EYRC'] = File.join('/tmp','eyrc')
-    if ENV['EYRC'] && File.exist?(ENV['EYRC'])
+    if File.exist?(ENV['EYRC'])
       File.unlink(ENV['EYRC'])
     end
   end
 
   config.before(:all) do
-    clean_eyrc
     FakeWeb.allow_net_connect = false
-    ENV["CLOUD_URL"] = nil
     ENV["NO_SSH"] = "true"
   end
 
   config.before(:each) do
+    ENV['CLOUD_URL'] ||= 'http://fake.local/'
     clean_eyrc
-    EY.instance_eval{ @config = nil }
+    EY.reset
   end
 end
 
@@ -61,8 +60,6 @@ EY.define_git_repo("default") do |git_dir|
 end
 
 shared_examples_for "integration without an eyrc file" do
-  use_git_repo('default')
-
   before(:all) do
     FakeWeb.allow_net_connect = true
     ENV['CLOUD_URL'] = EY.fake_awsm
@@ -72,6 +69,8 @@ shared_examples_for "integration without an eyrc file" do
     ENV.delete('CLOUD_URL')
     FakeWeb.allow_net_connect = false
   end
+
+  use_git_repo('default')
 end
 
 # Use this in conjunction with the 'ey' helper method

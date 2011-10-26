@@ -1,41 +1,49 @@
 require 'spec_helper'
 
 describe "EY::Model::Environment#rebuild" do
+  before do
+    write_eyrc('api_token' => 'abcd')
+  end
+
   it "hits the rebuild action in the API" do
     env = EY::Model::Environment.from_hash({
         "id" => 46534,
-        "api" => ey_api,
+        "api" => EY::API.new('abcd'),
       })
 
     FakeWeb.register_uri(
       :put,
-      "https://cloud.engineyard.com/api/v2/environments/#{env.id}/update_instances",
+      "http://fake.local/api/v2/environments/#{env.id}/update_instances",
       :body => ''
     )
 
     env.rebuild
 
-    FakeWeb.should have_requested(:put, "https://cloud.engineyard.com/api/v2/environments/#{env.id}/update_instances")
+    FakeWeb.should have_requested(:put, "http://fake.local/api/v2/environments/#{env.id}/update_instances")
   end
 end
 
 describe "EY::Model::Environment#run_custom_recipes" do
+  before do
+    write_eyrc('api_token' => 'abcd')
+  end
+
   it "hits the rebuild action in the API" do
     env = EY::Model::Environment.from_hash({
         "id" => 46534,
-        "api" => ey_api,
+        "api" => EY::API.new('abcd'),
       })
 
     FakeWeb.register_uri(
       :put,
-      "https://cloud.engineyard.com/api/v2/environments/#{env.id}/run_custom_recipes",
+      "http://fake.local/api/v2/environments/#{env.id}/run_custom_recipes",
       :body => '',
       :content_type => 'application/json'
     )
 
     env.run_custom_recipes
 
-    FakeWeb.should have_requested(:put, "https://cloud.engineyard.com/api/v2/environments/#{env.id}/run_custom_recipes")
+    FakeWeb.should have_requested(:put, "http://fake.local/api/v2/environments/#{env.id}/run_custom_recipes")
   end
 end
 
@@ -63,12 +71,12 @@ describe "EY::Model::Environment#instances" do
 
     env = EY::Model::Environment.from_hash({
         "id" => 10291,
-        "api" => ey_api,
+        "api" => EY::API.new('abcd'),
         "instances" => [instance_data],
       })
 
     FakeWeb.register_uri(:get,
-      "https://cloud.engineyard.com/api/v2/environments/#{env.id}/instances",
+      "https://fake.local/api/v2/environments/#{env.id}/instances",
       :body => {"instances" => [instance_data]}.to_json,
       :content_type => 'application/json'
     )
@@ -153,14 +161,14 @@ describe "EY::Model::Environment#migration_command" do
     @app = EY::Model::App.from_hash({:name => 'fake'})
     @migrate = EY::Model::Environment.from_hash({
         "id" => 10291,
-        "api" => ey_api,
+        "api" => EY::API.new('abcd'),
         'name' => 'migrate',
         'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => true}}}
     })
 
     @no_migrate = EY::Model::Environment.from_hash({
         "id" => 10291,
-        "api" => ey_api,
+        "api" => EY::API.new('abcd'),
         'name' => 'no_migrate',
         'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => false}}}
     })

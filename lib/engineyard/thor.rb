@@ -4,11 +4,11 @@ module EY
   module UtilityMethods
     protected
     def api
-      @api ||= EY::CLI::API.new
+      @api ||= EY::CLI::API.new(EY.eyrc.api_token)
     end
 
     def repo
-      @repo ||= EY::Repo.new
+      EY.repo
     end
 
     def fetch_environment(environment_name, account_name=nil)
@@ -17,7 +17,6 @@ module EY
         :environment_name => environment_name,
         :account_name => account_name
       }
-      options.merge! :repo => repo if repo.exist?
       api.resolver.environment(options)
     end
 
@@ -27,7 +26,6 @@ module EY
         :environment_name => environment_name,
         :account_name => account_name
       }
-      options.merge! :repo => repo if repo.exist?
       api.resolver.app_and_environment(options)
     end
 

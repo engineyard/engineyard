@@ -1,7 +1,7 @@
 module EY
   class Resolver
     attr_reader :api
-    
+
     def initialize(api)
       @api = api
     end

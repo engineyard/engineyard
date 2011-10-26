@@ -31,7 +31,7 @@ module EY
         begin
           email    = EY.ui.ask("Email: ")
           password = EY.ui.ask("Password: ", true)
-          super(email, password)
+          authenticate(email, password)
         rescue EY::API::InvalidCredentials
           EY.ui.warn "Invalid username or password; please try again."
           retry
