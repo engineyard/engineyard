@@ -209,6 +209,8 @@ module EY
       :desc => "Run command on the master database server"
     method_option :db_slaves, :type => :boolean,
       :desc => "Run command on the slave database servers"
+    method_option :ssh_flags, :type => :string, :aliases => %w(-s),
+      :desc => "Pass these strings to ssh command"
     method_option :utilities, :type => :array, :lazy_default => true,
       :desc => "Run command on the utility servers with the given names. If no names are given, run on all utility servers."
 
@@ -219,7 +221,7 @@ module EY
       raise NoCommandError.new if cmd.nil? and hosts.size != 1
 
       hosts.each do |host|
-        system Escape.shell_command(['ssh', "#{environment.username}@#{host}", cmd].compact)
+        system Escape.shell_command(['ssh', options[:ssh_flags], "#{environment.username}@#{host}", cmd].compact)
       end
     end
 
