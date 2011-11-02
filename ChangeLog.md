@@ -8,7 +8,7 @@
 
   * Include new engineyard-serverside version with fixes:
   * Deploy fix: Don't fail if we can't precompile assets.
-  * Deploy fix: Delete bundled\_gems directory if we can't determine if the last bundle run was on 32 bit.
+  * Deploy fix: Delete bundled\_gems directory if we can't determine under which 32 or 64bit the last bundle was run.
 
 ## v1.4.2 (2011-10-21)
 
