@@ -4,6 +4,10 @@
 
   *
 
+## v1.4.4 (2011-11-07)
+
+  *
+
 ## v1.4.3 (2011-11-01)
 
   * Include new engineyard-serverside version with fixes:
