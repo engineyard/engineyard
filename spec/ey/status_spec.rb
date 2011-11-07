@@ -17,6 +17,6 @@ describe "ey environments" do
     @out.should =~ /Deployed by:\s+User/
     @out.should =~ /Created at:/
     @out.should =~ /Finished at:/
-    @out.should =~ /Deployment was successful/
+    @out.should =~ /This deployment was successful/
   end
 end

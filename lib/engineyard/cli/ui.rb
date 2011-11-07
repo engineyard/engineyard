@@ -122,11 +122,11 @@ module EY
         puts "#"
 
         if dep.successful?
-          info 'Deployment was successful.'
+          info 'This deployment was successful.'
         elsif dep.finished_at.nil?
-          warn 'Deployment is not finished.'
+          warn 'This deployment is not finished.'
         else
-          say_with_status('Deployment failed.', nil, :red)
+          say_with_status('This deployment failed.', nil, :red)
         end
       end
 
