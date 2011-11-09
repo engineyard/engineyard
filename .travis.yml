@@ -8,3 +8,6 @@ notifications:
   recipients:
     - drnicwilliams@gmail.com
     - memde@engineyard.com
+branches:
+  only:
+    - master
