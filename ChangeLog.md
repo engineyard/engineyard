@@ -2,7 +2,7 @@
 
 ## NEXT
 
-  *
+  * Ran into the YAML Syck thing again when building the last version. Re-releasing.
 
 ## v1.4.5 (2011-11-10)
 
