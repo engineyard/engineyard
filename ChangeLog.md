@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v1.4.5 (2011-11-10)
+
   * Use new engineyard-serverside version that should actually really fix the 32bit / 64bit problem. We now check every instance instead of (incorrectly) only checking the app master.
 
 ## v1.4.4 (2011-11-07)
