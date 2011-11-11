@@ -218,9 +218,11 @@ module EY
 
       raise NoCommandError.new if cmd.nil? and hosts.size != 1
 
-      hosts.each do |host|
+      exits = hosts.map do |host|
         system Escape.shell_command(['ssh', "#{environment.username}@#{host}", cmd].compact)
+        $?.exitstatus
       end
+      exit exits.detect {|status| !status.zero?} || 0
     end
 
     no_tasks do

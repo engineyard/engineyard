@@ -111,6 +111,27 @@ describe "ey ssh with a command" do
   include_examples "it takes an environment name and an account name"
 end
 
+describe "ey ssh with a command that fails" do
+  given "integration"
+
+  def extra_ey_options
+    ssh_cmd = "false" # fail immediately
+    {:prepend_to_path => {'ssh' => ssh_cmd}}
+  end
+
+  def command_to_run(opts)
+    cmd = %w[ssh ls]
+    cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--account"     << opts[:account]     if opts[:account]
+    cmd
+  end
+
+  it "fails just like the ssh command fails" do
+    api_scenario "one app, one environment"
+    run_ey({:ssh_command => "ls", :environment => 'giblets', :verbose => true}, :expect_failure => true)
+  end
+end
+
 describe "ey ssh with a multi-part command" do
   include_examples "running ey ssh"
 
