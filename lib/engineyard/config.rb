@@ -74,12 +74,7 @@ module EY
 
     class ConfigurationError < EY::Error
       def initialize(key, value, source, message=nil)
-        super(nil)
-        @key, @value, @source, @message = key, value, source, message
-      end
-
-      def message
-        %|"#{@key}" from #{@source} has invalid value: #{@value.inspect}#{": #{@message}" if @message}|
+        super %|"#{key}" from #{source} has invalid value: #{value.inspect}#{": #{message}" if message}|
       end
     end
   end
