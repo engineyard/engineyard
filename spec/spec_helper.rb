@@ -93,8 +93,6 @@ shared_examples_for "integration" do
   given "integration without an eyrc file"
 
   before(:all) do
-    token = { ENV['CLOUD_URL'] => {
-        "api_token" => "f81a1706ddaeb148cfb6235ddecfc1cf"} }
-    File.open(ENV['EYRC'], "w"){|f| YAML.dump(token, f) }
+    write_yaml({"api_token" => "f81a1706ddaeb148cfb6235ddecfc1cf"}, ENV['EYRC'])
   end
 end

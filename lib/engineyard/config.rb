@@ -26,15 +26,7 @@ module EY
     end
 
     def endpoint
-      @endpoint ||= env_var_endpoint ||
-        config_file_endpoint ||
-        default_endpoint
-    end
-
-    def config_file_endpoint
-      if endpoint = @config["endpoint"]
-        assert_valid_endpoint endpoint, @file
-      end
+      @endpoint ||= env_var_endpoint || default_endpoint
     end
 
     def env_var_endpoint

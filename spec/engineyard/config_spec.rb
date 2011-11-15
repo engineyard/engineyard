@@ -9,7 +9,7 @@ describe EY::Config do
     end
 
     it "are present when the config file has no environments key" do
-      write_yaml("endpoint" => "http://localhost/")
+      write_yaml({})
       EY::Config.new.environments.should == {}
     end
   end
@@ -19,21 +19,18 @@ describe EY::Config do
       EY::Config.new.endpoint.should == EY::Config.new.default_endpoint
     end
 
-    it "gets loaded from the config file" do
-      write_yaml("endpoint" => "http://localhost/")
-      EY::Config.new.endpoint.should == URI.parse("http://localhost/")
+    it "loads the endpoint from $CLOUD_URL" do
+      ENV['CLOUD_URL'] = "http://fake.local/"
+      EY::Config.new.endpoint.should == URI.parse('http://fake.local')
+      ENV.delete('CLOUD_URL')
     end
 
     it "raises on an invalid endpoint" do
-      write_yaml("endpoint" => "non/absolute")
+      ENV['CLOUD_URL'] = "non/absolute"
       lambda { EY::Config.new.endpoint }.
         should raise_error(EY::Config::ConfigurationError)
+      ENV.delete('CLOUD_URL')
     end
-  end
-
-  it "provides default_endpoint?" do
-    write_yaml("endpoint" => "http://localhost/")
-    EY::Config.new.default_endpoint?.should_not be_true
   end
 
   describe "files" do
@@ -42,19 +39,14 @@ describe EY::Config do
     end
 
     it "looks for config/ey.yml" do
-      write_yaml({"endpoint" => "http://something/"}, "ey.yml")
-      write_yaml({"endpoint" => "http://localhost/"}, "config/ey.yml")
-      EY::Config.new.endpoint.should == URI.parse("http://localhost/")
+      write_yaml({"environments" => {"staging"    => {"default" => true}}}, "ey.yml")
+      write_yaml({"environments" => {"production" => {"default" => true}}}, "config/ey.yml")
+      EY::Config.new.default_environment.should == "production"
     end
 
     it "looks for ey.yml" do
-      write_yaml({"endpoint" => "http://foo/"}, "ey.yml")
-      EY::Config.new.endpoint.should == URI.parse("http://foo/")
-    end
-
-    it "looks for the file given" do
-      write_yaml({"endpoint" => "http://bar/"}, "summat.yml")
-      EY::Config.new("summat.yml").endpoint.should == URI.parse("http://bar/")
+      write_yaml({"environments" => {"staging" => {"default" => true}}}, "ey.yml")
+      EY::Config.new.default_environment.should == "staging"
     end
   end
 

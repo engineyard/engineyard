@@ -11,10 +11,7 @@ describe EY::CLI::API do
   end
 
   it "gets the api token from ~/.eyrc if possible" do
-    File.open(File.expand_path("~/.eyrc"), "w") do |fp|
-      YAML.dump({"api_token" => "asdf"}, fp)
-    end
-
+    write_yaml({"api_token" => "asdf"}, '~/.eyrc')
     EY::CLI::API.new.should == EY::CLI::API.new("asdf")
   end
 
@@ -38,7 +35,7 @@ describe EY::CLI::API do
     end
 
     it "saves the api token to ~/.eyrc" do
-      YAML.load_file(File.expand_path("~/.eyrc")).should == {"api_token" => "asdf"}
+      read_yaml("~/.eyrc").should == {"api_token" => "asdf"}
     end
   end
 

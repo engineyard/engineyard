@@ -114,11 +114,7 @@ module EY
       require 'yaml'
 
       data = YAML.load_file(file)
-      if EY.config.default_endpoint?
-        data["api_token"]
-      else
-        (data[EY.config.endpoint.to_s] || {})["api_token"]
-      end
+      data["api_token"]
     end
 
     def self.save_token(token, file = nil)
@@ -126,11 +122,7 @@ module EY
       require 'yaml'
 
       data = File.exists?(file) ? YAML.load_file(file) : {}
-      if EY.config.default_endpoint?
-        data.merge!("api_token" => token)
-      else
-        data.merge!(EY.config.endpoint.to_s => {"api_token" => token})
-      end
+      data.merge!("api_token" => token)
 
       File.open(file, "w"){|f| YAML.dump(data, f) }
       true

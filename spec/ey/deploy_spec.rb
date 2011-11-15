@@ -122,9 +122,7 @@ describe "ey deploy" do
     end
 
     context "customized in ey.yml" do
-      before { write_yaml({"environments" => {"giblets" => {
-                "migration_command" => 'thor fancy:migrate',
-              }}}) }
+      before { write_yaml({"environments" => {"giblets" => { "migration_command" => 'thor fancy:migrate' }}}) }
       after  { File.unlink 'ey.yml' }
 
       it "migrates with the custom command by default" do
@@ -165,10 +163,7 @@ describe "ey deploy" do
     end
 
     context "customized and disabled in ey.yml" do
-      before { write_yaml({"environments" => {"giblets" => {
-                "migrate" => false,
-                "migration_command" => "thor fancy:migrate",
-              }}}) }
+      before { write_yaml({"environments" => {"giblets" => { "migrate" => false, "migration_command" => "thor fancy:migrate" }}}) }
       after  { File.unlink 'ey.yml' }
 
       it "does not migrate by default" do
