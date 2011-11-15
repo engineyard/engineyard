@@ -17,14 +17,13 @@ module EY
 
   class << self
     attr_accessor :ui
+  end
 
-    def ui
-      @ui ||= UI.new
-    end
+  def self.ui
+    @ui ||= UI.new
+  end
 
-    def config
-      @config ||= EY::Config.new
-    end
-
+  def self.config
+    @config ||= EY::Config.new
   end
 end
