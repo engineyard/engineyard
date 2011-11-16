@@ -4,7 +4,7 @@ module EY
 
       def initialize(token = nil)
         @token = token
-        @token ||= self.class.read_token
+        @token ||= EY::EYRC.load.api_token
         @token ||= self.class.fetch_token
         raise EY::Error, "Sorry, we couldn't get your API token." unless @token
       end

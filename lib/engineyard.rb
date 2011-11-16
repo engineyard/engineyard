@@ -1,6 +1,7 @@
 module EY
   require 'engineyard/ruby_ext'
   require 'engineyard/version'
+  require 'engineyard/eyrc'
 
   autoload :API,        'engineyard/api'
   autoload :Collection, 'engineyard/collection'

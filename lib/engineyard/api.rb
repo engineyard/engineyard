@@ -7,8 +7,8 @@ module EY
     USER_AGENT_STRING = "EngineYardCLI/#{VERSION}"
 
     def initialize(token = nil)
-      @token ||= token
-      @token ||= self.class.read_token
+      @token = token
+      @token ||= EY::EYRC.load.api_token
       raise ArgumentError, "EY Cloud API token required" unless @token
     end
 
@@ -103,29 +103,8 @@ module EY
     def self.fetch_token(email, password)
       api_token = request("/authenticate", :method => "post",
         :params => { :email => email, :password => password })["api_token"]
-      save_token(api_token)
+      EY::EYRC.load.api_token = api_token
       api_token
-    end
-
-    def self.read_token(file = nil)
-      file ||= ENV['EYRC'] || File.expand_path("~/.eyrc")
-      return false unless File.exists?(file)
-
-      require 'yaml'
-
-      data = YAML.load_file(file)
-      data["api_token"]
-    end
-
-    def self.save_token(token, file = nil)
-      file ||= ENV['EYRC'] || File.expand_path("~/.eyrc")
-      require 'yaml'
-
-      data = File.exists?(file) ? YAML.load_file(file) : {}
-      data.merge!("api_token" => token)
-
-      File.open(file, "w"){|f| YAML.dump(data, f) }
-      true
     end
 
   end # API
