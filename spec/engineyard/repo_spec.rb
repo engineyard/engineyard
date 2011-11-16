@@ -2,7 +2,6 @@ require 'spec_helper'
 
 describe EY::Repo do
   before(:each) do
-    FakeFS.deactivate!
     @path = Pathname.new("/tmp/ey-test/.git/")
     @path.mkpath
     @r = EY::Repo.new("/tmp/ey-test")
@@ -10,7 +9,6 @@ describe EY::Repo do
 
   after(:each) do
     clear_urls
-    FakeFS.activate!
   end
 
   def set_head(head)

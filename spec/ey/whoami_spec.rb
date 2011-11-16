@@ -18,7 +18,6 @@ describe "ey whoami" do
     given "integration without an eyrc file"
 
     before(:each) do
-      FileUtils.rm_rf(ENV['EYRC'])
       api_scenario "empty"
     end
 

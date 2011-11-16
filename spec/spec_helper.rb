@@ -11,19 +11,6 @@ require 'net/ssh'
 # Bundled gems
 require 'fakeweb'
 require 'fakeweb_matcher'
-require 'fakefs/safe'
-module FakeFS
-  def self.activated?
-    Object.const_get(:Dir) == FakeFS::Dir
-  end
-
-  def self.without
-    was_on = activated?
-    deactivate!
-    yield
-    activate! if was_on
-  end
-end
 
 require 'json'
 
@@ -50,16 +37,22 @@ RSpec.configure do |config|
   config.extend SpecHelpers::Given
   config.extend SpecHelpers::Fixtures
 
+  def clean_eyrc
+    ENV['EYRC'] = File.join('/tmp','eyrc')
+    if ENV['EYRC'] && File.exist?(ENV['EYRC'])
+      File.unlink(ENV['EYRC'])
+    end
+  end
+
   config.before(:all) do
+    clean_eyrc
     FakeWeb.allow_net_connect = false
-    FakeFS.activate!
     ENV["CLOUD_URL"] = nil
     ENV["NO_SSH"] = "true"
   end
 
   config.before(:each) do
-    FakeFS::FileSystem.clear
-    FakeFS::FileSystem.add(ENV['HOME'])
+    clean_eyrc
     EY.instance_eval{ @config = nil }
   end
 end
@@ -74,16 +67,12 @@ shared_examples_for "integration without an eyrc file" do
   use_git_repo('default')
 
   before(:all) do
-    FakeFS.deactivate!
-    ENV['EYRC'] = "/tmp/eyrc"
     FakeWeb.allow_net_connect = true
     ENV['CLOUD_URL'] = EY.fake_awsm
   end
 
   after(:all) do
     ENV.delete('CLOUD_URL')
-    ENV.delete('EYRC')
-    FakeFS.activate!
     FakeWeb.allow_net_connect = false
   end
 end
@@ -92,7 +81,7 @@ end
 shared_examples_for "integration" do
   given "integration without an eyrc file"
 
-  before(:all) do
-    write_yaml({"api_token" => "f81a1706ddaeb148cfb6235ddecfc1cf"}, ENV['EYRC'])
+  before(:each) do
+    write_eyrc({"api_token" => "f81a1706ddaeb148cfb6235ddecfc1cf"})
   end
 end

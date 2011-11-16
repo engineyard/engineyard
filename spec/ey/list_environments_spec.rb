@@ -28,9 +28,9 @@ describe "ey environments" do
     end
 
     it "reports failure to find a git repo when not in one" do
-      Dir.chdir("/tmp") do
+      Dir.chdir(Dir.tmpdir) do
         ey %w[environments], :expect_failure => true
-        @err.should =~ /fatal: No git remotes found in .*\/tmp/
+        @err.should =~ /fatal: No git remotes found in .*#{Regexp.escape(Dir.tmpdir)}/
         @out.should_not =~ /no application configured/
       end
     end

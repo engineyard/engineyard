@@ -44,20 +44,18 @@ module SpecHelpers
     def define_git_repo(name, &setup)
       # EY's ivars don't get cleared between examples, so we can keep
       # a git repo around longer (and thus make our tests faster)
-      FakeFS.without { EY.define_git_repo(name, &setup) }
+      EY.define_git_repo(name, &setup)
     end
 
     def use_git_repo(repo_name)
       before(:all) do
-        FakeFS.without do
-          @_original_wd ||= []
-          @_original_wd << Dir.getwd
-          Dir.chdir(EY.git_repo_dir(repo_name))
-        end
+        @_original_wd ||= []
+        @_original_wd << Dir.getwd
+        Dir.chdir(EY.git_repo_dir(repo_name))
       end
 
       after(:all) do
-        FakeFS.without { Dir.chdir(@_original_wd.pop) }
+        Dir.chdir(@_original_wd.pop)
       end
     end
   end
@@ -128,7 +126,12 @@ module SpecHelpers
     hide_err = options.has_key?(:hide_err) ? options[:hide_err] : options[:expect_failure]
     path_prepends = options[:prepend_to_path]
 
-    ey_env = {'DEBUG' => 'true'}
+    ey_env = {
+      'DEBUG'     => 'true',
+      'EYRC'      => ENV['EYRC'],
+      'CLOUD_URL' => ENV['CLOUD_URL'],
+    }
+
     if options.has_key?(:debug)
       ey_env['DEBUG'] = options[:debug] ? "true" : nil
     end
@@ -200,12 +203,20 @@ module SpecHelpers
     raise "Setting scenario failed: #{response.inspect}" unless response.code == 200
   end
 
-  def read_yaml(file="ey.yml")
-    YAML.load_file(File.expand_path(file))
+  def read_yaml(file)
+    YAML.load(File.read(File.expand_path(file)))
   end
 
-  def write_yaml(data, file = "ey.yml")
+  def write_yaml(data, file)
     File.open(file, "w"){|f| YAML.dump(data, f) }
+  end
+
+  def read_eyrc
+    read_yaml(ENV['EYRC'])
+  end
+
+  def write_eyrc(data)
+    write_yaml(data, ENV['EYRC'])
   end
 
   def with_env(new_env_vars)

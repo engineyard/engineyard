@@ -2,7 +2,7 @@ require 'spec_helper'
 
 describe EY::API do
   it "gets the api token from ~/.eyrc if possible" do
-    write_yaml({"api_token" => "asdf"}, '~/.eyrc')
+    write_eyrc({"api_token" => "asdf"})
     EY::API.new.should == EY::API.new("asdf")
   end
 
@@ -17,7 +17,7 @@ describe EY::API do
     end
 
     it "puts the api token into .eyrc" do
-      read_yaml('~/.eyrc')["api_token"].should == "asdf"
+      read_eyrc["api_token"].should == "asdf"
     end
   end
 

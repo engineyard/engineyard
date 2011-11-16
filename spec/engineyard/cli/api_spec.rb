@@ -11,7 +11,7 @@ describe EY::CLI::API do
   end
 
   it "gets the api token from ~/.eyrc if possible" do
-    write_yaml({"api_token" => "asdf"}, '~/.eyrc')
+    write_eyrc({"api_token" => "asdf"})
     EY::CLI::API.new.should == EY::CLI::API.new("asdf")
   end
 
@@ -23,7 +23,7 @@ describe EY::CLI::API do
       EY::CLI::UI::Prompter.backend.next_answer = "my@email.example.com"
       EY::CLI::UI::Prompter.backend.next_answer = "secret"
 
-      @token = EY::CLI::API.new
+      @api = EY::CLI::API.new
     end
 
     it "asks you for your credentials" do
@@ -31,11 +31,11 @@ describe EY::CLI::API do
     end
 
     it "gets the api token" do
-      @token.should == EY::CLI::API.new("asdf")
+      @api.should == EY::CLI::API.new("asdf")
     end
 
     it "saves the api token to ~/.eyrc" do
-      read_yaml("~/.eyrc").should == {"api_token" => "asdf"}
+      read_eyrc.should == {"api_token" => "asdf"}
     end
   end
 

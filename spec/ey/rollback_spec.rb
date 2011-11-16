@@ -49,7 +49,7 @@ describe "ey rollback" do
 
     context "when ey.yml is present" do
       before do
-        write_yaml({"environments" => {"giblets" => {"beer" => "stout"}}})
+        write_yaml({"environments" => {"giblets" => {"beer" => "stout"}}}, 'ey.yml')
       end
 
       after { File.unlink("ey.yml") }

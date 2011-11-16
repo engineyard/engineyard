@@ -5,7 +5,6 @@ describe "ey deploy without an eyrc file" do
   given "integration without an eyrc file"
 
   before(:each) do
-    FileUtils.rm_rf(ENV['EYRC'])
     api_scenario "one app, one environment"
   end
 
@@ -122,7 +121,7 @@ describe "ey deploy" do
     end
 
     context "customized in ey.yml" do
-      before { write_yaml({"environments" => {"giblets" => { "migration_command" => 'thor fancy:migrate' }}}) }
+      before { write_yaml({"environments" => {"giblets" => { "migration_command" => 'thor fancy:migrate' }}}, 'ey.yml') }
       after  { File.unlink 'ey.yml' }
 
       it "migrates with the custom command by default" do
@@ -132,7 +131,7 @@ describe "ey deploy" do
     end
 
     context "disabled in ey.yml" do
-      before { write_yaml({"environments" => {"giblets" => {"migrate" => false}}}) }
+      before { write_yaml({"environments" => {"giblets" => {"migrate" => false}}}, 'ey.yml') }
       after  { File.unlink 'ey.yml' }
 
       it "does not migrate by default" do
@@ -153,7 +152,7 @@ describe "ey deploy" do
     end
 
     context "explicitly enabled in ey.yml (the default)" do
-      before { write_yaml({"environments" => {"giblets" => {"migrate" => true}}}) }
+      before { write_yaml({"environments" => {"giblets" => {"migrate" => true}}}, 'ey.yml') }
       after  { File.unlink 'ey.yml' }
 
       it "migrates with the default" do
@@ -163,7 +162,7 @@ describe "ey deploy" do
     end
 
     context "customized and disabled in ey.yml" do
-      before { write_yaml({"environments" => {"giblets" => { "migrate" => false, "migration_command" => "thor fancy:migrate" }}}) }
+      before { write_yaml({"environments" => {"giblets" => { "migrate" => false, "migration_command" => "thor fancy:migrate" }}}, 'ey.yml') }
       after  { File.unlink 'ey.yml' }
 
       it "does not migrate by default" do
@@ -238,7 +237,7 @@ describe "ey deploy" do
 
     context "when there is extra configuration" do
       before(:each) do
-        write_yaml({"environments" => {"giblets" => {"bert" => "ernie"}}})
+        write_yaml({"environments" => {"giblets" => {"bert" => "ernie"}}}, 'ey.yml')
       end
 
       after(:each) do
@@ -253,7 +252,7 @@ describe "ey deploy" do
 
     context "with a configured default branch" do
       before(:each) do
-        write_yaml({"environments" => {"giblets" => {"branch" => "master"}}})
+        write_yaml({"environments" => {"giblets" => {"branch" => "master"}}}, 'ey.yml')
       end
 
       after(:each) do
@@ -310,7 +309,7 @@ describe "ey deploy" do
 
     context "when ey.yml is present" do
       before do
-        write_yaml({"environments" => {"giblets" => {"beer" => "stout"}}})
+        write_yaml({"environments" => {"giblets" => {"beer" => "stout"}}}, 'ey.yml')
       end
 
       after { File.unlink("ey.yml") }
