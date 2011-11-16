@@ -3,6 +3,7 @@
 ## NEXT
 
   * Exit from ey ssh with the exit status of the ssh command. If running on multiple instances, exits with the status of the first failure, or 0 if all instances succeed.
+  * Set LANG to 'en_US.UTF-8' while installing gems to avoid failures on 1.9.x
 
 ## v1.4.6 (2011-11-10)
 
