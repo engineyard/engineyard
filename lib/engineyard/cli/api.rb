@@ -1,3 +1,5 @@
+require 'engineyard/eyrc'
+
 module EY
   class CLI
     class API < EY::API

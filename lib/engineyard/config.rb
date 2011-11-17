@@ -1,4 +1,5 @@
 require 'uri'
+require 'engineyard/error'
 
 module EY
   class Config
