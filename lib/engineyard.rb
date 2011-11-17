@@ -15,12 +15,12 @@ module EY
     def debug(*); end
   end
 
-  class << self
-    attr_accessor :ui
-  end
-
   def self.ui
     @ui ||= UI.new
+  end
+
+  def self.ui=(ui)
+    @ui = ui
   end
 
   def self.config
