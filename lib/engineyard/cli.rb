@@ -4,10 +4,10 @@ require 'engineyard/thor'
 
 module EY
   class CLI < EY::Thor
-    autoload :API,     'engineyard/cli/api'
-    autoload :UI,      'engineyard/cli/ui'
-    autoload :Recipes, 'engineyard/cli/recipes'
-    autoload :Web,     'engineyard/cli/web'
+    require 'engineyard/cli/recipes'
+    require 'engineyard/cli/web'
+    require 'engineyard/cli/api'
+    require 'engineyard/cli/ui'
 
     include Thor::Actions
 

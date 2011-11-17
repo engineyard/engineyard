@@ -1,3 +1,6 @@
+require 'highline'
+require 'engineyard/api'
+
 module EY
   class CLI
     class API < EY::API
