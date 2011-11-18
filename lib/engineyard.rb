@@ -1,12 +1,11 @@
 module EY
   require 'engineyard/ruby_ext'
   require 'engineyard/version'
+  require 'engineyard/error'
   require 'engineyard/config'
-  require 'engineyard/eyrc'
 
   autoload :API,        'engineyard/api'
   autoload :Collection, 'engineyard/collection'
-  autoload :Error,      'engineyard/error'
   autoload :Model,      'engineyard/model'
   autoload :Repo,       'engineyard/repo'
   autoload :Resolver,   'engineyard/resolver'

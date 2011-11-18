@@ -1,4 +1,5 @@
 require 'spec_helper'
+require 'engineyard/eyrc'
 
 describe EY::EYRC do
   describe ".load" do

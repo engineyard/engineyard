@@ -1,4 +1,5 @@
-require 'engineyard/eyrc'
+require 'highline'
+require 'engineyard/api'
 
 module EY
   class CLI
