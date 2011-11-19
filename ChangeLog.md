@@ -2,7 +2,11 @@
 
 ## NEXT
 
-  *
+  * The below changes improve other-ruby support. Notably, engineyard should now work from rubinius for the most part.
+  * [refactor] More require, less autoload
+  * [refactor] Clean up the way we read and write the .eyrc file.
+  * [internal] Specs no longer depend on FakeFS.
+  * [internal] Remove unused 'custom endpoint' complexity. $CLOUD_URL can still be set to override the api endpoint.
 
 ## v1.4.7 (2011-11-16)
 
