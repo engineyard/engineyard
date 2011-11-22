@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v1.4.8 (2011-11-22)
+
   * The below changes improve other-ruby support. Notably, engineyard should now work from rubinius for the most part.
   * [refactor] More require, less autoload
   * [refactor] Clean up the way we read and write the .eyrc file.
