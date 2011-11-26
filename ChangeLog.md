@@ -4,6 +4,10 @@
 
   *
 
+## v1.4.9 (2011-11-26)
+
+  *
+
 ## v1.4.8 (2011-11-22)
 
   * The below changes improve other-ruby support. Notably, engineyard should now work from rubinius for the most part.
