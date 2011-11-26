@@ -6,7 +6,7 @@
 
 ## v1.4.9 (2011-11-26)
 
-  *
+  * Includes an engineyard-serverside fix to prevent rebuilding gems on every deploy.
 
 ## v1.4.8 (2011-11-22)
 
