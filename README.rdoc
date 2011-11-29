@@ -1,5 +1,13 @@
 = ey
 
+== Install
+
+Install engineyard like any other ruby gem:
+
+    gem install engineyard
+
+Note: Don't add engineyard to your application's Gemfile. The engineyard gem is not made to be a part of your application and may cause version conflicts with other parts of rails.
+
 == Login
 
 The first command you run will notice that you are not logged in and will ask you for your AppCloud email and password.
