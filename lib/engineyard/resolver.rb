@@ -24,7 +24,7 @@ module EY
         if options[:environment_name]
           message = "Multiple environments possible, please be more specific:\n\n"
           candidates.map{|e| [e[:account_name], e[:environment_name]]}.uniq.each do |account_name, environment_name|
-            message << "\t#{environment_name} # ey <command> --environment='#{environment_name}' --account='#{account_name}'\n"
+            message << "\t#{environment_name.ljust(25)} # ey <command> --environment='#{environment_name}' --account='#{account_name}'\n"
           end
           raise MultipleMatchesError.new(message)
         else
@@ -65,7 +65,7 @@ module EY
         candidates.map{|c| [c[:account_name], c[:app_name]]}.uniq.each do |account_name, app_name|
           message << "#{app_name}\n"
           candidates.select {|c| c[:app_name] == app_name && c[:account_name] == account_name}.map{|c| c[:environment_name]}.uniq.each do |env_name|
-            message << "\t#{env_name} # ey <command> --environment='#{env_name}' --app='#{app_name}' --account='#{account_name}'\n"
+            message << "\t#{env_name.ljust(25)} # ey <command> --environment='#{env_name}' --app='#{app_name}' --account='#{account_name}'\n"
           end
         end
         raise MultipleMatchesError.new(message)
