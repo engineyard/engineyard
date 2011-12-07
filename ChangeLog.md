@@ -2,7 +2,7 @@
 
 ## NEXT
 
-  *
+  * Print more informative messages on deploy.
 
 ## v1.4.11 (2011-11-29)
 

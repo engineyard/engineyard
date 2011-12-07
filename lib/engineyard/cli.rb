@@ -50,6 +50,8 @@ module EY
     method_option :extra_deploy_hook_options, :type => :hash, :default => {},
       :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
     def deploy
+      EY.ui.info "Loading application data from EY Cloud..."
+
       app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
       environment.ignore_bad_master = options[:ignore_bad_master]
       deploy_ref  = if options[:app]
