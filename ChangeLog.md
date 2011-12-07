@@ -3,6 +3,7 @@
 ## NEXT
 
   * Print more informative messages on deploy.
+  * Allow color to be turned off. Add 'color: false' to your .eyrc file.
 
 ## v1.4.11 (2011-11-29)
 

@@ -12,6 +12,21 @@ describe EY::CLI do
     EY.ui.should be_an(EY::CLI::UI)
   end
 
+  it "allows color to be turned off" do
+    write_eyrc({'color' => false})
+    EY.ui.should_not be_color
+  end
+
+  it "defaults color to Thor's default (unix-like: on; windows-like: off)" do
+    is_color = Thor::Base.shell == Thor::Shell::Color
+    EY.ui.color?.should == is_color
+  end
+
+  it "forces color on with true" do
+    write_eyrc({'color' => true})
+    EY.ui.should be_color
+  end
+
   it "provides help" do
     out = capture_stdout do
       EY::CLI.start(["help"])

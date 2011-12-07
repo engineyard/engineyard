@@ -16,6 +16,13 @@ module EY
       path.exist?
     end
 
+    # auto:  on in unix-like shells, off in windows-like shells
+    # true:  on in all tty shells
+    # false: off always
+    def color
+      self['color'] || 'auto'
+    end
+
     def api_token
       self['api_token']
     end
