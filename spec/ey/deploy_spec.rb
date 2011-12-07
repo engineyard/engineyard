@@ -36,7 +36,7 @@ describe "ey deploy" do
   end
 
   def verify_ran(scenario)
-    @out.should match(/Beginning deploy for.*#{scenario[:application]}.*#{scenario[:environment]}/)
+    @out.should match(/Beginning deploy of ref '[^']+' for '#{scenario[:application]}' in '#{scenario[:environment]}'/)
     @out.should match(/deployment recorded in AppCloud/i)
     @ssh_commands.should have_command_like(/engineyard-serverside.*deploy.*--app #{scenario[:application]}/)
   end
@@ -283,7 +283,7 @@ describe "ey deploy" do
 
     it "lets you choose by complete name even if the complete name is ambiguous" do
       fast_ey %w[deploy --environment railsapp_staging]
-      @out.should match(/Beginning deploy for.*'railsapp_staging'/)
+      @out.should match(/Beginning deploy of ref 'master' for '[\w]+' in 'railsapp_staging'/)
     end
   end
 

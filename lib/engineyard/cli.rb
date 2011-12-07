@@ -61,7 +61,7 @@ module EY
                         raise(DeployArgumentError)
                     end
 
-      EY.ui.info "Beginning deploy for '#{app.name}' in '#{environment.name}' on server..."
+      EY.ui.info "Beginning deploy of ref '#{deploy_ref}' for '#{app.name}' in '#{environment.name}' on server..."
 
       deploy_options = {'extras' => options[:extra_deploy_hook_options]}
       if options.has_key?('migrate') # thor set migrate => nil when --no-migrate
