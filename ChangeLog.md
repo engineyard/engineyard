@@ -2,7 +2,12 @@
 
 ## NEXT
 
+  *
+
+## v1.4.12 (2011-12-07)
+
   * Print more informative messages on deploy.
+  * Include new version of deploy system that fixes a bug with GIT_SSH not being set for some instances.
 
 ## v1.4.11 (2011-11-29)
 
