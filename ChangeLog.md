@@ -2,7 +2,7 @@
 
 ## NEXT
 
-  *
+  * Fix last release.
 
 ## v1.4.12 (2011-12-07)
 
