@@ -52,6 +52,7 @@ module EY
 
     class InvalidCredentials < EY::Error; end
     class RequestFailed < EY::Error; end
+    class ResourceNotFound < RequestFailed; end
 
     def self.request(path, opts={})
       require 'rest_client'
@@ -79,7 +80,7 @@ module EY
       rescue Errno::ECONNREFUSED
         raise RequestFailed, "Could not reach the cloud API"
       rescue RestClient::ResourceNotFound
-        raise RequestFailed, "The requested resource could not be found"
+        raise ResourceNotFound, "The requested resource could not be found"
       rescue RestClient::BadGateway
         raise RequestFailed, "AppCloud API is temporarily unavailable. Please try again soon."
       rescue RestClient::RequestFailed => e

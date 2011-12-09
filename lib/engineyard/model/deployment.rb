@@ -14,6 +14,8 @@ module EY
       def self.get(app, environment, id, api)
         response = api.request(api_root(app.id, environment.id) + "/#{id}", :method => :get)
         load_from_response app, environment, response
+      rescue EY::API::ResourceNotFound
+        nil
       end
 
       def self.load_from_response(app, environment, response)
