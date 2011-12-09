@@ -103,9 +103,12 @@ task :release do
     "git commit -m 'Add .pre for next release'",
     "git tag v#{new_version} HEAD^")
 
-  puts '********************************************************************************'
-  puts
-  puts "Don't forget to `gem push engineyard-#{new_version}.gem` and `git push origin master v#{new_version}`!"
-  puts
-  puts '********************************************************************************'
+  puts <<-PUSHGEM
+## To publish the gem: #########################################################
+
+    gem push engineyard-#{new_version}.gem
+    git push origin master v#{new_version}
+
+## No public changes yet. ######################################################
+  PUSHGEM
 end
