@@ -1,7 +1,7 @@
 module EY
   class Resolver
     attr_reader :api
-    
+
     def initialize(api)
       @api = api
     end
@@ -79,7 +79,7 @@ module EY
     def app_deployments
       @app_deployments ||= api.apps.map do |app|
         app.environments.map do |environment|
-          { 
+          {
             :app_name => app.name.downcase,
             :repository_uri => app.repository_uri,
             :environment_name => environment.name.downcase,
