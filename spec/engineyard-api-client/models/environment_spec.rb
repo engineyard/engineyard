@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe "EY::Model::Environment#rebuild" do
+describe "EY::APIClient::Environment#rebuild" do
   it "hits the rebuild action in the API" do
-    env = EY::Model::Environment.from_hash({
+    env = EY::APIClient::Environment.from_hash({
         "id" => 46534,
         "api" => ey_api,
       })
@@ -19,9 +19,9 @@ describe "EY::Model::Environment#rebuild" do
   end
 end
 
-describe "EY::Model::Environment#run_custom_recipes" do
+describe "EY::APIClient::Environment#run_custom_recipes" do
   it "hits the rebuild action in the API" do
-    env = EY::Model::Environment.from_hash({
+    env = EY::APIClient::Environment.from_hash({
         "id" => 46534,
         "api" => ey_api,
       })
@@ -39,20 +39,20 @@ describe "EY::Model::Environment#run_custom_recipes" do
   end
 end
 
-describe "EY::Model::Environment.from_array" do
+describe "EY::APIClient::Environment.from_array" do
   it "returns a smart collection, not just a dumb array" do
     api_data = [
       {"id" => 32340, "name" => 'iceberg'},
       {"id" => 9433, "name" => 'zoidberg'},
     ]
 
-    collection = EY::Model::Environment.from_array(api_data)
+    collection = EY::APIClient::Environment.from_array(api_data)
     collection.should respond_to(:each)
     collection.should respond_to(:match_one)
   end
 end
 
-describe "EY::Model::Environment#instances" do
+describe "EY::APIClient::Environment#instances" do
   it "returns instances" do
     instance_data = {
       "id" => "1",
@@ -61,7 +61,7 @@ describe "EY::Model::Environment#instances" do
       "public_hostname" => "banana_master"
     }
 
-    env = EY::Model::Environment.from_hash({
+    env = EY::APIClient::Environment.from_hash({
         "id" => 10291,
         "api" => ey_api,
         "instances" => [instance_data],
@@ -74,11 +74,11 @@ describe "EY::Model::Environment#instances" do
     )
 
     env.should have(1).instances
-    env.instances.first.should == EY::Model::Instance.from_hash(instance_data.merge(:environment => env))
+    env.instances.first.should == EY::APIClient::Instance.from_hash(instance_data.merge(:environment => env))
   end
 end
 
-describe "EY::Model::Environment#app_master!" do
+describe "EY::APIClient::Environment#app_master!" do
   def make_env_with_master(app_master)
     if app_master
       app_master = {
@@ -87,7 +87,7 @@ describe "EY::Model::Environment#app_master!" do
       }.merge(app_master)
     end
 
-    EY::Model::Environment.from_hash({
+    EY::APIClient::Environment.from_hash({
         "id" => 11830,
         "name" => "guinea-pigs-are-delicious",
         "app_master" => app_master,
@@ -124,10 +124,10 @@ describe "EY::Model::Environment#app_master!" do
   end
 end
 
-describe "EY::Model::Environment#shorten_name_for(app)" do
+describe "EY::APIClient::Environment#shorten_name_for(app)" do
   def short(environment_name, app_name)
-    env = EY::Model::Environment.from_hash({:name => environment_name})
-    app = EY::Model::App.from_hash({:name => app_name})
+    env = EY::APIClient::Environment.from_hash({:name => environment_name})
+    app = EY::APIClient::App.from_hash({:name => app_name})
     env.shorten_name_for(app)
   end
 
@@ -148,51 +148,54 @@ describe "EY::Model::Environment#shorten_name_for(app)" do
   end
 end
 
-describe "EY::Model::Environment#migration_command" do
+describe "EY::APIClient::Environment#migration_command" do
   before do
-    @app = EY::Model::App.from_hash({:name => 'fake'})
-    @migrate = EY::Model::Environment.from_hash({
+    @app = EY::APIClient::App.from_hash({:name => 'fake'})
+    @migrate_env = EY::APIClient::Environment.from_hash({
         "id" => 10291,
         "api" => ey_api,
         'name' => 'migrate',
         'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => true}}}
     })
 
-    @no_migrate = EY::Model::Environment.from_hash({
+    @no_migrate_env = EY::APIClient::Environment.from_hash({
         "id" => 10291,
         "api" => ey_api,
         'name' => 'no_migrate',
         'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => false}}}
     })
+
+    @migrate = @migrate_env.app_environment_for(@app)
+    @no_migrate = @no_migrate_env.app_environment_for(@app)
   end
 
   it "returns the migration command for the environment when the perform flag is true" do
-    @migrate.migration_command(@app, {}).should == 'fake db:migrate'
+    @migrate.determine_migration_command({}).should == 'fake db:migrate'
   end
 
   it "returns nil when the perform flag in the environment is false" do
-    @no_migrate.migration_command(@app, {}).should == nil
+    @no_migrate.determine_migration_command({}).should == nil
   end
 
   context "with the migrate deploy option" do
     it "returns the default migration command when is true" do
-      @migrate.migration_command(@app, {'migrate' => true}).should == 'rake db:migrate'
+      @migrate.determine_migration_command({'migrate' => true}).should == 'rake db:migrate'
     end
 
     it "return the custom migration command when is a string" do
-      @migrate.migration_command(@app, {'migrate' => 'foo migrate'}).should == 'foo migrate'
+      @migrate.determine_migration_command({'migrate' => 'foo migrate'}).should == 'foo migrate'
     end
   end
 
   context "with the migrate option in the global configuration" do
     it "return the default migration command when the option is true" do
       EY.config.environments['migrate'] = {'migrate' => true, 'migration_command' => 'bar migrate'}
-      @migrate.migration_command(@app, {}).should == 'bar migrate'
+      @migrate.determine_migration_command({}).should == 'bar migrate'
     end
 
     it "return the custom migration command when the option is a string" do
       EY.config.environments['migrate'] = {'migration_command' => 'bar migrate'}
-      @migrate.migration_command(@app, {}).should == 'bar migrate'
+      @migrate.determine_migration_command({}).should == 'bar migrate'
     end
   end
 end

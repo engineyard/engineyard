@@ -1,7 +1,7 @@
 require 'escape'
 
 module EY
-  module Model
+  class APIClient
     class Deployment < ApiStruct.new(:id, :app, :created_at, :commit, :environment, :finished_at, :migrate_command, :output, :ref, :resolved_ref, :successful, :user_name)
       def self.api_root(app_id, environment_id)
         "/apps/#{app_id}/environments/#{environment_id}/deployments"
@@ -14,7 +14,7 @@ module EY
       def self.get(app, environment, id, api)
         response = api.request(api_root(app.id, environment.id) + "/#{id}", :method => :get)
         load_from_response app, environment, response
-      rescue EY::API::ResourceNotFound
+      rescue EY::APIClient::ResourceNotFound
         nil
       end
 

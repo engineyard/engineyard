@@ -14,7 +14,7 @@ describe "ey rollback" do
 
   def verify_ran(scenario)
     @out.should match(/Rolling back.*#{scenario[:application]}.*#{scenario[:environment]}/)
-    @err.should be_empty
+    @err.should == ''
     @ssh_commands.last.should match(/engineyard-serverside.*deploy rollback.*--app #{scenario[:application]}/)
   end
 

@@ -1,5 +1,5 @@
 module EY
-  module Model
+  class APIClient
     class ApiStruct < Struct
 
       def self.new(*args, &block)

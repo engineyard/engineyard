@@ -1,25 +1,22 @@
-require 'engineyard/model'
-require 'yaml'
-require 'rest_client'
-require 'engineyard/rest_client_ext'
+require 'engineyard-api-client/ruby_ext'
+require 'engineyard-api-client/models'
+require 'engineyard-api-client/collections'
+require 'engineyard-api-client/rest_client_ext'
+require 'engineyard-api-client/resolver'
+require 'engineyard-api-client/version'
 require 'json'
 require 'engineyard/eyrc'
 
 module EY
-  class API
+  class APIClient
     attr_reader :token
 
-    USER_AGENT_STRING = "EngineYardCLI/#{VERSION}"
+    USER_AGENT_STRING = "EngineYardAPIClient/#{EY::APIClient::VERSION}"
 
     def initialize(token = nil)
       @token = token
       @token ||= EY::EYRC.load.api_token
       raise ArgumentError, "EY Cloud API token required" unless @token
-    end
-
-    def ==(other)
-      raise ArgumentError unless other.is_a?(self.class)
-      self.token == other.token
     end
 
     def request(url, opts={})
@@ -29,25 +26,46 @@ module EY
       self.class.request(url, opts)
     end
 
+    def fetch_environment(environment_name, account_name=nil, repo=nil)
+      options = {
+        :environment_name => environment_name,
+        :account_name => account_name,
+        :repo => repo,
+      }
+      resolver.environment(options)
+    end
+
+    def fetch_app_and_environment(app_name=nil, environment_name=nil, account_name=nil, repo=nil)
+      options = {
+        :app_name => app_name,
+        :environment_name => environment_name,
+        :account_name => account_name,
+        :repo => repo,
+      }
+      resolver.app_and_environment(options)
+    end
+
+    # TODO: unhaxor
+    # This should load an api endpoint that deals directly in app_deployments
+    def fetch_app_environment(app_name = nil, environment_name = nil, account_name = nil, repo=nil)
+      app, env = fetch_app_and_environment(app_name, environment_name, account_name)
+      env.app_environment_for(app)
+    end
+
     def environments
-      @environments ||= EY::Model::Environment.from_array(request('/environments')["environments"], :api => self)
+      @environments ||= EY::APIClient::Environment.from_array(request('/environments')["environments"], :api => self)
     end
 
     def apps
-      @apps ||= EY::Model::App.from_array(request('/apps')["apps"], :api => self)
+      @apps ||= EY::APIClient::App.from_array(request('/apps')["apps"], :api => self)
     end
 
     def resolver
-      @resolver ||= Resolver.new(self)
+      @resolver ||= EY::APIClient::Resolver.new(self)
     end
 
-    def apps_for_repo(repo)
-      repo.fail_on_no_remotes!
-      apps.find_all {|a| repo.has_remote?(a.repository_uri) }
-    end
-
-    def user
-      EY::Model::User.from_hash(request('/current_user')['user'])
+    def current_user
+      EY::APIClient::User.from_hash(request('/current_user')['user'])
     end
 
     class InvalidCredentials < EY::Error; end
@@ -55,10 +73,6 @@ module EY
     class ResourceNotFound < RequestFailed; end
 
     def self.request(path, opts={})
-      require 'rest_client'
-      require 'engineyard/rest_client_ext'
-      require 'json'
-
       url = EY.config.endpoint + "api/v2#{path}"
       method = (opts.delete(:method) || 'get').to_s.downcase.to_sym
       params = opts.delete(:params) || {}

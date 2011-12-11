@@ -1,7 +1,5 @@
-require 'escape'
-
 module EY
-  module Model
+  class APIClient
     class Account < ApiStruct.new(:id, :name)
     end
   end

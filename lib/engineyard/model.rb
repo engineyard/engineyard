@@ -1,7 +1,6 @@
 module EY
   module Model
     require 'engineyard/model/api_struct'
-    require 'engineyard/model/account'
     require 'engineyard/model/app'
     require 'engineyard/model/deployment'
     require 'engineyard/model/environment'

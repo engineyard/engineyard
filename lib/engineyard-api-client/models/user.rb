@@ -1,5 +1,5 @@
 module EY
-  module Model
+  class APIClient
     class User < ApiStruct.new(:id, :name, :email)
     end
   end

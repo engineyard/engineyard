@@ -1,5 +1,5 @@
 module EY
-  module Model
+  class APIClient
     class App < ApiStruct.new(:id, :account, :name, :repository_uri, :environments, :api)
 
       def self.from_hash(hash)
@@ -10,7 +10,7 @@ module EY
       end
 
       def self.from_array(*)
-        Collection::Apps.new(super)
+        Collections::Apps.new(super)
       end
 
       def sole_environment
@@ -21,10 +21,6 @@ module EY
 
       def sole_environment!
         sole_environment or raise NoSingleEnvironmentError.new(self)
-      end
-
-      def last_deployment_on(environment)
-        Deployment.last(self, environment, api)
       end
 
     end

@@ -1,17 +1,18 @@
 require 'spec_helper'
 
-describe EY::Resolver do
+describe EY::APIClient::Resolver do
   def mock_api
     return @mock_api if @mock_api
-    apps = Object.new
-    def apps.named(name, *args)
-      result = EY::Model::App.from_hash(:name => name)
+    apps = mock('apps')
+    apps.stub!(:named) do |name, *args|
+      result = EY::APIClient::App.from_hash(:name => name)
       result.stub!(:environments => [])
       result
     end
-    environments = Object.new
-    def environments.named(name, *args)
-      result = EY::Model::Environment.from_hash(:name => name)
+
+    environments = mock('apps')
+    environments.stub!(:named) do |name, *args|
+      result = EY::APIClient::Environment.from_hash(:name => name)
       result.stub!(:apps => [])
       result
     end
@@ -19,24 +20,24 @@ describe EY::Resolver do
   end
 
   def resolver
-    @resolver ||= EY::Resolver.new(mock_api).tap do |r|
-      r.instance_variable_set("@app_deployments", [])
+    @resolver ||= EY::APIClient::Resolver.new(mock_api).tap do |r|
+      r.instance_variable_set(:@app_environments, [])
     end
   end
 
-  def new_app_deployment(options)
-    resolver.instance_variable_get("@app_deployments") << options
+  def new_app_env(options)
+    resolver.instance_variable_get(:@app_environments) << options
     options
   end
 
 
   before do
-    @production = new_app_deployment(:environment_name => "app_production", :app_name => "app",           :account_name => "ey", :repository_uri => "git://github.com/repo/app.git")
-    @staging    = new_app_deployment(:environment_name => "app_staging"   , :app_name => "app",           :account_name => "ey", :repository_uri => "git://github.com/repo/app.git")
-    @big        = new_app_deployment(:environment_name => "bigapp_staging", :app_name => "bigapp",        :account_name => "ey", :repository_uri => "git://github.com/repo/bigapp.git")
-    @ey_dup     = new_app_deployment(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account_name => "ey", :repository_uri => "git://github.com/repo/dup.git")
-    @sumo       = new_app_deployment(:environment_name => "sumo_wrestler" , :app_name => "app_duplicate", :account_name => "ey", :repository_uri => "git://github.com/repo/dup.git")
-    @me_dup     = new_app_deployment(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account_name => "me", :repository_uri => "git://github.com/repo/dup.git")
+    @production = new_app_env(:environment_name => "app_production", :app_name => "app",           :account_name => "ey", :repository_uri => "git://github.com/repo/app.git")
+    @staging    = new_app_env(:environment_name => "app_staging"   , :app_name => "app",           :account_name => "ey", :repository_uri => "git://github.com/repo/app.git")
+    @big        = new_app_env(:environment_name => "bigapp_staging", :app_name => "bigapp",        :account_name => "ey", :repository_uri => "git://github.com/repo/bigapp.git")
+    @ey_dup     = new_app_env(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account_name => "ey", :repository_uri => "git://github.com/repo/dup.git")
+    @sumo       = new_app_env(:environment_name => "sumo_wrestler" , :app_name => "app_duplicate", :account_name => "ey", :repository_uri => "git://github.com/repo/dup.git")
+    @me_dup     = new_app_env(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account_name => "me", :repository_uri => "git://github.com/repo/dup.git")
   end
 
   def repo(url)

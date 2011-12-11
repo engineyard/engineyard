@@ -1,13 +1,13 @@
 require 'escape'
 require 'net/ssh'
+require 'engineyard-serverside-adapter'
 
 module EY
-  module Model
+  class APIClient
     class Instance < ApiStruct.new(:id, :role, :name, :status, :amazon_id, :public_hostname, :environment)
       alias :hostname :public_hostname
 
       def adapter(app, verbose)
-        require 'engineyard-serverside-adapter'
         EY::Serverside::Adapter.new("/usr/local/ey_resin/ruby/bin") do |args|
           args.app           = app.name
           args.repo          = app.repository_uri

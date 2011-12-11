@@ -13,24 +13,15 @@ module EY
 
     def fetch_environment(environment_name, account_name=nil)
       environment_name ||= EY.config.default_environment
-      options = {
-        :environment_name => environment_name,
-        :account_name => account_name
-      }
-      options.merge! :repo => repo if repo.exist?
-      api.resolver.environment(options)
+      existing_repo = repo if repo.exist?
+      api.fetch_environment(environment_name, account_name, existing_repo)
     end
 
-    def fetch_app_and_environment(app_name = nil, environment_name = nil, account_name=nil)
-      options = {
-        :app_name => app_name,
-        :environment_name => environment_name,
-        :account_name => account_name
-      }
-      options.merge! :repo => repo if repo.exist?
-      api.resolver.app_and_environment(options)
+    def fetch_app_environment(app_name = nil, environment_name = nil, account_name = nil)
+      environment_name ||= EY.config.default_environment
+      existing_repo = repo if repo.exist?
+      api.fetch_app_environment(app_name, environment_name, account_name, existing_repo)
     end
-
   end # UtilityMethods
 
   class Thor < ::Thor
