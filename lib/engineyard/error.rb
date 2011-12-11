@@ -7,10 +7,6 @@ module EY
     end
   end
 
-  class ResolveError < EY::Error; end
-  class NoMatchesError < ResolveError; end
-  class MultipleMatchesError < ResolveError; end
-
   class NoCommandError < EY::Error
     def initialize
       super "Must specify a command to run via ssh"
@@ -20,28 +16,6 @@ module EY
   class NoRemotesError < EY::Error
     def initialize(path)
       super "fatal: No git remotes found in #{path}"
-    end
-  end
-
-  class NoAppError < Error
-    def initialize(repo)
-      super <<-ERROR
-There is no application configured for any of the following remotes:
-\t#{repo ? repo.urls.join("\n\t") : "No remotes found."}
-You can add this application at #{EY.config.endpoint}
-      ERROR
-    end
-  end
-
-  class InvalidAppError < Error
-    def initialize(name)
-      super %|There is no app configured with the name "#{name}"|
-    end
-  end
-
-  class AmbiguousAppNameError < EY::Error
-    def initialize(name, matches, desc="")
-      super ambiguous("app", name, matches, desc)
     end
   end
 
@@ -63,15 +37,6 @@ You can add this application at #{EY.config.endpoint}
     end
   end
 
-  class EnvironmentError < EY::Error
-  end
-
-  class AmbiguousEnvironmentNameError < EY::EnvironmentError
-    def initialize(name, matches, desc="")
-      super ambiguous("environment", name, matches, desc)
-    end
-  end
-
   class AmbiguousEnvironmentGitUriError < EY::EnvironmentError
     def initialize(environments)
       message = "The repository url in this directory is ambiguous.\n"
@@ -84,19 +49,6 @@ You can add this application at #{EY.config.endpoint}
         end
       end.each { |env| message << "\t#{env.name} (#{env.account.name})\n" }
       super message
-    end
-  end
-
-  class NoSingleEnvironmentError < EY::EnvironmentError
-    def initialize(app)
-      size = app.environments.size
-      super "Unable to determine a single environment for the current application (found #{size} environments)"
-    end
-  end
-
-  class NoEnvironmentError < EY::EnvironmentError
-    def initialize(env_name=nil)
-      super "No environment named '#{env_name}'\nYou can create one at #{EY.config.endpoint}"
     end
   end
 
