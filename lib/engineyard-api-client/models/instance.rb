@@ -1,6 +1,7 @@
 require 'escape'
 require 'net/ssh'
 require 'engineyard-serverside-adapter'
+require 'engineyard-api-client/errors'
 
 module EY
   class APIClient
@@ -132,7 +133,7 @@ module EY
             end
             exit_code.zero?
           rescue Net::SSH::AuthenticationFailed
-            raise EY::Error, "Authentication Failed: Please add your environment's ssh key with: ssh-add path/to/key"
+            raise EY::APIClient::Error, "Authentication Failed: Please add your environment's ssh key with: ssh-add path/to/key"
           end
         end
       end

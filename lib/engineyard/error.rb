@@ -1,10 +1,5 @@
 module EY
   class Error < RuntimeError
-    def ambiguous(type, name, matches, desc="")
-      pretty_names = matches.map {|x| "'#{x}'"}.join(', ')
-      "The name '#{name}' is ambiguous; it matches all of the following #{type} names: #{pretty_names}.\n" +
-      "Please use a longer, unambiguous substring or the entire #{type} name." + desc
-    end
   end
 
   class NoCommandError < EY::Error
@@ -37,31 +32,9 @@ module EY
     end
   end
 
-  class AmbiguousEnvironmentGitUriError < EY::EnvironmentError
-    def initialize(environments)
-      message = "The repository url in this directory is ambiguous.\n"
-      message << "Please use -e <envname> to specify one of the following environments:\n"
-      environments.sort do |a, b|
-        if a.account == b.account
-          a.name <=> b.name
-        else
-          a.account.name <=> b.account.name
-        end
-      end.each { |env| message << "\t#{env.name} (#{env.account.name})\n" }
-      super message
-    end
-  end
-
   class EnvironmentUnlinkedError < EY::Error
     def initialize(env_name)
       super "Environment '#{env_name}' exists but does not run this application."
-    end
-  end
-
-  class BranchMismatchError < EY::Error
-    def initialize(default_branch, branch)
-      super(%|Your deploy branch is set to "#{default_branch}".\n| +
-        %|If you want to deploy branch "#{branch}", use --ignore-default-branch.|)
     end
   end
 

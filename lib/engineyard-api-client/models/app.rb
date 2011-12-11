@@ -1,3 +1,5 @@
+require 'engineyard-api-client/errors'
+
 module EY
   class APIClient
     class App < ApiStruct.new(:id, :account, :name, :repository_uri, :environments, :api)

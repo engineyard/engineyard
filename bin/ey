@@ -1,10 +1,12 @@
 #!/usr/bin/env ruby
 $:.unshift(File.expand_path('../../lib', __FILE__))
 require 'engineyard/cli'
+require 'engineyard/error'
+require 'engineyard-api-client/error'
 
 begin
   EY::CLI.start
-rescue EY::Error => e
+rescue EY::Error, EY::APIClient::Error => e
   EY.ui.print_exception(e)
   exit(1)
 rescue Interrupt => e

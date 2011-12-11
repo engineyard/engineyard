@@ -88,7 +88,7 @@ shared_examples_for "it takes an environment name and an account name" do
       it "returns the error message to the user" do
         lambda do
           fast_ey(command_to_run({:environment => "giblets", :account => "main"}))
-        end.should raise_error(EY::Error, /400.*Important infos/)
+        end.should raise_error(EY::APIClient::Error, /400.*Important infos/)
       end
     end
 

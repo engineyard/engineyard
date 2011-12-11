@@ -3,12 +3,20 @@ module EY
     class Error < RuntimeError
     end
 
-    class ResolveError < Error; end
-    class NoMatchesError < ResolveError; end
-    class MultipleMatchesError < ResolveError; end
+    class AmbiguousError < Error
+      def initialize(type, name, matches, desc="")
+        pretty_names = matches.map {|x| "'#{x}'"}.join(', ')
+        super "The name '#{name}' is ambiguous; it matches all of the following #{type} names: #{pretty_names}.\n" +
+        "Please use a longer, unambiguous substring or the entire #{type} name." + desc
+      end
+    end
+
+    class ResolverError < Error; end
+    class NoMatchesError < ResolverError; end
+    class MultipleMatchesError < ResolverError; end
 
     class NoAppError < Error
-      def initialize(repo, endpoint)
+      def initialize(repo, endpoint = EY.config.endpoint)
         super <<-ERROR
 There is no application configured for any of the following remotes:
 \t#{repo ? repo.urls.join("\n\t") : "No remotes found."}
@@ -23,9 +31,9 @@ You can add this application at #{endpoint}
       end
     end
 
-    class AmbiguousAppNameError < Error
+    class AmbiguousAppNameError < AmbiguousError
       def initialize(name, matches, desc="")
-        super ambiguous("app", name, matches, desc)
+        super("app", name, matches, desc)
       end
     end
 
@@ -50,13 +58,13 @@ You can add this application at #{endpoint}
     class EnvironmentError < Error
     end
 
-    class AmbiguousEnvironmentNameError < EY::EnvironmentError
+    class AmbiguousEnvironmentNameError < AmbiguousError
       def initialize(name, matches, desc="")
-        super ambiguous("environment", name, matches, desc)
+        super("environment", name, matches, desc)
       end
     end
 
-    class AmbiguousEnvironmentGitUriError < EY::EnvironmentError
+    class AmbiguousEnvironmentGitUriError < EnvironmentError
       def initialize(environments)
         message = "The repository url in this directory is ambiguous.\n"
         message << "Please use -e <envname> to specify one of the following environments:\n"
@@ -71,14 +79,14 @@ You can add this application at #{endpoint}
       end
     end
 
-    class NoSingleEnvironmentError < EY::EnvironmentError
+    class NoSingleEnvironmentError < EnvironmentError
       def initialize(app)
         size = app.environments.size
         super "Unable to determine a single environment for the current application (found #{size} environments)"
       end
     end
 
-    class NoEnvironmentError < EY::EnvironmentError
+    class NoEnvironmentError < EnvironmentError
       def initialize(env_name=nil)
         super "No environment named '#{env_name}'\nYou can create one at #{EY.config.endpoint}"
       end

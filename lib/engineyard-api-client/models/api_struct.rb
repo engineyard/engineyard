@@ -24,10 +24,6 @@ module EY
         end
       end
 
-      def api_get(uri, options = {})
-        api.request(uri, options.merge(:method => :get))
-      end
-
     end
   end
 end

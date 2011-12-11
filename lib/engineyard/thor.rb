@@ -11,13 +11,13 @@ module EY
       @repo ||= EY::Repo.new
     end
 
-    def fetch_environment(environment_name, account_name=nil)
+    def fetch_environment(environment_name, account_name)
       environment_name ||= EY.config.default_environment
       existing_repo = repo if repo.exist?
       api.fetch_environment(environment_name, account_name, existing_repo)
     end
 
-    def fetch_app_environment(app_name = nil, environment_name = nil, account_name = nil)
+    def fetch_app_environment(app_name, environment_name, account_name)
       environment_name ||= EY.config.default_environment
       existing_repo = repo if repo.exist?
       api.fetch_app_environment(app_name, environment_name, account_name, existing_repo)

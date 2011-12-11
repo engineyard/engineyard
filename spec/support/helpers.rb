@@ -94,7 +94,7 @@ module SpecHelpers
       # SystemExit typically indicates a bogus command, which we
       # here in expected-to-fail land are entirely happy with.
       nil
-    rescue EY::Error => e
+    rescue EY::Error, EY::APIClient::Error => e
       more_err, more_out = StringIO.new, StringIO.new
 
       capture_stderr_into(more_err) do

@@ -26,7 +26,7 @@ describe EY::APIClient do
 
     lambda {
       EY::APIClient.fetch_token("a@b.com", "foo")
-    }.should raise_error(EY::Error)
+    }.should raise_error(EY::APIClient::Error)
   end
 
   it "raises RequestFailed with a friendly error when cloud is under maintenance" do

@@ -1,5 +1,3 @@
-require 'engineyard/error'
-
 module EY
   class APIClient
     module Collections

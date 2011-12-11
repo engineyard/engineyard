@@ -106,7 +106,7 @@ describe "EY::APIClient::Environment#app_master!" do
     env = make_env_with_master("status" => "error")
     lambda {
       env.app_master!
-    }.should raise_error(EY::BadAppMasterStatusError)
+    }.should raise_error(EY::APIClient::BadAppMasterStatusError)
   end
 
   it "returns the app master if told to ignore the app master being in a non-running state" do
@@ -120,7 +120,7 @@ describe "EY::APIClient::Environment#app_master!" do
     env = make_env_with_master(nil)
     lambda {
       env.app_master!
-    }.should raise_error(EY::NoAppMasterError)
+    }.should raise_error(EY::APIClient::NoAppMasterError)
   end
 end
 

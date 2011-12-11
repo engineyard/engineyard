@@ -26,29 +26,27 @@ module EY
       self.class.request(url, opts)
     end
 
-    def fetch_environment(environment_name, account_name=nil, repo=nil)
-      options = {
+    def fetch_environment(environment_name, account_name, repo)
+      Resolver.new(self, {
         :environment_name => environment_name,
-        :account_name => account_name,
-        :repo => repo,
-      }
-      resolver.environment(options)
+        :account_name     => account_name,
+        :repo             => repo,
+      }).environment
     end
 
-    def fetch_app_and_environment(app_name=nil, environment_name=nil, account_name=nil, repo=nil)
-      options = {
-        :app_name => app_name,
+    def fetch_app_and_environment(app_name, environment_name, account_name, repo)
+      Resolver.new(self, {
+        :app_name         => app_name,
         :environment_name => environment_name,
-        :account_name => account_name,
-        :repo => repo,
-      }
-      resolver.app_and_environment(options)
+        :account_name     => account_name,
+        :repo             => repo,
+      }).app_and_environment
     end
 
     # TODO: unhaxor
     # This should load an api endpoint that deals directly in app_deployments
-    def fetch_app_environment(app_name = nil, environment_name = nil, account_name = nil, repo=nil)
-      app, env = fetch_app_and_environment(app_name, environment_name, account_name)
+    def fetch_app_environment(app_name, environment_name, account_name, repo)
+      app, env = fetch_app_and_environment(app_name, environment_name, account_name, repo)
       env.app_environment_for(app)
     end
 
@@ -60,16 +58,12 @@ module EY
       @apps ||= EY::APIClient::App.from_array(request('/apps')["apps"], :api => self)
     end
 
-    def resolver
-      @resolver ||= EY::APIClient::Resolver.new(self)
-    end
-
     def current_user
       EY::APIClient::User.from_hash(request('/current_user')['user'])
     end
 
-    class InvalidCredentials < EY::Error; end
-    class RequestFailed < EY::Error; end
+    class InvalidCredentials < EY::APIClient::Error; end
+    class RequestFailed < EY::APIClient::Error; end
     class ResourceNotFound < RequestFailed; end
 
     def self.request(path, opts={})
