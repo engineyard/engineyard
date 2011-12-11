@@ -1,14 +1,11 @@
+require 'engineyard-api-client'
+
 module EY
-  require 'engineyard/ruby_ext'
   require 'engineyard/version'
   require 'engineyard/error'
   require 'engineyard/config'
 
-  autoload :API,        'engineyard/api'
-  autoload :Collection, 'engineyard/collection'
-  autoload :Model,      'engineyard/model'
   autoload :Repo,       'engineyard/repo'
-  autoload :Resolver,   'engineyard/resolver'
 
   class UI
     # stub debug outside of the CLI

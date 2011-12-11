@@ -69,7 +69,7 @@ module SpecHelpers
   ZeroExitStatus = Class.new(UnexpectedExit)
 
   def ey_api
-    @api ||= EY::API.new('asdf')
+    @api ||= EY::APIClient.new('asdf')
   end
 
   def fast_ey(args)

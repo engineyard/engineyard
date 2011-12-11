@@ -1,9 +1,8 @@
 module EY
-  module Model
+  class APIClient
     class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count,
                                       :apps, :app_master, :username, :app_server_stack_name, :deployment_configurations,
                                       :load_balancer_ip_address, :api)
-      require 'launchy'
 
       attr_accessor :ignore_bad_master
 
@@ -18,7 +17,7 @@ module EY
       end
 
       def self.from_array(*)
-        Collection::Environments.new(super)
+        Collections::Environments.new(super)
       end
 
       def logs
@@ -35,26 +34,21 @@ module EY
         master
       end
 
-      def deploy(app, ref, deploy_options={})
-        app_master!.deploy(app,
-          ref,
-          migration_command(app, deploy_options),
-          config.merge(deploy_options['extras']),
-          deploy_options['verbose'])
-      end
+      alias bridge! app_master!
 
-      def rollback(app, extra_deploy_hook_options={}, verbose=false)
-        app_master!.rollback(app,
-          config.merge(extra_deploy_hook_options),
-          verbose)
-      end
+      def app_environment_for(app)
+        deploy_config     = deployment_configurations[app.name]
 
-      def take_down_maintenance_page(app, verbose=false)
-        app_master!.take_down_maintenance_page(app, verbose)
-      end
+        migration_command = deploy_config && deploy_config['migrate']['command']
+        perform_migration = deploy_config && deploy_config['migrate']['perform']
 
-      def put_up_maintenance_page(app, verbose=false)
-        app_master!.put_up_maintenance_page(app, verbose)
+        AppEnvironment.from_hash({
+          :app => app,
+          :environment => self,
+          :perform_migration => perform_migration,
+          :migration_command => migration_command,
+          :api => api,
+        })
       end
 
       def rebuild
@@ -115,30 +109,6 @@ module EY
         })
       end
 
-      # If force_ref is a string, use it as the ref, otherwise use it as a boolean.
-      def resolve_branch(ref, force_ref=false)
-        if String === force_ref
-          ref, force_ref = force_ref, true
-        end
-
-        if !ref
-          default_branch
-        elsif force_ref || !default_branch || ref == default_branch
-          ref
-        else
-          raise BranchMismatchError.new(default_branch, ref)
-        end
-      end
-
-      def configuration
-        EY.config.environments[self.name] || {}
-      end
-      alias_method :config, :configuration
-
-      def default_branch
-        EY.config.default_branch(name)
-      end
-
       def shorten_name_for(app)
         name.gsub(/^#{Regexp.quote(app.name)}_/, '')
       end
@@ -147,47 +117,10 @@ module EY
         Launchy.open(app_master!.hostname_url)
       end
 
-      def migration_command(app, deploy_options)
-        # regarding deploy_options['migrate']:
-        #
-        # missing means migrate how the yaml file says to
-        # nil means don't migrate
-        # true means migrate w/custom command (if present) or default
-        # a string means migrate with this specific command
-        return nil if no_migrate?(deploy_options)
-        command = migration_command_from_command_line(deploy_options)
-        unless command
-          return nil if no_migrate?(config)
-          command = migration_command_from_config
-        end
-        command = migration_command_from_environment(app) unless command
-        command
-      end
-
       private
 
       def no_migrate?(hash)
         hash.key?('migrate') && hash['migrate'] == false
-      end
-
-      def migration_command_from_config
-        config['migration_command'] if config['migrate'] || config['migration_command']
-      end
-
-      def migration_command_from_command_line(deploy_options)
-        if migrate = deploy_options['migrate']
-          migrate.respond_to?(:to_str) ? migrate.to_str : (config['migration_command'] || default_migration_command)
-        end
-      end
-
-      def migration_command_from_environment(app)
-        if deploy_config = deployment_configurations[app.name]
-          deploy_config['migrate']['command'] if deploy_config['migrate']['perform']
-        end
-      end
-
-      def default_migration_command
-        'rake db:migrate'
       end
     end
   end

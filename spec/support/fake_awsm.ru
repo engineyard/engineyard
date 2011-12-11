@@ -48,7 +48,7 @@ class FakeAwsm < Sinatra::Base
   end
 
   get "/api/v2/apps" do
-    raise('No user agent header') unless env['HTTP_USER_AGENT'] =~ %r#^EngineYardCLI/#
+    raise('No user agent header') unless env['HTTP_USER_AGENT'] =~ %r#^EngineYardAPIClient/#
     {"apps" => @@cloud_mock.apps}.to_json
   end
 

@@ -1,9 +1,9 @@
 require 'highline'
-require 'engineyard/api'
+require 'engineyard-api-client'
 
 module EY
   class CLI
-    class API < EY::API
+    class API < EY::APIClient
 
       def initialize(token = nil)
         @token = token
@@ -18,7 +18,7 @@ module EY
       def request(*)
         begin
           super
-        rescue EY::API::InvalidCredentials
+        rescue EY::APIClient::InvalidCredentials
           EY.ui.warn "Credentials rejected; please authenticate again."
           refresh
           retry
@@ -35,7 +35,7 @@ module EY
           email    = EY.ui.ask("Email: ")
           password = EY.ui.ask("Password: ", true)
           super(email, password)
-        rescue EY::API::InvalidCredentials
+        rescue EY::APIClient::InvalidCredentials
           EY.ui.warn "Invalid username or password; please try again."
           retry
         end

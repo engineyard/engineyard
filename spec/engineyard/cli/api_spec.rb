@@ -12,7 +12,7 @@ describe EY::CLI::API do
 
   it "gets the api token from ~/.eyrc if possible" do
     write_eyrc({"api_token" => "asdf"})
-    EY::CLI::API.new.should == EY::CLI::API.new("asdf")
+    EY::CLI::API.new.token.should == "asdf"
   end
 
   it "uses the token from $ENGINEYARD_API_TOKEN if set" do
@@ -37,7 +37,7 @@ describe EY::CLI::API do
     end
 
     it "gets the api token" do
-      @api.should == EY::CLI::API.new("asdf")
+      @api.token.should == "asdf"
     end
 
     it "saves the api token to ~/.eyrc" do

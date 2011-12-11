@@ -8,7 +8,7 @@ describe "ey logs" do
     ey %w[logs -e giblets]
     @out.should match(/MAIN LOG OUTPUT/)
     @out.should match(/CUSTOM LOG OUTPUT/)
-    @err.should be_empty
+    @err.should == ''
   end
 
   it "complains when it can't infer the environment" do
