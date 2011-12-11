@@ -1,4 +1,5 @@
 require 'launchy'
+require 'engineyard-api-client/errors'
 
 module EY
   class APIClient

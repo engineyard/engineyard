@@ -1,3 +1,5 @@
+require 'engineyard-api-client/errors'
+
 module EY
   class APIClient
     class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count,
@@ -21,7 +23,7 @@ module EY
       end
 
       def logs
-        Log.from_array(api_get("/environments/#{id}/logs")["logs"])
+        Log.from_array(api.request("/environments/#{id}/logs", :method => :get)["logs"])
       end
 
       def app_master!
@@ -61,7 +63,7 @@ module EY
 
       def download_recipes
         if File.exist?('cookbooks')
-          raise EY::Error, "Could not download, cookbooks already exists"
+          raise EY::APIClient::Error, "Could not download, cookbooks already exists"
         end
 
         require 'tempfile'
@@ -73,7 +75,7 @@ module EY
         cmd = "tar xzf '#{tmp.path}' cookbooks"
 
         unless system(cmd)
-          raise EY::Error, "Could not unarchive recipes.\nCommand `#{cmd}` exited with an error."
+          raise EY::APIClient::Error, "Could not unarchive recipes.\nCommand `#{cmd}` exited with an error."
         end
       end
 
@@ -82,21 +84,21 @@ module EY
         if recipes_path.exist?
           upload_recipes recipes_path.open('rb')
         else
-          raise EY::Error, "Recipes file not found: #{recipes_path}"
+          raise EY::APIClient::Error, "Recipes file not found: #{recipes_path}"
         end
       end
 
       def tar_and_upload_recipes_in_cookbooks_dir
         require 'tempfile'
         unless File.exist?("cookbooks")
-          raise EY::Error, "Could not find chef recipes. Please run from the root of your recipes repo."
+          raise EY::APIClient::Error, "Could not find chef recipes. Please run from the root of your recipes repo."
         end
 
         recipes_file = Tempfile.new("recipes")
         cmd = "tar czf '#{recipes_file.path}' cookbooks/"
 
         unless system(cmd)
-          raise EY::Error, "Could not archive recipes.\nCommand `#{cmd}` exited with an error."
+          raise EY::APIClient::Error, "Could not archive recipes.\nCommand `#{cmd}` exited with an error."
         end
 
         upload_recipes(recipes_file)
