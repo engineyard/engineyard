@@ -80,7 +80,7 @@ module EY
         raise EY::Error, "Deploy failed"
       end
 
-    rescue NoEnvironmentError => e
+    rescue EY::APIClient::NoEnvironmentError => e
       # Give better feedback about why we couldn't find the environment.
       exists = api.environments.named(options[:environment])
       raise exists ? EnvironmentUnlinkedError.new(options[:environment]) : e
@@ -131,7 +131,7 @@ module EY
           message << "The following environments contain those applications:\n\n"
           EY.ui.warn(message)
         elsif apps.empty?
-          EY.ui.warn(NoAppError.new(repo).message + "\nUse #{self.class.send(:banner_base)} environments --all to see all environments.")
+          EY.ui.warn(EY::APIClient::NoAppError.new(repo, EY.config.endpoint).message + "\nUse #{self.class.send(:banner_base)} environments --all to see all environments.")
         end
 
         EY.ui.print_envs(apps, EY.config.default_environment, options[:simple])
@@ -236,8 +236,7 @@ module EY
         return lambda {|instance| %w(solo db_master db_slave).include?(instance.role) } if opts[:db_servers ]
         return lambda {|instance| %w(solo db_master         ).include?(instance.role) } if opts[:db_master  ]
         return lambda {|instance| %w(db_slave               ).include?(instance.role) } if opts[:db_slaves  ]
-        return lambda {|instance| %w(util                   ).include?(instance.role) &&
-                                             opts[:utilities].include?(instance.name) } if opts[:utilities  ]
+        return lambda {|instance| %w(util).include?(instance.role) && opts[:utilities].include?(instance.name) } if opts[:utilities]
         return lambda {|instance| %w(solo app_master        ).include?(instance.role) }
       end
 
