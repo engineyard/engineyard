@@ -40,7 +40,7 @@ Command:
         [--ignore-default-branch]             # Force a deploy of the specified branch even if a default is set
     -e, [--environment=ENVIRONMENT]           # Environment in which to deploy this application
     -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
-        [--extra-deploy-hook-options key:val] # Additional options to be made available in deploy hooks (in the 'config' hash)
+        [--extra-deploy-hook-options key:val] # Additional options to be made available in deploy hooks (in the '@configuration' hash)
 
 
   Description:
