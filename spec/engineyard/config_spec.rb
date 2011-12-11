@@ -23,14 +23,7 @@ describe EY::Config do
 
     it "loads the endpoint from $CLOUD_URL" do
       ENV['CLOUD_URL'] = "http://fake.local/"
-      EY::Config.new.endpoint.should == URI.parse('http://fake.local')
-      ENV.delete('CLOUD_URL')
-    end
-
-    it "raises on an invalid endpoint" do
-      ENV['CLOUD_URL'] = "non/absolute"
-      lambda { EY::Config.new.endpoint }.
-        should raise_error(EY::Config::ConfigurationError)
+      EY::Config.new.endpoint.should == 'http://fake.local/'
       ENV.delete('CLOUD_URL')
     end
   end

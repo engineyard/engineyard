@@ -2,7 +2,7 @@
 $:.unshift(File.expand_path('../../lib', __FILE__))
 require 'engineyard/cli'
 require 'engineyard/error'
-require 'engineyard-api-client/error'
+require 'engineyard-api-client/errors'
 
 begin
   EY::CLI.start

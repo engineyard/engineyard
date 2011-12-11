@@ -4,7 +4,10 @@ module EY
   module UtilityMethods
     protected
     def api
-      @api ||= EY::CLI::API.new
+      @api ||= begin
+                 EY::APIClient.endpoint = EY.config.endpoint
+                 EY::CLI::API.new
+               end
     end
 
     def repo

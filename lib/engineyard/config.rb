@@ -31,13 +31,11 @@ module EY
     end
 
     def env_var_endpoint
-      if endpoint = ENV["CLOUD_URL"]
-        assert_valid_endpoint endpoint, "CLOUD_URL"
-      end
+      ENV["CLOUD_URL"]
     end
 
     def default_endpoint
-      URI.parse("https://cloud.engineyard.com/")
+      "https://cloud.engineyard.com/"
     end
 
     def default_endpoint?
@@ -57,13 +55,6 @@ module EY
     end
 
     private
-
-    def assert_valid_endpoint(endpoint, source)
-      endpoint = URI.parse(endpoint) if endpoint.is_a?(String)
-      return endpoint if endpoint.absolute?
-
-      raise ConfigurationError.new('endpoint', endpoint.to_s, source, "endpoint must be an absolute URI")
-    end
 
     class ConfigurationError < EY::Error
       def initialize(key, value, source, message=nil)
