@@ -1,9 +1,15 @@
+module EY
+  class APIClient
+  end
+end
+
 require 'engineyard-api-client/ruby_ext'
 require 'engineyard-api-client/models'
 require 'engineyard-api-client/collections'
 require 'engineyard-api-client/rest_client_ext'
 require 'engineyard-api-client/resolver'
 require 'engineyard-api-client/version'
+require 'engineyard-api-client/errors'
 require 'json'
 require 'engineyard/eyrc'
 
@@ -12,6 +18,23 @@ module EY
     attr_reader :token
 
     USER_AGENT_STRING = "EngineYardAPIClient/#{EY::APIClient::VERSION}"
+
+    def self.endpoint
+      @endpoint
+    end
+
+    def self.endpoint=(endpoint)
+      @endpoint = URI.parse(endpoint)
+      unless @endpoint.absolute?
+        raise BadEndpointError.new(endpoint)
+      end
+      @endpoint
+    end
+
+    def self.default_endpoint!
+      self.endpoint = "https://cloud.engineyard.com/"
+    end
+    default_endpoint!
 
     def initialize(token = nil)
       @token = token
@@ -67,7 +90,7 @@ module EY
     class ResourceNotFound < RequestFailed; end
 
     def self.request(path, opts={})
-      url = EY.config.endpoint + "api/v2#{path}"
+      url = self.endpoint + "api/v2#{path}"
       method = (opts.delete(:method) || 'get').to_s.downcase.to_sym
       params = opts.delete(:params) || {}
       headers = opts.delete(:headers) || {}

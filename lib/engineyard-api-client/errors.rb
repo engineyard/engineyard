@@ -3,6 +3,12 @@ module EY
     class Error < RuntimeError
     end
 
+    class BadEndpointError < Error
+      def initialize(endpoint)
+        super "#{endpoint.inspect} is not a valid endpoint URI. Endpoint must be an absolute URI."
+      end
+    end
+
     class AmbiguousError < Error
       def initialize(type, name, matches, desc="")
         pretty_names = matches.map {|x| "'#{x}'"}.join(', ')
@@ -16,7 +22,7 @@ module EY
     class MultipleMatchesError < ResolverError; end
 
     class NoAppError < Error
-      def initialize(repo, endpoint = EY.config.endpoint)
+      def initialize(repo, endpoint)
         super <<-ERROR
 There is no application configured for any of the following remotes:
 \t#{repo ? repo.urls.join("\n\t") : "No remotes found."}
@@ -87,8 +93,8 @@ You can add this application at #{endpoint}
     end
 
     class NoEnvironmentError < EnvironmentError
-      def initialize(env_name=nil)
-        super "No environment named '#{env_name}'\nYou can create one at #{EY.config.endpoint}"
+      def initialize(env_name, endpoint)
+        super "No environment named '#{env_name}'\nYou can create one at #{endpoint}"
       end
     end
 

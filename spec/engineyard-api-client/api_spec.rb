@@ -1,6 +1,23 @@
 require 'spec_helper'
 
 describe EY::APIClient do
+  describe "endpoint" do
+    it "defaults to production EY Cloud" do
+      EY::APIClient.endpoint.should == URI.parse('https://cloud.engineyard.com')
+    end
+
+    it "loads saves a valid endpoint" do
+      EY::APIClient.endpoint = "http://fake.local/"
+      EY::APIClient.endpoint.should == URI.parse('http://fake.local')
+      EY::APIClient.default_endpoint!
+    end
+
+    it "raises on an invalid endpoint" do
+      lambda { EY::APIClient.endpoint = "non/absolute" }.should raise_error(EY::APIClient::BadEndpointError)
+      EY::APIClient.default_endpoint!
+    end
+  end
+
   it "gets the api token from ~/.eyrc if possible" do
     write_eyrc({"api_token" => "asdf"})
     EY::APIClient.new.token.should == "asdf"

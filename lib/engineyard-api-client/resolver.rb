@@ -33,9 +33,9 @@ module EY
 
       def no_environments_error
         if constraints[:environment_name]
-          EY::APIClient::NoEnvironmentError.new(constraints[:environment_name])
+          EY::APIClient::NoEnvironmentError.new(constraints[:environment_name], EY::APIClient.endpoint)
         else
-          EY::APIClient::NoAppError.new(repo)
+          EY::APIClient::NoAppError.new(repo, EY::APIClient.endpoint)
         end
       end
 
@@ -71,10 +71,10 @@ module EY
           if constraints[:app_name]
             EY::APIClient::InvalidAppError.new(constraints[:app_name])
           else
-            EY::APIClient::NoAppError.new(repo)
+            EY::APIClient::NoAppError.new(repo, EY::APIClient.endpoint)
           end
         elsif environment_candidates.empty?
-          EY::APIClient::NoEnvironmentError.new(constraints[:environment_name])
+          EY::APIClient::NoEnvironmentError.new(constraints[:environment_name], EY::APIClient.endpoint)
         else
           message = "The matched apps & environments do not correspond with each other.\n"
           message << "Applications:\n"
