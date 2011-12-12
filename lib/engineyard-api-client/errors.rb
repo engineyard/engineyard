@@ -93,7 +93,7 @@ You can add this application at #{endpoint}
     end
 
     class NoEnvironmentError < EnvironmentError
-      def initialize(env_name, endpoint)
+      def initialize(env_name, endpoint = EY::APIClient.endpoint)
         super "No environment named '#{env_name}'\nYou can create one at #{endpoint}"
       end
     end
