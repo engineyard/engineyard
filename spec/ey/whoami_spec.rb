@@ -10,7 +10,7 @@ describe "ey whoami" do
 
     it "outputs the currently logged in user" do
       ey %w[whoami]
-      @out.should include("User (test@test.test)")
+      @out.should include("User Name (test@test.test)")
     end
   end
 
@@ -31,7 +31,7 @@ describe "ey whoami" do
       @out.should include("Email:")
       @out.should include("Password:")
 
-      @out.should include("User (test@test.test)")
+      @out.should include("User Name (test@test.test)")
     end
   end
 end

@@ -44,7 +44,7 @@ class FakeAwsm < Sinatra::Base
   end
 
   get "/api/v2/current_user" do
-    { "user" => { "id" => 1, "name" => "User", "email" => "test@test.test" } }.to_json
+    { "user" => { "id" => 1, "name" => "User Name", "email" => "test@test.test" } }.to_json
   end
 
   get "/api/v2/apps" do
@@ -111,7 +111,7 @@ class FakeAwsm < Sinatra::Base
         "ref" => "HEAD",
         "resolved_ref" => "HEAD",
         "commit" => 'a'*40,
-        "user_name" => "User",
+        "user_name" => "User Name",
         "migrate_command" => "rake db:migrate --trace",
         "created_at" => Time.now.utc - 3600,
         "finished_at" => Time.now.utc - 3400,

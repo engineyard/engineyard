@@ -14,7 +14,7 @@ describe "ey environments" do
     @out.should =~ /Environment:\s+giblets/
     @out.should =~ /Ref:\s+HEAD/
     @out.should =~ /Resolved Ref:\s+HEAD/
-    @out.should =~ /Deployed by:\s+User/
+    @out.should =~ /Deployed by:\s+User Name/
     @out.should =~ /Created at:/
     @out.should =~ /Finished at:/
     @out.should =~ /This deployment was successful/
