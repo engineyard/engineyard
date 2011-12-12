@@ -27,7 +27,7 @@ module EY
     end
 
     def endpoint
-      @endpoint ||= env_var_endpoint || default_endpoint
+      env_var_endpoint || default_endpoint
     end
 
     def env_var_endpoint

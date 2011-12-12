@@ -26,7 +26,7 @@ describe EY::APIClient do
   context "fetching the token from EY cloud" do
     before(:each) do
       FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
-      @token = EY::APIClient.fetch_token("a@b.com", "foo")
+      @token = EY::APIClient.authenticate("a@b.com", "foo")
     end
 
     it "returns an EY::APIClient" do
@@ -42,7 +42,7 @@ describe EY::APIClient do
     FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :status => 401, :content_type => 'application/json')
 
     lambda {
-      EY::APIClient.fetch_token("a@b.com", "foo")
+      EY::APIClient.authenticate("a@b.com", "foo")
     }.should raise_error(EY::APIClient::Error)
   end
 
@@ -50,7 +50,7 @@ describe EY::APIClient do
     FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :status => 502, :content_type => 'text/html')
 
     lambda {
-      EY::APIClient.fetch_token("a@b.com", "foo")
+      EY::APIClient.authenticate("a@b.com", "foo")
     }.should raise_error(EY::APIClient::RequestFailed, /API is temporarily unavailable/)
   end
 end

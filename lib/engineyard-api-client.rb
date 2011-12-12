@@ -137,7 +137,7 @@ module EY
       data
     end
 
-    def self.fetch_token(email, password)
+    def self.authenticate(email, password)
       api_token = request("/authenticate", :method => "post",
         :params => { :email => email, :password => password })["api_token"]
       EY::EYRC.load.api_token = api_token
