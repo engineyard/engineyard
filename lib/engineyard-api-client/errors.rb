@@ -3,6 +3,10 @@ module EY
     class Error < RuntimeError
     end
 
+    class RequestFailed      < Error; end
+    class InvalidCredentials < RequestFailed; end
+    class ResourceNotFound   < RequestFailed; end
+
     class BadEndpointError < Error
       def initialize(endpoint)
         super "#{endpoint.inspect} is not a valid endpoint URI. Endpoint must be an absolute URI."
@@ -17,8 +21,8 @@ module EY
       end
     end
 
-    class ResolverError < Error; end
-    class NoMatchesError < ResolverError; end
+    class ResolverError        < Error; end
+    class NoMatchesError       < ResolverError; end
     class MultipleMatchesError < ResolverError; end
 
     class NoAppError < Error

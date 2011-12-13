@@ -18,23 +18,17 @@ describe EY::APIClient do
     end
   end
 
-  it "gets the api token from ~/.eyrc if possible" do
-    write_eyrc({"api_token" => "asdf"})
-    EY::APIClient.new.token.should == "asdf"
+  it "gets the api token from initialize" do
+    EY::APIClient.new('asdf').token.should == "asdf"
   end
 
-  context "fetching the token from EY cloud" do
+  describe ".authenticate" do
     before(:each) do
       FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
-      @token = EY::APIClient.authenticate("a@b.com", "foo")
     end
 
-    it "returns an EY::APIClient" do
-      @token.should == "asdf"
-    end
-
-    it "puts the api token into .eyrc" do
-      read_eyrc["api_token"].should == "asdf"
+    it "returns the token" do
+      EY::APIClient.authenticate("a@b.com", "foo").should == "asdf"
     end
   end
 
@@ -43,7 +37,7 @@ describe EY::APIClient do
 
     lambda {
       EY::APIClient.authenticate("a@b.com", "foo")
-    }.should raise_error(EY::APIClient::Error)
+    }.should raise_error(EY::APIClient::InvalidCredentials)
   end
 
   it "raises RequestFailed with a friendly error when cloud is under maintenance" do

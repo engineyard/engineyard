@@ -1,5 +1,6 @@
 require 'highline'
 require 'engineyard-api-client'
+require 'engineyard/eyrc'
 
 module EY
   class CLI
