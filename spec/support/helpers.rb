@@ -31,12 +31,12 @@ module SpecHelpers
       ey(command_to_run(command_options), ey_options)
     end
 
-    def make_scenario(hash)
+    def make_scenario(opts)
       # since nil will silently turn to empty string when interpolated,
       # and there's a lot of string matching involved in integration
       # testing, it would be nice to have early notification of typos.
       scenario = Hash.new { |h,k| raise "Tried to get key #{k.inspect}, but it's missing!" }
-      scenario.merge!(hash)
+      scenario.merge!(opts)
     end
   end
 
