@@ -128,15 +128,15 @@ module EY
         Launchy.open(environment.bridge!.hostname_url)
       end
 
-      def determine_migration_command(deploy_options)
+      def determine_migration_command(cli_options)
         # regarding deploy_options['migrate']:
         #
         # missing means migrate how the yaml file says to
         # nil means don't migrate
         # true means migrate w/custom command (if present) or default
         # a string means migrate with this specific command
-        return nil if no_migrate?(deploy_options)
-        command = migration_command_from_command_line(deploy_options['migrate'])
+        return nil if no_migrate?(cli_options)
+        command = migration_command_from_command_line(cli_options['migrate'])
         unless command
           return nil if no_migrate?(config)
           command = migration_command_from_config

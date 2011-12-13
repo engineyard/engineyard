@@ -2,27 +2,21 @@ require 'engineyard-api-client/errors'
 
 module EY
   class APIClient
-    class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count,
-                                      :apps, :app_master, :username, :app_server_stack_name, :deployment_configurations,
+    class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances_count,
+                                      :username, :app_server_stack_name, :deployment_configurations,
                                       :load_balancer_ip_address)
 
-      attr_accessor :ignore_bad_master
+      attr_accessor :ignore_bad_master, :apps, :instances, :app_master
 
       def initialize(api, attrs)
         super
-        self.instances = Instance.from_array(api, attrs['instances'] || attrs[:instances], :environment => self)
+        @apps = App.from_array(api, attrs['apps']) if attrs['apps']
+        @instances = Instance.from_array(api, attrs['instances'], 'environment' => self) if attrs['instances']
+        @app_master = Instance.from_hash(api, attrs['app_master'].merge('environment' => self)) if attrs['app_master']
       end
 
       def self.from_array(*)
         Collections::Environments.new(super)
-      end
-
-      def apps=(collection_or_hashes)
-        if Collections::Apps === collection_or_hashes
-          super
-        else
-          super App.from_array(api, collection_or_hashes)
-        end
       end
 
       def account=(account)
@@ -31,14 +25,6 @@ module EY
 
       def account_name
         account && account.name
-      end
-
-      def app_master=(hash_or_app_master)
-        if Hash === hash_or_app_master
-          super Instance.from_hash(api, hash_or_app_master.merge(:environment => self))
-        else
-          super
-        end
       end
 
       def ssh_username=(user)
@@ -60,10 +46,6 @@ module EY
       end
 
       alias bridge! app_master!
-
-      def app_environment_for(app)
-        api.app_environments.detect { |app_env| app_env.environment == self && app_env.app == app }
-      end
 
       def rebuild
         api.request("/environments/#{id}/update_instances", :method => :put)
