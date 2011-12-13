@@ -3,13 +3,13 @@ module EY
     module Collections
       class Abstract
         COLLAB_MESSAGE = <<-MSG
-  \nThis error is due to having access to another account's resources via the collaboration feature.
-  Specify --account ACCOUNT_NAME to resolve this ambiguity.
+\nThis error is due to having access to another account's resources via the collaboration feature.
+Specify --account ACCOUNT_NAME to resolve this ambiguity.
         MSG
 
         include Enumerable
 
-        def initialize(contents)
+        def initialize(contents = nil)
           @contents = contents ? contents.dup.flatten : []
         end
 

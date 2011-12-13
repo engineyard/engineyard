@@ -4,41 +4,53 @@ describe EY::APIClient::Resolver do
   def mock_api
     return @mock_api if @mock_api
     apps = mock('apps')
-    apps.stub!(:named) do |name, *args|
-      result = EY::APIClient::App.from_hash(:name => name)
-      result.stub!(:environments => [])
-      result
-    end
+    apps.stub!(:named) { |name, account_name| get_app_named(name, account_name) }
 
-    environments = mock('apps')
-    environments.stub!(:named) do |name, *args|
-      result = EY::APIClient::Environment.from_hash(:name => name)
-      result.stub!(:apps => [])
-      result
+    envs = mock('apps')
+    envs.stub!(:named) { |name, account_name| get_env_named(name, account_name) }
+    @mock_api = mock("api", :apps => apps, :environments => envs, :app_environments => [])
+  end
+
+  def get_app_named(name, account)
+    mock_api.app_environments.map {|app_env| app_env.app}.detect do |app|
+      app.name == name && app.account_name == account
     end
-    @mock_api = mock("api", :apps => apps, :environments => environments)
+  end
+
+  def get_env_named(name, account)
+    mock_api.app_environments.map {|app_env| app_env.environment}.detect do |environment|
+      environment.name == name && environment.account_name == account
+    end
   end
 
   def resolver(options)
-    EY::APIClient::Resolver.new(mock_api, options).tap do |r|
-      r.instance_variable_set(:@app_environments, @app_environments)
-    end
+    EY::APIClient::Resolver.new(mock_api, options)
   end
 
-  def new_app_env(options)
-    @app_environments ||= []
-    @app_environments << options
-    options
+  def new_app_env(app, repository_uri, env, account)
+    app_env = EY::APIClient::AppEnvironment.from_hash(mock_api, {
+      'app' => {
+        'name' => app,
+        'repository_uri' => repository_uri,
+        'account' => {'name' => account},
+      },
+      'environment' => {
+        'name' => env,
+        'account' => {'name' => account},
+      },
+    })
+    mock_api.app_environments << app_env
+    app_env
   end
 
 
   before do
-    @production = new_app_env(:environment_name => "app_production", :app_name => "app",           :account_name => "ey", :repository_uri => "git://github.com/repo/app.git")
-    @staging    = new_app_env(:environment_name => "app_staging"   , :app_name => "app",           :account_name => "ey", :repository_uri => "git://github.com/repo/app.git")
-    @big        = new_app_env(:environment_name => "bigapp_staging", :app_name => "bigapp",        :account_name => "ey", :repository_uri => "git://github.com/repo/bigapp.git")
-    @ey_dup     = new_app_env(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account_name => "ey", :repository_uri => "git://github.com/repo/dup.git")
-    @sumo       = new_app_env(:environment_name => "sumo_wrestler" , :app_name => "app_duplicate", :account_name => "ey", :repository_uri => "git://github.com/repo/dup.git")
-    @me_dup     = new_app_env(:environment_name => "app_duplicate" , :app_name => "app_duplicate", :account_name => "me", :repository_uri => "git://github.com/repo/dup.git")
+    @production = new_app_env("app",     "git://github.com/repo/app.git", "app_production", 'ey')
+    @staging    = new_app_env("app",     "git://github.com/repo/app.git", "app_staging"   , 'ey')
+    @big        = new_app_env("bigapp",  "git://github.com/repo/big.git", "bigapp_staging", 'ey')
+    @ey_dup     = new_app_env("app_dup", "git://github.com/repo/dup.git", "app_dup" , 'ey')
+    @sumo       = new_app_env("app_dup", "git://github.com/repo/dup.git", "sumo_wrestler" , 'ey')
+    @me_dup     = new_app_env("app_dup", "git://github.com/repo/dup.git", "app_dup" , 'me')
   end
 
   def repo(url)
@@ -49,34 +61,34 @@ describe EY::APIClient::Resolver do
 
   describe "#fetch" do
     it "raises argument error if the conditions are empty" do
-      lambda { resolver({}).app_and_environment }.should raise_error(ArgumentError)
+      lambda { resolver({}).app_environment }.should raise_error(ArgumentError)
     end
 
     it "raises when there is no app match" do
-      lambda { resolver(:environment_name => 'app_duplicate', :app_name => 'gibberish').app_and_environment }.should raise_error(EY::APIClient::InvalidAppError)
+      lambda { resolver(:environment_name => 'app_dup', :app_name => 'gibberish').app_environment }.should raise_error(EY::APIClient::InvalidAppError)
     end
 
     it "raises when there is no environment match" do
-      lambda { resolver(:environment_name => 'gibberish', :app_name => 'app').app_and_environment }.should raise_error(EY::APIClient::NoEnvironmentError)
+      lambda { resolver(:environment_name => 'gibberish', :app_name => 'app').app_environment }.should raise_error(EY::APIClient::NoEnvironmentError)
     end
 
     it "raises when there are no matches" do
-      lambda { resolver(:environment_name => 'app_duplicate', :app_name => 'bigapp').app_and_environment }.should raise_error(EY::APIClient::NoMatchesError)
-      lambda { resolver(:repo => repo("git://github.com/repo/app.git"), :environment_name => 'app_duplicate') .app_and_environment }.should raise_error(EY::APIClient::NoMatchesError)
+      lambda { resolver(:environment_name => 'app_dup', :app_name => 'bigapp'                         ).app_environment }.should raise_error(EY::APIClient::NoMatchesError)
+      lambda { resolver(:environment_name => 'app_dup', :repo => repo("git://github.com/repo/app.git")).app_environment }.should raise_error(EY::APIClient::NoMatchesError)
     end
 
     it "raises when there is more than one match" do
-      lambda { resolver(:app_name => "app").app_and_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
-      lambda { resolver(:account_name => "ey", :app_name => "app").app_and_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
-      lambda { resolver(:repo => repo("git://github.com/repo/dup.git")).app_and_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
-      lambda { resolver(:repo => repo("git://github.com/repo/app.git")).app_and_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
+      lambda { resolver(:app_name => "app"                            ).app_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
+      lambda { resolver(:account_name => "ey", :app_name => "app"     ).app_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
+      lambda { resolver(:repo => repo("git://github.com/repo/dup.git")).app_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
+      lambda { resolver(:repo => repo("git://github.com/repo/app.git")).app_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
     end
 
     it "does not include duplicate copies of apps across accounts when raising a more than one match error" do
-      do_include = "--environment='sumo_wrestler' --app='app_duplicate' --account='ey'"
-      do_not_include = "--environment='sumo_wrestler' --app='app_duplicate' --account='me'"
+      do_include     = "--environment='sumo_wrestler' --app='app_dup' --account='ey'"
+      do_not_include = "--environment='sumo_wrestler' --app='app_dup' --account='me'"
       lambda do
-        resolver(:repo => repo("git://github.com/repo/dup.git")).app_and_environment
+        resolver(:repo => repo("git://github.com/repo/dup.git")).app_environment
       end.should raise_error(EY::APIClient::MultipleMatchesError) {|e|
         e.message.should include(do_include)
         e.message.should_not include(do_not_include)
@@ -84,31 +96,31 @@ describe EY::APIClient::Resolver do
     end
 
     it "returns one deployment whene there is only one match" do
-      resolver(:account_name => "ey", :app_name => "big").app_and_environment.should resolve_to(@big)
-      resolver(:environment_name => "production").app_and_environment.should resolve_to(@production)
-      resolver(:repo => repo("git://github.com/repo/bigapp.git")).app_and_environment.should resolve_to(@big)
-      resolver(:repo => repo("git://github.com/repo/app.git"), :environment_name => "staging").app_and_environment.should resolve_to(@staging)
+      resolver(:account_name => "ey", :app_name => "big"                                     ).app_environment.should == @big
+      resolver(:environment_name => "production"                                             ).app_environment.should == @production
+      resolver(:repo => repo("git://github.com/repo/big.git")                                ).app_environment.should == @big
+      resolver(:repo => repo("git://github.com/repo/app.git"), :environment_name => "staging").app_environment.should == @staging
     end
 
     it "doesn't care about case" do
-      resolver(:account_name => "EY", :app_name => "big").app_and_environment.should resolve_to(@big)
-      resolver(:account_name => "ey", :app_name => "BiG").app_and_environment.should resolve_to(@big)
+      resolver(:account_name => "EY", :app_name => "big").app_environment.should == @big
+      resolver(:account_name => "ey", :app_name => "BiG").app_environment.should == @big
     end
 
     it "returns the match when an app is specified even when there is a repo" do
-      resolver(:account_name => "ey", :app_name => "bigapp", :repo => repo("git://github.com/repo/app.git")).app_and_environment.should resolve_to(@big)
+      resolver(:account_name => "ey", :app_name => "bigapp", :repo => repo("git://github.com/repo/app.git")).app_environment.should == @big
     end
 
     it "returns the specific match even if there is a partial match" do
-      resolver(:environment_name => 'app_staging', :app_name => 'app').app_and_environment.should resolve_to(@staging)
-      resolver(:environment_name => "app_staging").app_and_environment.should resolve_to(@staging)
-      resolver(:app_name => "app", :environment_name => "staging").app_and_environment.should resolve_to(@staging)
+      resolver(:environment_name => 'app_staging', :app_name => 'app').app_environment.should == @staging
+      resolver(:environment_name => "app_staging"                    ).app_environment.should == @staging
+      resolver(:app_name => "app", :environment_name => "staging"    ).app_environment.should == @staging
     end
 
     it "scopes searches under the correct account" do
-      resolver(:account_name => "ey", :environment_name => "dup", :app_name => "dup").app_and_environment.should resolve_to(@ey_dup)
-      resolver(:account_name => "me", :environment_name => "dup").app_and_environment.should resolve_to(@me_dup)
-      resolver(:account_name => "me", :app_name => "dup").app_and_environment.should resolve_to(@me_dup)
+      resolver(:account_name => "ey", :environment_name => "dup", :app_name => "dup").app_environment.should == @ey_dup
+      resolver(:account_name => "me", :environment_name => "dup"                    ).app_environment.should == @me_dup
+      resolver(:account_name => "me",                             :app_name => "dup").app_environment.should == @me_dup
     end
   end
 end

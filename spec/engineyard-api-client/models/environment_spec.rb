@@ -2,10 +2,7 @@ require 'spec_helper'
 
 describe "EY::APIClient::Environment#rebuild" do
   it "hits the rebuild action in the API" do
-    env = EY::APIClient::Environment.from_hash({
-        "id" => 46534,
-        "api" => ey_api,
-      })
+    env = EY::APIClient::Environment.from_hash(ey_api, { "id" => 46534 })
 
     FakeWeb.register_uri(
       :put,
@@ -21,10 +18,7 @@ end
 
 describe "EY::APIClient::Environment#run_custom_recipes" do
   it "hits the rebuild action in the API" do
-    env = EY::APIClient::Environment.from_hash({
-        "id" => 46534,
-        "api" => ey_api,
-      })
+    env = EY::APIClient::Environment.from_hash(ey_api, { "id" => 46534 })
 
     FakeWeb.register_uri(
       :put,
@@ -46,7 +40,7 @@ describe "EY::APIClient::Environment.from_array" do
       {"id" => 9433, "name" => 'zoidberg'},
     ]
 
-    collection = EY::APIClient::Environment.from_array(api_data)
+    collection = EY::APIClient::Environment.from_array(ey_api, api_data)
     collection.should respond_to(:each)
     collection.should respond_to(:match_one)
   end
@@ -61,9 +55,8 @@ describe "EY::APIClient::Environment#instances" do
       "public_hostname" => "banana_master"
     }
 
-    env = EY::APIClient::Environment.from_hash({
+    env = EY::APIClient::Environment.from_hash(ey_api, {
         "id" => 10291,
-        "api" => ey_api,
         "instances" => [instance_data],
       })
 
@@ -74,7 +67,7 @@ describe "EY::APIClient::Environment#instances" do
     )
 
     env.should have(1).instances
-    env.instances.first.should == EY::APIClient::Instance.from_hash(instance_data.merge(:environment => env))
+    env.instances.first.should == EY::APIClient::Instance.from_hash(ey_api, instance_data.merge(:environment => env))
   end
 end
 
@@ -87,7 +80,7 @@ describe "EY::APIClient::Environment#app_master!" do
       }.merge(app_master)
     end
 
-    EY::APIClient::Environment.from_hash({
+    EY::APIClient::Environment.from_hash(ey_api, {
         "id" => 11830,
         "name" => "guinea-pigs-are-delicious",
         "app_master" => app_master,
@@ -126,8 +119,8 @@ end
 
 describe "EY::APIClient::Environment#shorten_name_for(app)" do
   def short(environment_name, app_name)
-    env = EY::APIClient::Environment.from_hash({:name => environment_name})
-    app = EY::APIClient::App.from_hash({:name => app_name})
+    env = EY::APIClient::Environment.from_hash(ey_api, {:name => environment_name})
+    app = EY::APIClient::App.from_hash(ey_api, {:name => app_name})
     env.shorten_name_for(app)
   end
 
@@ -135,7 +128,7 @@ describe "EY::APIClient::Environment#shorten_name_for(app)" do
     short('myapp_production', 'myapp').should == 'production'
   end
 
-  it "turns product+production to product (leaves it alone)" do
+  it "turns product+production to production (leaves it alone)" do
     short('production', 'product').should == 'production'
   end
 
@@ -150,23 +143,25 @@ end
 
 describe "EY::APIClient::Environment#migration_command" do
   before do
-    @app = EY::APIClient::App.from_hash({:name => 'fake'})
-    @migrate_env = EY::APIClient::Environment.from_hash({
-        "id" => 10291,
-        "api" => ey_api,
-        'name' => 'migrate',
-        'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => true}}}
+    name = 'fake'
+    migrate_env = {
+      'id' => 10291,
+      'name' => 'migrate',
+      'deployment_configurations' => {name => {'migrate' => {'command' => 'fake db:migrate', 'perform' => true}}}
+    }
+    no_migrate_env = {
+      'id' => 10291,
+      'name' => 'no_migrate',
+      'deployment_configurations' => {name => {'migrate' => {'command' => 'fake db:migrate', 'perform' => false}}}
+    }
+    app = EY::APIClient::App.from_hash(ey_api, {
+      'name' => name,
+      'environments' => [migrate_env, no_migrate_env]
     })
 
-    @no_migrate_env = EY::APIClient::Environment.from_hash({
-        "id" => 10291,
-        "api" => ey_api,
-        'name' => 'no_migrate',
-        'deployment_configurations' => {'fake' => {'migrate' => {'command' => 'fake db:migrate', 'perform' => false}}}
-    })
-
-    @migrate = @migrate_env.app_environment_for(@app)
-    @no_migrate = @no_migrate_env.app_environment_for(@app)
+    # TODO: use real method for this.
+    @migrate    = app.app_environments.detect { |app_env| app_env.environment.name == 'migrate' }
+    @no_migrate = app.app_environments.detect { |app_env| app_env.environment.name == 'no_migrate' }
   end
 
   it "returns the migration command for the environment when the perform flag is true" do

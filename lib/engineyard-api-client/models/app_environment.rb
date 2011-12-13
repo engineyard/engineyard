@@ -3,12 +3,61 @@ require 'engineyard-api-client/errors'
 
 module EY
   class APIClient
-    class AppEnvironment < ApiStruct.new(:id, :app, :environment, :framework_env, :perform_migration, :migration_command, :api)
+    class AppEnvironment < ApiStruct.new(:id, :app, :environment, :perform_migration, :migration_command)
 
-      def self.from_hash(hash)
-        super.tap do |app_env|
-          app_env.app         = App.from_hash(app_env.app, :api => env.api)                 if app_env.app.is_a?(Hash)
-          app_env.environment = Environment.from_hash(app_env.environment, :api => env.api) if app_env.environment.is_a?(Hash)
+      def initialize(api, attrs)
+        super
+
+        if environment.deployment_configurations
+          extract_deploy_config(environment.deployment_configurations[app.name])
+        end
+      end
+
+      def app
+        super or raise ArgumentError, 'AppEnvironment created without app!'
+      end
+
+      def app=(app_or_hash)
+        if Hash === app_or_hash
+          super App.from_hash(api, app_or_hash)
+        else
+          super
+        end
+      end
+
+      def environment
+        super or raise ArgumentError, 'AppEnvironment created without environment!'
+      end
+
+      def environment=(env_or_hash)
+        if Hash === env_or_hash
+          super Environment.from_hash(api, env_or_hash)
+        else
+          super
+        end
+      end
+
+      def app_name
+        app.name
+      end
+
+      def environment_name
+        environment.name
+      end
+
+      def account_name
+        app.account_name
+      end
+
+      def repository_uri
+        app.repository_uri
+      end
+
+      # hack for legacy api.
+      def extract_deploy_config(deploy_config)
+        if deploy_config
+          self.migration_command = deploy_config['migrate']['command']
+          self.perform_migration = deploy_config['migrate']['perform']
         end
       end
 

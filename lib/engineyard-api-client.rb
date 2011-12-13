@@ -12,6 +12,7 @@ require 'engineyard-api-client/version'
 require 'engineyard-api-client/errors'
 require 'json'
 require 'engineyard/eyrc'
+require 'pp'
 
 module EY
   class APIClient
@@ -57,32 +58,31 @@ module EY
       }).environment
     end
 
-    def fetch_app_and_environment(app_name, environment_name, account_name, repo)
+    def fetch_app_environment(app_name, environment_name, account_name, repo)
       Resolver.new(self, {
         :app_name         => app_name,
         :environment_name => environment_name,
         :account_name     => account_name,
         :repo             => repo,
-      }).app_and_environment
+      }).app_environment
+    end
+
+    def environments
+      @environments ||= EY::APIClient::Environment.from_array(self, request('/environments')["environments"])
+    end
+
+    def apps
+      @apps ||= EY::APIClient::App.from_array(self, request('/apps')["apps"])
     end
 
     # TODO: unhaxor
     # This should load an api endpoint that deals directly in app_deployments
-    def fetch_app_environment(app_name, environment_name, account_name, repo)
-      app, env = fetch_app_and_environment(app_name, environment_name, account_name, repo)
-      env.app_environment_for(app)
-    end
-
-    def environments
-      @environments ||= EY::APIClient::Environment.from_array(request('/environments')["environments"], :api => self)
-    end
-
-    def apps
-      @apps ||= EY::APIClient::App.from_array(request('/apps')["apps"], :api => self)
+    def app_environments
+      @app_environments ||= apps.map { |app| app.app_environments }.flatten
     end
 
     def current_user
-      EY::APIClient::User.from_hash(request('/current_user')['user'])
+      EY::APIClient::User.from_hash(self, request('/current_user')['user'])
     end
 
     class InvalidCredentials < EY::APIClient::Error; end
@@ -125,7 +125,7 @@ module EY
       elsif resp.headers[:content_type] =~ /application\/json/
         begin
           data = JSON.parse(resp.body)
-          EY.ui.debug("Response", data)
+          EY.ui.debug("Response", "\n" + data.pretty_inspect)
         rescue JSON::ParserError
           EY.ui.debug("Raw response", resp.body)
           raise RequestFailed, "Response was not valid JSON."

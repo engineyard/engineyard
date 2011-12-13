@@ -28,17 +28,15 @@ RSpec::Matchers.define :have_app_code do
 end
 
 RSpec::Matchers.define :resolve_to do |expected|
-  match do |pair|
-    app, env = *pair
-    app.name == expected[:app_name] && env.name == expected[:environment_name]
+  match do |app_env|
+    app_env.should == expected
   end
 
-  failure_message_for_should do |pair|
-    app, env = *pair
-    "Expected: #{expected[:app_name]}, #{expected[:environment_name]}; Got: #{app.name}, #{env.name}"
+  failure_message_for_should do |app_env|
+    "Expected: #{expected.app_name}, #{expected.environment_name}; Got: #{app_env.app_name}, #{app_env.environment_name}"
   end
 
   failure_message_for_should_not do |pair|
-    "Expected to not match: #{expected[:app_name]}, #{expected[:environment_name]}"
+    "Expected to not match: #{expected.app_name}, #{expected.environment_name}"
   end
 end
