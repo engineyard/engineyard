@@ -67,7 +67,7 @@ describe "EY::APIClient::Environment#instances" do
     )
 
     env.should have(1).instances
-    env.instances.first.should == EY::APIClient::Instance.from_hash(ey_api, instance_data.merge(:environment => env))
+    env.instances.first.should == EY::APIClient::Instance.from_hash(ey_api, instance_data.merge('environment' => env))
   end
 end
 
@@ -119,8 +119,8 @@ end
 
 describe "EY::APIClient::Environment#shorten_name_for(app)" do
   def short(environment_name, app_name)
-    env = EY::APIClient::Environment.from_hash(ey_api, {:name => environment_name})
-    app = EY::APIClient::App.from_hash(ey_api, {:name => app_name})
+    env = EY::APIClient::Environment.from_hash(ey_api, {'name' => environment_name})
+    app = EY::APIClient::App.from_hash(ey_api, {'name' => app_name})
     env.shorten_name_for(app)
   end
 

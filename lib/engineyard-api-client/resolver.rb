@@ -108,8 +108,20 @@ module EY
         constraints[:repo]
       end
 
+      # Ruby 1.8.7 has problems turning AppEnvironment models into hash keys
+      # for intersect(&).
+      # Ruby 1.9.x does fine, but we have to fall back to a rather primitive
+      # way to intersect these arrays by only intersecting the object_ids and
+      # then loading them from the array again. :(
       def candidates
-        @candidates ||= app_candidates & environment_candidates & account_candidates
+        @candidates ||=
+          begin
+            oid = lambda {|ae| ae.object_id }
+            candidate_oids = app_candidates.map(&oid) &
+                             environment_candidates.map(&oid) &
+                             account_candidates.map(&oid)
+            all.select { |app_env| candidate_oids.include?(app_env.object_id) }
+          end
       end
 
       def app_candidates
