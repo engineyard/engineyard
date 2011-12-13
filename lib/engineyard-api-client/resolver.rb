@@ -18,7 +18,7 @@ module EY
           raise ArgumentError, "Unexpected option :app_name for Resolver#environment."
         end
 
-        account_and_environment_names = candidates.map { |can| [can[:account_name], can[:environment_name]] }.uniq
+        account_and_environment_names = candidates.map { |app_env| [app_env.account_name, app_env.environment_name] }.uniq
 
         environments = account_and_environment_names.map do |account_name, environment_name|
           api.environments.named(environment_name, account_name)
@@ -51,16 +51,11 @@ module EY
         end
       end
 
-      def app_and_environment
+      def app_environment
         case candidates.size
         when 0 then raise no_app_environments_error
-        when 1 then
-          result = candidates.first
-          app = api.apps.named(result[:app_name], result[:account_name])
-          env = api.environments.named(result[:environment_name], result[:account_name])
-          [app, env]
-        else
-          raise too_many_app_environments_error
+        when 1 then candidates.first
+        else        raise too_many_app_environments_error
         end
       end
 
@@ -78,7 +73,7 @@ module EY
         else
           message = "The matched apps & environments do not correspond with each other.\n"
           message << "Applications:\n"
-          app_candidates.map{|ad| [ad[:account_name], ad[:app_name]]}.uniq.each do |account_name, app_name|
+          app_candidates.map{|app_env| [app_env.account_name, app_env.app_name]}.uniq.each do |account_name, app_name|
             app = api.apps.named(app_name, account_name)
             message << "\t#{app.name}\n"
             app.environments.each do |env|
@@ -91,9 +86,16 @@ module EY
 
       def too_many_app_environments_error
         message = "Multiple app deployments possible, please be more specific:\n\n"
-        candidates.map{|c| [c[:account_name], c[:app_name]]}.uniq.each do |account_name, app_name|
+        candidates.map do |app_env|
+          [app_env.account_name, app_env.app_name]
+        end.uniq.each do |account_name, app_name|
           message << "#{app_name}\n"
-          candidates.select {|c| c[:app_name] == app_name && c[:account_name] == account_name}.map{|c| c[:environment_name]}.uniq.each do |env_name|
+
+          candidates.select do |app_env|
+            app_env.app_name == app_name && app_env.account_name == account_name
+          end.map do |app_env|
+            app_env.environment_name
+          end.uniq.each do |env_name|
             message << "\t#{env_name.ljust(25)} # ey <command> --environment='#{env_name}' --app='#{app_name}' --account='#{account_name}'\n"
           end
         end
@@ -123,22 +125,13 @@ module EY
       end
 
       def app_environments
-        @app_environments ||= api.apps.map do |app|
-          app.environments.map do |environment|
-            {
-              :app_name => app.name.downcase,
-              :repository_uri => app.repository_uri,
-              :environment_name => environment.name.downcase,
-              :account_name => app.account.name.downcase,
-            }
-          end
-        end.flatten
+        @app_environments ||= api.app_environments
       end
 
       # find by repository uri
       # if none match, return nil
       def filter_by_repo
-        filter {|ae| repo && repo.has_remote?(ae[:repository_uri]) }
+        filter {|app_env| repo && repo.has_remote?(app_env.repository_uri) }
       end
 
       # If the constraint is set, the only return matches
@@ -149,8 +142,8 @@ module EY
 
         match = constraints[key].downcase
 
-        exact_match   = lambda {|ae| ae[key] == match }
-        partial_match = lambda {|ae| ae[key].index(match) }
+        exact_match   = lambda {|app_env| app_env.send(key) == match }
+        partial_match = lambda {|app_env| app_env.send(key).index(match) }
 
         filter(&exact_match) || filter(&partial_match) || []
       end

@@ -22,7 +22,7 @@ module EY
 
       def deploy(app, ref, migration_command=nil, extra_configuration=nil, verbose=false)
         successful, output = false, "Deploy initiated.\n"
-        deployment = Deployment.started(environment, app, ref, migration_command)
+        deployment = Deployment.started(api, environment, app, ref, migration_command)
 
         deploy_command = adapter(app, verbose).deploy do |args|
           args.config  = extra_configuration if extra_configuration

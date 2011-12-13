@@ -7,27 +7,25 @@ module EY
         "/apps/#{app_id}/environments/#{environment_id}/deployments"
       end
 
-      def self.last(app, environment, api)
-        get(app, environment, 'last', api)
+      def self.last(api, app, environment)
+        get(api, app, environment, 'last')
       end
 
-      def self.get(app, environment, id, api)
+      def self.get(api, app, environment, id)
         response = api.request(api_root(app.id, environment.id) + "/#{id}", :method => :get)
-        load_from_response app, environment, response
+        load_from_response api, app, environment, response
       rescue EY::APIClient::ResourceNotFound
         nil
       end
 
-      def self.load_from_response(app, environment, response)
-        dep = new
-        dep.app = app
-        dep.environment = environment
+      def self.load_from_response(api, app, environment, response)
+        dep = from_hash(api, {:app => app, :environment => environment})
         dep.update_with_response(response)
         dep
       end
 
-      def self.started(environment, app, ref, migrate_command)
-        deployment = from_hash({
+      def self.started(api, environment, app, ref, migrate_command)
+        deployment = from_hash(api, {
           :app             => app,
           :environment     => environment,
           :migrate_command => migrate_command,
@@ -80,10 +78,6 @@ module EY
 
       def member_uri(path = nil)
         collection_uri + "/#{id}#{path}"
-      end
-
-      def api
-        app.api
       end
     end
   end

@@ -4,26 +4,49 @@ module EY
   class APIClient
     class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances, :instances_count,
                                       :apps, :app_master, :username, :app_server_stack_name, :deployment_configurations,
-                                      :load_balancer_ip_address, :api)
+                                      :load_balancer_ip_address)
 
       attr_accessor :ignore_bad_master
 
-      def self.from_hash(hash)
-        super.tap do |env|
-          env.username = hash['ssh_username']
-          env.apps = App.from_array(env.apps, :api => env.api)
-          env.account = Account.from_hash(env.account)
-          env.instances = Instance.from_array(hash['instances'], :environment => env)
-          env.app_master = Instance.from_hash(env.app_master.merge(:environment => env)) if env.app_master
-        end
+      def initialize(api, attrs)
+        super
+        self.instances = Instance.from_array(api, attrs['instances'] || attrs[:instances], :environment => self)
       end
 
       def self.from_array(*)
         Collections::Environments.new(super)
       end
 
+      def apps=(collection_or_hashes)
+        if Collections::Apps === collection_or_hashes
+          super
+        else
+          super App.from_array(api, collection_or_hashes)
+        end
+      end
+
+      def account=(account)
+        super Account.from_hash(api, account)
+      end
+
+      def account_name
+        account && account.name
+      end
+
+      def app_master=(hash_or_app_master)
+        if Hash === hash_or_app_master
+          super Instance.from_hash(api, hash_or_app_master.merge(:environment => self))
+        else
+          super
+        end
+      end
+
+      def ssh_username=(user)
+        self.username = user
+      end
+
       def logs
-        Log.from_array(api.request("/environments/#{id}/logs", :method => :get)["logs"])
+        Log.from_array(api, api.request("/environments/#{id}/logs", :method => :get)["logs"])
       end
 
       def app_master!
@@ -39,18 +62,7 @@ module EY
       alias bridge! app_master!
 
       def app_environment_for(app)
-        deploy_config     = deployment_configurations[app.name]
-
-        migration_command = deploy_config && deploy_config['migrate']['command']
-        perform_migration = deploy_config && deploy_config['migrate']['perform']
-
-        AppEnvironment.from_hash({
-          :app => app,
-          :environment => self,
-          :perform_migration => perform_migration,
-          :migration_command => migration_command,
-          :api => api,
-        })
+        api.app_environments.detect { |app_env| app_env.environment == self && app_env.app == app }
       end
 
       def rebuild
