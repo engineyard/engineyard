@@ -4,10 +4,16 @@ module EY
   module UtilityMethods
     protected
     def api
-      @api ||= begin
-                 EY::APIClient.endpoint = EY.config.endpoint
-                 EY::CLI::API.new
-               end
+      @api ||= load_api
+    end
+
+    def load_api
+      api = EY::CLI::API.new(EY.config.endpoint)
+      api.current_user # check login and access to the api
+      api
+    rescue EY::APIClient::InvalidCredentials
+      EY::CLI::API.authenticate
+      retry
     end
 
     def repo
