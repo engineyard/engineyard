@@ -11,7 +11,6 @@ require 'engineyard-api-client/resolver'
 require 'engineyard-api-client/version'
 require 'engineyard-api-client/errors'
 require 'json'
-require 'engineyard/eyrc'
 require 'pp'
 
 module EY
@@ -37,10 +36,15 @@ module EY
     end
     default_endpoint!
 
-    def initialize(token = nil)
-      @token = token
-      @token ||= EY::EYRC.load.api_token
-      raise ArgumentError, "EY Cloud API token required" unless @token
+    def initialize(token)
+      self.token = token
+    end
+
+    def token=(new_token)
+      unless new_token
+        raise ArgumentError, "EY Cloud API token required"
+      end
+      @token = new_token
     end
 
     def request(url, opts={})
@@ -84,10 +88,6 @@ module EY
     def current_user
       EY::APIClient::User.from_hash(self, request('/current_user')['user'])
     end
-
-    class InvalidCredentials < EY::APIClient::Error; end
-    class RequestFailed < EY::APIClient::Error; end
-    class ResourceNotFound < RequestFailed; end
 
     def self.request(path, opts={})
       url = self.endpoint + "api/v2#{path}"
@@ -138,10 +138,7 @@ module EY
     end
 
     def self.authenticate(email, password)
-      api_token = request("/authenticate", :method => "post",
-        :params => { :email => email, :password => password })["api_token"]
-      EY::EYRC.load.api_token = api_token
-      api_token
+      request("/authenticate", :method => "post", :params => { :email => email, :password => password })["api_token"]
     end
 
   end # API
