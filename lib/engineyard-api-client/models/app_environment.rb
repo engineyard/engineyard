@@ -62,19 +62,28 @@ module EY
       end
 
       def last_deployment
-        Deployment.last(app, environment, api)
+        Deployment.last(api, self)
       end
 
       def deploy(ref, deploy_options={})
-        environment.bridge!.deploy(app,
-          ref,
-          determine_migration_command(deploy_options),
+        migration_command = determine_migration_command(deploy_options)
+        deployment = Deployment.started(api, self, ref, migration_command)
+
+        environment.bridge!.deploy(
+          deployment,
           config.merge(deploy_options['extras']),
-          deploy_options['verbose'])
+          deploy_options['verbose']
+        )
+      ensure
+        if deployment
+          deployment.finished
+          EY.ui.info "#{deployment.successful? ? 'Successful' : 'Failed'} deployment recorded on EY Cloud"
+        end
       end
 
       def rollback(extra_deploy_hook_options={}, verbose=false)
-        environment.bridge!.rollback(app,
+        environment.bridge!.rollback(
+          self,
           config.merge(extra_deploy_hook_options),
           verbose)
       end
@@ -138,8 +147,8 @@ module EY
 
       private
 
-      def no_migrate?(hash)
-        hash.key?('migrate') && hash['migrate'] == false
+      def no_migrate?(deploy_options)
+        deploy_options.key?('migrate') && deploy_options['migrate'] == false
       end
 
       def migration_command_from_config

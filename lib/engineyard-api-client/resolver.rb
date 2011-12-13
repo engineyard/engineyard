@@ -31,6 +31,16 @@ module EY
         end
       end
 
+      def app_environment
+        case candidates.size
+        when 0 then raise no_app_environments_error
+        when 1 then candidates.first
+        else        raise too_many_app_environments_error
+        end
+      end
+
+      private
+
       def no_environments_error
         if constraints[:environment_name]
           EY::APIClient::NoEnvironmentError.new(constraints[:environment_name], EY::APIClient.endpoint)
@@ -48,14 +58,6 @@ module EY
           EY::APIClient::MultipleMatchesError.new(message)
         else
           EY::APIClient::AmbiguousEnvironmentGitUriError.new(environments)
-        end
-      end
-
-      def app_environment
-        case candidates.size
-        when 0 then raise no_app_environments_error
-        when 1 then candidates.first
-        else        raise too_many_app_environments_error
         end
       end
 
@@ -102,8 +104,6 @@ module EY
         EY::APIClient::MultipleMatchesError.new(message)
       end
 
-      private
-
       def repo
         constraints[:repo]
       end
@@ -113,19 +113,19 @@ module EY
       end
 
       def app_candidates
-        @app_candidates ||= filter_if_constrained(:app_name) || filter_by_repo || app_environments
+        @app_candidates ||= filter_if_constrained(:app_name) || filter_by_repo || all
       end
 
       def environment_candidates
-        @environment_candidates ||= filter_if_constrained(:environment_name) || app_environments
+        @environment_candidates ||= filter_if_constrained(:environment_name) || all
       end
 
       def account_candidates
-        @account_candidates ||= filter_if_constrained(:account_name) || app_environments
+        @account_candidates ||= filter_if_constrained(:account_name) || all
       end
 
-      def app_environments
-        @app_environments ||= api.app_environments
+      def all
+        @all ||= api.app_environments
       end
 
       # find by repository uri
@@ -151,7 +151,7 @@ module EY
       # returns nil if no matches
       # returns an array of matches if any match
       def filter(&block)
-        matches = app_environments.select(&block)
+        matches = all.select(&block)
         matches.empty? ? nil : matches
       end
     end

@@ -20,34 +20,29 @@ module EY
       end
       private :adapter
 
-      def deploy(app, ref, migration_command=nil, extra_configuration=nil, verbose=false)
-        successful, output = false, "Deploy initiated.\n"
-        deployment = Deployment.started(api, environment, app, ref, migration_command)
+      def deploy(deployment, extra_configuration=nil, verbose=false)
+        successful = false
+        deployment.append_output "Deploy initiated.\n"
 
-        deploy_command = adapter(app, verbose).deploy do |args|
+        deploy_command = adapter(deployment.app, verbose).deploy do |args|
           args.config  = extra_configuration if extra_configuration
-          args.migrate = migration_command if migration_command
+          args.migrate = deployment.migration_command if deployment.migrate
           args.ref     = deployment.resolved_ref
         end
 
-        successful = invoke(deploy_command) { |chunk| output << chunk }
+        deployment.successful = invoke(deploy_command) { |chunk| deployment.append_output chunk }
       rescue Interrupt
         EY.ui.info "Interrupted. Exiting..."
-        output << "Interrupted.\n"
+        deployment.append_output "Interrupted.\n"
         raise
       rescue StandardError => e
         EY.ui.info "Error encountered during deploy."
-        output <<  "Error encountered during deploy.\n#{e.class} #{e}\n"
+        deployment.append_output "Error encountered during deploy.\n#{e.class} #{e}\n"
         raise
-      ensure
-        if deployment
-          deployment.finished(successful, output)
-          EY.ui.info "#{successful ? 'Successful' : 'Failed'} deployment recorded in EY Cloud"
-        end
       end
 
-      def rollback(app, extra_configuration=nil, verbose=false)
-        rollback = adapter(app, verbose).rollback do |args|
+      def rollback(app_environment, extra_configuration=nil, verbose=false)
+        rollback = adapter(app_environment.app, verbose).rollback do |args|
           args.config = extra_configuration if extra_configuration
         end
         invoke rollback

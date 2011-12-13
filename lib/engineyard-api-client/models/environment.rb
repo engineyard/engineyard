@@ -133,8 +133,8 @@ module EY
 
       private
 
-      def no_migrate?(hash)
-        hash.key?('migrate') && hash['migrate'] == false
+      def no_migrate?(deploy_options)
+        deploy_options.key?('migrate') && deploy_options['migrate'] == false
       end
     end
   end
