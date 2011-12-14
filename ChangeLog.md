@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v1.4.14 (2011-12-13)
+
   * Put more information in the deploy logs so failing deploys show something.
   * Expose deployed\_by user name in deploy hooks.
   * Handle not found when accessing deployment api before deploying.
