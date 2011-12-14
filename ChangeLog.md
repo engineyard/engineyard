@@ -2,7 +2,7 @@
 
 ## NEXT
 
-  *
+  * Use -R [REF] or --force-ref [REF] to override the default branch. Specifying --ignore-default-branch, --force-ref or -R without arguments still works like before.
 
 ## v1.4.14 (2011-12-13)
 

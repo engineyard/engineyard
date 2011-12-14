@@ -115,11 +115,19 @@ module EY
         })
       end
 
-      def resolve_branch(branch, allow_non_default_branch=false)
-        if !allow_non_default_branch && branch && default_branch && (branch != default_branch)
-          raise BranchMismatchError.new(default_branch, branch)
+      # If force_ref is a string, use it as the ref, otherwise use it as a boolean.
+      def resolve_branch(ref, force_ref=false)
+        if String === force_ref
+          ref, force_ref = force_ref, true
         end
-        branch || default_branch
+
+        if !ref
+          default_branch
+        elsif force_ref || !default_branch || ref == default_branch
+          ref
+        else
+          raise BranchMismatchError.new(default_branch, ref)
+        end
       end
 
       def configuration

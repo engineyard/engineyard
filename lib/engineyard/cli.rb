@@ -30,8 +30,9 @@ module EY
       command can be specified via --migrate "ruby do_migrations.rb". Migrations
       can also be skipped entirely by using --no-migrate.
     DESC
-    method_option :ignore_default_branch, :type => :boolean,
-      :desc => "Force a deploy of the specified branch even if a default is set"
+    method_option :force_ref, :type => :string, :aliases => %w(--ignore-default-branch -R),
+      :lazy_default => true,
+      :desc => "Force a deploy of the specified git ref even if a default is set in ey.yml."
     method_option :ignore_bad_master, :type => :boolean,
       :desc => "Force a deploy even if the master is in a bad state"
     method_option :migrate, :type => :string, :aliases => %w(-m),
@@ -40,7 +41,7 @@ module EY
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment in which to deploy this application"
     method_option :ref, :type => :string, :aliases => %w(-r --branch --tag),
-      :desc => "Git ref to deploy. May be a branch, a tag, or a SHA."
+      :desc => "Git ref to deploy. May be a branch, a tag, or a SHA. Use -R to deploy a different ref if a default is set."
     method_option :app, :type => :string, :aliases => %w(-a),
       :desc => "Name of the application to deploy"
     method_option :account, :type => :string, :aliases => %w(-c),
@@ -55,10 +56,10 @@ module EY
       app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
       environment.ignore_bad_master = options[:ignore_bad_master]
       deploy_ref  = if options[:app]
-                      environment.resolve_branch(options[:ref], options[:ignore_default_branch]) ||
+                      environment.resolve_branch(options[:ref], options[:force_ref]) ||
                         raise(EY::Error, "When specifying the application, you must also specify the ref to deploy\nUsage: ey deploy --app <app name> --ref <branch|tag|ref>")
                     else
-                      environment.resolve_branch(options[:ref], options[:ignore_default_branch]) ||
+                      environment.resolve_branch(options[:ref], options[:force_ref]) ||
                         repo.current_branch ||
                         raise(DeployArgumentError)
                     end
@@ -342,7 +343,7 @@ module EY
 
     desc "launch [--environment ENVIRONMENT] [--account ACCOUNT]", "Open application in browser."
     method_option :environment, :type => :string, :aliases => %w(-e),
-      :desc => "Environment with the interesting logs"
+      :desc => "Name of the environment"
     method_option :account, :type => :string, :aliases => %w(-c),
       :desc => "Name of the account in which the environment can be found"
     def launch

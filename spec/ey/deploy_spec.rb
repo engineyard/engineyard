@@ -264,13 +264,18 @@ describe "ey deploy" do
         @ssh_commands.last.should =~ /--ref resolved-master/
       end
 
-      it "complains about a non-default branch without --ignore-default_branch" do
+      it "complains about a non-default branch without --ignore-default-branch" do
         fast_failing_ey %w[deploy -r current-branch]
         @err.should =~ /deploy branch is set to "master"/
       end
 
       it "deploys a non-default branch with --ignore-default-branch" do
         fast_ey %w[deploy -r current-branch --ignore-default-branch]
+        @ssh_commands.last.should =~ /--ref resolved-current-branch/
+      end
+
+      it "deploys a non-default branch with --R ref" do
+        fast_ey %w[deploy -R current-branch]
         @ssh_commands.last.should =~ /--ref resolved-current-branch/
       end
     end
