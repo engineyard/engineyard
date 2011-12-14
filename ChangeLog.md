@@ -2,7 +2,9 @@
 
 ## NEXT
 
-  *
+  * Put more information in the deploy logs so failing deploys show something.
+  * Expose deployed\_by user name in deploy hooks.
+  * Handle not found when accessing deployment api before deploying.
 
 ## v1.4.13 (2011-12-07)
 
@@ -11,7 +13,7 @@
 ## v1.4.12 (2011-12-07)
 
   * Print more informative messages on deploy.
-  * Include new version of deploy system that fixes a bug with GIT_SSH not being set for some instances.
+  * Include new version of deploy system that fixes a bug with GIT\_SSH not being set for some instances.
 
 ## v1.4.11 (2011-11-29)
 
@@ -31,12 +33,12 @@
   * [refactor] More require, less autoload
   * [refactor] Clean up the way we read and write the .eyrc file.
   * [internal] Specs no longer depend on FakeFS.
-  * [internal] Remove unused 'custom endpoint' complexity. $CLOUD_URL can still be set to override the api endpoint.
+  * [internal] Remove unused 'custom endpoint' complexity. $CLOUD\_URL can still be set to override the api endpoint.
 
 ## v1.4.7 (2011-11-16)
 
   * Exit from ey ssh with the exit status of the ssh command. If running on multiple instances, exits with the status of the first failure, or 0 if all instances succeed.
-  * Set LANG to 'en_US.UTF-8' while installing gems to avoid failures on 1.9.x
+  * Set LANG to 'en\_US.UTF-8' while installing gems to avoid failures on 1.9.x
 
 ## v1.4.6 (2011-11-10)
 
