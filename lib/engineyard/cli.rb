@@ -125,7 +125,7 @@ module EY
         apps = api.apps_for_repo(repo)
 
         if apps.size > 1
-          message = "This git repo matches multiple Applications in AppCloud:\n"
+          message = "This git repo matches multiple Applications in EY Cloud:\n"
           apps.each { |app| message << "\t#{app.name}\n" }
           message << "The following environments contain those applications:\n\n"
           EY.ui.warn(message)

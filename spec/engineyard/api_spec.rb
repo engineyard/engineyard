@@ -34,6 +34,6 @@ describe EY::API do
 
     lambda {
       EY::API.fetch_token("a@b.com", "foo")
-    }.should raise_error(EY::API::RequestFailed, /AppCloud API is temporarily unavailable/)
+    }.should raise_error(EY::API::RequestFailed, /API is temporarily unavailable/)
   end
 end

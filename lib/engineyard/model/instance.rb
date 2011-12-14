@@ -41,7 +41,7 @@ module EY
       ensure
         if deployment
           deployment.finished(successful, output)
-          EY.ui.info "#{successful ? 'Successful' : 'Failed'} deployment recorded in AppCloud"
+          EY.ui.info "#{successful ? 'Successful' : 'Failed'} deployment recorded in EY Cloud"
         end
       end
 
