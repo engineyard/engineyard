@@ -20,7 +20,7 @@ module EY
       private :adapter
 
       def deploy(app, ref, migration_command=nil, extra_configuration=nil, verbose=false)
-        successful, output = false, ""
+        successful, output = false, "Deploy initiated.\n"
         deployment = Deployment.started(environment, app, ref, migration_command)
 
         deploy_command = adapter(app, verbose).deploy do |args|
@@ -30,6 +30,14 @@ module EY
         end
 
         successful = invoke(deploy_command) { |chunk| output << chunk }
+      rescue Interrupt
+        EY.ui.info "Interrupted. Exiting..."
+        output << "Interrupted.\n"
+        raise
+      rescue StandardError => e
+        EY.ui.info "Error encountered during deploy."
+        output <<  "Error encountered during deploy.\n#{e.class} #{e}\n"
+        raise
       ensure
         if deployment
           deployment.finished(successful, output)
@@ -80,7 +88,8 @@ module EY
         exit_code = nil
         cmd = Escape.shell_command(['bash', '-lc', remote_command])
         EY.ui.debug(cmd)
-        puts cmd if verbose
+        block.call("Triggering deploy on #{environment.username}@#{hostname}.\n")
+        block.call(cmd) if verbose
         if ENV["NO_SSH"]
           block.call("NO_SSH is set. No output.")
           true
