@@ -7,6 +7,9 @@ module EY
 
       def initialize(token = nil)
         @token = token
+        if ENV['ENGINEYARD_API_TOKEN']
+          @token = ENV['ENGINEYARD_API_TOKEN']
+        end
         @token ||= EY::EYRC.load.api_token
         @token ||= self.class.fetch_token
         raise EY::Error, "Sorry, we couldn't get your API token." unless @token

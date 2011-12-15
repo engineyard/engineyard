@@ -15,6 +15,12 @@ describe EY::CLI::API do
     EY::CLI::API.new.should == EY::CLI::API.new("asdf")
   end
 
+  it "uses the token from $ENGINEYARD_API_TOKEN if set" do
+    ENV['ENGINEYARD_API_TOKEN'] = 'envtoken'
+    EY::CLI::API.new.token.should == 'envtoken'
+    ENV.delete('ENGINEYARD_API_TOKEN')
+  end
+
   context "without saved api token" do
     before(:each) do
       FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
