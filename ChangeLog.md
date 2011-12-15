@@ -2,6 +2,8 @@
 
 ## NEXT
 
+  * Add support for $ENGINEYARD\_API\_TOKEN on the command line to override token fetching.
+  * Fix lingering AppCloud mentions.
   * Use -R [REF] or --force-ref [REF] to override the default branch. Specifying --ignore-default-branch, --force-ref or -R without arguments still works like before.
 
 ## v1.4.14 (2011-12-13)
