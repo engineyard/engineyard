@@ -2,7 +2,7 @@ require 'escape'
 
 module EY
   class APIClient
-    class Deployment < ApiStruct.new(:id, :app_environment, :created_at, :commit, :finished_at, :migrate_command, :output, :ref, :resolved_ref, :successful, :user_name)
+    class Deployment < ApiStruct.new(:id, :app_environment, :created_at, :commit, :finished_at, :migrate_command, :output, :ref, :resolved_ref, :successful, :user_name, :extra_config, :verbose)
       def self.api_root(app_id, environment_id)
         "/apps/#{app_id}/environments/#{environment_id}/deployments"
       end
@@ -25,16 +25,6 @@ module EY
         dep
       end
 
-      def self.started(api, app_environment, ref, migrate_command)
-        deployment = from_hash(api, {
-          :app_environment => app_environment,
-          :migrate_command => migrate_command,
-          :ref             => ref,
-        })
-        deployment.start
-        deployment
-      end
-
       def app
         app_environment.app
       end
@@ -46,11 +36,26 @@ module EY
       def migrate
         !!migrate_command
       end
-
-      alias_method :migration_command, :migrate_command
-      alias_method :migration_command=, :migrate_command=
+      alias migrate? migrate
+      alias migration_command migrate_command
+      alias migration_command= migrate_command=
 
       alias successful? successful
+
+      def deploy
+        start
+        environment.bridge!.deploy(self, verbose)
+      ensure
+        finished
+        EY.ui.info "#{successful? ? 'Successful' : 'Failed'} deployment recorded on EY Cloud"
+      end
+
+      alias deployed_by user_name
+      alias deployed_by= user_name=
+
+      def config
+        @config ||= {'deployed_by' => deployed_by}.merge(extra_config)
+      end
 
       def start
         post_to_api({
@@ -68,6 +73,10 @@ module EY
 
       def finished
         put_to_api({:successful => successful, :output => output})
+      end
+
+      def finished?
+        !finished_at.nil?
       end
 
       def update_with_response(response)

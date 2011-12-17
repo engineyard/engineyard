@@ -107,12 +107,5 @@ You can add this application at #{endpoint}
         super "Environment '#{env_name}' exists but does not run this application."
       end
     end
-
-    class BranchMismatchError < Error
-      def initialize(default_branch, branch)
-        super(%|Your deploy branch is set to "#{default_branch}".\n| +
-          %|If you want to deploy branch "#{branch}", use --ignore-default-branch.|)
-      end
-    end
   end
 end

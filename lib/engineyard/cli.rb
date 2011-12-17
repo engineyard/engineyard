@@ -1,6 +1,7 @@
 require 'engineyard'
 require 'engineyard/error'
 require 'engineyard/thor'
+require 'engineyard/deploy_config'
 
 module EY
   class CLI < EY::Thor
@@ -23,25 +24,25 @@ module EY
       This command must be run with the current directory containing the app to be
       deployed. If ey.yml specifies a default branch then the ref parameter can be
       omitted. Furthermore, if a default branch is specified but a different command
-      is supplied the deploy will fail unless --ignore-default-branch is used.
+      is supplied the deploy will fail unless -R or --force-ref is used.
 
-      Migrations are run based on the 'Migrate?' setting you define in your dashboard
-      for the application. If you want to override these settings, a different
-      command can be specified via --migrate "ruby do_migrations.rb". Migrations
-      can also be skipped entirely by using --no-migrate.
+      Migrations are run based on the settings in your ey.yml file.
+      With each deploy the default migration setting can be overriden by
+      specifying --migrate or --migrate 'rake db:migrate'.
+      Migrations can also be skipped by using --no-migrate.
     DESC
-    method_option :force_ref, :type => :string, :aliases => %w(--ignore-default-branch -R),
-      :lazy_default => true,
-      :desc => "Force a deploy of the specified git ref even if a default is set in ey.yml."
     method_option :ignore_bad_master, :type => :boolean,
       :desc => "Force a deploy even if the master is in a bad state"
     method_option :migrate, :type => :string, :aliases => %w(-m),
       :lazy_default => true,
-      :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations"
+      :desc => "Run migrations via [MIGRATE], defaults to '#{EY::DeployConfig::Migrate::DEFAULT}'; use --no-migrate to avoid running migrations"
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment in which to deploy this application"
     method_option :ref, :type => :string, :aliases => %w(-r --branch --tag),
       :desc => "Git ref to deploy. May be a branch, a tag, or a SHA. Use -R to deploy a different ref if a default is set."
+    method_option :force_ref, :type => :string, :aliases => %w(--ignore-default-branch -R),
+      :lazy_default => true,
+      :desc => "Force a deploy of the specified git ref even if a default is set in ey.yml."
     method_option :app, :type => :string, :aliases => %w(-a),
       :desc => "Name of the application to deploy"
     method_option :account, :type => :string, :aliases => %w(-c),
@@ -55,25 +56,23 @@ module EY
 
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       app_env.environment.ignore_bad_master = options[:ignore_bad_master]
-      deploy_ref  = if options[:app]
-                      app_env.resolve_branch(options[:ref], options[:force_ref]) ||
-                        raise(EY::Error, "When specifying the application, you must also specify the ref to deploy\nUsage: ey deploy --app <app name> --ref <branch|tag|ref>")
-                    else
-                      app_env.resolve_branch(options[:ref], options[:force_ref]) ||
-                        repo.current_branch ||
-                        raise(DeployArgumentError)
-                    end
 
-      EY.ui.info "Beginning deploy of ref '#{deploy_ref}' for '#{app_env.app.name}' in '#{app_env.environment.name}' on server..."
+      env_config    = EY.config.environment_config(app_env.environment_name)
+      deploy_config = EY::DeployConfig.new(options, env_config, repo, EY.ui)
 
-      deploy_options = {'extras' => {'deployed_by' => api.current_user.name}.merge(options[:extra_deploy_hook_options])}
-      if options.has_key?('migrate') # thor set migrate => nil when --no-migrate
-        deploy_options['migrate'] = options['migrate'].respond_to?(:to_str) ? options['migrate'] : !!options['migrate']
-      end
-      deploy_options['verbose'] = options['verbose'] if options.has_key?('verbose')
+      deployment = app_env.new_deployment({
+        :ref             => deploy_config.ref,
+        :migrate         => deploy_config.migrate,
+        :migrate_command => deploy_config.migrate_command,
+        :extra_config    => deploy_config.extra_config,
+        :verbose         => deploy_config.verbose,
+      })
 
+      EY.ui.info  "Beginning deploy..."
+      deployment.start
+      EY.ui.show_deployment(deployment)
 
-      if app_env.deploy(deploy_ref, deploy_options)
+      if deployment.deploy
         EY.ui.info "Deploy complete"
         EY.ui.info "Now you can run `ey launch' to open the application in a browser."
       else
@@ -101,7 +100,11 @@ module EY
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       deployment = app_env.last_deployment
       if deployment
+        EY.ui.say "# Status of last deployment of #{app_env.to_hierarchy_str}:"
+        EY.ui.say "#"
         EY.ui.show_deployment(deployment)
+        EY.ui.say "#"
+        EY.ui.deployment_result(deployment)
       else
         raise EY::Error, "Application #{app_env.app.name} has not been deployed on #{app_env.environment.name}."
       end
@@ -180,7 +183,7 @@ module EY
     def rollback
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
 
-      EY.ui.info("Rolling back '#{app_env.app.name}' in '#{app_env.environment.name}'")
+      EY.ui.info("Rolling back #{app_env.to_hierarchy_str}")
       if app_env.rollback(options[:extra_deploy_hook_options], options[:verbose])
         EY.ui.info "Rollback complete"
       else

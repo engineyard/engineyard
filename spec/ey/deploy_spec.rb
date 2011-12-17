@@ -266,7 +266,7 @@ describe "ey deploy" do
 
       it "complains about a non-default branch without --ignore-default-branch" do
         fast_failing_ey %w[deploy -r current-branch]
-        @err.should =~ /deploy branch is set to "master"/
+        @err.should =~ /default branch is set to "master"/
       end
 
       it "deploys a non-default branch with --ignore-default-branch" do
@@ -349,7 +349,7 @@ describe "ey deploy" do
     it "requires that you specify a ref when specifying the application" do
       Dir.chdir(File.expand_path("~")) do
         fast_failing_ey %w[deploy --app rails232app]
-        @err.should match(/you must also specify the ref to deploy/)
+        @err.should match(/you must also specify the --ref/)
       end
     end
   end
