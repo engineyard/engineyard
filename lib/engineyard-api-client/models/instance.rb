@@ -20,12 +20,11 @@ module EY
       end
       private :adapter
 
-      def deploy(deployment, extra_configuration=nil, verbose=false)
-        successful = false
+      def deploy(deployment, verbose=false)
         deployment.append_output "Deploy initiated.\n"
 
         deploy_command = adapter(deployment.app, verbose).deploy do |args|
-          args.config  = extra_configuration if extra_configuration
+          args.config  = deployment.config            if deployment.config
           args.migrate = deployment.migration_command if deployment.migrate
           args.ref     = deployment.resolved_ref
         end

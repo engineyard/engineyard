@@ -39,9 +39,49 @@ module EY
   end
 
   class DeployArgumentError < EY::Error
-    def initialize
-      super(%("deploy" was called incorrectly. Call as "deploy [--environment <env>] [--ref <branch|tag|ref>]"\n) +
-        %|You can set default environments and branches in ey.yml|)
+  end
+
+  class BranchMismatchError < DeployArgumentError
+    def initialize(default, ref)
+      super <<-ERR
+Your default branch is set to #{default.inspect} in ey.yml.
+To deploy #{ref.inspect} you can:
+  * Delete the line 'branch: #{default}' in ey.yml
+OR
+  * Use the -R [REF] or --force-ref [REF] options as follows:
+Usage: ey deploy -R #{ref}
+       ey deploy --force-ref #{ref}
+      ERR
+    end
+  end
+
+  class RefAndMigrateRequiredOutsideRepo < DeployArgumentError
+    def initialize(options)
+      super <<-ERR
+Because defaults are stored in a file in your application, when specifying --app,
+you must also specify the --ref and the --migrate or --no-migrate options.
+Usage: ey deploy --app #{options[:app]} --ref [ref] --migrate [COMMAND]
+       ey deploy --app #{options[:app]} --ref [branch] --no-migrate
+      ERR
+    end
+  end
+
+  class RefRequired < DeployArgumentError
+    def initialize(options)
+      super <<-ERR
+Unable to determine the branch or ref to deploy
+Usage: ey deploy --ref [ref]
+      ERR
+    end
+  end
+
+  class RefRequired < DeployArgumentError
+    def initialize(options)
+      super <<-ERR
+Unable to determine migration choice. ey deploy no longer migrates by default.
+Usage: ey deploy --migrate
+       ey deploy --no-migrate
+      ERR
     end
   end
 end

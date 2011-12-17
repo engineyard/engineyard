@@ -1,29 +1,59 @@
+require 'highline'
+
 module EY
   class CLI
     class UI < Thor::Base.shell
 
       class Prompter
-        class Mock
-          def next_answer=(arg)
-            @answers ||= []
-            @answers << arg
-          end
-          def ask(*args, &block)
-            @questions ||= []
-            @questions << args.first
-            @answers.pop
-          end
-          attr_reader :questions
+        def self.add_answer(arg)
+          @answers ||= []
+          @answers << arg
         end
+
+        def self.questions
+          @questions
+        end
+
         def self.enable_mock!
-          @backend = Mock.new
+          @mock = true
         end
-        def self.backend
-          require 'highline'
-          @backend ||= HighLine.new($stdin)
+
+        def self.highline
+          @highline ||= HighLine.new($stdin)
         end
-        def self.ask(*args, &block)
-          backend.ask(*args, &block)
+
+        def self.interactive?
+          @mock || $stdin.tty?
+        end
+
+        def self.ask(question, password = false, default = nil)
+          if @mock
+            @questions ||= []
+            @questions << question
+            answer = @answers.shift
+            (answer == '' && default) ? default : answer
+          else
+            highline.ask(question) do |q|
+              q.echo = "*"        if password
+              q.default = default if default
+            end
+          end
+        end
+
+        def self.agree(question, default)
+          if @mock
+            @questions ||= []
+            @questions << question
+            answer = @answers.shift
+            answer == '' ? default : %w[y yes].include?(answer)
+          else
+            answer = highline.agree(question) {|q| q.default = default ? 'Y/n' : 'N/y' }
+            case answer
+            when 'Y/n' then true
+            when 'N/y' then false
+            else            answer
+            end
+          end
         end
       end
 
@@ -58,18 +88,18 @@ module EY
         end
       end
 
-      def ask(message, password = false)
-        begin
-          if !$stdin || !$stdin.tty?
-            Prompter.ask(message)
-          elsif password
-            Prompter.ask(message) {|q| q.echo = "*" }
-          else
-            Prompter.ask(message) {|q| q.readline = true }
-          end
-        rescue EOFError
-          return ''
-        end
+      def interactive?
+        Prompter.interactive?
+      end
+
+      def agree(message, default)
+        Prompter.agree(message, default)
+      end
+
+      def ask(message, password = false, default = nil)
+        Prompter.ask(message, password, default)
+      rescue EOFError
+        return ''
       end
 
       def print_envs(apps, default_env_name = nil, simple = false)
@@ -100,27 +130,25 @@ module EY
       end
 
       def show_deployment(dep)
-        puts "# Status of last deployment of #{dep.app.account.name}/#{dep.app.name}/#{dep.environment.name}:"
-        puts "#"
-
         output = []
         output << ["Account",         dep.app.account.name]
         output << ["Application",     dep.app.name]
         output << ["Environment",     dep.environment.name]
         output << ["Input Ref",       dep.ref]
-        output << ["Resolved Ref",    dep.ref]
-        output << ["Commit",          dep.commit || '(Unable to resolve)']
+        output << ["Resolved Ref",    dep.resolved_ref]
+        output << ["Commit",          dep.commit || '(not resolved)']
         output << ["Migrate",         dep.migrate]
         output << ["Migrate command", dep.migrate_command] if dep.migrate
-        output << ["Deployed by",     dep.user_name]
-        output << ["Created at",      dep.created_at]
-        output << ["Finished at",     dep.finished_at]
+        output << ["Deployed by",     dep.deployed_by]
+        output << ["Started at",      dep.created_at] if dep.created_at
+        output << ["Finished at",     dep.finished_at] if dep.finished_at
 
         output.each do |att, val|
-          puts "#\t%-15s %s" % ["#{att}:", val.to_s]
+          puts "#\t%-16s %s" % ["#{att}:", val.to_s]
         end
-        puts "#"
+      end
 
+      def deployment_result(dep)
         if dep.successful?
           info 'This deployment was successful.'
         elsif dep.finished_at.nil?

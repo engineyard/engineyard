@@ -26,14 +26,14 @@ describe EY::CLI::API do
       FakeWeb.register_uri(:post, "http://fake.local/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
 
       EY::CLI::UI::Prompter.enable_mock!
-      EY::CLI::UI::Prompter.backend.next_answer = "my@email.example.com"
-      EY::CLI::UI::Prompter.backend.next_answer = "secret"
+      EY::CLI::UI::Prompter.add_answer "my@email.example.com"
+      EY::CLI::UI::Prompter.add_answer "secret"
 
       @api = EY::CLI::API.new('http://fake.local')
     end
 
     it "asks you for your credentials" do
-      EY::CLI::UI::Prompter.backend.questions.should == ["Email: ","Password: "]
+      EY::CLI::UI::Prompter.questions.should == ["Email: ","Password: "]
     end
 
     it "gets the api token" do
