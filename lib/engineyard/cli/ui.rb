@@ -33,9 +33,11 @@ module EY
             answer = @answers.shift
             (answer == '' && default) ? default : answer
           else
-            highline.ask(question) do |q|
-              q.echo = "*"        if password
-              q.default = default if default
+            timeout_if_not_interactive do
+              highline.ask(question) do |q|
+                q.echo = "*"        if password
+                q.default = default if default
+              end
             end
           end
         end
@@ -47,12 +49,22 @@ module EY
             answer = @answers.shift
             answer == '' ? default : %w[y yes].include?(answer)
           else
-            answer = highline.agree(question) {|q| q.default = default ? 'Y/n' : 'N/y' }
-            case answer
-            when 'Y/n' then true
-            when 'N/y' then false
-            else            answer
+            timeout_if_not_interactive do
+              answer = highline.agree(question) {|q| q.default = default ? 'Y/n' : 'N/y' }
+              case answer
+              when 'Y/n' then true
+              when 'N/y' then false
+              else            answer
+              end
             end
+          end
+        end
+
+        def self.timeout_if_not_interactive(&block)
+          if interactive?
+            block.call
+          else
+            Timeout.timeout(5, &block)
           end
         end
       end
