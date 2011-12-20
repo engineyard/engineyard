@@ -182,9 +182,11 @@ module EY
       :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
     def rollback
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+      env_config    = EY.config.environment_config(app_env.environment_name)
+      deploy_config = EY::DeployConfig.new(options, env_config, repo, EY.ui)
 
       EY.ui.info("Rolling back #{app_env.to_hierarchy_str}")
-      if app_env.rollback(options[:extra_deploy_hook_options], options[:verbose])
+      if app_env.rollback(deploy_config.extra_config, deploy_config.verbose)
         EY.ui.info "Rollback complete"
       else
         raise EY::Error, "Rollback failed"

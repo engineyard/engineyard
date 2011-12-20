@@ -42,8 +42,8 @@ module EY
         raise
       end
 
-      def rollback(app_environment, extra_configuration=nil, verbose=false)
-        rollback = adapter(app_environment.app, verbose).rollback do |args|
+      def rollback(app, extra_configuration=nil, verbose=false)
+        rollback = adapter(app, verbose).rollback do |args|
           args.config = extra_configuration if extra_configuration
         end
         invoke rollback

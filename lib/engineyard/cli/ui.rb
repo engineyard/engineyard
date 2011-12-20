@@ -15,6 +15,8 @@ module EY
         end
 
         def self.enable_mock!
+          @questions = []
+          @answers = []
           @mock = true
         end
 
