@@ -2,25 +2,22 @@ require 'engineyard-api-client/errors'
 
 module EY
   class APIClient
-    class Environment < ApiStruct.new(:id, :account, :name, :framework_env, :instances_count,
+    class Environment < ApiStruct.new(:id, :name, :framework_env, :instances_count,
                                       :username, :app_server_stack_name, :deployment_configurations,
                                       :load_balancer_ip_address)
 
-      attr_accessor :ignore_bad_master, :apps, :instances, :app_master
+      attr_accessor :ignore_bad_master, :apps, :account, :instances, :app_master
 
       def initialize(api, attrs)
         super
         @apps = App.from_array(api, attrs['apps']) if attrs['apps']
+        @account = Account.from_hash(api, attrs['account']) if attrs['account']
         @instances = Instance.from_array(api, attrs['instances'], 'environment' => self) if attrs['instances']
         @app_master = Instance.from_hash(api, attrs['app_master'].merge('environment' => self)) if attrs['app_master']
       end
 
       def self.from_array(*)
         Collections::Environments.new(super)
-      end
-
-      def account=(account)
-        super Account.from_hash(api, account)
       end
 
       def account_name

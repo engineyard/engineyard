@@ -8,33 +8,24 @@ module EY
       def initialize(api, attrs)
         super
 
+        raise ArgumentError, 'AppEnvironment created without app!' unless app
+        raise ArgumentError, 'AppEnvironment created without environment!' unless environment
+
         if environment.deployment_configurations
           extract_deploy_config(environment.deployment_configurations[app.name])
         end
       end
 
-      def app
-        super or raise ArgumentError, 'AppEnvironment created without app!'
-      end
-
       def app=(app_or_hash)
-        if Hash === app_or_hash
-          super App.from_hash(api, app_or_hash)
-        else
-          super
-        end
-      end
-
-      def environment
-        super or raise ArgumentError, 'AppEnvironment created without environment!'
+        super App.from_hash(api, app_or_hash)
       end
 
       def environment=(env_or_hash)
-        if Hash === env_or_hash
-          super Environment.from_hash(api, env_or_hash)
-        else
-          super
-        end
+        super Environment.from_hash(api, env_or_hash)
+      end
+
+      def account_name
+        app.account_name
       end
 
       def app_name
@@ -43,10 +34,6 @@ module EY
 
       def environment_name
         environment.name
-      end
-
-      def account_name
-        app.account_name
       end
 
       def repository_uri

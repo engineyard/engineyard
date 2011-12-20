@@ -13,9 +13,14 @@ module EY
             end if array
           end
 
-          def self.from_hash(api, attrs)
-            return nil unless attrs
-            new(api, attrs)
+          def self.from_hash(api, attrs_or_struct)
+            return nil unless attrs_or_struct
+            if attrs_or_struct.respond_to?(:attributes=)
+              # already a model
+              attrs_or_struct
+            else
+              new(api, attrs_or_struct)
+            end
           end
         end
       end
