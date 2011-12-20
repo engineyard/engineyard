@@ -91,7 +91,8 @@ module EY
           block.call(" => #{cmd.encoding.name}; __ENCODING__: #{__ENCODING__.name}; LANG: #{ENV['LANG']}; LC_CTYPE: #{ENV['LC_CTYPE']}\n") if verbose
         end
         EY.ui.debug(cmd)
-        block.call("Command: #{cmd}\n") if verbose
+        block.call("Running command on #{environment.username}@#{hostname}.\n")
+        block.call(cmd) if verbose
         if ENV["NO_SSH"]
           block.call("NO_SSH is set. No output.")
           true
