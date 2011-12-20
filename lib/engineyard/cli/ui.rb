@@ -23,7 +23,7 @@ module EY
         end
 
         def self.interactive?
-          @mock || $stdin.tty?
+          @mock || ($stdin && $stdin.tty?)
         end
 
         def self.ask(question, password = false, default = nil)

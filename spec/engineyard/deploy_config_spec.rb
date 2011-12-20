@@ -51,19 +51,19 @@ describe EY::DeployConfig::Migrate do
 
     context "with the migrate cli option" do
       it "returns the default migration command when is true" do
-        dc = deploy_config({:migrate => true})
+        dc = deploy_config({'migrate' => true})
         dc.migrate.should be_true
         dc.migrate_command.should == 'rake db:migrate'
       end
 
       it "returns false when nil" do
-        dc = deploy_config({:migrate => nil})
+        dc = deploy_config({'migrate' => nil})
         dc.migrate.should be_false
         dc.migrate_command.should be_nil
       end
 
       it "return the custom migration command when is a string" do
-        dc = deploy_config({:migrate => 'foo migrate'})
+        dc = deploy_config({'migrate' => 'foo migrate'})
         dc.migrate.should be_true
         dc.migrate_command.should == 'foo migrate'
       end
@@ -93,7 +93,7 @@ describe EY::DeployConfig::Migrate do
 
       it "return the ey.yml migration_command when command line option --migrate is passed" do
         env_config('migrate' => false, 'migration_command' => 'bar migrate')
-        dc = deploy_config({:migrate => true})
+        dc = deploy_config({'migrate' => true})
         dc.migrate.should be_true
         dc.migrate_command.should == 'bar migrate'
       end
@@ -101,19 +101,19 @@ describe EY::DeployConfig::Migrate do
 
     describe "ref" do
       it "returns the passed ref" do
-        deploy_config({:ref => 'master'}).ref.should == 'master'
+        deploy_config({'ref' => 'master'}).ref.should == 'master'
       end
 
       it "returns the passed force_ref" do
-        deploy_config({:force_ref => 'force'}).ref.should == 'force'
+        deploy_config({'force_ref' => 'force'}).ref.should == 'force'
       end
 
       it "returns the ref if force_ref is true" do
-        deploy_config({:ref => 'master', :force_ref => true}).ref.should == 'master'
+        deploy_config({'ref' => 'master', 'force_ref' => true}).ref.should == 'master'
       end
 
       it "overrides the ref if force_ref is set to a string" do
-        deploy_config({:ref => 'master', :force_ref => 'force'}).ref.should == 'force'
+        deploy_config({'ref' => 'master', 'force_ref' => 'force'}).ref.should == 'force'
       end
 
       context "with a default branch" do
@@ -124,19 +124,19 @@ describe EY::DeployConfig::Migrate do
         end
 
         it "raises if a default is set and --ref is passed on the cli (and they don't match)" do
-          lambda { deploy_config({:ref => 'master'}).ref }.should raise_error(EY::BranchMismatchError)
+          lambda { deploy_config({'ref' => 'master'}).ref }.should raise_error(EY::BranchMismatchError)
         end
 
         it "returns the default if a default is set and --ref is the same" do
-          deploy_config({:ref => 'default'}).ref.should == 'default'
+          deploy_config({'ref' => 'default'}).ref.should == 'default'
         end
 
         it "returns the ref if force_ref is set" do
-          deploy_config({:ref => 'master', :force_ref => true}).ref.should == 'master'
+          deploy_config({'ref' => 'master', 'force_ref' => true}).ref.should == 'master'
         end
 
         it "returns the ref if force_ref is a branch" do
-          deploy_config({:force_ref => 'master'}).ref.should == 'master'
+          deploy_config({'force_ref' => 'master'}).ref.should == 'master'
         end
       end
 
@@ -152,51 +152,51 @@ describe EY::DeployConfig::Migrate do
   context "when outside of a repo" do
     describe "migrate" do
       it "returns the default migration command when migrate is true" do
-        dc = deploy_config({:app => 'app', :migrate => true})
+        dc = deploy_config({'app' => 'app', 'migrate' => true})
         dc.migrate.should be_true
         dc.migrate_command.should == 'rake db:migrate'
       end
 
       it "returns false when nil" do
-        dc = deploy_config({:app => 'app', :migrate => nil})
+        dc = deploy_config({'app' => 'app', 'migrate' => nil})
         dc.migrate.should be_false
         dc.migrate_command.should be_nil
       end
 
       it "return the custom migration command when is a string" do
-        dc = deploy_config({:app => 'app', :migrate => 'foo migrate'})
+        dc = deploy_config({'app' => 'app', 'migrate' => 'foo migrate'})
         dc.migrate.should be_true
         dc.migrate_command.should == 'foo migrate'
       end
 
       it "raises if migrate is not passed" do
-        lambda { deploy_config({:app => 'app'}).migrate }.should raise_error(EY::RefAndMigrateRequiredOutsideRepo)
+        lambda { deploy_config({'app' => 'app'}).migrate }.should raise_error(EY::RefAndMigrateRequiredOutsideRepo)
       end
     end
 
     describe "ref" do
       it "returns the passed ref" do
-        dc = deploy_config({:app => 'app', :ref => 'master'})
+        dc = deploy_config({'app' => 'app', 'ref' => 'master'})
         dc.ref.should == 'master'
       end
 
       it "returns the passed force_ref" do
-        dc = deploy_config({:app => 'app', :force_ref => 'force'})
+        dc = deploy_config({'app' => 'app', 'force_ref' => 'force'})
         dc.ref.should == 'force'
       end
 
       it "returns the ref if force_ref is true" do
-        dc = deploy_config({:app => 'app', :ref => 'master', :force_ref => true})
+        dc = deploy_config({'app' => 'app', 'ref' => 'master', 'force_ref' => true})
         dc.ref.should == 'master'
       end
 
       it "overrides the ref if force_ref is set to a string" do
-        dc = deploy_config({:app => 'app', :ref => 'master', :force_ref => 'force'})
+        dc = deploy_config({'app' => 'app', 'ref' => 'master', 'force_ref' => 'force'})
         dc.ref.should == 'force'
       end
 
       it "raises if ref is not passed" do
-        lambda { deploy_config({:app => 'app'}).ref }.should raise_error(EY::RefAndMigrateRequiredOutsideRepo)
+        lambda { deploy_config({'app' => 'app'}).ref }.should raise_error(EY::RefAndMigrateRequiredOutsideRepo)
       end
     end
   end

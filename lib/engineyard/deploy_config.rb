@@ -22,11 +22,11 @@ module EY
     end
 
     def verbose
-      @cli_opts.fetch(:verbose) { in_repo? && @env_config.verbose }
+      @cli_opts.fetch('verbose') { in_repo? && @env_config.verbose }
     end
 
     def extra_config
-      extras = @cli_opts.fetch(:extra_deploy_hook_options, {})
+      extras = @cli_opts.fetch('extra_deploy_hook_options', {})
       if in_repo?
         extras = @env_config.merge(extras)
       end
@@ -37,7 +37,7 @@ module EY
 
     # passing an app means we assume PWD is not the app.
     def in_repo?
-      !@cli_opts[:app]
+      !@cli_opts['app']
     end
 
     def decide_ref

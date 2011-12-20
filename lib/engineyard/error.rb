@@ -58,8 +58,8 @@ Usage: ey deploy -R #{ref}
   class RefAndMigrateRequiredOutsideRepo < DeployArgumentError
     def initialize(options)
       super <<-ERR
-Because defaults are stored in a file in your application, when specifying --app,
-you must also specify the --ref and the --migrate or --no-migrate options.
+Because defaults are stored in a file in your application dir, when specifying
+--app you must also specify the --ref and the --migrate or --no-migrate options.
 Usage: ey deploy --app #{options[:app]} --ref [ref] --migrate [COMMAND]
        ey deploy --app #{options[:app]} --ref [branch] --no-migrate
       ERR
@@ -75,7 +75,7 @@ Usage: ey deploy --ref [ref]
     end
   end
 
-  class RefRequired < DeployArgumentError
+  class MigrateRequired < DeployArgumentError
     def initialize(options)
       super <<-ERR
 Unable to determine migration choice. ey deploy no longer migrates by default.
