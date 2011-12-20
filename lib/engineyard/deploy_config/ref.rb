@@ -8,12 +8,12 @@ module EY
         @cli_opts  = cli_opts
         @default   = env_config.branch
         @repo      = repo
-        @force_ref = @cli_opts.fetch(:force_ref, false)
+        @force_ref = @cli_opts.fetch('force_ref', false)
 
         if @force_ref.kind_of?(String)
           @ref, @force_ref = @force_ref, true
         else
-          @ref = @cli_opts.fetch(:ref, nil)
+          @ref = @cli_opts.fetch('ref', nil)
         end
       end
 

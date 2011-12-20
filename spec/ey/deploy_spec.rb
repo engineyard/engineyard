@@ -9,7 +9,7 @@ describe "ey deploy without an eyrc file" do
   end
 
   it "prompts for authentication before continuing" do
-    ey(%w[deploy], :hide_err => true) do |input|
+    ey(%w[deploy --no-migrate], :hide_err => true) do |input|
       input.puts("test@test.test")
       input.puts("test")
     end

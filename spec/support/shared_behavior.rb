@@ -174,7 +174,7 @@ shared_examples_for "it takes an app name" do
   it "allows you to specify a valid app" do
     api_scenario "one app, one environment"
     Dir.chdir(Dir.tmpdir) do
-      run_ey({:environment => 'giblets', :app => 'rails232app', :ref => 'master'}, {})
+      run_ey({:environment => 'giblets', :app => 'rails232app', :ref => 'master', :migrate => nil}, {})
       verify_ran(make_scenario({
             :environment      => 'giblets',
             :application      => 'rails232app',

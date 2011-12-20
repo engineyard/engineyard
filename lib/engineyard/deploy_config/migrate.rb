@@ -48,7 +48,7 @@ module EY
       attr_reader :cli_opts, :env_config, :ui
 
       def command_from_opts
-        cli_migrate = cli_opts.fetch(:migrate, nil)
+        cli_migrate = cli_opts.fetch('migrate', nil)
         cli_migrate.respond_to?(:to_str) && cli_migrate.to_str
       end
 
@@ -57,7 +57,7 @@ module EY
       end
 
       def perform_from_cli_opts
-        @perform = !!cli_opts.fetch(:migrate) { return false } # yields on not found
+        @perform = !!cli_opts.fetch('migrate') { return false } # yields on not found
         true
       end
 
@@ -80,7 +80,6 @@ module EY
           end
           ui.say "#{env_config.path}: migrate settings saved for #{env_config.name}."
           ui.say  "It's a good idea to git commit #{env_config.path} after your deploy completes."
-          ui.say "Resuming deploy..."
           true
         else
           ui.error "********************************************************************************"
