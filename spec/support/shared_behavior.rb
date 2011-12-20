@@ -151,7 +151,7 @@ shared_examples_for "it takes an environment name" do
 
     it "works when the substring is unambiguous" do
       api_scenario "one app, many similarly-named environments"
-      run_ey({:environment => 'prod'}, {:debug => true})
+      run_ey({:environment => 'prod', :migrate => true}, {:debug => true})
       verify_ran(make_scenario({
             :environment      => 'railsapp_production',
             :application      => 'rails232app',
@@ -187,7 +187,7 @@ shared_examples_for "it takes an app name" do
   it "can guess the environment from the app" do
     api_scenario "two apps"
     Dir.chdir(Dir.tmpdir) do
-      run_ey({:app => 'rails232app', :ref => 'master'}, {})
+      run_ey({:app => 'rails232app', :ref => 'master', :migrate => true}, {})
       verify_ran(make_scenario({
             :environment      => 'giblets',
             :application      => 'rails232app',
@@ -240,7 +240,7 @@ shared_examples_for "it invokes engineyard-serverside" do
   context "when no instances have names" do
     before(:each) do
       api_scenario "two apps"
-      run_ey({:env => 'giblets', :app => 'rails232app', :ref => 'master', :verbose => true})
+      run_ey({:env => 'giblets', :app => 'rails232app', :ref => 'master', :migrate => true, :verbose => true})
     end
 
     it "omits the --instance-names parameter" do

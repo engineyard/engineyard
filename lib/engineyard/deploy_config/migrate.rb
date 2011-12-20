@@ -62,34 +62,54 @@ module EY
       end
 
       def perform_from_config
-        @perform = !!env_config.migrate { return false } # yields on not found
+        @perform = !!env_config.migrate { return perform_implied_via_command_in_config }
+        if @perform
+          unless command_from_config
+            env_config.migration_command = DEFAULT
+          end
+        end
         true
       end
 
-      def perform_from_interaction
-        if ui.interactive?
-          ui.warn "********************************************************************************"
-          ui.warn "No default migrate choice for environment: #{env_config.name}"
-          ui.warn "Migrate can be turned on / off per-deploy using --migrate or --no-migrate."
-          ui.warn "Let's set a default migration choice."
-          ui.warn "********************************************************************************"
-          @perform = ui.agree('Migrate every deploy by default? ', true)
+      # if the command is set in ey.yml and perform isn't explicitly turned off,
+      # then we'll write out the old default of migrating always, since that's
+      # probably what is expected.
+      def perform_implied_via_command_in_config
+        if @perfom.nil? && @command = command_from_config
+          @perform = true
           env_config.migrate = @perform
-          if @perform
-            command_from_interaction
-          end
-          ui.say "#{env_config.path}: migrate settings saved for #{env_config.name}."
-          ui.say  "It's a good idea to git commit #{env_config.path} after your deploy completes."
+          ui.warn "********************************************************************************"
+          ui.info "#{env_config.path} config for #{env_config.name} has been updated to"
+          ui.info "migrate by default to maintain previous expected default behavior."
+          ui.warn "********************************************************************************"
+          ui.say  "It's a good idea to git commit #{env_config.path} with these new changes."
           true
         else
-          ui.error "********************************************************************************"
-          ui.error "No default migrate choice in ey.yml for environment: #{env_config.name}"
-          ui.error "To be safe, ey deploy no longer migrates when no default is set."
-          ui.error "Run interactively for step-by-step ey.yml migration setup."
-          ui.error "Migrate can be turned on / off per-deploy using --migrate or --no-migrate."
-          ui.error "********************************************************************************"
           false
         end
+      end
+
+      def perform_from_interaction
+        ui.warn "********************************************************************************"
+        ui.warn "No default migrate choice for environment: #{env_config.name}"
+        ui.warn "Migrate can be turned on / off per-deploy using --migrate or --no-migrate."
+        ui.warn "Let's set a default migration choice."
+        ui.warn "********************************************************************************"
+        @perform = ui.agree('Migrate every deploy by default? ', true)
+        env_config.migrate = @perform
+        if @perform
+          command_from_interaction
+        end
+        ui.say "#{env_config.path}: migrate settings saved for #{env_config.name}."
+        ui.say  "It's a good idea to git commit #{env_config.path} with these new changes."
+        true
+      rescue Timeout::Error
+        @perform = nil
+        @command = nil
+        ui.error "Timeout when waiting for input. This is not a terminal."
+        ui.error "ey deploy no longer migrates when no default is set in ey.yml."
+        ui.error "Run interactively for step-by-step ey.yml migration setup."
+        return false
       end
 
       # only interactively request a command if we interactively requested the perform setting.
