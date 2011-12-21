@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v1.4.16 (2011-12-21)
+
   * Upgrade to latest net-ssh to fix string encoding issues in 1.9.x.
 
 ## v1.4.15 (2011-12-14)
