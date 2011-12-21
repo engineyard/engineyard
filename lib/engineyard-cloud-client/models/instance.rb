@@ -31,11 +31,9 @@ module EY
 
         deployment.successful = invoke(deploy_command) { |chunk| deployment.append_output chunk }
       rescue Interrupt
-        EY.ui.info "Interrupted. Exiting..."
         deployment.append_output "Interrupted.\n"
         raise
       rescue StandardError => e
-        EY.ui.info "Error encountered during deploy."
         deployment.append_output "Error encountered during deploy.\n#{e.class} #{e}\n"
         raise
       end
@@ -88,8 +86,6 @@ module EY
           cmd.force_encoding('binary')
           block.call(" => #{cmd.encoding.name}; __ENCODING__: #{__ENCODING__.name}; LANG: #{ENV['LANG']}; LC_CTYPE: #{ENV['LC_CTYPE']}\n") if verbose
         end
-        EY.ui.debug(cmd)
-        block.call("Running command on #{environment.username}@#{hostname}.\n")
         block.call(cmd) if verbose
         if ENV["NO_SSH"]
           block.call("NO_SSH is set. No output.")

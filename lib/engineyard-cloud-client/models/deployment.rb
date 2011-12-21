@@ -49,7 +49,6 @@ module EY
         environment.bridge!.deploy(self, verbose)
       ensure
         finished
-        EY.ui.info "#{successful? ? 'Successful' : 'Failed'} deployment recorded on EY Cloud"
       end
 
       alias deployed_by user_name
