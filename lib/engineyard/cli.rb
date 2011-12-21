@@ -72,7 +72,23 @@ module EY
       deployment.start
       EY.ui.show_deployment(deployment)
 
-      if deployment.deploy
+      begin
+        deployment.deploy
+      rescue Interrupt
+        EY.ui.warn "Interrupted."
+        EY.ui.warn "Recording canceled deployment and exiting..."
+        EY.ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on EY Cloud."
+        raise
+      rescue StandardError => e
+        EY.ui.info "Error encountered during deploy."
+        raise
+      ensure
+        if deployment.finished?
+          EY.ui.info "#{deployment.successful? ? 'Successful' : 'Failed'} deployment recorded on EY Cloud"
+        end
+      end
+
+      if deployment.successful?
         EY.ui.info "Deploy complete"
         EY.ui.info "Now you can run `ey launch' to open the application in a browser."
       else
