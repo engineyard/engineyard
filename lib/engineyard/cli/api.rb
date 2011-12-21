@@ -1,5 +1,5 @@
 require 'highline'
-require 'engineyard-api-client'
+require 'engineyard-cloud-client'
 require 'engineyard/eyrc'
 
 module EY
@@ -10,10 +10,10 @@ module EY
         begin
           email    = EY.ui.ask("Email: ")
           password = EY.ui.ask("Password: ", true)
-          token = EY::APIClient.authenticate(email, password)
+          token    = EY::CloudClient.authenticate(email, password)
           EY::EYRC.load.api_token = token
           token
-        rescue EY::APIClient::InvalidCredentials
+        rescue EY::CloudClient::InvalidCredentials
           EY.ui.warn "Invalid username or password; please try again."
           retry
         end
@@ -22,7 +22,7 @@ module EY
       attr_reader :token
 
       def initialize(endpoint)
-        EY::APIClient.endpoint = endpoint
+        EY::CloudClient.endpoint = endpoint
 
         @token = ENV['ENGINEYARD_API_TOKEN'] if ENV['ENGINEYARD_API_TOKEN']
         @token ||= EY::EYRC.load.api_token
@@ -32,7 +32,7 @@ module EY
           raise EY::Error, "Sorry, we couldn't get your API token."
         end
 
-        @api = EY::APIClient.new(@token)
+        @api = EY::CloudClient.new(@token)
       end
 
       protected

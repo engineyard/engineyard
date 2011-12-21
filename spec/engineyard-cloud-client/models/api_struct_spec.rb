@@ -1,7 +1,7 @@
 require 'spec_helper'
 
-describe EY::APIClient::ApiStruct do
-  class Foo < EY::APIClient::ApiStruct.new(:fruit, :veggie); end
+describe EY::CloudClient::ApiStruct do
+  class Foo < EY::CloudClient::ApiStruct.new(:fruit, :veggie); end
 
   it "acts like a normal struct" do
     f = Foo.new(ey_api, "fruit" => "banana")

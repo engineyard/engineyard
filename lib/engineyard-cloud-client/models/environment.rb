@@ -1,7 +1,9 @@
-require 'engineyard-api-client/errors'
+require 'engineyard-cloud-client/models'
+require 'engineyard-cloud-client/collections'
+require 'engineyard-cloud-client/errors'
 
 module EY
-  class APIClient
+  class CloudClient
     class Environment < ApiStruct.new(:id, :name, :framework_env, :instances_count,
                                       :username, :app_server_stack_name, :deployment_configurations,
                                       :load_balancer_ip_address)
@@ -54,7 +56,7 @@ module EY
 
       def download_recipes
         if File.exist?('cookbooks')
-          raise EY::APIClient::Error, "Could not download, cookbooks already exists"
+          raise EY::CloudClient::Error, "Could not download, cookbooks already exists"
         end
 
         require 'tempfile'
@@ -66,7 +68,7 @@ module EY
         cmd = "tar xzf '#{tmp.path}' cookbooks"
 
         unless system(cmd)
-          raise EY::APIClient::Error, "Could not unarchive recipes.\nCommand `#{cmd}` exited with an error."
+          raise EY::CloudClient::Error, "Could not unarchive recipes.\nCommand `#{cmd}` exited with an error."
         end
       end
 
@@ -75,21 +77,21 @@ module EY
         if recipes_path.exist?
           upload_recipes recipes_path.open('rb')
         else
-          raise EY::APIClient::Error, "Recipes file not found: #{recipes_path}"
+          raise EY::CloudClient::Error, "Recipes file not found: #{recipes_path}"
         end
       end
 
       def tar_and_upload_recipes_in_cookbooks_dir
         require 'tempfile'
         unless File.exist?("cookbooks")
-          raise EY::APIClient::Error, "Could not find chef recipes. Please run from the root of your recipes repo."
+          raise EY::CloudClient::Error, "Could not find chef recipes. Please run from the root of your recipes repo."
         end
 
         recipes_file = Tempfile.new("recipes")
         cmd = "tar czf '#{recipes_file.path}' cookbooks/"
 
         unless system(cmd)
-          raise EY::APIClient::Error, "Could not archive recipes.\nCommand `#{cmd}` exited with an error."
+          raise EY::CloudClient::Error, "Could not archive recipes.\nCommand `#{cmd}` exited with an error."
         end
 
         upload_recipes(recipes_file)

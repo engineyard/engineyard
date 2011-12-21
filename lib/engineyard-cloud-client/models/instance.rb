@@ -1,10 +1,10 @@
 require 'escape'
 require 'net/ssh'
 require 'engineyard-serverside-adapter'
-require 'engineyard-api-client/errors'
+require 'engineyard-cloud-client/errors'
 
 module EY
-  class APIClient
+  class CloudClient
     class Instance < ApiStruct.new(:id, :role, :name, :status, :amazon_id, :public_hostname, :environment)
       alias :hostname :public_hostname
 
@@ -126,7 +126,7 @@ module EY
             end
             exit_code.zero?
           rescue Net::SSH::AuthenticationFailed
-            raise EY::APIClient::Error, "Authentication Failed: Please add your environment's ssh key with: ssh-add path/to/key"
+            raise EY::CloudClient::Error, "Authentication Failed: Please add your environment's ssh key with: ssh-add path/to/key"
           end
         end
       end

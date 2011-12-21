@@ -1,7 +1,9 @@
 require 'escape'
+require 'engineyard-cloud-client/models'
+require 'engineyard-cloud-client/errors'
 
 module EY
-  class APIClient
+  class CloudClient
     class Deployment < ApiStruct.new(:id, :app_environment, :created_at, :commit, :finished_at, :migrate_command, :output, :ref, :resolved_ref, :successful, :user_name, :extra_config, :verbose)
       def self.api_root(app_id, environment_id)
         "/apps/#{app_id}/environments/#{environment_id}/deployments"
@@ -15,7 +17,7 @@ module EY
         uri = api_root(app_environment.app.id, app_environment.environment.id) + "/#{id}"
         response = api.request(uri, :method => :get)
         load_from_response api, app_environment, response
-      rescue EY::APIClient::ResourceNotFound
+      rescue EY::CloudClient::ResourceNotFound
         nil
       end
 

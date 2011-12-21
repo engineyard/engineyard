@@ -1,6 +1,6 @@
 require 'spec_helper'
 
-describe EY::APIClient::Resolver do
+describe EY::CloudClient::Resolver do
   def mock_api
     return @mock_api if @mock_api
     apps = mock('apps')
@@ -24,11 +24,11 @@ describe EY::APIClient::Resolver do
   end
 
   def resolver(options)
-    EY::APIClient::Resolver.new(mock_api, options)
+    EY::CloudClient::Resolver.new(mock_api, options)
   end
 
   def new_app_env(app, repository_uri, env, account)
-    app_env = EY::APIClient::AppEnvironment.from_hash(mock_api, {
+    app_env = EY::CloudClient::AppEnvironment.from_hash(mock_api, {
       'app' => {
         'name' => app,
         'repository_uri' => repository_uri,
@@ -65,23 +65,23 @@ describe EY::APIClient::Resolver do
     end
 
     it "raises when there is no app match" do
-      lambda { resolver(:environment_name => 'app_dup', :app_name => 'gibberish').app_environment }.should raise_error(EY::APIClient::InvalidAppError)
+      lambda { resolver(:environment_name => 'app_dup', :app_name => 'gibberish').app_environment }.should raise_error(EY::CloudClient::InvalidAppError)
     end
 
     it "raises when there is no environment match" do
-      lambda { resolver(:environment_name => 'gibberish', :app_name => 'app').app_environment }.should raise_error(EY::APIClient::NoEnvironmentError)
+      lambda { resolver(:environment_name => 'gibberish', :app_name => 'app').app_environment }.should raise_error(EY::CloudClient::NoEnvironmentError)
     end
 
     it "raises when there are no matches" do
-      lambda { resolver(:environment_name => 'app_dup', :app_name => 'bigapp'                         ).app_environment }.should raise_error(EY::APIClient::NoMatchesError)
-      lambda { resolver(:environment_name => 'app_dup', :repo => repo("git://github.com/repo/app.git")).app_environment }.should raise_error(EY::APIClient::NoMatchesError)
+      lambda { resolver(:environment_name => 'app_dup', :app_name => 'bigapp'                         ).app_environment }.should raise_error(EY::CloudClient::NoMatchesError)
+      lambda { resolver(:environment_name => 'app_dup', :repo => repo("git://github.com/repo/app.git")).app_environment }.should raise_error(EY::CloudClient::NoMatchesError)
     end
 
     it "raises when there is more than one match" do
-      lambda { resolver(:app_name => "app"                            ).app_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
-      lambda { resolver(:account_name => "ey", :app_name => "app"     ).app_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
-      lambda { resolver(:repo => repo("git://github.com/repo/dup.git")).app_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
-      lambda { resolver(:repo => repo("git://github.com/repo/app.git")).app_environment }.should raise_error(EY::APIClient::MultipleMatchesError)
+      lambda { resolver(:app_name => "app"                            ).app_environment }.should raise_error(EY::CloudClient::MultipleMatchesError)
+      lambda { resolver(:account_name => "ey", :app_name => "app"     ).app_environment }.should raise_error(EY::CloudClient::MultipleMatchesError)
+      lambda { resolver(:repo => repo("git://github.com/repo/dup.git")).app_environment }.should raise_error(EY::CloudClient::MultipleMatchesError)
+      lambda { resolver(:repo => repo("git://github.com/repo/app.git")).app_environment }.should raise_error(EY::CloudClient::MultipleMatchesError)
     end
 
     it "does not include duplicate copies of apps across accounts when raising a more than one match error" do
@@ -89,7 +89,7 @@ describe EY::APIClient::Resolver do
       do_not_include = "--environment='sumo_wrestler' --app='app_dup' --account='me'"
       lambda do
         resolver(:repo => repo("git://github.com/repo/dup.git")).app_environment
-      end.should raise_error(EY::APIClient::MultipleMatchesError) {|e|
+      end.should raise_error(EY::CloudClient::MultipleMatchesError) {|e|
         e.message.should include(do_include)
         e.message.should_not include(do_not_include)
       }

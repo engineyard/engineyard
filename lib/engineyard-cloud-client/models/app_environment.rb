@@ -1,8 +1,9 @@
 require 'launchy'
-require 'engineyard-api-client/errors'
+require 'engineyard-cloud-client/models'
+require 'engineyard-cloud-client/errors'
 
 module EY
-  class APIClient
+  class CloudClient
     class AppEnvironment < ApiStruct.new(:id, :app, :environment, :perform_migration, :migration_command)
 
       def initialize(api, attrs)

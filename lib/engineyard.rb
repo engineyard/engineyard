@@ -1,4 +1,4 @@
-require 'engineyard-api-client'
+require 'engineyard-cloud-client'
 
 module EY
   require 'engineyard/version'

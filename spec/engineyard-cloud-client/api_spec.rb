@@ -1,25 +1,25 @@
 require 'spec_helper'
 
-describe EY::APIClient do
+describe EY::CloudClient do
   describe "endpoint" do
     it "defaults to production EY Cloud" do
-      EY::APIClient.endpoint.should == URI.parse('https://cloud.engineyard.com')
+      EY::CloudClient.endpoint.should == URI.parse('https://cloud.engineyard.com')
     end
 
     it "loads saves a valid endpoint" do
-      EY::APIClient.endpoint = "http://fake.local/"
-      EY::APIClient.endpoint.should == URI.parse('http://fake.local')
-      EY::APIClient.default_endpoint!
+      EY::CloudClient.endpoint = "http://fake.local/"
+      EY::CloudClient.endpoint.should == URI.parse('http://fake.local')
+      EY::CloudClient.default_endpoint!
     end
 
     it "raises on an invalid endpoint" do
-      lambda { EY::APIClient.endpoint = "non/absolute" }.should raise_error(EY::APIClient::BadEndpointError)
-      EY::APIClient.default_endpoint!
+      lambda { EY::CloudClient.endpoint = "non/absolute" }.should raise_error(EY::CloudClient::BadEndpointError)
+      EY::CloudClient.default_endpoint!
     end
   end
 
   it "gets the api token from initialize" do
-    EY::APIClient.new('asdf').token.should == "asdf"
+    EY::CloudClient.new('asdf').token.should == "asdf"
   end
 
   describe ".authenticate" do
@@ -28,7 +28,7 @@ describe EY::APIClient do
     end
 
     it "returns the token" do
-      EY::APIClient.authenticate("a@b.com", "foo").should == "asdf"
+      EY::CloudClient.authenticate("a@b.com", "foo").should == "asdf"
     end
   end
 
@@ -36,15 +36,15 @@ describe EY::APIClient do
     FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :status => 401, :content_type => 'application/json')
 
     lambda {
-      EY::APIClient.authenticate("a@b.com", "foo")
-    }.should raise_error(EY::APIClient::InvalidCredentials)
+      EY::CloudClient.authenticate("a@b.com", "foo")
+    }.should raise_error(EY::CloudClient::InvalidCredentials)
   end
 
   it "raises RequestFailed with a friendly error when cloud is under maintenance" do
     FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :status => 502, :content_type => 'text/html')
 
     lambda {
-      EY::APIClient.authenticate("a@b.com", "foo")
-    }.should raise_error(EY::APIClient::RequestFailed, /API is temporarily unavailable/)
+      EY::CloudClient.authenticate("a@b.com", "foo")
+    }.should raise_error(EY::CloudClient::RequestFailed, /API is temporarily unavailable/)
   end
 end

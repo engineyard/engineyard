@@ -11,7 +11,7 @@ module EY
       api = EY::CLI::API.new(EY.config.endpoint)
       api.current_user # check login and access to the api
       api
-    rescue EY::APIClient::InvalidCredentials
+    rescue EY::CloudClient::InvalidCredentials
       EY::CLI::API.authenticate
       retry
     end
