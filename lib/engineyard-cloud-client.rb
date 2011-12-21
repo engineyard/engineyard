@@ -1,23 +1,23 @@
 module EY
-  class APIClient
+  module CloudAPI
   end
 end
 
-require 'engineyard-api-client/ruby_ext'
-require 'engineyard-api-client/models'
-require 'engineyard-api-client/collections'
-require 'engineyard-api-client/rest_client_ext'
-require 'engineyard-api-client/resolver'
-require 'engineyard-api-client/version'
-require 'engineyard-api-client/errors'
+require 'engineyard-cloud-client/ruby_ext'
+require 'engineyard-cloud-client/models'
+require 'engineyard-cloud-client/collections'
+require 'engineyard-cloud-client/rest_client_ext'
+require 'engineyard-cloud-client/resolver'
+require 'engineyard-cloud-client/version'
+require 'engineyard-cloud-client/errors'
 require 'json'
 require 'pp'
 
 module EY
-  class APIClient
+  class CloudClient
     attr_reader :token
 
-    USER_AGENT_STRING = "EngineYardAPIClient/#{EY::APIClient::VERSION}"
+    USER_AGENT_STRING = "EngineYardCloudClient/#{EY::CloudClient::VERSION}"
 
     def self.endpoint
       @endpoint
@@ -72,11 +72,11 @@ module EY
     end
 
     def environments
-      @environments ||= EY::APIClient::Environment.from_array(self, request('/environments')["environments"])
+      @environments ||= EY::CloudClient::Environment.from_array(self, request('/environments')["environments"])
     end
 
     def apps
-      @apps ||= EY::APIClient::App.from_array(self, request('/apps')["apps"])
+      @apps ||= EY::CloudClient::App.from_array(self, request('/apps')["apps"])
     end
 
     # TODO: unhaxor
@@ -86,7 +86,7 @@ module EY
     end
 
     def current_user
-      EY::APIClient::User.from_hash(self, request('/current_user')['user'])
+      EY::CloudClient::User.from_hash(self, request('/current_user')['user'])
     end
 
     def self.request(path, opts={})

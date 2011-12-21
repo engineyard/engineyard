@@ -1,7 +1,7 @@
-require 'engineyard-api-client/errors'
+require 'engineyard-cloud-client/errors'
 
 module EY
-  class APIClient
+  class CloudClient
     class Resolver
       attr_reader :api, :constraints
 
@@ -43,9 +43,9 @@ module EY
 
       def no_environments_error
         if constraints[:environment_name]
-          EY::APIClient::NoEnvironmentError.new(constraints[:environment_name], EY::APIClient.endpoint)
+          EY::CloudClient::NoEnvironmentError.new(constraints[:environment_name], EY::CloudClient.endpoint)
         else
-          EY::APIClient::NoAppError.new(repo, EY::APIClient.endpoint)
+          EY::CloudClient::NoAppError.new(repo, EY::CloudClient.endpoint)
         end
       end
 
@@ -55,23 +55,23 @@ module EY
           account_and_environment_names.each do |account_name, environment_name|
             message << "\t#{environment_name.ljust(25)} # ey <command> --environment='#{environment_name}' --account='#{account_name}'\n"
           end
-          EY::APIClient::MultipleMatchesError.new(message)
+          EY::CloudClient::MultipleMatchesError.new(message)
         else
-          EY::APIClient::AmbiguousEnvironmentGitUriError.new(environments)
+          EY::CloudClient::AmbiguousEnvironmentGitUriError.new(environments)
         end
       end
 
       def no_app_environments_error
         if account_candidates.empty? && constraints[:account_name]
-          EY::APIClient::NoMatchesError.new("There were no accounts that matched #{constraints[:account_name]}")
+          EY::CloudClient::NoMatchesError.new("There were no accounts that matched #{constraints[:account_name]}")
         elsif app_candidates.empty?
           if constraints[:app_name]
-            EY::APIClient::InvalidAppError.new(constraints[:app_name])
+            EY::CloudClient::InvalidAppError.new(constraints[:app_name])
           else
-            EY::APIClient::NoAppError.new(repo, EY::APIClient.endpoint)
+            EY::CloudClient::NoAppError.new(repo, EY::CloudClient.endpoint)
           end
         elsif environment_candidates.empty?
-          EY::APIClient::NoEnvironmentError.new(constraints[:environment_name], EY::APIClient.endpoint)
+          EY::CloudClient::NoEnvironmentError.new(constraints[:environment_name], EY::CloudClient.endpoint)
         else
           message = "The matched apps & environments do not correspond with each other.\n"
           message << "Applications:\n"
@@ -82,7 +82,7 @@ module EY
               message << "\t\t#{env.name} # ey <command> -e #{env.name} -a #{app.name}\n"
             end
           end
-          EY::APIClient::NoMatchesError.new(message)
+          EY::CloudClient::NoMatchesError.new(message)
         end
       end
 
@@ -101,7 +101,7 @@ module EY
             message << "\t#{env_name.ljust(25)} # ey <command> --environment='#{env_name}' --app='#{app_name}' --account='#{account_name}'\n"
           end
         end
-        EY::APIClient::MultipleMatchesError.new(message)
+        EY::CloudClient::MultipleMatchesError.new(message)
       end
 
       def repo

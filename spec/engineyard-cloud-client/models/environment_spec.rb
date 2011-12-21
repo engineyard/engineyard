@@ -1,8 +1,8 @@
 require 'spec_helper'
 
-describe "EY::APIClient::Environment#rebuild" do
+describe "EY::CloudClient::Environment#rebuild" do
   it "hits the rebuild action in the API" do
-    env = EY::APIClient::Environment.from_hash(ey_api, { "id" => 46534 })
+    env = EY::CloudClient::Environment.from_hash(ey_api, { "id" => 46534 })
 
     FakeWeb.register_uri(
       :put,
@@ -16,9 +16,9 @@ describe "EY::APIClient::Environment#rebuild" do
   end
 end
 
-describe "EY::APIClient::Environment#run_custom_recipes" do
+describe "EY::CloudClient::Environment#run_custom_recipes" do
   it "hits the rebuild action in the API" do
-    env = EY::APIClient::Environment.from_hash(ey_api, { "id" => 46534 })
+    env = EY::CloudClient::Environment.from_hash(ey_api, { "id" => 46534 })
 
     FakeWeb.register_uri(
       :put,
@@ -33,20 +33,20 @@ describe "EY::APIClient::Environment#run_custom_recipes" do
   end
 end
 
-describe "EY::APIClient::Environment.from_array" do
+describe "EY::CloudClient::Environment.from_array" do
   it "returns a smart collection, not just a dumb array" do
     api_data = [
       {"id" => 32340, "name" => 'iceberg'},
       {"id" => 9433, "name" => 'zoidberg'},
     ]
 
-    collection = EY::APIClient::Environment.from_array(ey_api, api_data)
+    collection = EY::CloudClient::Environment.from_array(ey_api, api_data)
     collection.should respond_to(:each)
     collection.should respond_to(:match_one)
   end
 end
 
-describe "EY::APIClient::Environment#instances" do
+describe "EY::CloudClient::Environment#instances" do
   it "returns instances" do
     instance_data = {
       "id" => "1",
@@ -55,7 +55,7 @@ describe "EY::APIClient::Environment#instances" do
       "public_hostname" => "banana_master"
     }
 
-    env = EY::APIClient::Environment.from_hash(ey_api, {
+    env = EY::CloudClient::Environment.from_hash(ey_api, {
         "id" => 10291,
         "instances" => [instance_data],
       })
@@ -67,11 +67,11 @@ describe "EY::APIClient::Environment#instances" do
     )
 
     env.should have(1).instances
-    env.instances.first.should == EY::APIClient::Instance.from_hash(ey_api, instance_data.merge('environment' => env))
+    env.instances.first.should == EY::CloudClient::Instance.from_hash(ey_api, instance_data.merge('environment' => env))
   end
 end
 
-describe "EY::APIClient::Environment#app_master!" do
+describe "EY::CloudClient::Environment#app_master!" do
   def make_env_with_master(app_master)
     if app_master
       app_master = {
@@ -80,7 +80,7 @@ describe "EY::APIClient::Environment#app_master!" do
       }.merge(app_master)
     end
 
-    EY::APIClient::Environment.from_hash(ey_api, {
+    EY::CloudClient::Environment.from_hash(ey_api, {
         "id" => 11830,
         "name" => "guinea-pigs-are-delicious",
         "app_master" => app_master,
@@ -99,7 +99,7 @@ describe "EY::APIClient::Environment#app_master!" do
     env = make_env_with_master("status" => "error")
     lambda {
       env.app_master!
-    }.should raise_error(EY::APIClient::BadAppMasterStatusError)
+    }.should raise_error(EY::CloudClient::BadAppMasterStatusError)
   end
 
   it "returns the app master if told to ignore the app master being in a non-running state" do
@@ -113,14 +113,14 @@ describe "EY::APIClient::Environment#app_master!" do
     env = make_env_with_master(nil)
     lambda {
       env.app_master!
-    }.should raise_error(EY::APIClient::NoAppMasterError)
+    }.should raise_error(EY::CloudClient::NoAppMasterError)
   end
 end
 
-describe "EY::APIClient::Environment#shorten_name_for(app)" do
+describe "EY::CloudClient::Environment#shorten_name_for(app)" do
   def short(environment_name, app_name)
-    env = EY::APIClient::Environment.from_hash(ey_api, {'name' => environment_name})
-    app = EY::APIClient::App.from_hash(ey_api, {'name' => app_name})
+    env = EY::CloudClient::Environment.from_hash(ey_api, {'name' => environment_name})
+    app = EY::CloudClient::App.from_hash(ey_api, {'name' => app_name})
     env.shorten_name_for(app)
   end
 

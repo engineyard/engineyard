@@ -1,5 +1,7 @@
+require 'engineyard-cloud-client/models'
+
 module EY
-  class APIClient
+  class CloudClient
     class Log < ApiStruct.new(:id, :role, :main, :custom)
       def instance_name
         "#{role} #{id}"

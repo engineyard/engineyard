@@ -1,7 +1,9 @@
-require 'engineyard-api-client/errors'
+require 'engineyard-cloud-client/errors'
+require 'engineyard-cloud-client/models'
+require 'engineyard-cloud-client/collections'
 
 module EY
-  class APIClient
+  class CloudClient
     class App < ApiStruct.new(:id, :name, :repository_uri)
 
       attr_reader :app_environments, :account

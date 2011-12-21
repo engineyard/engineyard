@@ -1,5 +1,5 @@
 module EY
-  class APIClient
+  class CloudClient
     module Collections
       class Abstract
         COLLAB_MESSAGE = <<-MSG

@@ -79,7 +79,7 @@ module EY
         raise EY::Error, "Deploy failed"
       end
 
-    rescue EY::APIClient::NoEnvironmentError => e
+    rescue EY::CloudClient::NoEnvironmentError => e
       # Give better feedback about why we couldn't find the environment.
       exists = api.environments.named(options[:environment])
       raise exists ? EnvironmentUnlinkedError.new(options[:environment]) : e
@@ -134,7 +134,7 @@ module EY
           message << "The following environments contain those applications:\n\n"
           EY.ui.warn(message)
         elsif apps.empty?
-          EY.ui.warn(EY::APIClient::NoAppError.new(repo, EY.config.endpoint).message + "\nUse #{self.class.send(:banner_base)} environments --all to see all environments.")
+          EY.ui.warn(EY::CloudClient::NoAppError.new(repo, EY.config.endpoint).message + "\nUse #{self.class.send(:banner_base)} environments --all to see all environments.")
         end
 
         EY.ui.print_envs(apps, EY.config.default_environment, options[:simple])
