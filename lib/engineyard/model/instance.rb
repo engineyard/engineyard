@@ -87,9 +87,14 @@ module EY
 
         exit_code = nil
         cmd = Escape.shell_command(['bash', '-lc', remote_command])
+        block.call("Running command on #{environment.username}@#{hostname}.\n")
+        if cmd.respond_to?(:encoding) && cmd.respond_to?(:force_encoding)
+          block.call("Encoding: #{cmd.encoding.name}") if verbose
+          cmd.force_encoding('binary')
+          block.call(" => #{cmd.encoding.name}; __ENCODING__: #{__ENCODING__.name}; LANG: #{ENV['LANG']}; LC_CTYPE: #{ENV['LC_CTYPE']}\n") if verbose
+        end
         EY.ui.debug(cmd)
-        block.call("Triggering deploy on #{environment.username}@#{hostname}.\n")
-        block.call(cmd) if verbose
+        block.call("Command: #{cmd}\n") if verbose
         if ENV["NO_SSH"]
           block.call("NO_SSH is set. No output.")
           true

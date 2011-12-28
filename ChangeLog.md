@@ -2,7 +2,8 @@
 
 ## NEXT
 
-  *
+  * Force encoding on commands going across Net::SSH (which seems incapable of handling UTF-8 encoded strings)
+  * Diagnostic code for command encoding when running in verbose mode.
 
 ## v1.4.16 (2011-12-21)
 
