@@ -219,6 +219,13 @@ Setup:
     token = EY::CloudClient.authenticate("your@email.com", "password")
     client = EY::CloudClient.new(token)
 
+Current User:
+
+    user = client.current_user
+    user.class # => EY::CloudClient::User
+    user.name  # => "Your Name"
+    user.email # => "your@email.com"
+
 Apps:
 
     apps = client.apps # loads all your app data at once; caches result
