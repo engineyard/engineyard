@@ -212,23 +212,23 @@ Command:
 
 == API Client
 
-This library also contains a Ruby client library to the Engine Yard Cloud API.
+This library also contains a Ruby ey_api library to the Engine Yard Cloud API.
 
 Setup:
 
-    token = EY::CloudClient.authenticate("your@email.com", "password")
-    client = EY::CloudClient.new(token)
+    token  = EY::CloudClient.authenticate("your@email.com", "password")
+    ey_api = EY::CloudClient.new(token)
 
 Current User:
 
-    user = client.current_user
+    user = ey_api.current_user
     user.class # => EY::CloudClient::User
     user.name  # => "Your Name"
     user.email # => "your@email.com"
 
 Apps:
 
-    apps = client.apps # loads all your app data at once; caches result
+    apps = ey_api.apps # loads all your app data at once; caches result
 
     app = apps.find {|app| app.name == 'myapp'}
     app.class           # => EY::CloudClient::App
@@ -250,7 +250,7 @@ Accounts:
 
 Environments:
 
-    envs = client.environments # loads all your environment data at once; caches result
+    envs = ey_api.environments # loads all your environment data at once; caches result
 
     env = envs.find {|e| e.name == 'myapp_production'}
     env.class             # => EY::CloudClient::Environment
