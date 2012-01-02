@@ -22,6 +22,19 @@ module EY
         Collections::Environments.new(super)
       end
 
+
+      def create_for_app(app)
+        # require name, framework_env [production], app_server_stack_name [nginx_passenger3]
+        params = {
+          "environment" => {
+            "name" => name,
+            "framework_env" => framework_env || "production",
+            "app_server_stack_name" => app_server_stack_name || "nginx_passenger3"
+          }
+        }
+        response = api.request("/environments", :method => :post, :params => params)
+      end
+
       def account_name
         account && account.name
       end

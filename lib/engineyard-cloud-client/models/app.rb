@@ -6,7 +6,7 @@ module EY
   class CloudClient
     class App < ApiStruct.new(:id, :name, :repository_uri)
 
-      attr_reader :app_environments, :account
+      attr_reader :app_environments, :account, :app_type_id
 
       def self.from_array(*)
         Collections::Apps.new(super)
@@ -20,6 +20,33 @@ module EY
           app_env_hashes = attrs['environments'].map { |env| {'app' => self, 'environment' => env} }
           @app_environments = AppEnvironment.from_array(api, app_env_hashes)
         end
+      end
+
+      def self.create(api, account, name, repository_uri, app_type_id)
+        environment = self.class.new(api, {
+          "account" => account,
+          "name" => name,
+          "repository_uri" => repository_uri,
+          "app_type_id" => app_type_id
+        })
+        environment.create
+      end
+
+      def create
+        # require name, repository_uri, account
+        params = {
+          "app" => {
+            "name"           => name,
+            "repository_uri" => repository_uri,
+            "app_type_id"    => app_type_id,
+          }
+        }
+        response = api.request("/accounts/#{account.id}/apps", :method => :post, :params => params)
+        self.id = response.id
+      # rescue EY::CloudClient::RequestFailed => e
+        # Examples (multiple fields can have errors)
+        # 422 Unprocessable Entity {"errors":{"name":["Application name must not contain spaces or special characters"],"repository_uri":["Git Repository URI malformed. Cannot access relative or file based URIs."]}}
+
       end
 
       def sole_environment

@@ -46,6 +46,23 @@ describe "EY::CloudClient::Environment.from_array" do
   end
 end
 
+describe "EY::CloudClient::Environment.create" do
+  it "returns false if id already set" do
+    env = EY::CloudClient::Environment.new(ey_api, {"id" => 32340, "name" => 'iceberg'})
+    env.create.should be_false
+  end
+
+  it "returns false if missing name" do
+    env = EY::CloudClient::Environment.new(ey_api, {'account' => {'name' => 'myaccount'}})
+    env.create.should be_false
+  end
+
+  it "returns false if missing account" do
+    env = EY::CloudClient::Environment.new(ey_api, {"name" => 'iceberg'})
+    env.create.should be_false
+  end
+end
+
 describe "EY::CloudClient::Environment#instances" do
   it "returns instances" do
     instance_data = {
