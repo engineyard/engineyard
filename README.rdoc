@@ -208,3 +208,72 @@ Command:
 
   Description:
     Remove the current API key from ~/.eyrc or env variable $EYRC
+
+
+== API Client
+
+This library also contains a Ruby client library to the Engine Yard Cloud API.
+
+Setup:
+
+    token = EY::CloudClient.authenticate("your@email.com", "password")
+    client = EY::CloudClient.new(token)
+
+Apps:
+
+    apps = client.apps # loads all your app data at once; caches result
+
+    app = apps.find {|app| app.name == 'myapp'}
+    app.class           # => EY::CloudClient::App
+    app.name            # => 'myapp'
+    app.id              # => 123
+    app.repository_uri  # => git@github.com:myaccount/myapp.git
+
+    app.account.class   # => EY::CloudClient::Account
+
+    app.app_environments.first.class # => EY::CloudClient::AppEnvironment
+    app.app_environments.map {|e| e.environment.name} # => ['myapp_production', 'myapp_staging']
+
+Accounts:
+
+    account = app.account
+    account.class   # => EY::CloudClient::Account
+    account.id      # => 1234
+    account.name    # => 'myaccount'
+
+Environments:
+
+    envs = client.environments # loads all your environment data at once; caches result
+
+    env = envs.find {|e| e.name == 'myapp_production'}
+    env.class             # => EY::CloudClient::Environment
+    env.name              # => 'myapp_production'
+    env.id                # => 2345
+    env.framework_env     # => "production"
+    env.app_server_stack_name     # => "nginx_thin"
+    env.deployment_configurations # => {"myapp"=>{"name"=>"myapp", "uri"=>nil, "migrate"=>{"command"=>"rake db:migrate", "perform"=>false}, "repository_uri"=>"git@github.com:myaccount/myapp.git", "id"=>123, "domain_name"=>"_"}}
+    env.load_balancer_ip_address  # => "1.2.3.4"
+
+    # if environment isn't booted
+    env.instances_count     # => 0
+    env.app_master          # => nil
+    env.instances.count     # => []
+
+    # if environment is booted
+    env.instances_count     # => 1
+    env.app_master.class    # => EY::CloudClient::Instance
+    env.instances.first.class # => EY::CloudClient::Instance
+
+
+Valid `app_server_stack_name` values: `nginx_unicorn, nginx_passenger3, nginx_nodejs, nginx_thin, nginx_puma`. Your account may require an early access feature to be enabled.
+
+Instances:
+
+    instance = env.instances.first
+    instance.class        # => EY::CloudClient::Instance
+    instance.id           # => 12345
+    instance.role         # => "solo"
+    instance.status       # => "running"
+    instance.amazon_id    # => "i-abcdefg"
+    instance.hostname     # => "ec2-1-2-3-4.compute-1.amazonaws.com"
+    instance.public_hostname # => "ec2-1-2-3-4.compute-1.amazonaws.com" # alias of hostname
