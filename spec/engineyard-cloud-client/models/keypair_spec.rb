@@ -2,9 +2,6 @@ require 'spec_helper'
 
 describe "EY::CloudClient::Keypair.all" do
   it "hits the index action in the API" do
-    EY.ui = EY::CLI::UI.new
-    ENV['DEBUG']='1'
-
     response = {
       "keypairs" => [
         {
