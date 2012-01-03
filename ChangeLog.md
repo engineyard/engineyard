@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v1.4.18 (2012-01-03)
+
   * Previous release had gemspec problems (seriously rubygems, releasing from 1.9.3 shouldn't break everyone on 1.8)
 
 ## v1.4.17 (2011-12-28)
