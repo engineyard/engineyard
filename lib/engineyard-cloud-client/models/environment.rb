@@ -36,8 +36,8 @@ module EY
       # })
       def self.create(api, app, attrs={})
         params = {
-          "name"   => attrs[:name] || attrs['name'],
-          "region" => attrs[:region] || attrs['region'] || DEFAULT_REGION,
+          "name"                  => attrs[:name] || attrs['name'],
+          "region"                => attrs[:region] || attrs['region'] || DEFAULT_REGION,
           "app_server_stack_name" => attrs[:app_server_stack_name] || attrs['app_server_stack_name'] || DEFAULT_APP_SERVER_STACK_NAME,
           "framework_env"         => attrs[:framework_env] || attrs['framework_env'] || DEFAULT_FRAMEWORK_ENV
         }
