@@ -4,9 +4,9 @@ require 'engineyard-cloud-client/collections'
 
 module EY
   class CloudClient
-    class App < ApiStruct.new(:id, :name, :repository_uri)
+    class App < ApiStruct.new(:id, :name, :repository_uri, :app_type_id)
 
-      attr_reader :app_environments, :account, :app_type_id
+      attr_reader :app_environments, :account
 
       def self.from_array(*)
         Collections::Apps.new(super)
@@ -22,16 +22,20 @@ module EY
         end
       end
 
+      # An everything-you-need helper to create an App
       def self.create(api, account, name, repository_uri, app_type_id)
-        environment = self.class.new(api, {
+        environment = self.new(api, {
           "account" => account,
           "name" => name,
           "repository_uri" => repository_uri,
           "app_type_id" => app_type_id
         })
         environment.create
+        environment
       end
 
+      # If successful, returns true and sets +id+ to the new id value
+      # If unsuccessful, raises +EY::CloudClient::RequestFailed+
       def create
         # require name, repository_uri, account
         params = {
@@ -43,6 +47,7 @@ module EY
         }
         response = api.request("/accounts/#{account.id}/apps", :method => :post, :params => params)
         self.id = response.id
+        true
       # rescue EY::CloudClient::RequestFailed => e
         # Examples (multiple fields can have errors)
         # 422 Unprocessable Entity {"errors":{"name":["Application name must not contain spaces or special characters"],"repository_uri":["Git Repository URI malformed. Cannot access relative or file based URIs."]}}

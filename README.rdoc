@@ -241,6 +241,12 @@ Apps:
     app.app_environments.first.class # => EY::CloudClient::AppEnvironment
     app.app_environments.map {|e| e.environment.name} # => ['myapp_production', 'myapp_staging']
 
+Create a new application (to be booted within Environments):
+
+    account = EY::CloudClient::Account.new(ey_api, {:id => 4212, :name => 'drnic'})
+    app = EY::CloudClient::App.create(ey_api, account, 'myapp2', 'git@github.com:myaccount/myapp2.git', 'rails3')
+
+
 Accounts:
 
     account = app.account
@@ -284,3 +290,25 @@ Instances:
     instance.amazon_id    # => "i-abcdefg"
     instance.hostname     # => "ec2-1-2-3-4.compute-1.amazonaws.com"
     instance.public_hostname # => "ec2-1-2-3-4.compute-1.amazonaws.com" # alias of hostname
+
+Debugging:
+
+Setup for debugging:
+
+    ENV['DEBUG']='1'
+    require 'engineyard/cli'
+    EY.ui = EY::CLI::UI.new
+
+The API commands will print internal information:
+
+    app = EY::CloudClient::App.create(ey_api, account, 'myapp2', 'git@github.com:myaccount/myapp2.git', 'rails3')
+           Token  YOURTOKEN
+         Request  POST https://cloud.engineyard.com/api/v2/accounts/1234/apps
+          Params  {"app"=>{"name"=>"myapp2", "app_type_id"=>"rails3", "repository_uri"=>"git@github.com:myaccount/myapp2.git"}}
+        Response
+    {"app"=>
+      {"environments"=>[],
+       "name"=>"myapp2",
+       "repository_uri"=>"git@github.com:myaccount/myapp2.git",
+       "account"=>{"name"=>"myaccount", "id"=>1234},
+       "id"=>12345}}
