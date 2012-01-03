@@ -10,11 +10,6 @@ module EY
 
       attr_accessor :ignore_bad_master, :apps, :account, :instances, :app_master
 
-      # TODO - are these defaults all handled by the server and can be removed from the client lib?
-      DEFAULT_REGION                = "us-east-1"
-      DEFAULT_APP_SERVER_STACK_NAME = "nginx_passenger3"
-      DEFAULT_FRAMEWORK_ENV         = "production"
-
       def initialize(api, attrs)
         super
 
@@ -42,11 +37,7 @@ module EY
       # TODO - allow any attribute to be sent through that the API might allow; e.g. region, ruby_version, stack_label
       def self.create(api, attrs={})
         app    = attrs.delete("app")
-        params = attrs.merge(
-          "region"                => DEFAULT_REGION,
-          "app_server_stack_name" => DEFAULT_APP_SERVER_STACK_NAME,
-          "framework_env"         => DEFAULT_FRAMEWORK_ENV
-        )
+        params = attrs.dup
         raise EY::CloudClient::AttributeRequiredError.new("app", EY::CloudClient::App) unless app
         raise EY::CloudClient::AttributeRequiredError.new("name") unless params["name"]
         response = api.request("/apps/#{app.id}/environments", :method => :post, :params => {"environment" => params})
