@@ -99,6 +99,7 @@ module EY
 
       begin
         EY.ui.debug("Request", "#{method.to_s.upcase} #{url}")
+        EY.ui.debug("Params", params.inspect)
         case method
         when :get, :delete, :head
           url.query = RestClient::Payload::UrlEncoded.new(params).to_s
