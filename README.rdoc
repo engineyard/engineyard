@@ -260,6 +260,15 @@ Accounts:
     account.id      # => 1234
     account.name    # => 'myaccount'
 
+Keypairs:
+
+Upload your SSH public keys before you create Environments.
+
+    keypair = EY::CloudClient::Keypair.create(ey_api, {
+      "name"       => 'laptop',
+      "public_key" => "ssh-rsa OTHERKEYPAIR"
+    })
+
 Environments:
 
     envs = ey_api.environments # loads all your environment data at once; caches result
