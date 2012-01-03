@@ -10,6 +10,7 @@ module EY
 
       attr_accessor :ignore_bad_master, :apps, :account, :instances, :app_master
 
+      # TODO - are these defaults all handled by the server and can be removed from the client lib?
       DEFAULT_REGION                = "us-east-1"
       DEFAULT_APP_SERVER_STACK_NAME = "nginx_passenger3"
       DEFAULT_FRAMEWORK_ENV         = "production"
