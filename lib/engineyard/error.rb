@@ -85,16 +85,4 @@ Usage: ey deploy --migrate
     end
   end
 
-  # API errors
-
-  class AttributeRequiredError < EY::Error
-    def initialize(attribute_name, klass = nil)
-      if klass
-        super "Attribute '#{attribute_name}' of class #{klass} is required for this action."
-      else
-        super "Attribute '#{attribute_name}' is required for this action."
-      end
-    end
-  end
-
 end

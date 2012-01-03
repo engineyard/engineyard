@@ -25,6 +25,16 @@ module EY
     class NoMatchesError       < ResolverError; end
     class MultipleMatchesError < ResolverError; end
 
+    class AttributeRequiredError < Error
+      def initialize(attribute_name, klass = nil)
+        if klass
+          super "Attribute '#{attribute_name}' of class #{klass} is required for this action."
+        else
+          super "Attribute '#{attribute_name}' is required for this action."
+        end
+      end
+    end
+
     class NoAppError < Error
       def initialize(repo, endpoint)
         super <<-ERROR
