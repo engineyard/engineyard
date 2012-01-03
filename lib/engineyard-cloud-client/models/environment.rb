@@ -47,8 +47,8 @@ module EY
           "app_server_stack_name" => DEFAULT_APP_SERVER_STACK_NAME,
           "framework_env"         => DEFAULT_FRAMEWORK_ENV
         )
-        raise EY::AttributeRequiredError.new("app", EY::CloudClient::App) unless app
-        raise EY::AttributeRequiredError.new("name") unless params["name"]
+        raise EY::CloudClient::AttributeRequiredError.new("app", EY::CloudClient::App) unless app
+        raise EY::CloudClient::AttributeRequiredError.new("name") unless params["name"]
         response = api.request("/apps/#{app.id}/environments", :method => :post, :params => {"environment" => params})
         self.from_hash(api, response['environment'])
       end

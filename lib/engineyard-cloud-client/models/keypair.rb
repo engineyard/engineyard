@@ -27,8 +27,8 @@ module EY
       # NOTE: Syntax above is for Ruby 1.9. In Ruby 1.8, keys must all be strings.
       def self.create(api, attrs = {})
         params = attrs.dup # no default fields
-        raise EY::AttributeRequiredError.new("name") unless params["name"]
-        raise EY::AttributeRequiredError.new("public_key") unless params["public_key"]
+        raise EY::CloudClient::AttributeRequiredError.new("name") unless params["name"]
+        raise EY::CloudClient::AttributeRequiredError.new("public_key") unless params["public_key"]
         response = api.request("/keypairs", :method => :post, :params => {"keypair" => params})
         self.from_hash(api, response['keypair'])
       end

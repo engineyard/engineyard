@@ -38,10 +38,10 @@ module EY
       def self.create(api, attrs = {})
         account = attrs.delete("account")
         params = attrs.dup # no default fields
-        raise EY::AttributeRequiredError.new("account", EY::CloudClient::Account) unless account
-        raise EY::AttributeRequiredError.new("name") unless params["name"]
-        raise EY::AttributeRequiredError.new("repository_uri") unless params["repository_uri"]
-        raise EY::AttributeRequiredError.new("app_type_id") unless params["app_type_id"]
+        raise EY::CloudClient::AttributeRequiredError.new("account", EY::CloudClient::Account) unless account
+        raise EY::CloudClient::AttributeRequiredError.new("name") unless params["name"]
+        raise EY::CloudClient::AttributeRequiredError.new("repository_uri") unless params["repository_uri"]
+        raise EY::CloudClient::AttributeRequiredError.new("app_type_id") unless params["app_type_id"]
         response = api.request("/accounts/#{account.id}/apps", :method => :post, :params => {"app" => params})
         self.from_hash(api, response['app'])
       end
