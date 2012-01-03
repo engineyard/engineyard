@@ -277,6 +277,17 @@ Environments:
     env.app_master.class    # => EY::CloudClient::Instance
     env.instances.first.class # => EY::CloudClient::Instance
 
+Create a new environment (for a given App):
+
+    app = EY::CloudClient::App.new(ey_api, {:id => 4212, :name => 'drnic'})
+    env = EY::CloudClient::Environment.create(ey_api, {
+      :app                   => app,
+      :name                  => 'myapp_production',
+      :app_server_stack_name => 'nginx_thin',       # default: nginx_passenger3
+      :region                => 'us-west-1',        # default: us-east-1
+      :framework_env         => 'staging'           # default: production
+    })
+
 
 Valid `app_server_stack_name` values: `nginx_unicorn, nginx_passenger3, nginx_nodejs, nginx_thin, nginx_puma`. Your account may require an early access feature to be enabled.
 

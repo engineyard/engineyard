@@ -28,19 +28,23 @@ module EY
       end
 
       # Usage
-      # Environment.create(api, app, {
+      # Environment.create(api, {
+      #      app: app,                            # requires: app.id
       #      name: 'myapp_production',
       #      region: 'us-west-1',                 # default: us-east-1
       #      app_server_stack_name: 'nginx_thin', # default: nginx_passenger3
       #      framework_env: 'staging'             # default: production
       # })
-      def self.create(api, app, attrs={})
+      def self.create(api, attrs={})
         params = {
+          "app"                   => attrs[:app] || attrs['app'],
           "name"                  => attrs[:name] || attrs['name'],
           "region"                => attrs[:region] || attrs['region'] || DEFAULT_REGION,
           "app_server_stack_name" => attrs[:app_server_stack_name] || attrs['app_server_stack_name'] || DEFAULT_APP_SERVER_STACK_NAME,
           "framework_env"         => attrs[:framework_env] || attrs['framework_env'] || DEFAULT_FRAMEWORK_ENV
         }
+        app = params["app"]
+        raise EY::AttributeRequiredError.new("app", EY::CloudClient::App) unless app
         raise EY::AttributeRequiredError.new("name") unless params["name"]
         response = api.request("/apps/#{app.id}/environments", :method => :post, :params => {"environment" => params})
         EY::CloudClient::Environment.from_hash(api, response['environment'])

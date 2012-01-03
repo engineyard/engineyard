@@ -37,7 +37,8 @@ describe "EY::CloudClient::Environment.create" do
     FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/apps/12345/environments",
       :body => response.to_json, :content_type => "application/json")
 
-    env = EY::CloudClient::Environment.create(ey_api, app, {
+    env = EY::CloudClient::Environment.create(ey_api, {
+      :app  => app,
       :name => 'myapp_production',
       'app_server_stack_name' => 'nginx_thin',
       :region => 'us-west-1'
