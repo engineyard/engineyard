@@ -2,6 +2,9 @@ require 'spec_helper'
 
 describe "EY::CloudClient::Keypair.all" do
   it "hits the index action in the API" do
+    EY.ui = EY::CLI::UI.new
+    ENV['DEBUG']='1'
+
     response = {
       "keypairs" => [
         {
@@ -18,7 +21,6 @@ describe "EY::CloudClient::Keypair.all" do
 
     keypairs = EY::CloudClient::Keypair.all(ey_api)
 
-    FakeWeb.should have_requested(:get, "https://cloud.engineyard.com/api/v2/keypairs")
     keypairs.length.should == 1
     keypairs.first.name.should == "macbook pro"
   end

@@ -21,6 +21,10 @@ Specify --account ACCOUNT_NAME to resolve this ambiguity.
           @contents
         end
 
+        def length
+          @contents.length
+        end
+
         def named(name, account_name=nil)
           name = name.downcase
           account_name = account_name.downcase if account_name
