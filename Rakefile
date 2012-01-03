@@ -75,7 +75,7 @@ end
 
 def run_commands(*cmds)
   cmds.flatten.each do |c|
-    system(c) or raise "Command "#{c}" failed to execute; aborting!"
+    system(c) or raise "Command #{c.inspect} failed to execute; aborting!"
   end
 end
 
