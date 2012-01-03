@@ -1,5 +1,23 @@
 require 'spec_helper'
 
+describe "EY::CloudClient::App.all" do
+  it "hits the index action in the API" do
+    pending
+    response = {
+      "apps" => [
+      ]
+    }
+
+    FakeWeb.register_uri(:get, "https://cloud.engineyard.com/api/v2/apps",
+      :body => response.to_json, :content_type => "application/json")
+
+    apps = EY::CloudClient::App.all(ey_api)
+
+    apps.length.should == 1
+    apps.first.name.should == "myapp"
+  end
+end
+
 describe "EY::CloudClient::App.create" do
   it "hits the create app action in the API" do
     account = EY::CloudClient::Account.new(ey_api, {:id => 1234, :name => 'myaccount'})
@@ -28,5 +46,11 @@ describe "EY::CloudClient::App.create" do
 
     app.name.should == "myapp"
     app.account.name.should == "myaccount"
+  end
+end
+
+describe "EY::CloudClient::App#destroy" do
+  it "hits the destroy action in the API" do
+    pending
   end
 end

@@ -1,5 +1,23 @@
 require 'spec_helper'
 
+describe "EY::CloudClient::Environment.all" do
+  it "hits the index action in the API" do
+    pending
+    response = {
+      "environments" => [
+      ]
+    }
+
+    FakeWeb.register_uri(:get, "https://cloud.engineyard.com/api/v2/environments",
+      :body => response.to_json, :content_type => "application/json")
+
+    environments = EY::CloudClient::Environment.all(ey_api)
+
+    environments.length.should == 1
+    environments.first.name.should == "myapp_production"
+  end
+end
+
 describe "EY::CloudClient::Environment.create" do
   it "hits the create action in the API without any cluster configuration (0 instances booted)" do
     account = EY::CloudClient::Account.new(ey_api, {:id => 1234, :name => 'myaccount'})
@@ -112,6 +130,12 @@ describe "EY::CloudClient::Environment.create" do
     env.name.should == "myapp_production"
     env.instances.count.should == 1
     env.app_master.role.should == "solo"
+  end
+end
+
+describe "EY::CloudClient::Environment#destroy" do
+  it "hits the destroy action in the API" do
+    pending
   end
 end
 

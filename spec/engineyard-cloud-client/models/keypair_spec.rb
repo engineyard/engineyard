@@ -48,3 +48,9 @@ describe "EY::CloudClient::Keypair.create" do
     keypair.public_key.should == "ssh-rsa OTHERKEYPAIR"
   end
 end
+
+describe "EY::CloudClient::Keypair#destroy" do
+  it "hits the destroy action in the API" do
+    pending
+  end
+end
