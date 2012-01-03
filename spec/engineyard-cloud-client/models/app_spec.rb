@@ -1,10 +1,7 @@
 require 'spec_helper'
 
 describe "EY::CloudClient::App.create" do
-  given "integration"
-
   it "hits the create action in the API" do
-    api_scenario "empty"
     account = EY::CloudClient::Account.new(ey_api, {:id => 1234, :name => 'myaccount'})
 
     FakeWeb.register_uri(
