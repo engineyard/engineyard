@@ -27,19 +27,17 @@ module EY
       # If unsuccessful, raises +EY::CloudClient::RequestFailed+
       #
       # Usage
-      # App.create(api, {
-      #   "account"        => account         # requires: account.id
-      #   "name"           => "myapp",
-      #   "repository_uri" => "git@github.com:mycompany/myapp.git",
-      #   "app_type_id"    => "rails3",
-      # })
+      # App.create(api,
+      #   account:        account         # requires: account.id
+      #   name:           "myapp",
+      #   repository_uri: "git@github.com:mycompany/myapp.git",
+      #   app_type_id:    "rails3",
+      # )
+      #
+      # NOTE: Syntax above is for Ruby 1.9. In Ruby 1.8, keys must all be strings.
       def self.create(api, attrs = {})
-        params = {
-          "name"           => attrs[:name] || attrs['name'],
-          "repository_uri" => attrs[:repository_uri] || attrs["repository_uri"],
-          "app_type_id"    => attrs[:app_type_id] || attrs["app_type_id"]
-        }
-        account = attrs["account"] || attrs[:account]
+        account = attrs.delete("account")
+        params = attrs.dup # no default fields
         raise EY::AttributeRequiredError.new("account", EY::CloudClient::Account) unless account
         raise EY::AttributeRequiredError.new("name") unless params["name"]
         raise EY::AttributeRequiredError.new("repository_uri") unless params["repository_uri"]

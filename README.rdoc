@@ -286,12 +286,12 @@ Environments:
 Create a new environment (for a given App):
 
     app = EY::CloudClient::App.new(ey_api, {:id => 4212, :name => 'drnic'})
-    env = EY::CloudClient::Environment.create(ey_api, {
-      :app                   => app,
-      :name                  => 'myapp_production',
-      :app_server_stack_name => 'nginx_thin',       # default: nginx_passenger3
-      :region                => 'us-west-1',        # default: us-east-1
-      :framework_env         => 'staging'           # default: production
+    env = EY::CloudClient::Environment.create(ey_api,
+      "app"                   => app,
+      "name"                  => 'myapp_production',
+      "app_server_stack_name" => 'nginx_thin',       # default: nginx_passenger3
+      "region"                => 'us-west-1',        # default: us-east-1
+      "framework_env"         => 'staging'           # default: production
     })
 
 

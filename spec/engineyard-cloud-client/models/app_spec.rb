@@ -18,10 +18,10 @@ describe "EY::CloudClient::App.create" do
       :body => response.to_json, :content_type => "application/json")
 
     app = EY::CloudClient::App.create(ey_api, {
-      :account => account,
-      :name => 'myapp',
-      'repository_uri' => 'git@github.com:myaccount/myapp.git',
-      :app_type_id => 'rails3'
+      "account"        => account,
+      "name"           => 'myapp',
+      "repository_uri" => 'git@github.com:myaccount/myapp.git',
+      "app_type_id"    => 'rails3'
     })
 
     FakeWeb.should have_requested(:post, "https://cloud.engineyard.com/api/v2/accounts/1234/apps")
