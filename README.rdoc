@@ -244,8 +244,14 @@ Apps:
 Create a new application (to be booted within Environments):
 
     account = EY::CloudClient::Account.new(ey_api, {:id => 4212, :name => 'drnic'})
-    app = EY::CloudClient::App.create(ey_api, account, 'myapp2', 'git@github.com:myaccount/myapp2.git', 'rails3')
+    app = EY::CloudClient::App.create(ey_api,
+      "account"        => account
+      "name"           => "myapp",
+      "repository_uri" => "git@github.com:mycompany/myapp.git",
+      "app_type_id"    => "rails3",
+    })
 
+Valid `app_type_id` are: `rack, rails2, rails3, rails4, sinatra, nodejs`. For some your account may require an early access feature to be enabled.
 
 Accounts:
 
@@ -289,7 +295,7 @@ Create a new environment (for a given App):
     })
 
 
-Valid `app_server_stack_name` values: `nginx_unicorn, nginx_passenger3, nginx_nodejs, nginx_thin, nginx_puma`. Your account may require an early access feature to be enabled.
+Valid `app_server_stack_name` values: `nginx_unicorn, nginx_passenger3, nginx_nodejs, nginx_thin, nginx_puma`. For some your account may require an early access feature to be enabled.
 
 Instances:
 
