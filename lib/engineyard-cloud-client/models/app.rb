@@ -23,6 +23,8 @@ module EY
       end
 
       # An everything-you-need helper to create an App
+      # If successful, returns new App
+      # If unsuccessful, raises +EY::CloudClient::RequestFailed+
       def self.create(api, account, name, repository_uri, app_type_id)
         environment = self.new(api, {
           "account" => account,

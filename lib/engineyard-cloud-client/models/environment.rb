@@ -10,8 +10,13 @@ module EY
 
       attr_accessor :ignore_bad_master, :apps, :account, :instances, :app_master
 
+      DEFAULT_REGION                = "us-east-1"
+      DEFAULT_APP_SERVER_STACK_NAME = "nginx_passenger3"
+      DEFAULT_FRAMEWORK_ENV         = "production"
+
       def initialize(api, attrs)
         super
+
         @apps = App.from_array(api, attrs['apps']) if attrs['apps']
         @account = Account.from_hash(api, attrs['account']) if attrs['account']
         @instances = Instance.from_array(api, attrs['instances'], 'environment' => self) if attrs['instances']
@@ -22,17 +27,23 @@ module EY
         Collections::Environments.new(super)
       end
 
-
-      def create_for_app(app)
-        # require name, framework_env [production], app_server_stack_name [nginx_passenger3]
+      # Usage
+      # Environment.create(api, app, {
+      #      name: 'myapp_production',
+      #      region: 'us-west-1',                 # default: us-east-1
+      #      app_server_stack_name: 'nginx_thin', # default: nginx_passenger3
+      #      framework_env: 'staging'             # default: production
+      # })
+      def self.create(api, app, attrs={})
         params = {
-          "environment" => {
-            "name" => name,
-            "framework_env" => framework_env || "production",
-            "app_server_stack_name" => app_server_stack_name || "nginx_passenger3"
-          }
+          "name"   => attrs[:name] || attrs['name'],
+          "region" => attrs[:region] || attrs['region'] || DEFAULT_REGION,
+          "app_server_stack_name" => attrs[:app_server_stack_name] || attrs['app_server_stack_name'] || DEFAULT_APP_SERVER_STACK_NAME,
+          "framework_env"         => attrs[:framework_env] || attrs['framework_env'] || DEFAULT_FRAMEWORK_ENV
         }
-        response = api.request("/environments", :method => :post, :params => params)
+        raise EY::AttributeRequiredError.new("name") unless params["name"]
+        response = api.request("/apps/#{app.id}/environments", :method => :post, :params => {"environment" => params})
+        EY::CloudClient::Environment.from_hash(api, response['environment'])
       end
 
       def account_name

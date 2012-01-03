@@ -84,4 +84,13 @@ Usage: ey deploy --migrate
       ERR
     end
   end
+
+  # API errors
+
+  class AttributeRequiredError < EY::Error
+    def initialize(attribute_name)
+      super "Attribute '#{attribute_name}' is required for this action."
+    end
+  end
+
 end

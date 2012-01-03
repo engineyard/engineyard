@@ -1,5 +1,54 @@
 require 'spec_helper'
 
+describe "EY::CloudClient::Environment.create" do
+  it "hits the create action in the API" do
+    account = EY::CloudClient::Account.new(ey_api, {:id => 1234, :name => 'myaccount'})
+    app = EY::CloudClient::App.new(ey_api, {:account => account, :id => 12345, :name => 'myapp',
+      :repository_uri => 'git@github.com:myaccount/myapp.git', :app_type_id => 'rails3'})
+
+    response =   {
+      "environment"=>
+        {"apps"=>
+          [{"name"=>"myapp",
+            "repository_uri"=>"git@github.com:myaccount/myapp.git",
+            "account"=>{"name"=>"myaccount", "id"=>1234},
+            "id"=>12345}],
+         "name"=>"myapp_production",
+         "deployment_configurations"=>
+          {"myapp"=>
+            {"name"=>"myapp",
+             "uri"=>nil,
+             "migrate"=>{"command"=>"rake db:migrate", "perform"=>true},
+             "repository_uri"=>"git@github.com:myaccount/myapp.git",
+             "id"=>12345,
+             "domain_name"=>"_"}},
+         "instances"=>[],
+         "app_master"=>nil,
+         "framework_env"=>"production",
+         "stack_name"=>"nginx_thin",
+         "account"=>{"name"=>"drnic", "id"=>1234},
+         "app_server_stack_name"=>"nginx_thin",
+         "ssh_username"=>"deploy",
+         "load_balancer_ip_address"=>nil,
+         "instances_count"=>0,
+         "id"=>30573,
+         "instance_status"=>"none"}}
+
+    FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/apps/12345/environments",
+      :body => response.to_json, :content_type => "application/json")
+
+    env = EY::CloudClient::Environment.create(ey_api, app, {
+      :name => 'myapp_production',
+      'app_server_stack_name' => 'nginx_thin',
+      :region => 'us-west-1'
+    })
+    FakeWeb.should have_requested(:post, "https://cloud.engineyard.com/api/v2/apps/12345/environments")
+
+    p env
+    env.name.should == "myapp_production"
+  end
+end
+
 describe "EY::CloudClient::Environment#rebuild" do
   it "hits the rebuild action in the API" do
     env = EY::CloudClient::Environment.from_hash(ey_api, { "id" => 46534 })
@@ -43,23 +92,6 @@ describe "EY::CloudClient::Environment.from_array" do
     collection = EY::CloudClient::Environment.from_array(ey_api, api_data)
     collection.should respond_to(:each)
     collection.should respond_to(:match_one)
-  end
-end
-
-describe "EY::CloudClient::Environment.create" do
-  it "returns false if id already set" do
-    env = EY::CloudClient::Environment.new(ey_api, {"id" => 32340, "name" => 'iceberg'})
-    env.create.should be_false
-  end
-
-  it "returns false if missing name" do
-    env = EY::CloudClient::Environment.new(ey_api, {'account' => {'name' => 'myaccount'}})
-    env.create.should be_false
-  end
-
-  it "returns false if missing account" do
-    env = EY::CloudClient::Environment.new(ey_api, {"name" => 'iceberg'})
-    env.create.should be_false
   end
 end
 
