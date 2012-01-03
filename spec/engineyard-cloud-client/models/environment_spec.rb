@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe "EY::CloudClient::Environment.create" do
-  it "hits the create action in the API" do
+  it "hits the create action in the API without any cluster configuration (0 instances booted)" do
     account = EY::CloudClient::Account.new(ey_api, {:id => 1234, :name => 'myaccount'})
     app = EY::CloudClient::App.new(ey_api, {:account => account, :id => 12345, :name => 'myapp',
       :repository_uri => 'git@github.com:myaccount/myapp.git', :app_type_id => 'rails3'})
@@ -48,6 +48,70 @@ describe "EY::CloudClient::Environment.create" do
     env.name.should == "myapp_production"
     env.account.name.should == "myaccount"
     env.apps.to_a.first.name.should == "myapp"
+  end
+
+  it "hits the create action and requests a solo instance booted" do
+    account = EY::CloudClient::Account.new(ey_api, {:id => 1234, :name => 'myaccount'})
+    app = EY::CloudClient::App.new(ey_api, {:account => account, :id => 12345, :name => 'myapp',
+      :repository_uri => 'git@github.com:myaccount/myapp.git', :app_type_id => 'rails3'})
+
+    response =   {
+      "environment"=>
+        {"apps"=>
+          [{"name"=>"myapp",
+            "repository_uri"=>"git@github.com:myaccount/myapp.git",
+            "account"=>{"name"=>"myaccount", "id"=>1234},
+            "id"=>12345}],
+         "name"=>"myapp_production",
+         "deployment_configurations"=>
+          {"myapp"=>
+            {"name"=>"myapp",
+             "uri"=>nil,
+             "migrate"=>{"command"=>"rake db:migrate", "perform"=>true},
+             "repository_uri"=>"git@github.com:myaccount/myapp.git",
+             "id"=>12345,
+             "domain_name"=>"_"}},
+         "instances"=>
+           [{"public_hostname"=>nil,
+             "name"=>nil,
+             "amazon_id"=>nil,
+             "role"=>"solo",
+             "id"=>135930,
+             "status"=>"starting"}],
+          "app_master"=>
+           {"public_hostname"=>nil,
+            "name"=>nil,
+            "amazon_id"=>nil,
+            "role"=>"solo",
+            "id"=>135930,
+            "status"=>"starting"},
+         "framework_env"=>"production",
+         "stack_name"=>"nginx_thin",
+         "account"=>{"name"=>"myaccount", "id"=>1234},
+         "app_server_stack_name"=>"nginx_thin",
+         "ssh_username"=>"deploy",
+         "load_balancer_ip_address"=>"50.18.248.18",
+         "instances_count"=>1,
+         "id"=>30573,
+         "instance_status"=>"starting"}}
+
+    FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/apps/12345/environments",
+      :body => response.to_json, :content_type => "application/json")
+
+    env = EY::CloudClient::Environment.create(ey_api, {
+      "app"                   => app,
+      "name"                  => "myapp_production",
+      "app_server_stack_name" => "nginx_thin",
+      "region"                => "us-west-1",
+      "cluster_configuration" => {
+        "configuration" => "solo"
+      }
+    })
+    FakeWeb.should have_requested(:post, "https://cloud.engineyard.com/api/v2/apps/12345/environments")
+
+    env.name.should == "myapp_production"
+    env.instances.count.should == 1
+    env.app_master.role.should == "solo"
   end
 end
 

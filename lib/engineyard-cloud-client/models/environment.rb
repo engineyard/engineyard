@@ -30,6 +30,9 @@ module EY
       #      region: 'us-west-1',                 # default: us-east-1
       #      app_server_stack_name: 'nginx_thin', # default: nginx_passenger3
       #      framework_env: 'staging'             # default: production
+      #      cluster_configuration: {
+      #        configuration: 'single'            # default: single, cluster, custom
+      #      }
       # })
       #
       # NOTE: Syntax above is for Ruby 1.9. In Ruby 1.8, keys must all be strings.
@@ -37,10 +40,13 @@ module EY
       # TODO - allow any attribute to be sent through that the API might allow; e.g. region, ruby_version, stack_label
       def self.create(api, attrs={})
         app    = attrs.delete("app")
-        params = attrs.dup
+        cluster_configuration = attrs.delete('cluster_configuration')
         raise EY::CloudClient::AttributeRequiredError.new("app", EY::CloudClient::App) unless app
-        raise EY::CloudClient::AttributeRequiredError.new("name") unless params["name"]
-        response = api.request("/apps/#{app.id}/environments", :method => :post, :params => {"environment" => params})
+        raise EY::CloudClient::AttributeRequiredError.new("name") unless attrs["name"]
+
+        params = {"environment" => attrs.dup}
+        unpack_cluster_configuration(params, cluster_configuration)
+        response = api.request("/apps/#{app.id}/environments", :method => :post, :params => params)
         self.from_hash(api, response['environment'])
       end
 
@@ -138,6 +144,28 @@ module EY
 
       def no_migrate?(deploy_options)
         deploy_options.key?('migrate') && deploy_options['migrate'] == false
+      end
+
+      # attrs["cluster_configuration"]["cluster"] can be 'single', 'cluster', or 'custom'
+      # attrs["cluster_configuration"]["ip"] can be
+      #   * 'host' (amazon public hostname)
+      #   * 'new' (Elastic IP assigned, default)
+      #   * or an IP id
+      # if 'custom' cluster, then...
+      def self.unpack_cluster_configuration(attrs, configuration)
+        if configuration
+          attrs["cluster_configuration"] = configuration
+          attrs["cluster_configuration"]["configuration"] ||= 'single'
+          attrs["cluster_configuration"]["ip_id"] = configuration.delete("ip") || 'new' # amazon public hostname; alternate is 'new' for Elastic IP
+
+          # if cluster_type == 'custom'
+          #   attrs['cluster_configuration'][app_server_count] = options[:app_instances] || 2
+          #   attrs['cluster_configuration'][db_slave_count]   = options[:db_instances] || 0
+          #   attrs['cluster_configuration'][instance_size]    = options[:app_size] if options[:app_size]
+          #   attrs['cluster_configuration'][db_instance_size] = options[:db_size] if options[:db_size]
+          # end
+          # at
+        end
       end
     end
   end
