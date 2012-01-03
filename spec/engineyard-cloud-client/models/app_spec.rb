@@ -2,9 +2,15 @@ require 'spec_helper'
 
 describe "EY::CloudClient::App.all" do
   it "hits the index action in the API" do
-    pending
     response = {
       "apps" => [
+        {
+          "environments"=>[],
+          "name"=>"myapp",
+          "repository_uri"=>"git@github.com:myaccount/myapp.git",
+          "account"=>{"name"=>"myaccount", "id"=>1234},
+          "id"=>12345
+        }
       ]
     }
 
