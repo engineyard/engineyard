@@ -38,10 +38,10 @@ describe "EY::CloudClient::Environment.create" do
       :body => response.to_json, :content_type => "application/json")
 
     env = EY::CloudClient::Environment.create(ey_api, {
-      :app  => app,
-      :name => 'myapp_production',
-      'app_server_stack_name' => 'nginx_thin',
-      :region => 'us-west-1'
+      "app"  => app,
+      "name" => 'myapp_production',
+      "app_server_stack_name" => 'nginx_thin',
+      "region" => 'us-west-1'
     })
     FakeWeb.should have_requested(:post, "https://cloud.engineyard.com/api/v2/apps/12345/environments")
 

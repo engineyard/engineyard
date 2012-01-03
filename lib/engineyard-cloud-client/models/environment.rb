@@ -35,14 +35,17 @@ module EY
       #      app_server_stack_name: 'nginx_thin', # default: nginx_passenger3
       #      framework_env: 'staging'             # default: production
       # })
+      #
+      # NOTE: Syntax above is for Ruby 1.9. In Ruby 1.8, keys must all be strings.
+      #
+      # TODO - allow any attribute to be sent through that the API might allow; e.g. region, ruby_version, stack_label
       def self.create(api, attrs={})
-        params = {
-          "name"                  => attrs[:name] || attrs['name'],
-          "region"                => attrs[:region] || attrs['region'] || DEFAULT_REGION,
-          "app_server_stack_name" => attrs[:app_server_stack_name] || attrs['app_server_stack_name'] || DEFAULT_APP_SERVER_STACK_NAME,
-          "framework_env"         => attrs[:framework_env] || attrs['framework_env'] || DEFAULT_FRAMEWORK_ENV
-        }
-        app = attrs["app"]
+        app    = attrs.delete("app")
+        params = attrs.merge(
+          "region"                => DEFAULT_REGION,
+          "app_server_stack_name" => DEFAULT_APP_SERVER_STACK_NAME,
+          "framework_env"         => DEFAULT_FRAMEWORK_ENV
+        )
         raise EY::AttributeRequiredError.new("app", EY::CloudClient::App) unless app
         raise EY::AttributeRequiredError.new("name") unless params["name"]
         response = api.request("/apps/#{app.id}/environments", :method => :post, :params => {"environment" => params})
