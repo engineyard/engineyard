@@ -25,35 +25,27 @@ module EY
       # An everything-you-need helper to create an App
       # If successful, returns new App
       # If unsuccessful, raises +EY::CloudClient::RequestFailed+
-      def self.create(api, account, name, repository_uri, app_type_id)
-        environment = self.new(api, {
-          "account" => account,
-          "name" => name,
-          "repository_uri" => repository_uri,
-          "app_type_id" => app_type_id
-        })
-        environment.create
-        environment
-      end
-
-      # If successful, returns true and sets +id+ to the new id value
-      # If unsuccessful, raises +EY::CloudClient::RequestFailed+
-      def create
-        # require name, repository_uri, account
+      #
+      # Usage
+      # App.create(api, {
+      #   "account"        => account         # requires: account.id
+      #   "name"           => "myapp",
+      #   "repository_uri" => "git@github.com:mycompany/myapp.git",
+      #   "app_type_id"    => "rails3",
+      # })
+      def self.create(api, attrs = {})
         params = {
-          "app" => {
-            "name"           => name,
-            "repository_uri" => repository_uri,
-            "app_type_id"    => app_type_id,
-          }
+          "name"           => attrs[:name] || attrs['name'],
+          "repository_uri" => attrs[:repository_uri] || attrs["repository_uri"],
+          "app_type_id"    => attrs[:app_type_id] || attrs["app_type_id"]
         }
-        response = api.request("/accounts/#{account.id}/apps", :method => :post, :params => params)
-        self.id = response.id
-        true
-      # rescue EY::CloudClient::RequestFailed => e
-        # Examples (multiple fields can have errors)
-        # 422 Unprocessable Entity {"errors":{"name":["Application name must not contain spaces or special characters"],"repository_uri":["Git Repository URI malformed. Cannot access relative or file based URIs."]}}
-
+        account = attrs["account"] || attrs[:account]
+        raise EY::AttributeRequiredError.new("account", EY::CloudClient::Account) unless account
+        raise EY::AttributeRequiredError.new("name") unless params["name"]
+        raise EY::AttributeRequiredError.new("repository_uri") unless params["repository_uri"]
+        raise EY::AttributeRequiredError.new("app_type_id") unless params["app_type_id"]
+        response = api.request("/accounts/#{account.id}/apps", :method => :post, :params => {"app" => params})
+        self.from_hash(api, response['app'])
       end
 
       def sole_environment

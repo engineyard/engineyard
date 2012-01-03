@@ -37,17 +37,16 @@ module EY
       # })
       def self.create(api, attrs={})
         params = {
-          "app"                   => attrs[:app] || attrs['app'],
           "name"                  => attrs[:name] || attrs['name'],
           "region"                => attrs[:region] || attrs['region'] || DEFAULT_REGION,
           "app_server_stack_name" => attrs[:app_server_stack_name] || attrs['app_server_stack_name'] || DEFAULT_APP_SERVER_STACK_NAME,
           "framework_env"         => attrs[:framework_env] || attrs['framework_env'] || DEFAULT_FRAMEWORK_ENV
         }
-        app = params["app"]
+        app = attrs["app"]
         raise EY::AttributeRequiredError.new("app", EY::CloudClient::App) unless app
         raise EY::AttributeRequiredError.new("name") unless params["name"]
         response = api.request("/apps/#{app.id}/environments", :method => :post, :params => {"environment" => params})
-        EY::CloudClient::Environment.from_hash(api, response['environment'])
+        self.from_hash(api, response['environment'])
       end
 
       def account_name
