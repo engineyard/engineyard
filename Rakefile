@@ -95,6 +95,10 @@ task :release do
     "git commit -m 'Bump versions for release #{new_version}'",
     "gem build engineyard.gemspec")
 
+  if system("gem spec engineyard-#{new_version}.gem | grep Syck")
+    raise "Syck found in gemspec! Aborting!\nYou will need to revert the last commit yourself and build from a ruby without this Syck problem: 1.8 or a properly Psych linked 1.9."
+  end
+
   load 'lib/engineyard/version.rb'
   bump
 
