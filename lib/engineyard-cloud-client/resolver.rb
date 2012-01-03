@@ -70,7 +70,7 @@ module EY
           else
             EY::CloudClient::NoAppError.new(repo, EY::CloudClient.endpoint)
           end
-        elsif environment_candidates.empty?
+        elsif (environment_candidates_matching_account || filter_if_constrained(:environment_name, all)).empty?
           EY::CloudClient::NoEnvironmentError.new(constraints[:environment_name], EY::CloudClient.endpoint)
         else
           message = "The matched apps & environments do not correspond with each other.\n"
@@ -124,32 +124,50 @@ module EY
           end
       end
 
-      def app_candidates
-        @app_candidates ||= filter_if_constrained(:app_name) || filter_by_repo || all
-      end
-
-      def environment_candidates
-        @environment_candidates ||= filter_if_constrained(:environment_name) || all
-      end
-
       def account_candidates
         @account_candidates ||= filter_if_constrained(:account_name) || all
+      end
+
+      def app_candidates
+        @app_candidates ||= filter_if_constrained(:app_name, account_candidates) || app_candidates_matching_repo || all
+      end
+
+      # first, find only environments
+      def environment_candidates
+        @environment_candidates ||=
+          environment_candidates_matching_app ||
+          environment_candidates_matching_account ||
+          filter_if_constrained(:environment_name, all) ||
+          all
       end
 
       def all
         @all ||= api.app_environments
       end
 
+      # Returns matches that also match the app if we've be able to narrow by app_candidate.
+      def environment_candidates_matching_app
+        if !app_candidates.empty? && app_candidates.size < all.size
+          filter_if_constrained(:environment_name, app_candidates)
+        end
+      end
+
+      def environment_candidates_matching_account
+        if !account_candidates.empty? && account_candidates.size < all.size
+          filter_if_constrained(:environment_name, account_candidates)
+        end
+      end
+
       # find by repository uri
       # if none match, return nil
-      def filter_by_repo
-        filter {|app_env| repo && repo.has_remote?(app_env.repository_uri) }
+      def app_candidates_matching_repo
+        filter(account_candidates) {|app_env| repo && repo.has_remote?(app_env.repository_uri) }
       end
 
       # If the constraint is set, the only return matches
       # if it is not set, then return all matches
       # returns exact matches, then partial matches, then all
-      def filter_if_constrained(key)
+      def filter_if_constrained(key, app_env_set = all)
         return unless constraints[key]
 
         match = constraints[key].downcase
@@ -157,13 +175,13 @@ module EY
         exact_match   = lambda {|app_env| app_env.send(key) == match }
         partial_match = lambda {|app_env| app_env.send(key).index(match) }
 
-        filter(&exact_match) || filter(&partial_match) || []
+        filter(app_env_set, &exact_match) || filter(app_env_set, &partial_match) || []
       end
 
       # returns nil if no matches
       # returns an array of matches if any match
-      def filter(&block)
-        matches = all.select(&block)
+      def filter(app_env_set = all, &block)
+        matches = app_env_set.select(&block)
         matches.empty? ? nil : matches
       end
     end

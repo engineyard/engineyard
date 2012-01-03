@@ -46,11 +46,12 @@ describe EY::CloudClient::Resolver do
 
   before do
     @production = new_app_env("app",     "git://github.com/repo/app.git", "app_production", 'ey')
-    @staging    = new_app_env("app",     "git://github.com/repo/app.git", "app_staging"   , 'ey')
+    @staging    = new_app_env("app",     "git://github.com/repo/app.git", "app_staging",    'ey')
+    @hugeprod   = new_app_env("huge",    "git://github.com/repo/hug.git", "production",     'ey')
     @big        = new_app_env("bigapp",  "git://github.com/repo/big.git", "bigapp_staging", 'ey')
-    @ey_dup     = new_app_env("app_dup", "git://github.com/repo/dup.git", "app_dup" , 'ey')
-    @sumo       = new_app_env("app_dup", "git://github.com/repo/dup.git", "sumo_wrestler" , 'ey')
-    @me_dup     = new_app_env("app_dup", "git://github.com/repo/dup.git", "app_dup" , 'me')
+    @ey_dup     = new_app_env("app_dup", "git://github.com/repo/dup.git", "app_dup",        'ey')
+    @sumo       = new_app_env("app_dup", "git://github.com/repo/dup.git", "sumo_wrestler",  'ey')
+    @me_dup     = new_app_env("app_dup", "git://github.com/repo/dup.git", "app_dup",        'me')
   end
 
   def repo(url)
@@ -97,7 +98,8 @@ describe EY::CloudClient::Resolver do
 
     it "returns one deployment whene there is only one match" do
       resolver(:account_name => "ey", :app_name => "big"                                     ).app_environment.should == @big
-      resolver(:environment_name => "production"                                             ).app_environment.should == @production
+      resolver(:environment_name => "app_production"                                         ).app_environment.should == @production
+      resolver(:app_name => 'app', :environment_name => "production"                         ).app_environment.should == @production
       resolver(:repo => repo("git://github.com/repo/big.git")                                ).app_environment.should == @big
       resolver(:repo => repo("git://github.com/repo/app.git"), :environment_name => "staging").app_environment.should == @staging
     end
