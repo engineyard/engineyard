@@ -23,6 +23,10 @@ module EY
         Collections::Environments.new(super)
       end
 
+      def self.all(api)
+        self.from_array(self, api.request('/environments')["environments"])
+      end
+
       # Usage
       # Environment.create(api, {
       #      app: app,                            # requires: app.id

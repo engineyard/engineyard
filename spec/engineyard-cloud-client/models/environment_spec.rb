@@ -2,9 +2,34 @@ require 'spec_helper'
 
 describe "EY::CloudClient::Environment.all" do
   it "hits the index action in the API" do
-    pending
     response = {
       "environments" => [
+        {"apps"=>
+          [{"name"=>"myapp",
+            "repository_uri"=>"git@github.com:myaccount/myapp.git",
+            "account"=>{"name"=>"myaccount", "id"=>1234},
+            "id"=>12345}],
+         "name"=>"myapp_production",
+         "deployment_configurations"=>
+          {"myapp"=>
+            {"name"=>"myapp",
+             "uri"=>nil,
+             "migrate"=>{"command"=>"rake db:migrate", "perform"=>true},
+             "repository_uri"=>"git@github.com:myaccount/myapp.git",
+             "id"=>12345,
+             "domain_name"=>"_"}},
+         "instances"=>[],
+         "app_master"=>nil,
+         "framework_env"=>"production",
+         "stack_name"=>"nginx_thin",
+         "account"=>{"name"=>"myaccount", "id"=>1234},
+         "app_server_stack_name"=>"nginx_thin",
+         "ssh_username"=>"deploy",
+         "load_balancer_ip_address"=>nil,
+         "instances_count"=>0,
+         "id"=>30573,
+         "instance_status"=>"none"
+        }
       ]
     }
 
