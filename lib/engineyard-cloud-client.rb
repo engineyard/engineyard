@@ -72,7 +72,7 @@ module EY
     end
 
     def environments
-      @environments ||= EY::CloudClient::Environment.from_array(self, request('/environments')["environments"])
+      @environments ||= EY::CloudClient::Environment.all
     end
 
     def apps
