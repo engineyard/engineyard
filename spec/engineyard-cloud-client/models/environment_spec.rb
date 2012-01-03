@@ -26,7 +26,7 @@ describe "EY::CloudClient::Environment.create" do
          "app_master"=>nil,
          "framework_env"=>"production",
          "stack_name"=>"nginx_thin",
-         "account"=>{"name"=>"drnic", "id"=>1234},
+         "account"=>{"name"=>"myaccount", "id"=>1234},
          "app_server_stack_name"=>"nginx_thin",
          "ssh_username"=>"deploy",
          "load_balancer_ip_address"=>nil,
@@ -45,8 +45,9 @@ describe "EY::CloudClient::Environment.create" do
     })
     FakeWeb.should have_requested(:post, "https://cloud.engineyard.com/api/v2/apps/12345/environments")
 
-    p env
     env.name.should == "myapp_production"
+    env.account.name.should == "myaccount"
+    env.apps.to_a.first.name.should == "myapp"
   end
 end
 
