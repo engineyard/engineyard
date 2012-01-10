@@ -72,11 +72,11 @@ module EY
     end
 
     def environments
-      @environments ||= EY::CloudClient::Environment.all(this)
+      @environments ||= EY::CloudClient::Environment.all(self)
     end
 
     def apps
-      @apps ||= EY::CloudClient::App.all(this)
+      @apps ||= EY::CloudClient::App.all(self)
     end
 
     # TODO: unhaxor

@@ -25,7 +25,7 @@ module EY
 
       # Return list of all Environments linked to all current user's accounts
       def self.all(api)
-        self.from_array(self, api.request('/environments')["environments"])
+        self.from_array(api, api.request('/environments')["environments"])
       end
 
       # Usage

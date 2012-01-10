@@ -10,7 +10,7 @@ module EY
 
 
       def self.all(api)
-        self.from_array(self, api.request('/keypairs')["keypairs"])
+        self.from_array(api, api.request('/keypairs')["keypairs"])
       end
 
       # Create a Keypair with your SSH public key so that you can access your Instances

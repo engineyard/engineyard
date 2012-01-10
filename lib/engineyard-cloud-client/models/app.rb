@@ -24,7 +24,7 @@ module EY
 
       # Return list of all Apps linked to all current user's accounts
       def self.all(api)
-        self.from_array(self, api.request('/apps')["apps"])
+        self.from_array(api, api.request('/apps')["apps"])
       end
 
       # An everything-you-need helper to create an App
