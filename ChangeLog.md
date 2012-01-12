@@ -2,7 +2,8 @@
 
 ## NEXT
 
-  *
+  * Failed releases are now saved in a 'releases_failed' directory, parallel to the existing 'releases' directory.
+  * Resolved a bundler version conflict that could occur for apps that specified a particular bundler version.
 
 ## v1.4.18 (2012-01-03)
 
