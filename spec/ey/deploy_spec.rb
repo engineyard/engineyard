@@ -246,7 +246,7 @@ describe "ey deploy" do
 
       it "gets passed along to engineyard-serverside" do
         fast_ey %w[deploy]
-        @ssh_commands.last.should =~ /--config '{.+"bert":"ernie".*}'/
+        @ssh_commands.last.should =~ /--config '{.*"bert":"ernie".*}'/
       end
     end
 
