@@ -4,6 +4,10 @@
 
   *
 
+## v1.4.20 (2012-01-13)
+
+  *
+
 ## v1.4.19 (2012-01-12)
 
   * Failed releases are now saved in a 'releases_failed' directory, parallel to the existing 'releases' directory.
