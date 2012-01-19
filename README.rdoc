@@ -189,3 +189,21 @@ Command:
 
   Description:
     Open the application in a browser.
+
+Command:
+  ey whoami
+
+  Description:
+    Who am I logged in as?
+
+Command:
+  ey login
+
+  Description:
+    Log in and verify access to EY Cloud. Use logout first if you need to switch user accounts.
+
+Command:
+  ey logout
+
+  Description:
+    Remove the current API key from ~/.eyrc or env variable $EYRC

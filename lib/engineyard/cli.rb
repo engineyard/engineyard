@@ -362,7 +362,7 @@ module EY
       whoami
     end
 
-    desc "logout", "Remove the current API key from ~/.eyrc or env $EYRC"
+    desc "logout", "Remove the current API key from ~/.eyrc or env variable $EYRC"
     def logout
       eyrc = EYRC.load
       if eyrc.delete_api_token
