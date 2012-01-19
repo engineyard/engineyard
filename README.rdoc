@@ -12,6 +12,12 @@ Note: Don't add engineyard to your application's Gemfile. The engineyard gem is 
 
 The first command you run will notice that you are not logged in and will ask you for your AppCloud email and password.
 
+== Logout
+
+Rarely necessary, but simply remove the .eyrc file that is created after a login:
+    
+    $ rm ~/.eyrc
+
 == Configuration
 
 The ey.yml file allows options to be saved for each environment to which an application is deployed. Here's an example ey.yml file in RAILS_ROOT/config/ey.yml:
