@@ -357,5 +357,16 @@ module EY
       EY.ui.say "#{user.name} (#{user.email})"
     end
 
+    desc "logout", "Remove the current API key from ~/.eyrc or env $EYRC"
+    def logout
+      eyrc = EYRC.load
+      if eyrc.delete_api_token
+        EY.ui.say "API token removed: #{eyrc.path}"
+        EY.ui.say "Run any other command to login again."
+      else
+        EY.ui.say "Already logged out. Run any other command to login again."
+      end
+    end
+
   end # CLI
 end # EY

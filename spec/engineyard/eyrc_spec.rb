@@ -41,6 +41,11 @@ describe EY::EYRC do
       EY::EYRC.load.api_token.should == 'abcd'
     end
 
+    it "deletes the api_token" do
+      EY::EYRC.load.delete_api_token
+      EY::EYRC.load.api_token.should be_nil
+    end
+
     it "writes the api_token to api_token: .eyrc" do
       read_yaml(ENV['EYRC']).should == {"api_token" => "abcd"}
     end
@@ -55,6 +60,11 @@ describe EY::EYRC do
 
     it "recalls the api_token" do
       EY::EYRC.load.api_token.should == 'abcd'
+    end
+
+    it "deletes the api token safely on logout" do
+      EY::EYRC.load.delete_api_token
+      read_yaml(ENV['EYRC']).should == {"http://localhost/" => {"api_token" => "5678"}}
     end
 
     it "maintains other random info in the file" do
