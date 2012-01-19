@@ -357,6 +357,11 @@ module EY
       EY.ui.say "#{user.name} (#{user.email})"
     end
 
+    desc "login", "Log in and verify access to EY Cloud."
+    def login
+      whoami
+    end
+
     desc "logout", "Remove the current API key from ~/.eyrc or env $EYRC"
     def logout
       eyrc = EYRC.load

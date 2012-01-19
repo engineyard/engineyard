@@ -1,11 +1,11 @@
 require 'spec_helper'
 
-describe "ey whoami" do
+describe "ey login" do
   context "logged in" do
     given "integration"
 
-    it "outputs the currently logged in user" do
-      ey %w[whoami]
+    it "returns the logged in user name" do
+      ey %w[login]
       @out.should include("User Name (test@test.test)")
     end
   end
@@ -14,7 +14,7 @@ describe "ey whoami" do
     given "integration without an eyrc file"
 
     it "prompts for authentication before outputting the logged in user" do
-      ey(%w[whoami], :hide_err => true) do |input|
+      ey(%w[login], :hide_err => true) do |input|
         input.puts("test@test.test")
         input.puts("test")
       end

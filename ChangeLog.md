@@ -3,6 +3,7 @@
 ## NEXT
 
   * ey logout removes the API token from ~/.eyrc
+  * ey login logs you in (don't be surprised)
 
 ## v1.4.20 (2012-01-13)
 
