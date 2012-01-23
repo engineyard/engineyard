@@ -31,8 +31,10 @@ module EY
 
         successful = invoke(deploy_command) { |chunk| output << chunk }
       rescue Interrupt
-        EY.ui.info "Interrupted. Exiting..."
-        output << "Interrupted.\n"
+        output << "Interrupted. Deployment halted.\n"
+        EY.ui.warn "Interrupted."
+        EY.ui.warn "Recording canceled deployment and exiting..."
+        EY.ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on EY Cloud."
         raise
       rescue StandardError => e
         EY.ui.info "Error encountered during deploy."
