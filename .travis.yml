@@ -9,6 +9,7 @@ notifications:
     - drnicwilliams@gmail.com
     - memde@engineyard.com
     - srosenfeld@engineyard.com
+    - jallen@engineyard.com
 branches:
   only:
     - master
