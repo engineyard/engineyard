@@ -10,6 +10,7 @@ notifications:
     - memde@engineyard.com
     - srosenfeld@engineyard.com
     - jallen@engineyard.com
+    - akatz@engineyard.com
 branches:
   only:
     - master
