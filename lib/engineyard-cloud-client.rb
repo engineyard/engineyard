@@ -1,5 +1,5 @@
 module EY
-  module CloudAPI
+  class CloudClient
   end
 end
 
