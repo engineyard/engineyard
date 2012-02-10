@@ -34,7 +34,8 @@ module EY
         clean_constraints = constraints.reject { |k,v| v.nil? }
         params = {'constraints' => clean_constraints}
         response = api.request("/environments/resolve", :method => :get, :params => params)
-        from_array(api, response['environments'])
+        matches = from_array(api, response['environments'])
+        ResolverResult.new(matches, nil, nil)
       end
 
       # Usage

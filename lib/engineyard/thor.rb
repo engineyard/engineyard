@@ -28,25 +28,28 @@ module EY
         :account_name     => account_name,
         :remotes          => remotes,
       }
-      environments = api.resolve_environments(constraints)
 
-      case environments.size
-      when 0 then
+      resolver = api.resolve_environments(constraints)
+
+      resolver.one_match { |match| return match  }
+
+      resolver.no_matches do |problems, suggestions|
         if environment_name
           raise EY::CloudClient::NoEnvironmentError.new(environment_name, EY::CloudClient.endpoint)
         else
           raise EY::CloudClient::NoAppError.new(repo, EY::CloudClient.endpoint)
         end
-      when 1 then environments.first
-      else
+      end
+
+      resolver.many_matches do |matches|
         if environment_name
           message = "Multiple environments possible, please be more specific:\n\n"
-          environments.each do |env|
+          matches.each do |env|
             message << "\t#{env.name.ljust(25)} # ey <command> --environment='#{env.name}' --account='#{env.account.name}'\n"
           end
           raise EY::CloudClient::MultipleMatchesError.new(message)
         else
-          raise EY::CloudClient::AmbiguousEnvironmentGitUriError.new(environments)
+          raise EY::CloudClient::AmbiguousEnvironmentGitUriError.new(matches)
         end
       end
     end
@@ -69,12 +72,14 @@ Please specify --app app_name or add this application at #{EY::CloudClient.endpo
         ERROR
       end
 
-      app_envs = api.resolve_app_environment(constraints)
+      resolver = api.resolve_app_environment(constraints)
 
-      case app_envs.size
-      when 0 then raise EY::CloudClient::NoMatchesError.new(no_app_environments_error(constraints))
-      when 1 then app_envs.first
-      else        raise EY::CloudClient::MultipleMatchesError.new(too_many_app_environments_error(app_envs))
+      resolver.one_match { |match| return match }
+      resolver.no_matches do |problems, suggestions|
+        raise EY::CloudClient::NoMatchesError.new(no_app_environments_error(constraints))
+      end
+      resolver.many_matches do |app_envs|
+        raise EY::CloudClient::MultipleMatchesError.new(too_many_app_environments_error(app_envs))
       end
     end
 
