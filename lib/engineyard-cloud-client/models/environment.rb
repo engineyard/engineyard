@@ -35,7 +35,21 @@ module EY
         params = {'constraints' => clean_constraints}
         response = api.request("/environments/resolve", :method => :get, :params => params)
         matches = from_array(api, response['environments'])
-        ResolverResult.new(matches, nil, nil)
+        problems = no_environment_error(constraints) if matches.size.zero?
+        ResolverResult.new(matches, problems, nil)
+      end
+
+      # DELETE ME
+      def self.no_environment_error(constraints)
+        if constraints[:environment_name]
+          "No environment found matching '#{constraints[:environment_name]}'\nYou can create one at #{EY::CloudClient.endpoint}"
+        else
+          return <<-ERROR
+No application configured for any of the following remotes:
+\t#{constraints[:remotes].join("\n\t")}
+You can add this application at #{EY::CloudClient.endpoint}.
+          ERROR
+        end
       end
 
       # Usage

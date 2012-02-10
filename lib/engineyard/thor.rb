@@ -34,11 +34,7 @@ module EY
       resolver.one_match { |match| return match  }
 
       resolver.no_matches do |problems, suggestions|
-        if environment_name
-          raise EY::CloudClient::NoEnvironmentError.new(environment_name, EY::CloudClient.endpoint)
-        else
-          raise EY::CloudClient::NoAppError.new(repo, EY::CloudClient.endpoint)
-        end
+        raise EY::CloudClient::NoMatchesError.new(problems)
       end
 
       resolver.many_matches do |matches|
@@ -76,55 +72,12 @@ Please specify --app app_name or add this application at #{EY::CloudClient.endpo
 
       resolver.one_match { |match| return match }
       resolver.no_matches do |problems, suggestions|
-        raise EY::CloudClient::NoMatchesError.new(no_app_environments_error(constraints))
+        raise EY::CloudClient::NoMatchesError.new(problems)
       end
       resolver.many_matches do |app_envs|
         raise EY::CloudClient::MultipleMatchesError.new(too_many_app_environments_error(app_envs))
       end
     end
-
-      def no_app_environments_error(constraints)
-        if constraints[:account_name] && account_candidates(constraints).empty?
-          # Account specified doesn't exist
-          "No account found matching #{constraints[:account_name].inspect}."
-        elsif app_candidates(constraints).empty?
-          # App not found
-          if constraints[:app_name]
-            # Specified app not found
-            #EY::CloudClient::InvalidAppError.new(constraints[:app_name])
-            "No application found matching #{constraints[:app_name].inspect}."
-          else
-            # Repository not found
-            return <<-ERROR
-No application configured for any of the following remotes:
-\t#{constraints[:remotes].join("\n\t")}
-You can add this application at #{EY::CloudClient.endpoint}.
-            ERROR
-          end
-        elsif filter_if_constrained(constraints,:environment_name, all).empty?
-          # Environment doesn't exist
-          "No environment found matching #{constraints[:environment_name].inspect}."
-        elsif constraints[:account_name] && environment_candidates_matching_account(constraints).empty?
-          # Environment not found under this account
-          "Environment matching #{constraints[:environment_name].inspect} exists on a different account."
-        else
-          # Account, app, and/or environment found, but don't match
-          message = "The matched apps & environments do not correspond with each other.\n"
-          message << "Applications:\n"
-
-          ### resolver.apps belongs here.
-
-          app_candidates(constraints).uniq {|app_env| [app_env.account_name, app_env.app_name] }.each do |app_env|
-            app = app_env.app
-            message << "\t#{app.account.name}/#{app.name}\n"
-            app.environments.each do |env|
-              message << "\t\t#{env.name} # ey <command> -e #{env.name} -a #{app.name}\n"
-            end
-          end
-
-          message
-        end
-      end
 
       def too_many_app_environments_error(app_envs)
         message = "Multiple application environments possible, please be more specific:\n\n"
@@ -140,68 +93,6 @@ You can add this application at #{EY::CloudClient.endpoint}.
         end
         EY::CloudClient::MultipleMatchesError.new(message)
       end
-
-      def account_candidates(constraints)
-        @account_candidates ||= filter_if_constrained(constraints, :account_name) || all
-      end
-
-      def app_candidates(constraints)
-        @app_candidates ||= filter_if_constrained(constraints, :app_name, account_candidates(constraints)) || app_candidates_matching_repo(constraints) || all
-      end
-
-      # first, find only environments
-      def environment_candidates(constraints)
-        @environment_candidates ||=
-          environment_candidates_matching_app(constraints) ||
-          environment_candidates_matching_account(constraints) ||
-          filter_if_constrained(constraints,:environment_name, all) ||
-          all
-      end
-
-      def all
-        @all ||= api.app_environments
-      end
-
-      # Returns matches that also match the app if we've be able to narrow by app_candidate.
-      def environment_candidates_matching_app(constraints)
-        if !app_candidates.empty? && app_candidates.size < all.size
-          filter_if_constrained(constraints,:environment_name, app_candidates)
-        end
-      end
-
-      def environment_candidates_matching_account(constraints)
-        if !account_candidates(constraints).empty? && account_candidates(constraints).size < all.size
-          filter_if_constrained(constraints,:environment_name, account_candidates(constraints))
-        end
-      end
-
-      # find by repository uri
-      # if none match, return nil
-      def app_candidates_matching_repo(constraints)
-        filter(account_candidates(constraints)) {|app_env| repo && repo.has_remote?(app_env.repository_uri) }
-      end
-
-      # If the constraint is set, the only return matches
-      # if it is not set, then return all matches
-      # returns exact matches, then partial matches, then all
-      def filter_if_constrained(constraints, key, app_env_set = all)
-        return unless constraints[key]
-
-        match = constraints[key].downcase
-
-        exact_match   = lambda {|app_env| app_env.send(key) == match }
-        partial_match = lambda {|app_env| app_env.send(key).index(match) }
-
-        filter(app_env_set, &exact_match) || filter(app_env_set, &partial_match) || []
-      end
-
-      # returns nil if no matches
-      # returns an array of matches if any match
-      def filter(app_env_set = all, &block)
-        matches = app_env_set.select(&block)
-        matches.empty? ? nil : matches
-      end
-
   end # UtilityMethods
 
   class Thor < ::Thor
