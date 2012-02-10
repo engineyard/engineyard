@@ -100,16 +100,7 @@ module SpecHelpers
       # here in expected-to-fail land are entirely happy with.
       nil
     rescue EY::Error, EY::CloudClient::Error => e
-      more_err, more_out = StringIO.new, StringIO.new
-
-      capture_stderr_into(more_err) do
-        capture_stdout_into(more_out) do
-          EY.ui.print_exception(e)
-        end
-      end
-
-      @err << more_err.string
-      @out << more_out.string
+      nil
     end
   end
 

@@ -31,7 +31,14 @@ require 'pp'
 support = Dir[File.join(EY_ROOT,'/spec/support/*.rb')]
 support.each{|helper| require helper }
 
+support = Dir[File.join(EY_ROOT,'/spec/support/fake_awsm/*.rb')]
+support.each{|helper| require helper }
+
 RSpec.configure do |config|
+  config.treat_symbols_as_metadata_keys_with_true_values = true
+  config.run_all_when_everything_filtered = true
+  config.filter_run :focus
+
   config.include SpecHelpers
   config.include SpecHelpers::IntegrationHelpers
 

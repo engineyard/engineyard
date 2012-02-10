@@ -32,9 +32,9 @@ module EY
     protected
 
     def load_fake_awsm
-      config_ru = File.join(EY_ROOT, "spec/support/fake_awsm.ru")
+      config_ru = File.join(EY_ROOT, "spec/support/fake_awsm/config.ru")
       unless system("ruby -c '#{config_ru}' > /dev/null")
-        raise SyntaxError, "There is a syntax error in fake_awsm.ru! fix it!"
+        raise SyntaxError, "There is a syntax error in fake_awsm/config.ru! fix it!"
       end
       @server = RealWeb.start_server_in_fork(config_ru)
       "http://localhost:#{@server.port}"

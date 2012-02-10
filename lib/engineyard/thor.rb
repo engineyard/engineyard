@@ -33,8 +33,8 @@ module EY
 
       resolver.one_match { |match| return match  }
 
-      resolver.no_matches do |problems, suggestions|
-        raise EY::CloudClient::NoMatchesError.new(problems)
+      resolver.no_matches do |errors, suggestions|
+        raise EY::CloudClient::NoMatchesError.new(errors.join("\n"))
       end
 
       resolver.many_matches do |matches|
@@ -71,8 +71,29 @@ Please specify --app app_name or add this application at #{EY::CloudClient.endpo
       resolver = api.resolve_app_environment(constraints)
 
       resolver.one_match { |match| return match }
-      resolver.no_matches do |problems, suggestions|
-        raise EY::CloudClient::NoMatchesError.new(problems)
+      resolver.no_matches do |errors, suggestions|
+        message = ""
+        if suggestions
+          if apps = suggestions[:apps]
+            message << "Matching Applications:\n"
+            apps.each do |app|
+              message << "\t#{app.account.name}/#{app.name}\n"
+              #TODO describe command suggestions
+              #app.environments.each do |env|
+              #  message << "\t\t#{env.name} # ey <command> -e #{env.name} -a #{app.name}\n"
+              #end
+            end
+          end
+
+          if envs = suggestions[:environments]
+            message << "Matching Environments:\n"
+            envs.each do |env|
+              message << "\t#{env.account.name}/#{env.name}\n"
+            end
+          end
+        end
+
+        raise EY::CloudClient::NoMatchesError.new([errors,message].join("\n").strip)
       end
       resolver.many_matches do |app_envs|
         raise EY::CloudClient::MultipleMatchesError.new(too_many_app_environments_error(app_envs))

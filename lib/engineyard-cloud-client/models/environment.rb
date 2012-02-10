@@ -4,7 +4,7 @@ require 'engineyard-cloud-client/errors'
 module EY
   class CloudClient
     class Environment < ApiStruct.new(:id, :name, :framework_env, :instances_count,
-                                      :username, :app_server_stack_name, :deployment_configurations,
+                                      :username, :app_server_stack_name,
                                       :load_balancer_ip_address)
 
       attr_accessor :ignore_bad_master, :apps, :account, :instances, :app_master
@@ -35,8 +35,7 @@ module EY
         params = {'constraints' => clean_constraints}
         response = api.request("/environments/resolve", :method => :get, :params => params)
         matches = from_array(api, response['environments'])
-        problems = no_environment_error(constraints) if matches.size.zero?
-        ResolverResult.new(matches, problems, nil)
+        ResolverResult.new(api, matches, response['errors'], response['suggestions'])
       end
 
       # DELETE ME

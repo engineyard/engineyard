@@ -75,13 +75,13 @@ describe "ey deploy" do
     it "complains when there is no app" do
       api_scenario "empty"
       fast_failing_ey ["deploy"]
-      @err.should include(%|No application configured|)
+      @err.should include(%|No application found|)
     end
 
     it "complains when the specified environment does not contain the app" do
       api_scenario "one app, one environment, not linked"
       fast_failing_ey %w[deploy -e giblets -r master]
-      @err.should match(/No application configured/i)
+      @err.should match(/Application "rails232app" and environment "giblets" are not associated./)
     end
 
     it "complains when environment is not specified and app is in >1 environment" do
@@ -246,7 +246,7 @@ describe "ey deploy" do
     use_git_repo('deploy test')
 
     before(:all) do
-      api_scenario "one app, one environment", "user@git.host:path/to/repo.git"
+      api_scenario "one app, one environment"
     end
 
     context "without a configured default branch" do
@@ -409,7 +409,7 @@ describe "ey deploy" do
     use_git_repo("deploy test")
 
     before(:all) do
-      api_scenario "one app, one environment", "user@git.host:path/to/repo.git"
+      api_scenario "one app, one environment"
       fast_ey %w[deploy --no-migrate]
       @deploy_command = @ssh_commands.find {|c| c =~ /engineyard-serverside.*deploy/ }
     end

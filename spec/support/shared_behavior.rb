@@ -153,18 +153,18 @@ shared_examples_for "it takes an environment name" do
       api_scenario "one app, many similarly-named environments"
       run_ey({:environment => 'prod', :migrate => true}, {:debug => true})
       verify_ran(make_scenario({
-            :environment      => 'railsapp_production',
-            :application      => 'rails232app',
-            :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
-            :ssh_username     => 'turkey',
-          }))
+        :environment      => 'railsapp_production',
+        :application      => 'rails232app',
+        :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
+        :ssh_username     => 'turkey',
+      }))
     end
   end
 
   it "complains when it can't guess the environment and its name isn't specified" do
     api_scenario "one app, one environment, not linked"
     run_ey({:environment => nil}, {:expect_failure => true})
-    @err.should match(/no application configured/i)
+    @err.should match(/No environment found for applications matching remotes:/i)
   end
 end
 
