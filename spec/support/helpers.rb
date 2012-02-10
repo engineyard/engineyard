@@ -26,9 +26,14 @@ module SpecHelpers
     def run_ey(command_options, ey_options={})
       if respond_to?(:extra_ey_options)   # needed for ssh tests
         ey_options.merge!(extra_ey_options)
+        return ey(command_to_run(command_options), ey_options)
       end
 
-      ey(command_to_run(command_options), ey_options)
+      if ey_options[:expect_failure]
+        fast_failing_ey(command_to_run(command_options))
+      else
+        fast_ey(command_to_run(command_options))
+      end
     end
 
     def make_scenario(opts)
@@ -123,7 +128,12 @@ module SpecHelpers
   end
 
   def ey(args = [], options = {}, &block)
+    if respond_to?(:extra_ey_options)   # needed for ssh tests
+      options.merge!(extra_ey_options)
+    end
+
     hide_err = options.has_key?(:hide_err) ? options[:hide_err] : options[:expect_failure]
+
     path_prepends = options[:prepend_to_path]
 
     ey_env = {

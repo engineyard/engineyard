@@ -9,6 +9,8 @@ module EY
     require 'engineyard/cli/web'
     require 'engineyard/cli/api'
     require 'engineyard/cli/ui'
+    require 'engineyard/error'
+    require 'engineyard-cloud-client/errors'
 
     include Thor::Actions
 
@@ -16,6 +18,14 @@ module EY
       Thor::Base.shell = EY::CLI::UI
       EY.ui = EY::CLI::UI.new
       super
+    rescue EY::Error, EY::CloudClient::Error => e
+      EY.ui.print_exception(e)
+      raise
+    rescue Interrupt => e
+      puts
+      EY.ui.print_exception(e)
+      EY.ui.say("Quitting...")
+      raise
     end
 
     desc "deploy [--environment ENVIRONMENT] [--ref GIT-REF]",

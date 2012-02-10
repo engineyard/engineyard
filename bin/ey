@@ -1,17 +1,9 @@
 #!/usr/bin/env ruby
 $:.unshift(File.expand_path('../../lib', __FILE__))
 require 'engineyard/cli'
-require 'engineyard/error'
-require 'engineyard-cloud-client/errors'
 
 begin
   EY::CLI.start
-rescue EY::Error, EY::CloudClient::Error => e
-  EY.ui.print_exception(e)
-  exit(1)
-rescue Interrupt => e
-  puts
-  EY.ui.print_exception(e)
-  EY.ui.say("Quitting...")
+rescue
   exit(1)
 end

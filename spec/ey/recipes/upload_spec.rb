@@ -58,7 +58,7 @@ describe "ey recipes upload -f with a missing filenamen" do
 
   it "errors with file not found" do
     api_scenario "one app, one environment"
-    ey(%w[recipes upload --environment giblets -f recipes.tgz], :expect_failure => true)
+    fast_failing_ey(%w[recipes upload --environment giblets -f recipes.tgz])
     @err.should match(/Recipes file not found: recipes.tgz/i)
   end
 end

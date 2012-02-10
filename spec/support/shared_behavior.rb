@@ -86,9 +86,8 @@ shared_examples_for "it takes an environment name and an account name" do
       end
 
       it "returns the error message to the user" do
-        lambda do
-          fast_ey(command_to_run({:environment => "giblets", :account => "main"}))
-        end.should raise_error(EY::CloudClient::Error, /400.*Important infos/)
+        fast_failing_ey(command_to_run({:environment => "giblets", :account => "main"}))
+        @err.should match(/400.*Important infos/)
       end
     end
 
@@ -98,7 +97,7 @@ end
 shared_examples_for "it takes an environment name" do
   it "operates on the current environment by default" do
     api_scenario "one app, one environment"
-    run_ey({:environment => nil}, {:debug => true})
+    run_ey(:environment => nil)
     verify_ran(make_scenario({
           :environment      => 'giblets',
           :application      => 'rails232app',
@@ -109,7 +108,8 @@ shared_examples_for "it takes an environment name" do
 
   it "complains when you specify a nonexistent environment" do
     api_scenario "one app, one environment"
-    run_ey({:environment => 'typo-happens-here'}, {:expect_failure => true})
+    # This test must shell out (not sure why, plz FIXME)
+    ey command_to_run(:environment => 'typo-happens-here'), {:expect_failure => true}
     @err.should match(/No environment found matching .*typo-happens-here/i)
   end
 

@@ -17,7 +17,7 @@ describe "ey recipes apply" do
   include_examples "it takes an environment name and an account name"
 
   it "fails when given a bad option" do
-    ey %w[web enable --lots --of --bogus --options], :expect_failure => true
+    fast_failing_ey %w[web enable --lots --of --bogus --options]
     @err.should include("Unknown switches")
   end
 end

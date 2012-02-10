@@ -31,7 +31,7 @@ shared_examples_for "running ey ssh for select role" do
 
   it "runs the command on the right servers" do
     api_scenario "one app, one environment"
-    run_ey(:ssh_command => "ls", :environment => 'giblets', :verbose => true)
+    ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :verbose => true)
     @hosts.each do |host|
       @raw_ssh_commands.select do |command|
         command =~ /^ssh turkey@#{host}.+ ls$/
@@ -44,13 +44,13 @@ shared_examples_for "running ey ssh for select role" do
 
   it "raises an error when there are no matching hosts" do
     api_scenario "one app, one environment, no instances"
-    run_ey({:ssh_command => "ls", :environment => 'giblets', :verbose => true}, :expect_failure => true)
+    ey command_to_run({:ssh_command => "ls", :environment => 'giblets', :verbose => true}), :expect_failure => true
   end
 
   it "responds correctly when there is no command" do
     if @hosts.count != 1
       api_scenario "one app, one environment"
-      run_ey({:environment => 'giblets', :verbose => true}, :expect_failure => true)
+      ey command_to_run({:environment => 'giblets', :verbose => true}), :expect_failure => true
     end
   end
 end
@@ -128,7 +128,7 @@ describe "ey ssh with a command that fails" do
 
   it "fails just like the ssh command fails" do
     api_scenario "one app, one environment"
-    run_ey({:ssh_command => "ls", :environment => 'giblets', :verbose => true}, :expect_failure => true)
+    ey command_to_run({:ssh_command => "ls", :environment => 'giblets', :verbose => true}), :expect_failure => true
   end
 end
 
