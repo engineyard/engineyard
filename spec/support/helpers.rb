@@ -167,11 +167,6 @@ module SpecHelpers
 
     @raw_ssh_commands, @ssh_commands = extract_ssh_commands(@out)
 
-    if ENV['DEBUG']
-      STDOUT.puts @out
-      STDERR.puts @err
-    end
-
     puts @err unless @err.empty? || hide_err
     @out
   end

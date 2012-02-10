@@ -28,7 +28,6 @@ module EY
         :account_name     => account_name,
         :remotes          => remotes,
       }
-
       environments = api.resolve_environments(constraints)
 
       case environments.size
@@ -62,54 +61,76 @@ module EY
         :remotes          => remotes,
       }
 
+      if constraints.all? { |k,v| v.nil? || v.empty? || v.to_s.empty? }
+        raise EY::CloudClient::NoMatchesError.new <<-ERROR
+Unable to find application without a git remote URI or app name.
+
+Please specify --app app_name or add this application at #{EY::CloudClient.endpoint}"
+        ERROR
+      end
+
       app_envs = api.resolve_app_environment(constraints)
 
       case app_envs.size
-      when 0 then raise no_app_environments_error(constraints)
+      when 0 then raise EY::CloudClient::NoMatchesError.new(no_app_environments_error(constraints))
       when 1 then app_envs.first
-      else        raise too_many_app_environments_error(app_envs)
+      else        raise EY::CloudClient::MultipleMatchesError.new(too_many_app_environments_error(app_envs))
       end
     end
 
       def no_app_environments_error(constraints)
         if constraints[:account_name] && account_candidates(constraints).empty?
-          EY::CloudClient::NoMatchesError.new("There were no accounts that matched #{constraints[:account_name]}")
+          # Account specified doesn't exist
+          "No account found matching #{constraints[:account_name].inspect}."
         elsif app_candidates(constraints).empty?
+          # App not found
           if constraints[:app_name]
-            EY::CloudClient::InvalidAppError.new(constraints[:app_name])
+            # Specified app not found
+            #EY::CloudClient::InvalidAppError.new(constraints[:app_name])
+            "No application found matching #{constraints[:app_name].inspect}."
           else
-            EY::CloudClient::NoAppError.new(repo, EY::CloudClient.endpoint)
+            # Repository not found
+            return <<-ERROR
+No application configured for any of the following remotes:
+\t#{constraints[:remotes].join("\n\t")}
+You can add this application at #{EY::CloudClient.endpoint}.
+            ERROR
           end
-        elsif (environment_candidates_matching_account(constraints) || filter_if_constrained(constraints,:environment_name, all)).empty?
-          exists = api.environments.named(constraints[:environment_name])
-          exists ? EnvironmentUnlinkedError.new(constraints[:environment_name]) : EY::CloudClient::NoEnvironmentError.new(constraints[:environment_name], EY::CloudClient.endpoint)
+        elsif filter_if_constrained(constraints,:environment_name, all).empty?
+          # Environment doesn't exist
+          "No environment found matching #{constraints[:environment_name].inspect}."
+        elsif constraints[:account_name] && environment_candidates_matching_account(constraints).empty?
+          # Environment not found under this account
+          "Environment matching #{constraints[:environment_name].inspect} exists on a different account."
         else
+          # Account, app, and/or environment found, but don't match
           message = "The matched apps & environments do not correspond with each other.\n"
           message << "Applications:\n"
-          app_candidates(constraints).map{|app_env| [app_env.account_name, app_env.app_name]}.uniq.each do |account_name, app_name|
-            app = api.apps.named(app_name, account_name)
-            message << "\t#{account_name}/#{app.name}\n"
+
+          ### resolver.apps belongs here.
+
+          app_candidates(constraints).uniq {|app_env| [app_env.account_name, app_env.app_name] }.each do |app_env|
+            app = app_env.app
+            message << "\t#{app.account.name}/#{app.name}\n"
             app.environments.each do |env|
               message << "\t\t#{env.name} # ey <command> -e #{env.name} -a #{app.name}\n"
             end
           end
-          EY::CloudClient::NoMatchesError.new(message)
+
+          message
         end
       end
 
       def too_many_app_environments_error(app_envs)
-        message = "Multiple app deployments possible, please be more specific:\n\n"
-        app_envs.map do |app_env|
-          [app_env.account_name, app_env.app_name]
-        end.uniq.each do |account_name, app_name|
-          message << "#{account_name}/#{app_name}\n"
+        message = "Multiple application environments possible, please be more specific:\n\n"
 
-          app_envs.select do |app_env|
-            app_env.app_name == app_name && app_env.account_name == account_name
-          end.map do |app_env|
-            app_env.environment_name
-          end.uniq.each do |env_name|
-            message << "\t#{env_name.ljust(25)} # ey <command> --environment='#{env_name}' --app='#{app_name}' --account='#{account_name}'\n"
+        app_envs.group_by do |app_env|
+          "#{app_env.account_name}/#{app_env.app_name}"
+        end.each do |account_app_name, grouped_app_envs|
+          message << account_app_name << "\n"
+          grouped_app_envs.sort_by { |ae| ae.environment_name }.each do |app_env|
+            message << "\t#{app_env.environment_name.ljust(25)}"
+            message << " # ey <command> --account='#{app_env.account_name}' --app='#{app_env.app_name}' --environment='#{app_env.environment_name}'\n"
           end
         end
         EY::CloudClient::MultipleMatchesError.new(message)

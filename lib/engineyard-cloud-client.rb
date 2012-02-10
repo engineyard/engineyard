@@ -5,7 +5,6 @@ end
 
 require 'engineyard-cloud-client/ruby_ext'
 require 'engineyard-cloud-client/models'
-require 'engineyard-cloud-client/collections'
 require 'engineyard-cloud-client/rest_client_ext'
 require 'engineyard-cloud-client/resolver'
 require 'engineyard-cloud-client/version'

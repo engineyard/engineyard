@@ -75,19 +75,19 @@ describe "ey deploy" do
     it "complains when there is no app" do
       api_scenario "empty"
       fast_failing_ey ["deploy"]
-      @err.should include(%|no application configured|)
+      @err.should include(%|No application configured|)
     end
 
     it "complains when the specified environment does not contain the app" do
       api_scenario "one app, one environment, not linked"
       fast_failing_ey %w[deploy -e giblets -r master]
-      @err.should match(/there is no application configured/i)
+      @err.should match(/No application configured/i)
     end
 
     it "complains when environment is not specified and app is in >1 environment" do
       api_scenario "one app, many environments"
       fast_failing_ey %w[deploy --ref master --no-migrate]
-      @err.should match(/multiple app deployments possible/i)
+      @err.should match(/Multiple application environments possible/i)
     end
 
     it "complains when the app master is in a non-running state" do

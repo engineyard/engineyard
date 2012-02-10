@@ -1,5 +1,4 @@
 require 'engineyard-cloud-client/models'
-require 'engineyard-cloud-client/collections'
 require 'engineyard-cloud-client/errors'
 
 module EY
@@ -17,10 +16,6 @@ module EY
         @account = Account.from_hash(api, attrs['account']) if attrs['account']
         @instances = Instance.from_array(api, attrs['instances'], 'environment' => self) if attrs['instances']
         @app_master = Instance.from_hash(api, attrs['app_master'].merge('environment' => self)) if attrs['app_master']
-      end
-
-      def self.from_array(*)
-        Collections::Environments.new(super)
       end
 
       # Return list of all Environments linked to all current user's accounts

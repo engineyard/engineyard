@@ -77,7 +77,7 @@ module EY
       end
 
       def too_many_app_environments_error
-        message = "Multiple app deployments possible, please be more specific:\n\n"
+        message = "Multiple app environments possible, please be more specific:\n\n"
         candidates.map do |app_env|
           [app_env.account_name, app_env.app_name]
         end.uniq.each do |account_name, app_name|

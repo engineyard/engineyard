@@ -197,19 +197,6 @@ describe "EY::CloudClient::Environment#run_custom_recipes" do
   end
 end
 
-describe "EY::CloudClient::Environment.from_array" do
-  it "returns a smart collection, not just a dumb array" do
-    api_data = [
-      {"id" => 32340, "name" => 'iceberg'},
-      {"id" => 9433, "name" => 'zoidberg'},
-    ]
-
-    collection = EY::CloudClient::Environment.from_array(ey_api, api_data)
-    collection.should respond_to(:each)
-    collection.should respond_to(:match_one)
-  end
-end
-
 describe "EY::CloudClient::Environment#instances" do
   it "returns instances" do
     instance_data = {

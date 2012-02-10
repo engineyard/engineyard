@@ -36,9 +36,9 @@ shared_examples_for "it takes an environment name and an app name and an account
 
     it "fails when the app and environment are ambiguous across accounts" do
       run_ey({:environment => "giblets", :app => "rails232app", :ref => 'master'}, {:expect_failure => true})
-      @err.should match(/Multiple app deployments possible/i)
-      @err.should match(/ey \S+ --environment='giblets' --app='rails232app' --account='account_2'/i)
-      @err.should match(/ey \S+ --environment='giblets' --app='rails232app' --account='main'/i)
+      @err.should match(/Multiple application environments possible/i)
+      @err.should match(/ey \S+ --account='account_2' --app='rails232app' --environment='giblets'/i)
+      @err.should match(/ey \S+ --account='main' --app='rails232app' --environment='giblets'/i)
     end
 
     it "runs when specifying the account disambiguates the app to deploy" do
@@ -110,7 +110,7 @@ shared_examples_for "it takes an environment name" do
   it "complains when you specify a nonexistent environment" do
     api_scenario "one app, one environment"
     run_ey({:environment => 'typo-happens-here'}, {:expect_failure => true})
-    @err.should match(/no environment named 'typo-happens-here'/i)
+    @err.should match(/No environment found matching .*typo-happens-here/i)
   end
 
   context "outside a git repo" do
@@ -143,7 +143,7 @@ shared_examples_for "it takes an environment name" do
     it "complains when the substring is ambiguous" do
       run_ey({:environment => 'staging'}, {:expect_failure => true})
       if @takes_app_name
-        @err.should match(/multiple app deployments possible/i)
+        @err.should match(/multiple application environments possible/i)
       else
         @err.should match(/multiple environments possible/i)
       end
@@ -164,7 +164,7 @@ shared_examples_for "it takes an environment name" do
   it "complains when it can't guess the environment and its name isn't specified" do
     api_scenario "one app, one environment, not linked"
     run_ey({:environment => nil}, {:expect_failure => true})
-    @err.should match(/there is no application configured/i)
+    @err.should match(/no application configured/i)
   end
 end
 
@@ -201,7 +201,7 @@ shared_examples_for "it takes an app name" do
     api_scenario "one app, one environment"
     run_ey({:environment => 'giblets', :app => 'P-time-SAT-solver', :ref => 'master'},
       {:expect_failure => true})
-    @err.should =~ /no app.*P-time-SAT-solver/i
+    @err.should =~ /No app.*P-time-SAT-solver/i
   end
 
 end
@@ -245,66 +245,6 @@ shared_examples_for "it invokes engineyard-serverside" do
 
     it "omits the --instance-names parameter" do
       @ssh_commands.last.should_not include("--instance-names")
-    end
-  end
-end
-
-shared_examples_for "model collections" do
-  describe "#match_one" do
-    it "works when given an unambiguous substring" do
-      @collection.match_one("prod").name.should == "app_production"
-    end
-
-    it "raises an error when given an ambiguous substring" do
-      lambda {
-        @collection.match_one("staging")
-      }.should raise_error(@collection_class.ambiguous_error)
-    end
-
-    it "returns an exact match if one exists" do
-      @collection.match_one("app_staging").name.should == "app_staging"
-    end
-
-    it "returns nil when it can't find anything" do
-      @collection.match_one("dev-and-production").should be_nil
-    end
-  end
-
-  describe "#match_one!" do
-    it "works when given an unambiguous substring" do
-      @collection.match_one!("prod").name.should == "app_production"
-    end
-
-    it "raises an error when given an ambiguous substring" do
-      lambda {
-        @collection.match_one!("staging")
-      }.should raise_error(@collection_class.ambiguous_error)
-    end
-
-    it "returns an exact match if one exists" do
-      @collection.match_one!("app_staging").name.should == "app_staging"
-    end
-
-    it "raises an error when given an ambiguous exact string" do
-      lambda {
-        @collection.match_one!("app_duplicate")
-      }.should raise_error(@collection_class.ambiguous_error)
-    end
-
-    it "raises an error when it can't find anything" do
-      lambda {
-        @collection.match_one!("dev-and-production")
-      }.should raise_error(@collection_class.invalid_error)
-    end
-  end
-
-  describe "#named" do
-    it "finds matching by name" do
-      @collection.named("app_staging").name.should == "app_staging"
-    end
-
-    it "returns nil when no name matches" do
-      @collection.named("something else").should be_nil
     end
   end
 end

@@ -1,16 +1,11 @@
 require 'engineyard-cloud-client/errors'
 require 'engineyard-cloud-client/models'
-require 'engineyard-cloud-client/collections'
 
 module EY
   class CloudClient
     class App < ApiStruct.new(:id, :name, :repository_uri, :app_type_id)
 
       attr_reader :app_environments, :account
-
-      def self.from_array(*)
-        Collections::Apps.new(super)
-      end
 
       def initialize(api, attrs)
         super
@@ -49,16 +44,6 @@ module EY
         raise EY::CloudClient::AttributeRequiredError.new("app_type_id") unless params["app_type_id"]
         response = api.request("/accounts/#{account.id}/apps", :method => :post, :params => {"app" => params})
         self.from_hash(api, response['app'])
-      end
-
-      def sole_environment
-        if environments.size == 1
-          environments.first
-        end
-      end
-
-      def sole_environment!
-        sole_environment or raise NoSingleEnvironmentError.new(self)
       end
 
       def account_name

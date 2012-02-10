@@ -94,11 +94,6 @@ module EY
       else
         raise EY::Error, "Deploy failed"
       end
-
-    rescue EY::CloudClient::NoEnvironmentError => e
-      # Give better feedback about why we couldn't find the environment.
-      exists = api.environments.named(options[:environment])
-      raise exists ? EnvironmentUnlinkedError.new(options[:environment]) : e
     end
 
     desc "status", "Show the deployment status of the app"
