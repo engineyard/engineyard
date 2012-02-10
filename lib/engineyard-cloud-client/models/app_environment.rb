@@ -6,6 +6,20 @@ module EY
   class CloudClient
     class AppEnvironment < ApiStruct.new(:id, :app, :environment, :perform_migration, :migration_command)
 
+      # Return a constrained list of environments given a set of constraints like:
+      #
+      # * app_name
+      # * account_name
+      # * environment_name
+      # * remotes:  An array of git remote URIs
+      #
+      def self.resolve(api, constraints)
+        clean_constraints = constraints.reject { |k,v| v.nil? }
+        params = {'constraints' => clean_constraints}
+        response = api.request("/app_environments/resolve", :method => :get, :params => params)
+        from_array(api, response['app_environments'])
+      end
+
       def initialize(api, attrs)
         super
 

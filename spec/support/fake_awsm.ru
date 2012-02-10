@@ -1,6 +1,9 @@
 require 'rubygems'
 require 'sinatra/base'
 require 'json'
+require 'hashie'
+require 'gitable'
+require 'app_env_resolver/mock_provider'
 require File.expand_path('../scenarios', __FILE__)
 
 class FakeAwsm < Sinatra::Base
@@ -54,6 +57,14 @@ class FakeAwsm < Sinatra::Base
 
   get "/api/v2/environments" do
     {"environments" => @@cloud_mock.environments}.to_json
+  end
+
+  get "/api/v2/environments/resolve" do
+    @@cloud_mock.resolve_environments(params['constraints']).to_json
+  end
+
+  get "/api/v2/app_environments/resolve" do
+    @@cloud_mock.resolve_app_environments(params['constraints']).to_json
   end
 
   get "/api/v2/environments/:env_id/logs" do
@@ -212,7 +223,43 @@ private
       end
     end
 
+    def resolve_environments(constraints)
+      envs = AppEnvResolver.mock_resolver(constraints, flat_app_envs).environments
+      api_envs = envs.dup.map do |env|
+        env.merge("apps" => joined_apps(env))
+      end
+      {'environments' => api_envs}
+    end
+
+    def resolve_app_environments(constraints)
+      app_envs = AppEnvResolver.mock_resolver(constraints, flat_app_envs).app_environments
+      api_app_envs = app_envs.dup.map do |app_env|
+        {
+          "app" => app_env.app,
+          "environment" => app_env.environment,
+        }
+      end
+      {'app_environments' => api_app_envs}
+    end
+
     private
+
+    def flat_app_envs
+      app_envs = []
+      @apps.each do |app|
+        joined_envs(app).each do |env|
+          app_envs << Hashie::Mash.new({
+            :app => app,
+            :environment => env,
+            :account_name => app['account']['name'],
+            :app_name => app['name'],
+            :environment_name => env['name'],
+            :repository_uri => Gitable::URI.parse(app['repository_uri']),
+          })
+        end
+      end
+      app_envs
+    end
 
     def next_id
       id = @next_id

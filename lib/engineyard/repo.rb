@@ -30,6 +30,7 @@ module EY
     def urls
       @urls ||= config('remote.*.url').map { |c| c.split.last }
     end
+    alias remotes urls
 
     def has_remote?(repository_uri)
       urls.include?(repository_uri)

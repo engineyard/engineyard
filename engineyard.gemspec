@@ -39,4 +39,6 @@ Gem::Specification.new do |s|
   s.add_development_dependency('sinatra')
   s.add_development_dependency('realweb', '~>0.2.2')
   s.add_development_dependency('open4', '~>1.0.1')
+  s.add_development_dependency('hashie')
+  s.add_development_dependency('gitable')
 end

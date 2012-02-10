@@ -28,6 +28,20 @@ module EY
         self.from_array(api, api.request('/environments')["environments"])
       end
 
+      # Return a constrained list of environments given a set of constraints like:
+      #
+      # * app_name
+      # * account_name
+      # * environment_name
+      # * remotes:  An array of git remote URIs
+      #
+      def self.resolve(api, constraints)
+        clean_constraints = constraints.reject { |k,v| v.nil? }
+        params = {'constraints' => clean_constraints}
+        response = api.request("/environments/resolve", :method => :get, :params => params)
+        from_array(api, response['environments'])
+      end
+
       # Usage
       # Environment.create(api, {
       #      app: app,                            # requires: app.id

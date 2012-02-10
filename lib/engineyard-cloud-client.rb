@@ -54,21 +54,12 @@ module EY
       self.class.request(url, opts)
     end
 
-    def fetch_environment(environment_name, account_name, repo)
-      Resolver.new(self, {
-        :environment_name => environment_name,
-        :account_name     => account_name,
-        :repo             => repo,
-      }).environment
+    def resolve_environments(constraints)
+      EY::CloudClient::Environment.resolve(self, constraints)
     end
 
-    def fetch_app_environment(app_name, environment_name, account_name, repo)
-      Resolver.new(self, {
-        :app_name         => app_name,
-        :environment_name => environment_name,
-        :account_name     => account_name,
-        :repo             => repo,
-      }).app_environment
+    def resolve_app_environment(constraints)
+      EY::CloudClient::AppEnvironment.resolve(self, constraints)
     end
 
     def environments

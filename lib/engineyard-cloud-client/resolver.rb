@@ -14,16 +14,6 @@ module EY
       end
 
       def environment
-        if constraints[:app_name]
-          raise ArgumentError, "Unexpected option :app_name for Resolver#environment."
-        end
-
-        account_and_environment_names = candidates.map { |app_env| [app_env.account_name, app_env.environment_name] }.uniq
-
-        environments = account_and_environment_names.map do |account_name, environment_name|
-          api.environments.named(environment_name, account_name)
-        end
-
         case environments.size
         when 0 then raise no_environments_error
         when 1 then environments.first
@@ -77,7 +67,7 @@ module EY
           message << "Applications:\n"
           app_candidates.map{|app_env| [app_env.account_name, app_env.app_name]}.uniq.each do |account_name, app_name|
             app = api.apps.named(app_name, account_name)
-            message << "\t#{app.name}\n"
+            message << "\t#{account_name}/#{app.name}\n"
             app.environments.each do |env|
               message << "\t\t#{env.name} # ey <command> -e #{env.name} -a #{app.name}\n"
             end
@@ -91,7 +81,7 @@ module EY
         candidates.map do |app_env|
           [app_env.account_name, app_env.app_name]
         end.uniq.each do |account_name, app_name|
-          message << "#{app_name}\n"
+          message << "#{account_name}/#{app_name}\n"
 
           candidates.select do |app_env|
             app_env.app_name == app_name && app_env.account_name == account_name

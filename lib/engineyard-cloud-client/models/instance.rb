@@ -32,7 +32,6 @@ module EY
         deployment.successful = invoke(deploy_command) { |chunk| deployment.append_output chunk }
       rescue Interrupt
         deployment.append_output "Interrupted. Deployment halted.\n"
->>>>>>> Remove all EY.ui access from within CloudClient
         raise
       rescue StandardError => e
         deployment.append_output "Error encountered during deploy.\n#{e.class} #{e}\n"
