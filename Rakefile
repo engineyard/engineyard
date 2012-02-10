@@ -3,6 +3,13 @@ RSpec::Core::RakeTask.new do |t|
   t.rspec_opts = %w[--color]
   t.pattern = 'spec/**/*_spec.rb'
 end
+
+task :coverage => [:coverage_env, :spec]
+
+task :coverage_env do
+  ENV['COVERAGE'] = '1'
+end
+
 task :test => :spec
 task :default => :spec
 
