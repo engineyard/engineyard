@@ -38,9 +38,27 @@ module EY
     end
   end
 
-  class DeployArgumentError < EY::Error
+  class ResolverError        < Error; end
+  class NoMatchesError       < ResolverError; end
+  class MultipleMatchesError < ResolverError; end
+
+  class AmbiguousEnvironmentGitUriError < ResolverError
+    def initialize(environments)
+      message = "The repository url in this directory is ambiguous.\n"
+      message << "Please use -e <envname> to specify one of the following environments:\n"
+      environments.sort do |a, b|
+        if a.account == b.account
+          a.name <=> b.name
+        else
+          a.account.name <=> b.account.name
+        end
+      end.each { |env| message << "\t#{env.name} (#{env.account.name})\n" }
+      super message
+    end
   end
 
+
+  class DeployArgumentError < EY::Error; end
   class BranchMismatchError < DeployArgumentError
     def initialize(default, ref)
       super <<-ERR

@@ -34,7 +34,7 @@ module EY
       resolver.one_match { |match| return match  }
 
       resolver.no_matches do |errors, suggestions|
-        raise EY::CloudClient::NoMatchesError.new(errors.join("\n"))
+        raise EY::NoMatchesError.new(errors.join("\n"))
       end
 
       resolver.many_matches do |matches|
@@ -43,9 +43,9 @@ module EY
           matches.each do |env|
             message << "\t#{env.name.ljust(25)} # ey <command> --environment='#{env.name}' --account='#{env.account.name}'\n"
           end
-          raise EY::CloudClient::MultipleMatchesError.new(message)
+          raise EY::MultipleMatchesError.new(message)
         else
-          raise EY::CloudClient::AmbiguousEnvironmentGitUriError.new(matches)
+          raise EY::AmbiguousEnvironmentGitUriError.new(matches)
         end
       end
     end
@@ -61,7 +61,7 @@ module EY
       }
 
       if constraints.all? { |k,v| v.nil? || v.empty? || v.to_s.empty? }
-        raise EY::CloudClient::NoMatchesError.new <<-ERROR
+        raise EY::NoMatchesError.new <<-ERROR
 Unable to find application without a git remote URI or app name.
 
 Please specify --app app_name or add this application at #{EY::CloudClient.endpoint}"
@@ -93,10 +93,10 @@ Please specify --app app_name or add this application at #{EY::CloudClient.endpo
           end
         end
 
-        raise EY::CloudClient::NoMatchesError.new([errors,message].join("\n").strip)
+        raise EY::NoMatchesError.new([errors,message].join("\n").strip)
       end
       resolver.many_matches do |app_envs|
-        raise EY::CloudClient::MultipleMatchesError.new(too_many_app_environments_error(app_envs))
+        raise EY::MultipleMatchesError.new(too_many_app_environments_error(app_envs))
       end
     end
 
@@ -112,7 +112,7 @@ Please specify --app app_name or add this application at #{EY::CloudClient.endpo
             message << " # ey <command> --account='#{app_env.account_name}' --app='#{app_env.app_name}' --environment='#{app_env.environment_name}'\n"
           end
         end
-        EY::CloudClient::MultipleMatchesError.new(message)
+        message
       end
   end # UtilityMethods
 
