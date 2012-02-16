@@ -122,7 +122,7 @@ module EY
           puts envs.flatten.map{|env| env.name }.uniq
         else
           apps.each do |app|
-            puts "#{app.name} (#{app.account.name})"
+            puts "#{app.account.name}/#{app.name}"
             if app.environments.any?
               app.environments.each do |env|
                 short_name = env.shorten_name_for(app)

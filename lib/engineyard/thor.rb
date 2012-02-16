@@ -68,7 +68,7 @@ Please specify --app app_name or add this application at #{EY::CloudClient.endpo
         ERROR
       end
 
-      resolver = api.resolve_app_environment(constraints)
+      resolver = api.resolve_app_environments(constraints)
 
       resolver.one_match { |match| return match }
       resolver.no_matches do |errors, suggestions|

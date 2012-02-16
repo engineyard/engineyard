@@ -147,7 +147,9 @@ module EY
         EY.ui.print_envs(api.apps, EY.config.default_environment, options[:simple])
       else
         repo.fail_on_no_remotes!
-        apps = api.apps.find_all {|a| repo.has_remote?(a.repository_uri) }
+        resolver = api.resolve_app_environments(:remotes => repo.remotes)
+
+        apps = resolver.matches.map { |app_env| app_env.app }.uniq
 
         if apps.size > 1
           message = "This git repo matches multiple Applications in EY Cloud:\n"
@@ -155,7 +157,7 @@ module EY
           message << "The following environments contain those applications:\n\n"
           EY.ui.warn(message)
         elsif apps.empty?
-          EY.ui.warn(EY::CloudClient::NoAppError.new(repo, EY.config.endpoint).message + "\nUse #{self.class.send(:banner_base)} environments --all to see all environments.")
+          EY.ui.warn("Use #{self.class.send(:banner_base)} environments --all to see all environments.")
         end
 
         EY.ui.print_envs(apps, EY.config.default_environment, options[:simple])

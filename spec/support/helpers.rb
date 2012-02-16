@@ -77,11 +77,12 @@ module SpecHelpers
     @api ||= EY::CloudClient.new('asdf')
   end
 
-  def fast_ey(args)
+  def fast_ey(args, options = {})
     err, out = StringIO.new, StringIO.new
+    debug = options[:debug] == false ? nil : 'true'
     capture_stderr_into(err) do
       capture_stdout_into(out) do
-        with_env('DEBUG' => 'true') do
+        with_env('DEBUG' => debug) do
           EY::CLI.start(args)
         end
       end

@@ -57,7 +57,7 @@ module EY
       EY::CloudClient::Environment.resolve(self, constraints)
     end
 
-    def resolve_app_environment(constraints)
+    def resolve_app_environments(constraints)
       EY::CloudClient::AppEnvironment.resolve(self, constraints)
     end
 
