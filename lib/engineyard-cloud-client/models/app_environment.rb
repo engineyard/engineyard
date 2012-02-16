@@ -5,9 +5,9 @@ require 'gitable' # DELETE ME
 
 module EY
   class CloudClient
-    class AppEnvironment < ApiStruct.new(:id, :app, :environment)
+    class AppEnvironment < ApiStruct.new(:id, :app, :environment, :uri, :domain_name, :migrate_command, :migrate)
 
-      # Return a constrained list of environments given a set of constraints like:
+      # Return a constrained list of app_environments given a set of constraints like:
       #
       # * app_name
       # * account_name
@@ -31,10 +31,14 @@ module EY
 
       def app=(app_or_hash)
         super App.from_hash(api, app_or_hash)
+        app.add_app_environment(self)
+        app
       end
 
       def environment=(env_or_hash)
         super Environment.from_hash(api, env_or_hash)
+        environment.add_app_environment(self)
+        environment
       end
 
       def account_name

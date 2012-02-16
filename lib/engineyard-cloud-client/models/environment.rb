@@ -5,17 +5,55 @@ module EY
   class CloudClient
     class Environment < ApiStruct.new(:id, :name, :framework_env, :instances_count,
                                       :username, :app_server_stack_name,
-                                      :load_balancer_ip_address)
-
+                                      :load_balancer_ip_address
+                                     )
       attr_accessor :ignore_bad_master, :apps, :account, :instances, :app_master
 
       def initialize(api, attrs)
         super
+      end
 
-        @apps = App.from_array(api, attrs['apps']) if attrs['apps']
-        @account = Account.from_hash(api, attrs['account']) if attrs['account']
-        @instances = Instance.from_array(api, attrs['instances'], 'environment' => self) if attrs['instances']
-        @app_master = Instance.from_hash(api, attrs['app_master'].merge('environment' => self)) if attrs['app_master']
+      def attributes=(attrs)
+        account_attrs    = attrs.delete('account')
+        apps_attrs       = attrs.delete('apps')
+        instances_attrs  = attrs.delete('instances')
+        app_master_attrs = attrs.delete('app_master')
+
+        super
+
+        self.account    = account_attrs if account_attrs
+        self.apps       = apps_attrs if apps_attrs
+        self.instances  = Instance.from_array(api, instances_attrs, 'environment' => self) if instances_attrs
+        self.app_master = Instance.from_hash(api, app_master_attrs.merge('environment' => self)) if app_master_attrs
+      end
+
+      def add_app_environment(app_env)
+        @app_environments ||= []
+        existing_app_env = @app_environments.detect { |ae| app_env.environment == ae.environment }
+        unless existing_app_env
+          @app_environments << app_env
+        end
+        existing_app_env || app_env
+      end
+
+      def app_environments
+        @app_environments ||= []
+      end
+
+      def account=(account_attrs)
+        @account = Account.from_hash(api, account_attrs)
+        @account.add_environment(self)
+        @account
+      end
+
+      def apps=(apps_attrs)
+        (apps_attrs || []).each do |app|
+          AppEnvironment.new(api, {'app' => app, 'environment' => self})
+        end
+      end
+
+      def apps
+        app_environments.map { |app_env| app_env.app }
       end
 
       # Return list of all Environments linked to all current user's accounts
@@ -36,19 +74,6 @@ module EY
         response = api.request("/environments/resolve", :method => :get, :params => params)
         matches = from_array(api, response['environments'])
         ResolverResult.new(api, matches, response['errors'], response['suggestions'])
-      end
-
-      # DELETE ME
-      def self.no_environment_error(constraints)
-        if constraints[:environment_name]
-          "No environment found matching '#{constraints[:environment_name]}'\nYou can create one at #{EY::CloudClient.endpoint}"
-        else
-          return <<-ERROR
-No application configured for any of the following remotes:
-\t#{constraints[:remotes].join("\n\t")}
-You can add this application at #{EY::CloudClient.endpoint}.
-          ERROR
-        end
       end
 
       # Usage

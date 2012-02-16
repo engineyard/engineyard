@@ -94,8 +94,8 @@ describe "EY::CloudClient::Environment.create" do
   end
 
   it "hits the create action and requests a solo instance booted" do
-    account = EY::CloudClient::Account.new(ey_api, {:id => 1234, :name => 'myaccount'})
-    app = EY::CloudClient::App.new(ey_api, {:account => account, :id => 12345, :name => 'myapp',
+    account = EY::CloudClient::Account.from_hash(ey_api, {:id => 1234, :name => 'myaccount'})
+    app = EY::CloudClient::App.from_hash(ey_api, {:account => account, :id => 12345, :name => 'myapp',
       :repository_uri => 'git@github.com:myaccount/myapp.git', :app_type_id => 'rails3'})
 
     response =   {
@@ -207,9 +207,9 @@ describe "EY::CloudClient::Environment#instances" do
     }
 
     env = EY::CloudClient::Environment.from_hash(ey_api, {
-        "id" => 10291,
-        "instances" => [instance_data],
-      })
+      "id" => 10291,
+      "instances" => [instance_data],
+    })
 
     FakeWeb.register_uri(:get,
       "https://cloud.engineyard.com/api/v2/environments/#{env.id}/instances",
@@ -232,11 +232,11 @@ describe "EY::CloudClient::Environment#app_master!" do
     end
 
     EY::CloudClient::Environment.from_hash(ey_api, {
-        "id" => 11830,
-        "name" => "guinea-pigs-are-delicious",
-        "app_master" => app_master,
-        "instances" => [app_master].compact,
-      })
+      "id" => 11830,
+      "name" => "guinea-pigs-are-delicious",
+      "app_master" => app_master,
+      "instances" => [app_master].compact,
+    })
   end
 
 

@@ -9,12 +9,6 @@ module EY
 
       def initialize(api, attrs)
         super
-
-        @account = Account.from_hash(api, attrs['account']) if attrs['account']
-        if attrs['environments']
-          app_env_hashes = attrs['environments'].map { |env| {'app' => self, 'environment' => env} }
-          @app_environments = AppEnvironment.from_array(api, app_env_hashes)
-        end
       end
 
       # Return list of all Apps linked to all current user's accounts
@@ -43,7 +37,7 @@ module EY
         raise EY::CloudClient::AttributeRequiredError.new("repository_uri") unless params["repository_uri"]
         raise EY::CloudClient::AttributeRequiredError.new("app_type_id") unless params["app_type_id"]
         response = api.request("/accounts/#{account.id}/apps", :method => :post, :params => {"app" => params})
-        self.from_hash(api, response['app'])
+        from_hash(api, response['app'])
       end
 
       def account_name
@@ -54,6 +48,34 @@ module EY
         (app_environments || []).map { |app_env| app_env.environment }
       end
 
+      def add_app_environment(app_env)
+        @app_environments ||= []
+        existing_app_env = @app_environments.detect { |ae| app_env.environment == ae.environment }
+        unless existing_app_env
+          @app_environments << app_env
+        end
+        existing_app_env || app_env
+      end
+
+      def account=(account_attrs)
+        @account = Account.from_hash(api, account_attrs)
+        @account.add_app(self)
+        @account
+      end
+
+      def environments=(environments_attrs)
+        (environments_attrs || []).each do |env|
+          AppEnvironment.new(api, {'app' => self, 'environment' => env})
+        end
+      end
+
+      def attributes=(attrs)
+        account_attrs      = attrs.delete('account')
+        environments_attrs = attrs.delete('environments')
+        super
+        self.account = account_attrs if account_attrs
+        self.environments = environments_attrs if environments_attrs
+      end
     end
   end
 end
