@@ -26,17 +26,3 @@ RSpec::Matchers.define :have_app_code do
     "Expected #has_app_code? to be false on instance: #{instance.inspect}"
   end
 end
-
-RSpec::Matchers.define :resolve_to do |expected|
-  match do |app_env|
-    app_env.should == expected
-  end
-
-  failure_message_for_should do |app_env|
-    "Expected: #{expected.app_name}, #{expected.environment_name}; Got: #{app_env.app_name}, #{app_env.environment_name}"
-  end
-
-  failure_message_for_should_not do |pair|
-    "Expected to not match: #{expected.app_name}, #{expected.environment_name}"
-  end
-end
