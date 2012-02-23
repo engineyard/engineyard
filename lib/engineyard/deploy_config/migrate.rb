@@ -35,7 +35,7 @@ module EY
           if @perform
             @command ||= command_from_opts || command_from_config || DEFAULT
           else
-            @cammond = nil
+            @command = nil
           end
           [@perform, @command]
         else
