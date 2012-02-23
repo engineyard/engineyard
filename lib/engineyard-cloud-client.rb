@@ -15,6 +15,7 @@ require 'pp'
 module EY
   class CloudClient
     attr_reader :token
+    attr_accessor :ui
 
     USER_AGENT_STRING = "EngineYardCloudClient/#{EY::CloudClient::VERSION}"
 
@@ -35,8 +36,9 @@ module EY
     end
     default_endpoint!
 
-    def initialize(token)
+    def initialize(token, ui)
       self.token = token
+      self.ui = ui
     end
 
     def token=(new_token)
@@ -49,8 +51,8 @@ module EY
     def request(url, opts={})
       opts[:headers] ||= {}
       opts[:headers]["X-EY-Cloud-Token"] = token
-      EY.ui.debug("Token", token)
-      self.class.request(url, opts)
+      ui.debug("Token", token)
+      self.class.request(url, opts, ui)
     end
 
     def resolve_environments(constraints)
@@ -79,7 +81,7 @@ module EY
       EY::CloudClient::User.from_hash(self, request('/current_user')['user'])
     end
 
-    def self.request(path, opts={})
+    def self.request(path, opts={}, ui)
       url = self.endpoint + "api/v2#{path}"
       method = (opts.delete(:method) || 'get').to_s.downcase.to_sym
       params = opts.delete(:params) || {}
@@ -88,8 +90,8 @@ module EY
       headers["User-Agent"] = USER_AGENT_STRING
 
       begin
-        EY.ui.debug("Request", "#{method.to_s.upcase} #{url}")
-        EY.ui.debug("Params", params.inspect)
+        ui.debug("Request", "#{method.to_s.upcase} #{url}")
+        ui.debug("Params", params.inspect)
         case method
         when :get, :delete, :head
           url.query = RestClient::Payload::UrlEncoded.new(params).to_s
@@ -116,9 +118,9 @@ module EY
       elsif resp.headers[:content_type] =~ /application\/json/
         begin
           data = JSON.parse(resp.body)
-          EY.ui.debug("Response", "\n" + data.pretty_inspect)
+          ui.debug("Response", "\n" + data.pretty_inspect)
         rescue JSON::ParserError
-          EY.ui.debug("Raw response", resp.body)
+          ui.debug("Raw response", resp.body)
           raise RequestFailed, "Response was not valid JSON."
         end
       else
@@ -128,8 +130,8 @@ module EY
       data
     end
 
-    def self.authenticate(email, password)
-      request("/authenticate", :method => "post", :params => { :email => email, :password => password })["api_token"]
+    def self.authenticate(email, password, ui)
+      request("/authenticate", { :method => "post", :params => { :email => email, :password => password }}, ui)["api_token"]
     end
 
   end # API

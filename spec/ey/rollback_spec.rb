@@ -22,14 +22,14 @@ describe "ey rollback" do
   include_examples "it invokes engineyard-serverside"
 
   it "passes along the web server stack to engineyard-serverside" do
-    api_scenario "one app, one environment"
+    login_scenario "one app, one environment"
     ey %w[rollback]
     @ssh_commands.last.should =~ /--stack nginx_mongrel/
   end
 
   context "--extra-deploy-hook-options" do
     before(:all) do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
     end
 
     def extra_deploy_hook_options

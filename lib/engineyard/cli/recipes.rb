@@ -53,16 +53,16 @@ module EY
       no_tasks do
         def apply_recipes(environment)
           environment.run_custom_recipes
-          EY.ui.say "Uploaded recipes started for #{environment.name}"
+          ui.say "Uploaded recipes started for #{environment.name}"
         end
 
         def upload_recipes(environment, filename)
           if options[:file]
             environment.upload_recipes_at_path(options[:file])
-            EY.ui.say "Recipes file #{options[:file]} uploaded successfully for #{environment.name}"
+            ui.say "Recipes file #{options[:file]} uploaded successfully for #{environment.name}"
           else
             environment.tar_and_upload_recipes_in_cookbooks_dir
-            EY.ui.say "Recipes in cookbooks/ uploaded successfully for #{environment.name}"
+            ui.say "Recipes in cookbooks/ uploaded successfully for #{environment.name}"
           end
         end
       end
@@ -82,7 +82,7 @@ module EY
       def download
         environment = fetch_environment(options[:environment], options[:account])
         environment.download_recipes
-        EY.ui.say "Recipes downloaded successfully for #{environment.name}"
+        ui.say "Recipes downloaded successfully for #{environment.name}"
       end
 
     end

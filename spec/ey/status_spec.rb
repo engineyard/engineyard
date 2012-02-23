@@ -5,7 +5,7 @@ describe "ey environments" do
   given "integration"
 
   before(:all) do
-    api_scenario "one app, many environments"
+    login_scenario "one app, many environments"
   end
 
   it "outputs the status of the deployment" do

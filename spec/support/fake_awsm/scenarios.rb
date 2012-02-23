@@ -3,16 +3,16 @@ module Scenario
     attr_accessor :git_remote
     attr_reader :user
 
-    def initialize(remote = "user@git.host:path/to/repo.git")
-      @git_remote = remote
-      @user = User.create(:name => "User Name", :email => "test@test.test")
+    def initialize(name = "User Name", email = "test@test.test", pass = "test")
+      @git_remote = "user@git.host:path/to/repo.git"
+      @user = User.create(:name => name, :email => email, :password => pass)
       @account = @user.accounts.create({"name" => "main"})
     end
   end
 
   class LinkedApp < Base
-    def initialize
-      super
+    def initialize(*)
+      super('Linked App', 'linked.app@test.local', 'linked')
       @app = @account.apps.create("name" => "rails232app", "repository_uri" => git_remote)
       @env = @account.environments.create({
         "name" => "giblets",
@@ -78,8 +78,8 @@ module Scenario
   end  # LinkedApp
 
   class MultipleAmbiguousAccounts < LinkedApp
-    def initialize
-      super
+    def initialize(*)
+      super('Multiple Ambiguous Accounts', 'multiple.ambiguous.accounts@test.local', 'multi')
       @account2 = @user.accounts.create("name" => "account_2")
       @app2 = @account2.apps.create("name" => "rails232app", "repository_uri" => git_remote)
       @env2 = @account2.environments.create({
@@ -98,8 +98,8 @@ module Scenario
   end
 
   class UnlinkedApp < Base
-    def initialize
-      super
+    def initialize(*)
+      super('Unlinked App', 'unlinked.app@test.local', 'unlinked')
 
       @app = @account.apps.create({
         "name" => "rails232app",
@@ -124,8 +124,8 @@ module Scenario
   end # UnlinkedApp
 
   class LinkedAppNotRunning < Base
-    def initialize
-      super
+    def initialize(*)
+      super('Linked App Not Running', 'linked.app.not.running@test.local', 'linked.stopped')
       @app = @account.apps.create({
         "name" => "rails232app",
         "repository_uri" => git_remote
@@ -145,15 +145,15 @@ module Scenario
   end # LinkedAppNotRunning
 
   class LinkedAppRedMaster < LinkedApp
-    def initialize
-      super
+    def initialize(*)
+      super('Linked App Red Master', 'linked.app.red.master@test.local', 'linked.red')
       @env.instances.first.update(:status => "error")
     end
   end
 
   class OneAppManyEnvs < Base
-    def initialize
-      super
+    def initialize(*)
+      super('One App Many Envs', 'one.app.many.envs@test.local', '1app2cups')
       @app = @account.apps.create({
         "name" => "rails232app",
         "repository_uri" => git_remote
@@ -194,8 +194,8 @@ module Scenario
   end # OneAppTwoEnvs
 
   class TwoApps < Base
-    def initialize
-      super
+    def initialize(*)
+      super('Two Apps', 'two.apps@test.local', '2apps')
       @env1 = @account.environments.create({
           "name" => "giblets",
           "framework_env" => "staging",
@@ -239,16 +239,16 @@ module Scenario
   end # TwoApps
 
   class TwoAppsSameGitUri < TwoApps
-    def initialize
-      super
+    def initialize(*)
+      super('Two Apps Same Git URI', 'two.apps.same.git.uri@test.local', '2apps1repo')
       @app1.update(:repository_uri => "git://github.com/engineyard/dup.git")
       @app2.update(:repository_uri => "git://github.com/engineyard/dup.git")
     end
   end # TwoAppsSameGitUri
 
   class OneAppManySimilarlyNamedEnvs < Base
-    def initialize
-      super
+    def initialize(*)
+      super('One App Similarly Named Envs', 'one.app.similarly.named.envs@test.local', '1apptwinrepos')
       @app = @account.apps.create({
         "name" => "rails232app",
         "repository_uri" => git_remote

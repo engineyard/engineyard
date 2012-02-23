@@ -1,23 +1,22 @@
 require 'spec_helper'
 
 describe "ey deploy without an eyrc file" do
-
-  given "integration without an eyrc file"
-
-  before(:each) do
-    api_scenario "one app, one environment"
-  end
+  given "integration"
 
   it "prompts for authentication before continuing" do
+    api_scenario "one app, one environment"
+
     ey(%w[deploy --no-migrate], :hide_err => true) do |input|
-      input.puts("test@test.test")
-      input.puts("test")
+      input.puts(scenario_email)
+      input.puts(scenario_password)
     end
 
     @out.should include("We need to fetch your API token; please log in.")
     @out.should include("Email:")
     @out.should include("Password:")
     @ssh_commands.should_not be_empty
+
+    read_eyrc.should == {"api_token" => scenario_api_token}
   end
 end
 
@@ -65,7 +64,7 @@ describe "ey deploy" do
     end
 
     it "tells you that you need to add an appropriate ssh key" do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
       fast_failing_ey %w[deploy --no-migrate]
       @err.should include("Authentication Failed")
     end
@@ -73,25 +72,25 @@ describe "ey deploy" do
 
   context "with invalid input" do
     it "complains when there is no app" do
-      api_scenario "empty"
+      login_scenario "empty"
       fast_failing_ey ["deploy"]
       @err.should include(%|No application found|)
     end
 
     it "complains when the specified environment does not contain the app" do
-      api_scenario "one app, one environment, not linked"
+      login_scenario "one app, one environment, not linked"
       fast_failing_ey %w[deploy -e giblets -r master]
       @err.should match(/Application "rails232app" and environment "giblets" are not associated./)
     end
 
     it "complains when environment is not specified and app is in >1 environment" do
-      api_scenario "one app, many environments"
+      login_scenario "one app, many environments"
       fast_failing_ey %w[deploy --ref master --no-migrate]
       @err.should match(/Multiple application environments possible/i)
     end
 
     it "complains when the app master is in a non-running state" do
-      api_scenario "one app, one environment, app master red"
+      login_scenario "one app, one environment, app master red"
       fast_failing_ey %w[deploy --environment giblets --ref master --no-migrate]
       @err.should_not match(/No running instances/i)
       @err.should match(/running.*\(green\)/)
@@ -100,7 +99,7 @@ describe "ey deploy" do
 
   context "migration command" do
     before(:each) do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
     end
 
     it "finds engineyard-serverside despite its being buried in the filesystem" do
@@ -220,7 +219,7 @@ describe "ey deploy" do
 
   context "the --framework-env option" do
     before(:each) do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
     end
 
     it "passes the framework environment" do
@@ -246,7 +245,7 @@ describe "ey deploy" do
     use_git_repo('deploy test')
 
     before(:all) do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
     end
 
     context "without a configured default branch" do
@@ -324,7 +323,7 @@ describe "ey deploy" do
 
   context "specifying an environment" do
     before(:all) do
-      api_scenario "one app, many similarly-named environments"
+      login_scenario "one app, many similarly-named environments"
     end
 
     it "lets you choose by complete name even if the complete name is ambiguous" do
@@ -337,7 +336,7 @@ describe "ey deploy" do
 
   context "--extra-deploy-hook-options" do
     before(:all) do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
     end
 
     def extra_deploy_hook_options
@@ -371,7 +370,7 @@ describe "ey deploy" do
 
   context "specifying the application" do
     before(:all) do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
     end
 
     before(:each) do
@@ -409,7 +408,7 @@ describe "ey deploy" do
     use_git_repo("deploy test")
 
     before(:all) do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
       fast_ey %w[deploy --no-migrate]
       @deploy_command = @ssh_commands.find {|c| c =~ /engineyard-serverside.*deploy/ }
     end

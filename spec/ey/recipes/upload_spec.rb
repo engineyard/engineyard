@@ -57,7 +57,7 @@ describe "ey recipes upload -f with a missing filenamen" do
   end
 
   it "errors with file not found" do
-    api_scenario "one app, one environment"
+    login_scenario "one app, one environment"
     fast_failing_ey(%w[recipes upload --environment giblets -f recipes.tgz])
     @err.should match(/Recipes file not found: recipes.tgz/i)
   end
@@ -85,7 +85,7 @@ describe "ey recipes upload from a separate cookbooks directory" do
     use_git_repo "only cookbooks, no remotes"
 
     it "takes the environment specified by -e" do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets]
       @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|
@@ -93,7 +93,7 @@ describe "ey recipes upload from a separate cookbooks directory" do
     end
 
     it "applies the recipes with --apply" do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets --apply]
       @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|
@@ -116,7 +116,7 @@ describe "ey recipes upload from a separate cookbooks directory" do
     use_git_repo "only cookbooks, unrelated remotes"
 
     it "takes the environment specified by -e" do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets]
       @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|

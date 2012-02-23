@@ -61,10 +61,8 @@ RSpec.configure do |config|
   end
 
   config.before(:each) do
-    clean_eyrc
     EY::CloudClient.default_endpoint!
     EY::CloudClient::ApiStruct.reset_registries
-    EY.instance_eval{ @config = nil }
   end
 end
 
@@ -74,7 +72,7 @@ EY.define_git_repo("default") do |git_dir|
   system("git commit -m 'initial commit' >/dev/null 2>&1")
 end
 
-shared_examples_for "integration without an eyrc file" do
+shared_examples_for "integration" do
   use_git_repo('default')
 
   before(:all) do
@@ -85,14 +83,5 @@ shared_examples_for "integration without an eyrc file" do
   after(:all) do
     ENV.delete('CLOUD_URL')
     FakeWeb.allow_net_connect = false
-  end
-end
-
-# Use this in conjunction with the 'ey' helper method
-shared_examples_for "integration" do
-  given "integration without an eyrc file"
-
-  before(:each) do
-    write_eyrc({"api_token" => "f81a1706ddaeb148cfb6235ddecfc1cf"})
   end
 end

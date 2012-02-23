@@ -15,16 +15,15 @@ module EY
     include Thor::Actions
 
     def self.start(*)
-      Thor::Base.shell = EY::CLI::UI
-      EY.ui = EY::CLI::UI.new
+      ui = EY::CLI::UI.new
       super
     rescue EY::Error, EY::CloudClient::Error => e
-      EY.ui.print_exception(e)
+      ui.print_exception(e)
       raise
     rescue Interrupt => e
       puts
-      EY.ui.print_exception(e)
-      EY.ui.say("Quitting...")
+      ui.print_exception(e)
+      ui.say("Quitting...")
       raise
     end
 
@@ -62,13 +61,13 @@ module EY
     method_option :extra_deploy_hook_options, :type => :hash, :default => {},
       :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
     def deploy
-      EY.ui.info "Loading application data from EY Cloud..."
+      ui.info "Loading application data from EY Cloud..."
 
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       app_env.environment.ignore_bad_master = options[:ignore_bad_master]
 
-      env_config    = EY.config.environment_config(app_env.environment_name)
-      deploy_config = EY::DeployConfig.new(options, env_config, repo, EY.ui)
+      env_config    = config.environment_config(app_env.environment_name)
+      deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)
 
       deployment = app_env.new_deployment({
         :ref             => deploy_config.ref,
@@ -78,29 +77,29 @@ module EY
         :verbose         => deploy_config.verbose,
       })
 
-      EY.ui.info  "Beginning deploy..."
+      ui.info  "Beginning deploy..."
       deployment.start
-      EY.ui.show_deployment(deployment)
+      ui.show_deployment(deployment)
 
       begin
         deployment.deploy
       rescue Interrupt
-        EY.ui.warn "Interrupted."
-        EY.ui.warn "Recording canceled deployment and exiting..."
-        EY.ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on EY Cloud."
+        ui.warn "Interrupted."
+        ui.warn "Recording canceled deployment and exiting..."
+        ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on EY Cloud."
         raise
       rescue StandardError => e
-        EY.ui.info "Error encountered during deploy."
+        ui.info "Error encountered during deploy."
         raise
       ensure
         if deployment.finished?
-          EY.ui.info "#{deployment.successful? ? 'Successful' : 'Failed'} deployment recorded on EY Cloud"
+          ui.info "#{deployment.successful? ? 'Successful' : 'Failed'} deployment recorded on EY Cloud"
         end
       end
 
       if deployment.successful?
-        EY.ui.info "Deploy complete"
-        EY.ui.info "Now you can run `ey launch' to open the application in a browser."
+        ui.info "Deploy complete"
+        ui.info "Now you can run `ey launch' to open the application in a browser."
       else
         raise EY::Error, "Deploy failed"
       end
@@ -121,11 +120,11 @@ module EY
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       deployment = app_env.last_deployment
       if deployment
-        EY.ui.say "# Status of last deployment of #{app_env.to_hierarchy_str}:"
-        EY.ui.say "#"
-        EY.ui.show_deployment(deployment)
-        EY.ui.say "#"
-        EY.ui.deployment_result(deployment)
+        ui.say "# Status of last deployment of #{app_env.to_hierarchy_str}:"
+        ui.say "#"
+        ui.show_deployment(deployment)
+        ui.say "#"
+        ui.deployment_result(deployment)
       else
         raise EY::Error, "Application #{app_env.app.name} has not been deployed on #{app_env.environment.name}."
       end
@@ -144,7 +143,7 @@ module EY
         # just put each env
         puts api.environments.map {|env| env.name}
       elsif options[:all]
-        EY.ui.print_envs(api.apps, EY.config.default_environment, options[:simple])
+        ui.print_envs(api.apps, config.default_environment, options[:simple], config.endpoint)
       else
         repo.fail_on_no_remotes!
         resolver = api.resolve_app_environments(:remotes => repo.remotes)
@@ -155,12 +154,12 @@ module EY
           message = "This git repo matches multiple Applications in EY Cloud:\n"
           apps.each { |app| message << "\t#{app.name}\n" }
           message << "The following environments contain those applications:\n\n"
-          EY.ui.warn(message)
+          ui.warn(message)
         elsif apps.empty?
-          EY.ui.warn("Use #{self.class.send(:banner_base)} environments --all to see all environments.")
+          ui.warn("Use #{self.class.send(:banner_base)} environments --all to see all environments.")
         end
 
-        EY.ui.print_envs(apps, EY.config.default_environment, options[:simple])
+        ui.print_envs(apps, config.default_environment, options[:simple], config.endpoint)
       end
     end
     map "envs" => :environments
@@ -182,7 +181,7 @@ module EY
       :desc => "Name of the account in which the environment can be found"
     def rebuild
       environment = fetch_environment(options[:environment], options[:account])
-      EY.ui.debug("Rebuilding #{environment.name}")
+      ui.debug("Rebuilding #{environment.name}")
       environment.rebuild
     end
     map "update" => :rebuild
@@ -205,12 +204,12 @@ module EY
       :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
     def rollback
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
-      env_config    = EY.config.environment_config(app_env.environment_name)
-      deploy_config = EY::DeployConfig.new(options, env_config, repo, EY.ui)
+      env_config    = config.environment_config(app_env.environment_name)
+      deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)
 
-      EY.ui.info("Rolling back #{app_env.to_hierarchy_str}")
+      ui.info("Rolling back #{app_env.to_hierarchy_str}")
       if app_env.rollback(deploy_config.extra_config, deploy_config.verbose)
-        EY.ui.info "Rollback complete"
+        ui.info "Rollback complete"
       else
         raise EY::Error, "Rollback failed"
       end
@@ -298,16 +297,16 @@ module EY
     def logs
       environment = fetch_environment(options[:environment], options[:account])
       environment.logs.each do |log|
-        EY.ui.info log.instance_name
+        ui.info log.instance_name
 
         if log.main
-          EY.ui.info "Main logs for #{environment.name}:"
-          EY.ui.say  log.main
+          ui.info "Main logs for #{environment.name}:"
+          ui.say  log.main
         end
 
         if log.custom
-          EY.ui.info "Custom logs for #{environment.name}:"
-          EY.ui.say  log.custom
+          ui.info "Custom logs for #{environment.name}:"
+          ui.say  log.custom
         end
       end
     end
@@ -320,7 +319,7 @@ module EY
 
     desc "version", "Print version number."
     def version
-      EY.ui.say %{engineyard version #{EY::VERSION}}
+      ui.say %{engineyard version #{EY::VERSION}}
     end
     map ["-v", "--version"] => :version
 
@@ -330,38 +329,38 @@ module EY
         base = self.class.send(:banner_base)
         list = self.class.printable_tasks
 
-        EY.ui.say "Usage:"
-        EY.ui.say "  #{base} [--help] [--version] COMMAND [ARGS]"
-        EY.ui.say
+        ui.say "Usage:"
+        ui.say "  #{base} [--help] [--version] COMMAND [ARGS]"
+        ui.say
 
-        EY.ui.say "Deploy commands:"
+        ui.say "Deploy commands:"
         deploy_cmds = %w(deploy environments logs rebuild rollback status)
         deploy_cmds.map! do |name|
           list.find{|task| task[0] =~ /^#{base} #{name}/ }
         end
         list -= deploy_cmds
 
-        EY.ui.print_help(deploy_cmds)
-        EY.ui.say
+        ui.print_help(deploy_cmds)
+        ui.say
 
         self.class.subcommands.each do |name|
           klass = self.class.subcommand_class_for(name)
           list.reject!{|cmd| cmd[0] =~ /^#{base} #{name}/}
-          EY.ui.say "#{name.capitalize} commands:"
+          ui.say "#{name.capitalize} commands:"
           tasks = klass.printable_tasks.reject{|t| t[0] =~ /help$/ }
-          EY.ui.print_help(tasks)
-          EY.ui.say
+          ui.print_help(tasks)
+          ui.say
         end
 
         %w(help version).each{|n| list.reject!{|c| c[0] =~ /^#{base} #{n}/ } }
         if list.any?
-          EY.ui.say "Other commands:"
-          EY.ui.print_help(list)
-          EY.ui.say
+          ui.say "Other commands:"
+          ui.print_help(list)
+          ui.say
         end
 
         self.class.send(:class_options_help, shell)
-        EY.ui.say "See '#{base} help COMMAND' for more information on a specific command."
+        ui.say "See '#{base} help COMMAND' for more information on a specific command."
       elsif klass = self.class.subcommand_class_for(cmds.first)
         klass.new.help(*cmds[1..-1])
       else
@@ -382,7 +381,7 @@ module EY
     desc "whoami", "Who am I logged in as?"
     def whoami
       current_user = api.current_user
-      EY.ui.say "#{current_user.name} (#{current_user.email})"
+      ui.say "#{current_user.name} (#{current_user.email})"
     end
 
     desc "login", "Log in and verify access to EY Cloud."
@@ -394,10 +393,10 @@ module EY
     def logout
       eyrc = EYRC.load
       if eyrc.delete_api_token
-        EY.ui.say "API token removed: #{eyrc.path}"
-        EY.ui.say "Run any other command to login again."
+        ui.say "API token removed: #{eyrc.path}"
+        ui.say "Run any other command to login again."
       else
-        EY.ui.say "Already logged out. Run any other command to login again."
+        ui.say "Already logged out. Run any other command to login again."
       end
     end
 

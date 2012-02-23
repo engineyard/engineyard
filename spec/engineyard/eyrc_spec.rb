@@ -2,6 +2,8 @@ require 'spec_helper'
 require 'engineyard/eyrc'
 
 describe EY::EYRC do
+  before { clean_eyrc }
+
   describe ".load" do
     it "looks for .eyrc in $EYRC if set" do
       EY::EYRC.load.path.should == Pathname.new(ENV['EYRC'])

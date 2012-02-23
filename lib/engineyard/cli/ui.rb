@@ -116,7 +116,7 @@ module EY
         return ''
       end
 
-      def print_envs(apps, default_env_name = nil, simple = false)
+      def print_envs(apps, default_env_name = nil, simple = false, endpoint = 'https://cloud.engineyard.com')
         if simple
           envs = apps.map{ |app| app.environments.to_a }
           puts envs.flatten.map{|env| env.name }.uniq
@@ -135,7 +135,7 @@ module EY
                 puts "  #{short_name}#{default_text} (#{icount} #{iname})"
               end
             else
-              puts "  (This application is not in any environments; you can make one at #{EY.config.endpoint})"
+              puts "  (This application is not in any environments; you can make one at #{endpoint})"
             end
 
             puts ""

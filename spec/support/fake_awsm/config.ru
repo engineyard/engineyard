@@ -5,7 +5,6 @@ require 'hashie'
 require 'gitable'
 require 'ey_resolver'
 require File.expand_path('../scenarios', __FILE__)
-require File.expand_path('../cloud_mock', __FILE__)
 require File.expand_path('../models', __FILE__)
 
 class FakeAwsm < Sinatra::Base
@@ -13,16 +12,16 @@ class FakeAwsm < Sinatra::Base
   enable :raise_errors
 
   SCENARIOS = {
-    "empty"                                               => CloudMock.new(Scenario::Base.new),
-    "one app, one environment, not linked"                => CloudMock.new(Scenario::UnlinkedApp.new),
-    "two apps"                                            => CloudMock.new(Scenario::TwoApps.new),
-    "one app, one environment"                            => CloudMock.new(Scenario::LinkedApp.new),
-    "two accounts, two apps, two environments, ambiguous" => CloudMock.new(Scenario::MultipleAmbiguousAccounts.new),
-    "one app, one environment, no instances"              => CloudMock.new(Scenario::LinkedAppNotRunning.new),
-    "one app, one environment, app master red"            => CloudMock.new(Scenario::LinkedAppRedMaster.new),
-    "one app, many environments"                          => CloudMock.new(Scenario::OneAppManyEnvs.new),
-    "one app, many similarly-named environments"          => CloudMock.new(Scenario::OneAppManySimilarlyNamedEnvs.new),
-    "two apps, same git uri"                              => CloudMock.new(Scenario::TwoAppsSameGitUri.new),
+    "empty"                                               => Scenario::Base.new,
+    "one app, one environment, not linked"                => Scenario::UnlinkedApp.new,
+    "two apps"                                            => Scenario::TwoApps.new,
+    "one app, one environment"                            => Scenario::LinkedApp.new,
+    "two accounts, two apps, two environments, ambiguous" => Scenario::MultipleAmbiguousAccounts.new,
+    "one app, one environment, no instances"              => Scenario::LinkedAppNotRunning.new,
+    "one app, one environment, app master red"            => Scenario::LinkedAppRedMaster.new,
+    "one app, many environments"                          => Scenario::OneAppManyEnvs.new,
+    "one app, many similarly-named environments"          => Scenario::OneAppManySimilarlyNamedEnvs.new,
+    "two apps, same git uri"                              => Scenario::TwoAppsSameGitUri.new,
   }
 
   def initialize(*_)
@@ -31,15 +30,38 @@ class FakeAwsm < Sinatra::Base
     # every request. It makes sense; you hardly ever want to keep
     # state in your application object (accidentally or otherwise),
     # but in this situation that's exactly what we want to do.
-    @@cloud_mock = CloudMock.new(Scenario::Base.new('git://example.com'))
+    @user = Scenario::Base.new.user
   end
 
-  before { content_type "application/json" }
+  before do
+    content_type "application/json"
+    token = request.env['HTTP_X_EY_CLOUD_TOKEN']
+    if token
+      @user = User.first(:api_token => token)
+    end
+  end
 
   get "/" do
     content_type :html
     "OMG"
   end
+
+  get "/scenario" do
+    new_scenario = SCENARIOS[params[:scenario]]
+    unless new_scenario
+      status(404)
+      return {"ok" => "false", "message" => "wtf is the #{params[:scenario]} scenario?"}.to_json
+    end
+    user = new_scenario.user
+    {
+      "scenario" => {
+        "email"     => user.email,
+        "password"  => user.password,
+        "api_token" => user.api_token,
+      }
+    }.to_json
+  end
+
 
   put "/scenario" do
     new_scenario = SCENARIOS[params[:scenario]]
@@ -47,33 +69,88 @@ class FakeAwsm < Sinatra::Base
       status(400)
       return {"ok" => "false", "message" => "wtf is the #{params[:scenario]} scenario?"}.to_json
     end
-    @@cloud_mock = new_scenario
+    @user = new_scenario.user
     {"ok" => "true"}.to_json
   end
 
   get "/api/v2/current_user" do
-    { "user" => { "id" => 1, "name" => "User Name", "email" => "test@test.test" } }.to_json
+    { "user" => @user.to_api_response }.to_json
   end
 
   get "/api/v2/apps" do
     raise('No user agent header') unless env['HTTP_USER_AGENT'] =~ %r#^EngineYardCloudClient/#
-    {"apps" => @@cloud_mock.apps}.to_json
+    apps = @user.accounts.apps.map { |app| app.to_api_response }
+    {"apps" => apps}.to_json
   end
 
   get "/api/v2/environments" do
-    {"environments" => @@cloud_mock.environments}.to_json
+    environments = @user.accounts.environments.map { |env| env.to_api_response }
+    {"environments" => environments}.to_json
   end
 
   get "/api/v2/environments/resolve" do
-    @@cloud_mock.resolve_environments(params['constraints']).to_json
+    resolver = EY::Resolver.environment_resolver(@user, params['constraints'])
+    envs = resolver.matches
+    if envs.any?
+      {
+        'environments' => envs.map {|env| env.to_api_response},
+        'errors' => [],
+        'suggestions' => {}
+      }.to_json
+    else
+      errors = resolver.errors
+      if resolver.suggestions
+        api_suggest = resolver.suggestions.inject({}) do |suggest, k,v|
+          suggest.merge(k => v.map { |obj| obj.to_api_response })
+        end
+      end
+      {
+        'environments' => [],
+        'errors'       => errors,
+        'suggestions'  => api_suggest,
+      }.to_json
+    end
   end
 
   get "/api/v2/app_environments/resolve" do
-    @@cloud_mock.resolve_app_environments(params['constraints']).to_json
+    resolver = EY::Resolver.app_env_resolver(@user, params['constraints'])
+    app_envs = resolver.matches
+    if app_envs.any?
+      {
+        'app_environments' => app_envs.map {|app_env| app_env.to_api_response},
+        'errors' => [],
+        'suggestions' => {}
+      }.to_json
+    else
+      errors = resolver.errors
+      if resolver.suggestions
+        api_suggest = resolver.suggestions.inject({}) do |suggest, k,v|
+          if v
+            suggest.merge(k => v.map { |obj| obj.to_api_response })
+          else
+            suggest
+          end
+        end
+      end
+      {
+        'app_environments' => [],
+        'errors'           => errors,
+        'suggestions'      => api_suggest,
+      }.to_json
+    end
   end
 
   get "/api/v2/environments/:env_id/logs" do
-    {"logs" => @@cloud_mock.logs(params[:env_id].to_i)}.to_json
+    {
+      "logs" => [
+        {
+          "id" => params['env_id'].to_i,
+          "role" => "app_master",
+          "main" => "MAIN LOG OUTPUT",
+          "custom" => "CUSTOM LOG OUTPUT"
+        }
+      ]
+    }.to_json
   end
 
   get "/api/v2/environments/:env_id/recipes" do
@@ -145,19 +222,13 @@ class FakeAwsm < Sinatra::Base
   end
 
   post "/api/v2/authenticate" do
-    if valid_user?
-      {"api_token" => "deadbeef", "ok" => true}.to_json
+    user = User.first(:email => params[:email], :password => params[:password])
+    if user
+      {"api_token" => user.api_token, "ok" => true}.to_json
     else
       status(401)
       {"ok" => false}.to_json
     end
-  end
-
-private
-
-  def valid_user?
-    params[:email] == "test@test.test" &&
-      params[:password] == "test"
   end
 
 end

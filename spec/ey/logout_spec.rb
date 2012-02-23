@@ -1,8 +1,10 @@
 require 'spec_helper'
 
 describe "ey logout" do
+  given "integration"
+
   context "logged in" do
-    given "integration"
+    before { login_scenario 'empty' }
 
     it "logs you out" do
       ey %w[logout]
@@ -12,9 +14,7 @@ describe "ey logout" do
   end
 
   context "not logged in" do
-    given "integration without an eyrc file"
-
-    it "prompts for authentication before outputting the logged in user" do
+    it "doesn't prompt for login before logging out" do
       ey %w[logout]
       @out.should_not include("API token removed:")
       @out.should include("Already logged out.")

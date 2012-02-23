@@ -4,7 +4,7 @@ describe "ey logs" do
   given "integration"
 
   it "prints logs returned by awsm" do
-    api_scenario "one app, one environment"
+    login_scenario "one app, one environment"
     ey %w[logs -e giblets]
     @out.should match(/MAIN LOG OUTPUT/)
     @out.should match(/CUSTOM LOG OUTPUT/)
@@ -12,7 +12,7 @@ describe "ey logs" do
   end
 
   it "complains when it can't infer the environment" do
-    api_scenario "one app, many environments"
+    login_scenario "one app, many environments"
     ey %w[logs], :expect_failure => true
     @err.should =~ /repository url in this directory is ambiguous/i
   end

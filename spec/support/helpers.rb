@@ -24,6 +24,7 @@ module SpecHelpers
 
   module IntegrationHelpers
     def run_ey(command_options, ey_options={})
+
       if respond_to?(:extra_ey_options)   # needed for ssh tests
         ey_options.merge!(extra_ey_options)
         return ey(command_to_run(command_options), ey_options)
@@ -74,22 +75,37 @@ module SpecHelpers
   ZeroExitStatus = Class.new(UnexpectedExit)
 
   def ey_api
-    @api ||= EY::CloudClient.new('asdf')
+    @api ||= EY::CloudClient.new('asdf', EY::CLI::UI.new)
+  end
+
+  def ensure_eyrc
+    begin
+      unless (data = read_eyrc) and data['api_token']
+        raise ".eyrc has no token, specs will stall waiting for stdin authentication input"
+      end
+    rescue Errno::ENOENT => e
+      raise ".eyrc must be written before calling run_ey or specs will stall waiting for stdin authentication input"
+    end
   end
 
   def fast_ey(args, options = {})
-    err, out = StringIO.new, StringIO.new
-    debug = options[:debug] == false ? nil : 'true'
-    capture_stderr_into(err) do
-      capture_stdout_into(out) do
-        with_env('DEBUG' => debug) do
-          EY::CLI.start(args)
+
+    ensure_eyrc
+
+    begin
+      err, out = StringIO.new, StringIO.new
+      debug = options[:debug] == false ? nil : 'true'
+      capture_stderr_into(err) do
+        capture_stdout_into(out) do
+          with_env('DEBUG' => debug) do
+            EY::CLI.start(args)
+          end
         end
       end
+    ensure
+      @err, @out = err.string, out.string
+      @raw_ssh_commands, @ssh_commands = extract_ssh_commands(@out)
     end
-  ensure
-    @err, @out = err.string, out.string
-    @raw_ssh_commands, @ssh_commands = extract_ssh_commands(@out)
   end
 
   def fast_failing_ey(*args)
@@ -156,6 +172,7 @@ module SpecHelpers
     with_env(ey_env) do
       exit_status = Open4::open4("#{eybin} #{Escape.shell_command(args)}") do |pid, stdin, stdout, stderr|
         block.call(stdin) if block
+        stdin.close
         @out = stdout.read
         @err = stderr.read
       end
@@ -200,9 +217,33 @@ module SpecHelpers
     [raw_ssh_commands, ssh_commands]
   end
 
-  def api_scenario(scenario, remote = "user@git.host:path/to/repo.git")
-    response = ::RestClient.put(EY.fake_awsm + '/scenario', {"scenario" => scenario, "remote" => remote}, {})
-    raise "Setting scenario failed: #{response.inspect}" unless response.code == 200
+  def api_scenario(scenario)
+    clean_eyrc # switching scenarios, always clean up
+    response = ::RestClient.get(EY.fake_awsm + '/scenario', {:params => {"scenario" => scenario}})
+    raise "Finding scenario failed: #{response.inspect}" unless response.code == 200
+    scenario = JSON.parse(response)['scenario']
+    @scenario_email     = scenario['email']
+    @scenario_password  = scenario['password']
+    @scenario_api_token = scenario['api_token']
+    scenario
+  end
+
+  def login_scenario(scenario_name)
+    scen = api_scenario(scenario_name)
+    write_eyrc('api_token' => scenario_api_token)
+    scen
+  end
+
+  def scenario_email
+    @scenario_email
+  end
+
+  def scenario_password
+    @scenario_password
+  end
+
+  def scenario_api_token
+    @scenario_api_token
   end
 
   def read_yaml(file)

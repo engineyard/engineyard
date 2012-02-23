@@ -5,34 +5,34 @@ require 'engineyard/eyrc'
 module EY
   class CLI
     class API
-      def self.authenticate
-        EY.ui.info("We need to fetch your API token; please log in.")
+      def self.authenticate(ui)
+        ui.info("We need to fetch your API token; please log in.")
         begin
-          email    = EY.ui.ask("Email: ")
-          password = EY.ui.ask("Password: ", true)
-          token    = EY::CloudClient.authenticate(email, password)
+          email    = ui.ask("Email: ")
+          password = ui.ask("Password: ", true)
+          token    = EY::CloudClient.authenticate(email, password, ui)
           EY::EYRC.load.api_token = token
           token
         rescue EY::CloudClient::InvalidCredentials
-          EY.ui.warn "Invalid username or password; please try again."
+          ui.warn "Invalid username or password; please try again."
           retry
         end
       end
 
       attr_reader :token
 
-      def initialize(endpoint)
+      def initialize(endpoint, ui)
         EY::CloudClient.endpoint = endpoint
 
         @token = ENV['ENGINEYARD_API_TOKEN'] if ENV['ENGINEYARD_API_TOKEN']
         @token ||= EY::EYRC.load.api_token
-        @token ||= self.class.authenticate
+        @token ||= self.class.authenticate(ui)
 
         unless @token
           raise EY::Error, "Sorry, we couldn't get your API token."
         end
 
-        @api = EY::CloudClient.new(@token)
+        @api = EY::CloudClient.new(@token, ui)
       end
 
       def respond_to?(*a)

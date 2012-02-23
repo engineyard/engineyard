@@ -8,7 +8,7 @@ module EY
     end
 
     def load_api
-      api = EY::CLI::API.new(EY.config.endpoint)
+      api = EY::CLI::API.new(config.endpoint, ui)
       api.current_user # check login and access to the api
       api
     rescue EY::CloudClient::InvalidCredentials
@@ -16,12 +16,25 @@ module EY
       retry
     end
 
+    def config
+      @config ||= EY::Config.new
+    end
+
+    def ui
+      @ui ||= load_ui
+    end
+
+    def load_ui
+      Thor::Base.shell = EY::CLI::UI
+      EY::CLI::UI.new
+    end
+
     def repo
       @repo ||= EY::Repo.new
     end
 
     def fetch_environment(environment_name, account_name)
-      environment_name ||= EY.config.default_environment
+      environment_name ||= config.default_environment
       remotes = repo.remotes if repo.exist?
       constraints = {
         :environment_name => environment_name,
@@ -51,7 +64,7 @@ module EY
     end
 
     def fetch_app_environment(app_name, environment_name, account_name)
-      environment_name ||= EY.config.default_environment
+      environment_name ||= config.default_environment
       remotes = repo.remotes if repo.exist?
       constraints = {
         :app_name         => app_name,
@@ -104,12 +117,12 @@ Please specify --app app_name or add this application at #{EY::CloudClient.endpo
         message = "Multiple application environments possible, please be more specific:\n\n"
 
         app_envs.group_by do |app_env|
-          "#{app_env.account_name}/#{app_env.app_name}"
-        end.each do |account_app_name, grouped_app_envs|
-          message << account_app_name << "\n"
-          grouped_app_envs.sort_by { |ae| ae.environment_name }.each do |app_env|
-            message << "\t#{app_env.environment_name.ljust(25)}"
-            message << " # ey <command> --account='#{app_env.account_name}' --app='#{app_env.app_name}' --environment='#{app_env.environment_name}'\n"
+          [app_env.account_name, app_env.app_name]
+        end.sort_by { |k,v| k.join }.each do |(account_name, app_name), grouped_app_envs|
+          message << account_name << "/" << app_name << "\n"
+          grouped_app_envs.map { |ae| ae.environment_name }.uniq.sort.each do |env_name|
+            message << "\t#{env_name.ljust(25)}"
+            message << " # ey <command> --account='#{account_name}' --app='#{app_name}' --environment='#{env_name}'\n"
           end
         end
         message
@@ -127,13 +140,13 @@ Please specify --app app_name or add this application at #{EY::CloudClient.endpo
         class_eval <<-RUBY
           def help(*args)
             if args.empty?
-              EY.ui.say "usage: #{banner_base} #{cmd} COMMAND"
-              EY.ui.say
+              ui.say "usage: #{banner_base} #{cmd} COMMAND"
+              ui.say
               subcommands = self.class.printable_tasks.sort_by{|s| s[0] }
               subcommands.reject!{|t| t[0] =~ /#{cmd} help$/}
-              EY.ui.print_help(subcommands)
-              EY.ui.say self.class.send(:class_options_help, EY.ui)
-              EY.ui.say "See #{banner_base} #{cmd} help COMMAND" +
+              ui.print_help(subcommands)
+              ui.say self.class.send(:class_options_help, ui)
+              ui.say "See #{banner_base} #{cmd} help COMMAND" +
                 " for more information on a specific subcommand." if args.empty?
             else
               super

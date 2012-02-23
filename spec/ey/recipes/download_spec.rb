@@ -29,7 +29,7 @@ describe "ey recipes download" do
   include_examples "it takes an environment name and an account name"
 
   it "fails when cookbooks/ already exists" do
-    api_scenario "one app, one environment"
+    login_scenario "one app, one environment"
     Dir.mkdir("cookbooks")
     ey %w[recipes download], :expect_failure => true
     @err.should match(/cookbooks.*already exists/i)

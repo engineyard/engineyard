@@ -6,7 +6,7 @@ describe "ey environments" do
 
   context "with no apps" do
     before do
-      api_scenario "empty"
+      login_scenario "empty"
     end
 
     it "suggests that you use environments --all" do
@@ -17,7 +17,7 @@ describe "ey environments" do
 
   context "with apps" do
     before(:all) do
-      api_scenario "one app, many environments"
+      login_scenario "one app, many environments"
     end
 
     it "lists the environments your app is in" do

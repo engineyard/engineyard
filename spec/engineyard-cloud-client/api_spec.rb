@@ -19,7 +19,7 @@ describe EY::CloudClient do
   end
 
   it "gets the api token from initialize" do
-    EY::CloudClient.new('asdf').token.should == "asdf"
+    EY::CloudClient.new('asdf', EY::CLI::UI.new).token.should == "asdf"
   end
 
   describe ".authenticate" do
@@ -28,7 +28,7 @@ describe EY::CloudClient do
     end
 
     it "returns the token" do
-      EY::CloudClient.authenticate("a@b.com", "foo").should == "asdf"
+      EY::CloudClient.authenticate("a@b.com", "foo", EY::CLI::UI.new).should == "asdf"
     end
   end
 
@@ -36,7 +36,7 @@ describe EY::CloudClient do
     FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :status => 401, :content_type => 'application/json')
 
     lambda {
-      EY::CloudClient.authenticate("a@b.com", "foo")
+      EY::CloudClient.authenticate("a@b.com", "foo", EY::CLI::UI.new)
     }.should raise_error(EY::CloudClient::InvalidCredentials)
   end
 
@@ -44,7 +44,7 @@ describe EY::CloudClient do
     FakeWeb.register_uri(:post, "https://cloud.engineyard.com/api/v2/authenticate", :status => 502, :content_type => 'text/html')
 
     lambda {
-      EY::CloudClient.authenticate("a@b.com", "foo")
+      EY::CloudClient.authenticate("a@b.com", "foo", EY::CLI::UI.new)
     }.should raise_error(EY::CloudClient::RequestFailed, /API is temporarily unavailable/)
   end
 end
