@@ -2,7 +2,7 @@
 
 ## NEXT
 
-  *
+  * Repository interactionns pay attention to $GIT\_DIR and $GIT\_WORK\_TREE
 
 ## v1.4.21 (2012-01-19)
 

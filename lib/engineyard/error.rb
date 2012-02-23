@@ -8,12 +8,6 @@ module EY
     end
   end
 
-  class NoRemotesError < EY::Error
-    def initialize(path)
-      super "fatal: No git remotes found in #{path}"
-    end
-  end
-
   class NoInstancesError < EY::Error
     def initialize(env_name)
       super "The environment '#{env_name}' does not have any matching instances."

@@ -30,7 +30,7 @@ describe "ey environments" do
     it "reports failure to find a git repo when not in one" do
       Dir.chdir(Dir.tmpdir) do
         fast_failing_ey %w[environments]
-        @err.should =~ /fatal: No git remotes found in .*#{Regexp.escape(Dir.tmpdir)}/
+        @err.should =~ /fatal: Not a git repository \(or any of the parent directories\): .*#{Regexp.escape(Dir.tmpdir)}/
         @out.should_not =~ /no application configured/
       end
     end

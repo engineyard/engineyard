@@ -20,6 +20,10 @@ module EY
       EY::CLI::UI.new
     end
 
+    def in_repo?
+      EY::Repo.exist?
+    end
+
     def repo
       @repo ||= EY::Repo.new
     end
@@ -30,7 +34,7 @@ module EY
 
     def fetch_environment(environment_name, account_name)
       environment_name ||= config.default_environment
-      remotes = repo.remotes if repo.exist?
+      remotes = repo.remotes if in_repo?
       constraints = {
         :environment_name => environment_name,
         :account_name     => account_name,
@@ -60,7 +64,7 @@ module EY
 
     def fetch_app_environment(app_name, environment_name, account_name)
       environment_name ||= config.default_environment
-      remotes = repo.remotes if repo.exist?
+      remotes = repo.remotes if in_repo?
       constraints = {
         :app_name         => app_name,
         :environment_name => environment_name,
