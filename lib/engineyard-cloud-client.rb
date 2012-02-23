@@ -57,7 +57,7 @@ module EY
       opts[:headers] ||= {}
       opts[:headers]["X-EY-Cloud-Token"] = token
       ui.debug("Token", token)
-      self.class.request(url, opts, ui)
+      self.class.request(url, ui, opts)
     end
 
     def resolve_environments(constraints)
@@ -86,7 +86,7 @@ module EY
       EY::CloudClient::User.from_hash(self, request('/current_user')['user'])
     end
 
-    def self.request(path, opts={}, ui)
+    def self.request(path, ui, opts={})
       url = self.endpoint + "api/v2#{path}"
       method = (opts.delete(:method) || 'get').to_s.downcase.to_sym
       params = opts.delete(:params) || {}
@@ -136,7 +136,7 @@ module EY
     end
 
     def self.authenticate(email, password, ui)
-      request("/authenticate", { :method => "post", :params => { :email => email, :password => password }}, ui)["api_token"]
+      request("/authenticate", ui, { :method => "post", :params => { :email => email, :password => password }})["api_token"]
     end
 
   end # API
