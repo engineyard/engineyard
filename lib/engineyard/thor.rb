@@ -76,7 +76,7 @@ module EY
         raise EY::NoMatchesError.new <<-ERROR
 Unable to find application without a git remote URI or app name.
 
-Please specify --app app_name or add this application at #{EY::CloudClient.endpoint}"
+Please specify --app app_name or add this application at #{config.endpoint}"
         ERROR
       end
 
