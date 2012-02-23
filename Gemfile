@@ -2,6 +2,8 @@ source :rubygems
 
 gemspec
 
+gem 'engineyard-cloud-client', :git => 'git@github.com:engineyard/engineyard-cloud-client.git'
+
 group :test do
   gem 'dm-core'
   gem 'dm-migrations'
