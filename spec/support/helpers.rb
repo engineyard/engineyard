@@ -191,7 +191,7 @@ module SpecHelpers
   end
 
   def extract_ssh_commands(output)
-    raw_ssh_commands = @out.split(/\n/).find_all do |line|
+    raw_ssh_commands = [@out,@err].join("\n").split(/\n/).find_all do |line|
       line =~ /^bash -lc/ || line =~ /^ssh/
     end
 

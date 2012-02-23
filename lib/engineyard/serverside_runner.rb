@@ -32,13 +32,10 @@ module EY
       self
     end
 
-    def call(&block)
+    def call(out, err)
       raise "No command!" unless @command
       @command.call do |cmd|
-        run cmd do |chunk|
-          $stdout << chunk
-          block.call(chunk) if block
-        end
+        run cmd, out, err
       end
     end
 
@@ -71,48 +68,46 @@ module EY
       end
     end
 
-    def run(remote_command, &block)
-      raise(ArgumentError, "Block required!") unless block
-
+    def run(remote_command, out, err)
       cmd = Escape.shell_command(['bash', '-lc', remote_command])
 
       if cmd.respond_to?(:encoding) && cmd.respond_to?(:force_encoding)
-        block.call("Encoding: #{cmd.encoding.name}") if @verbose
+        out << "Encoding: #{cmd.encoding.name}" if @verbose
         cmd.force_encoding('binary')
-        block.call(" => #{cmd.encoding.name}; __ENCODING__: #{__ENCODING__.name}; LANG: #{ENV['LANG']}; LC_CTYPE: #{ENV['LC_CTYPE']}\n") if @verbose
+        out << " => #{cmd.encoding.name}; __ENCODING__: #{__ENCODING__.name}; LANG: #{ENV['LANG']}; LC_CTYPE: #{ENV['LC_CTYPE']}\n" if @verbose
       end
 
-      block.call("Running command on #{@username}@#{@hostname}.\n")
-      block.call(cmd) if @verbose
+      out << "Running command on #{@username}@#{@hostname}.\n"
+      out << cmd << "\n" if @verbose
 
       if ENV["NO_SSH"]
-        block.call("NO_SSH is set. No output.")
+        out << "NO_SSH is set. No output.\n"
         true
       else
         begin
-          ssh(cmd, @hostname, @username, &block)
+          ssh(cmd, @hostname, @username, out, err)
         rescue Net::SSH::AuthenticationFailed
           raise EY::Error, "Authentication Failed: Please add your environment's ssh key with: ssh-add path/to/key"
         end
       end
     end
 
-    def ssh(cmd, hostname, username)
+    def ssh(cmd, hostname, username, out, err)
       exit_code = 1
       Net::SSH.start(hostname, username, :paranoid => false) do |net_ssh|
         net_ssh.open_channel do |channel|
           channel.exec cmd do |_, success|
             unless success
-              block.call "Remote command execution failed"
+              err << "Remote command execution failed"
               return false
             end
 
             channel.on_data do |_, data|
-              block.call data
+              out << data
             end
 
             channel.on_extended_data do |_, _, data|
-              block.call data
+              err << data
             end
 
             channel.on_request("exit-status") do |_, data|

@@ -77,11 +77,14 @@ module EY
         :extra_config    => deploy_config.extra_config,
       })
 
+      out = EY::CLI::UI::Tee.new(ui.out, deployment.out)
+      err = EY::CLI::UI::Tee.new(ui.err, deployment.err)
+
       ui.info  "Beginning deploy..."
       begin
         deployment.start
         ui.show_deployment(deployment)
-        deployment.append_output "Deploy initiated.\n"
+        out << "Deploy initiated.\n"
 
         runner = serverside_runner(app_env, deploy_config.verbose)
         runner.deploy do |args|
@@ -89,14 +92,14 @@ module EY
           args.migrate = deployment.migrate_command if deployment.migrate
           args.ref     = deployment.resolved_ref
         end
-        deployment.successful = runner.call { |chunk| deployment.append_output chunk }
+        deployment.successful = runner.call(out, err)
       rescue Interrupt
-        deployment.append_output "Interrupted. Deployment halted.\n"
+        out << "Interrupted. Deployment halted.\n"
         ui.warn "Recording canceled deployment in EY Cloud..."
         ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on EY Cloud."
         raise
       rescue StandardError => e
-        deployment.append_output "Error encountered during deploy.\n#{e.class} #{e}\n"
+        out << "Error encountered during deploy.\n#{e.class} #{e}\n"
         ui.info "Error encountered during deploy."
         raise
       ensure
@@ -222,7 +225,7 @@ module EY
         args.config = deploy_config.extra_config if deploy_config.extra_config
       end
 
-      if runner.call
+      if runner.call(ui.out, ui.err)
         ui.info "Rollback complete"
       else
         raise EY::Error, "Rollback failed"

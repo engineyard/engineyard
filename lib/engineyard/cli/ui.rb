@@ -4,6 +4,17 @@ module EY
   class CLI
     class UI < Thor::Base.shell
 
+      class Tee
+        def initialize(*ios)
+          @ios = ios
+        end
+
+        def <<(str)
+          @ios.each { |io| io << str }
+          self
+        end
+      end
+
       class Prompter
         def self.add_answer(arg)
           @answers ||= []
@@ -193,6 +204,14 @@ module EY
 
       def set_color(string, color, bold=false)
         ($stdout.tty? || ENV['THOR_SHELL']) ? super : string
+      end
+
+      def err
+        $stderr
+      end
+
+      def out
+        $stdout
       end
 
     end
