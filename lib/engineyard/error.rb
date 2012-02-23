@@ -14,27 +14,9 @@ module EY
     end
   end
 
-  class NoAppMasterError < EY::Error
-    def initialize(env_name)
-      super "The environment '#{env_name}' does not have a master instance."
-    end
-  end
-
   class NoInstancesError < EY::Error
     def initialize(env_name)
       super "The environment '#{env_name}' does not have any matching instances."
-    end
-  end
-
-  class BadAppMasterStatusError < EY::Error
-    def initialize(master_status)
-      super "Application master's status is not \"running\" (green); it is \"#{master_status}\"."
-    end
-  end
-
-  class EnvironmentUnlinkedError < EY::Error
-    def initialize(env_name)
-      super "Environment '#{env_name}' exists but does not run this application."
     end
   end
 
