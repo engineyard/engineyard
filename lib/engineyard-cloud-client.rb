@@ -4,6 +4,7 @@ module EY
 end
 
 require 'engineyard-cloud-client/ruby_ext'
+require 'engineyard-cloud-client/model_registry'
 require 'engineyard-cloud-client/models'
 require 'engineyard-cloud-client/rest_client_ext'
 require 'engineyard-cloud-client/resolver_result'
@@ -14,7 +15,7 @@ require 'pp'
 
 module EY
   class CloudClient
-    attr_reader :token
+    attr_reader :token, :registry
     attr_accessor :ui
 
     USER_AGENT_STRING = "EngineYardCloudClient/#{EY::CloudClient::VERSION}"
@@ -39,6 +40,10 @@ module EY
     def initialize(token, ui)
       self.token = token
       self.ui = ui
+    end
+
+    def registry
+      @registry ||= ModelRegistry.new
     end
 
     def token=(new_token)

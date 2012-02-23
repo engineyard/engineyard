@@ -48,7 +48,7 @@ module EY
 
       def apps=(apps_attrs)
         (apps_attrs || []).each do |app|
-          AppEnvironment.new(api, {'app' => app, 'environment' => self})
+          AppEnvironment.from_hash(api, {'app' => app, 'environment' => self})
         end
       end
 

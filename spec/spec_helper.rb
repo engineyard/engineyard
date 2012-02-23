@@ -62,7 +62,6 @@ RSpec.configure do |config|
 
   config.before(:each) do
     EY::CloudClient.default_endpoint!
-    EY::CloudClient::ApiStruct.reset_registries
   end
 end
 
