@@ -67,17 +67,12 @@ module EY
 
     def ensure_path
       return if @path && @path.exist?
-      if !in_app_dir?
+      unless EY::Repo.exist?
         raise "Not in application directory. Unable to save configuration."
       end
       @path = Pathname.new('config/ey.yml')
       @path.dirname.mkpath
       @path
-    end
-
-    # TODO HAX
-    def in_app_dir?
-      system('git rev-parse >/dev/null 2>&1')
     end
 
     class EnvironmentConfig
