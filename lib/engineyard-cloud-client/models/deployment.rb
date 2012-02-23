@@ -4,7 +4,7 @@ require 'engineyard-cloud-client/errors'
 
 module EY
   class CloudClient
-    class Deployment < ApiStruct.new(:id, :app_environment, :created_at, :commit, :finished_at, :migrate_command, :output, :ref, :resolved_ref, :successful, :user_name, :extra_config, :verbose)
+    class Deployment < ApiStruct.new(:id, :app_environment, :created_at, :commit, :finished_at, :migrate_command, :output, :ref, :resolved_ref, :successful, :user_name, :extra_config)
       def self.api_root(app_id, environment_id)
         "/apps/#{app_id}/environments/#{environment_id}/deployments"
       end
@@ -43,13 +43,6 @@ module EY
       alias migration_command= migrate_command=
 
       alias successful? successful
-
-      def deploy
-        start
-        environment.bridge!.deploy(self, verbose)
-      ensure
-        finished
-      end
 
       alias deployed_by user_name
       alias deployed_by= user_name=

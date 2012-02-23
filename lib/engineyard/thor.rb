@@ -24,6 +24,10 @@ module EY
       @repo ||= EY::Repo.new
     end
 
+    def serverside_runner(app_env, verbose)
+      ServersideRunner.new(app_env.environment.bridge!.hostname, app_env.app, app_env.environment, verbose)
+    end
+
     def fetch_environment(environment_name, account_name)
       environment_name ||= config.default_environment
       remotes = repo.remotes if repo.exist?

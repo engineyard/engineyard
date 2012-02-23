@@ -1,0 +1,134 @@
+require 'escape'
+require 'net/ssh'
+require 'engineyard-serverside-adapter'
+
+module EY
+  class ServersideRunner
+    def initialize(bridge, app, environment, verbose)
+      @verbose = verbose || ENV['DEBUG']
+      @adapter = load_adapter(bridge, app, environment)
+      @username = environment.username
+      @hostname = bridge
+      @command = nil
+    end
+
+    def deploy(&block)
+      @command = @adapter.deploy(&block)
+      self
+    end
+
+    def rollback(&block)
+      @command = @adapter.rollback(&block)
+      self
+    end
+
+    def put_up_maintenance_page(&block)
+      @command = @adapter.enable_maintenance_page(&block)
+      self
+    end
+
+    def take_down_maintenance_page(&block)
+      @command = @adapter.disable_maintenance_page(&block)
+      self
+    end
+
+    def call(&block)
+      raise "No command!" unless @command
+      @command.call do |cmd|
+        run cmd do |chunk|
+          $stdout << chunk
+          block.call(chunk) if block
+        end
+      end
+    end
+
+  private
+
+    def load_adapter(bridge, app, environment)
+      EY::Serverside::Adapter.new("/usr/local/ey_resin/ruby/bin") do |args|
+        args.app           = app.name
+        args.repo          = app.repository_uri
+        args.instances     = instances_data(environment.deploy_to_instances, bridge)
+        args.stack         = environment.app_server_stack_name
+        args.framework_env = environment.framework_env
+        args.verbose       = @verbose
+      end
+    end
+
+    # If we tell engineyard-serverside to use 'localhost', it'll run
+    # commands on the instance directly (#system). If we give it the
+    # instance's actual hostname, it'll SSH to itself.
+    #
+    # Using 'localhost' instead of its EC2 hostname speeds up
+    # deploys on solos and single-app-server clusters significantly.
+    def instances_data(instances, bridge)
+      instances.map do |i|
+        {
+          :hostname => i.hostname == bridge ? 'localhost' : i.hostname,
+          :roles    => [i.role],
+          :name     => i.name,
+        }
+      end
+    end
+
+    def run(remote_command, &block)
+      raise(ArgumentError, "Block required!") unless block
+
+      cmd = Escape.shell_command(['bash', '-lc', remote_command])
+
+      if cmd.respond_to?(:encoding) && cmd.respond_to?(:force_encoding)
+        block.call("Encoding: #{cmd.encoding.name}") if @verbose
+        cmd.force_encoding('binary')
+        block.call(" => #{cmd.encoding.name}; __ENCODING__: #{__ENCODING__.name}; LANG: #{ENV['LANG']}; LC_CTYPE: #{ENV['LC_CTYPE']}\n") if @verbose
+      end
+
+      block.call("Running command on #{@username}@#{@hostname}.\n")
+      block.call(cmd) if @verbose
+
+      if ENV["NO_SSH"]
+        block.call("NO_SSH is set. No output.")
+        true
+      else
+        begin
+          ssh(cmd, @hostname, @username, &block)
+        rescue Net::SSH::AuthenticationFailed
+          raise EY::Error, "Authentication Failed: Please add your environment's ssh key with: ssh-add path/to/key"
+        end
+      end
+    end
+
+    def ssh(cmd, hostname, username)
+      exit_code = 1
+      Net::SSH.start(hostname, username, :paranoid => false) do |net_ssh|
+        net_ssh.open_channel do |channel|
+          channel.exec cmd do |_, success|
+            unless success
+              block.call "Remote command execution failed"
+              return false
+            end
+
+            channel.on_data do |_, data|
+              block.call data
+            end
+
+            channel.on_extended_data do |_, _, data|
+              block.call data
+            end
+
+            channel.on_request("exit-status") do |_, data|
+              exit_code = data.read_long
+            end
+
+            channel.on_request("exit-signal") do |_, data|
+              exit_code = 255
+            end
+          end
+        end
+
+        net_ssh.loop
+      end
+      exit_code.zero?
+    end
+
+  end
+end

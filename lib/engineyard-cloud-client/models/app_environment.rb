@@ -69,18 +69,6 @@ module EY
         Deployment.from_hash(api, attrs.merge(:app_environment => self))
       end
 
-      def rollback(extra_config, verbose)
-        environment.bridge!.rollback(app, extra_config, verbose)
-      end
-
-      def take_down_maintenance_page(verbose=false)
-        environment.bridge!.take_down_maintenance_page(app, verbose)
-      end
-
-      def put_up_maintenance_page(verbose=false)
-        environment.bridge!.put_up_maintenance_page(app, verbose)
-      end
-
       def short_environment_name
         environment.name.gsub(/^#{Regexp.quote(app.name)}_/, '')
       end

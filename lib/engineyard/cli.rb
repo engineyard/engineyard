@@ -2,6 +2,7 @@ require 'engineyard'
 require 'engineyard/error'
 require 'engineyard/thor'
 require 'engineyard/deploy_config'
+require 'engineyard/serverside_runner'
 
 module EY
   class CLI < EY::Thor
@@ -74,34 +75,41 @@ module EY
         :migrate         => deploy_config.migrate,
         :migrate_command => deploy_config.migrate_command,
         :extra_config    => deploy_config.extra_config,
-        :verbose         => deploy_config.verbose,
       })
 
       ui.info  "Beginning deploy..."
-      deployment.start
-      ui.show_deployment(deployment)
-
       begin
-        deployment.deploy
+        deployment.start
+        ui.show_deployment(deployment)
+        deployment.append_output "Deploy initiated.\n"
+
+        runner = serverside_runner(app_env, deploy_config.verbose)
+        runner.deploy do |args|
+          args.config  = deployment.config          if deployment.config
+          args.migrate = deployment.migrate_command if deployment.migrate
+          args.ref     = deployment.resolved_ref
+        end
+        deployment.successful = runner.call { |chunk| deployment.append_output chunk }
       rescue Interrupt
-        ui.warn "Interrupted."
-        ui.warn "Recording canceled deployment and exiting..."
+        deployment.append_output "Interrupted. Deployment halted.\n"
+        ui.warn "Recording canceled deployment in EY Cloud..."
         ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on EY Cloud."
         raise
       rescue StandardError => e
+        deployment.append_output "Error encountered during deploy.\n#{e.class} #{e}\n"
         ui.info "Error encountered during deploy."
         raise
       ensure
-        if deployment.finished?
-          ui.info "#{deployment.successful? ? 'Successful' : 'Failed'} deployment recorded on EY Cloud"
-        end
-      end
+        deployment.finished
 
-      if deployment.successful?
-        ui.info "Deploy complete"
-        ui.info "Now you can run `ey launch' to open the application in a browser."
-      else
-        raise EY::Error, "Deploy failed"
+        if deployment.successful?
+          ui.info "Successful deployment recorded on EY Cloud"
+          ui.info "Deploy complete"
+          ui.info "Now you can run `ey launch' to open the application in a browser."
+        else
+          ui.info "Failed deployment recorded on EY Cloud"
+          raise EY::Error, "Deploy failed"
+        end
       end
     end
 
@@ -208,7 +216,13 @@ module EY
       deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)
 
       ui.info("Rolling back #{app_env.to_hierarchy_str}")
-      if app_env.rollback(deploy_config.extra_config, deploy_config.verbose)
+
+      runner = serverside_runner(app_env, deploy_config.verbose)
+      runner.rollback do |args|
+        args.config = deploy_config.extra_config if deploy_config.extra_config
+      end
+
+      if runner.call
         ui.info "Rollback complete"
       else
         raise EY::Error, "Rollback failed"

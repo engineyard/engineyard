@@ -115,6 +115,10 @@ module EY
         Log.from_array(api, api.request("/environments/#{id}/logs", :method => :get)["logs"])
       end
 
+      def deploy_to_instances
+        instances.select { |inst| inst.has_app_code? }
+      end
+
       def app_master!
         master = app_master
         if master.nil?

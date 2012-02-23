@@ -14,7 +14,7 @@ module EY
       def enable
         app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
         ui.info "Taking down maintenance page for '#{app_env.app.name}' in '#{app_env.environment.name}'"
-        app_env.take_down_maintenance_page(options[:verbose])
+        serverside_runner(app_env, options[:verbose]).take_down_maintenance_page.call
       end
 
       desc "disable [--environment/-e ENVIRONMENT]",
@@ -41,7 +41,7 @@ module EY
       def disable
         app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
         ui.info "Putting up maintenance page for '#{app_env.app.name}' in '#{app_env.environment.name}'"
-        app_env.put_up_maintenance_page(options[:verbose])
+        serverside_runner(app_env, options[:verbose]).put_up_maintenance_page.call
       end
     end
   end
