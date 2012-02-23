@@ -3,6 +3,7 @@
 ## NEXT
 
   * Repository interactionns pay attention to $GIT\_DIR and $GIT\_WORK\_TREE
+  * Increase responsiveness of most api interactions.
 
 ## v1.4.21 (2012-01-19)
 
