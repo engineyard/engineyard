@@ -35,8 +35,8 @@ module EY
         @api = EY::CloudClient.new(@token)
       end
 
-      def respond_to?(meth)
-        super or @api.respond_to?(meth)
+      def respond_to?(*a)
+        super or @api.respond_to?(*a)
       end
 
       protected

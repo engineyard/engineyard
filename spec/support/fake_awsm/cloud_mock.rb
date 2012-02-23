@@ -31,6 +31,8 @@ class CloudMock
     if envs.any?
       {
         'environments' => envs.map {|env| env.to_api_response}
+        'errors' => [],
+        'suggestions' => {}
       }
     else
       errors = resolver.errors
@@ -52,7 +54,9 @@ class CloudMock
     app_envs = resolver.matches
     if app_envs.any?
       {
-        'app_environments' => app_envs.map {|app_env| app_env.to_api_response}
+        'app_environments' => app_envs.map {|app_env| app_env.to_api_response},
+        'errors' => [],
+        'suggestions' => {}
       }
     else
       errors = resolver.errors
@@ -60,6 +64,8 @@ class CloudMock
         api_suggest = resolver.suggestions.inject({}) do |suggest, k,v|
           if v
             suggest.merge(k => v.map { |obj| obj.to_api_response })
+          else
+            suggest
           end
         end
       end
