@@ -22,6 +22,7 @@ module EY
       attr_reader :token
 
       def initialize(endpoint, ui)
+        @ui = ui
         EY::CloudClient.endpoint = endpoint
 
         @token = ENV['ENGINEYARD_API_TOKEN'] if ENV['ENGINEYARD_API_TOKEN']
@@ -32,7 +33,7 @@ module EY
           raise EY::Error, "Sorry, we couldn't get your API token."
         end
 
-        @api = EY::CloudClient.new(@token, ui)
+        @api = EY::CloudClient.new(@token, @ui)
       end
 
       def respond_to?(*a)
@@ -47,6 +48,11 @@ module EY
         else
           super
         end
+      rescue EY::CloudClient::InvalidCredentials
+        ui.warn "Authentication failed."
+        @token = self.class.authenticate(@ui)
+        @api = EY::CloudClient.new(@token, @ui)
+        retry
       end
 
     end
