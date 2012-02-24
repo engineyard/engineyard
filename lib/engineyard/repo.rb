@@ -91,7 +91,7 @@ deploy-time operations. Commit this file to fix this warning.
 
     def remotes
       ensure_repository!
-      @remotes ||= `git remote -v`.scan(/\t[^\s]+\s/).map { |c| c.strip }
+      @remotes ||= `git remote -v`.scan(/\t[^\s]+\s/).map { |c| c.strip }.uniq
     end
 
     def fail_on_no_remotes!
