@@ -62,17 +62,6 @@ class FakeAwsm < Sinatra::Base
     }.to_json
   end
 
-
-  put "/scenario" do
-    new_scenario = SCENARIOS[params[:scenario]]
-    unless new_scenario
-      status(400)
-      return {"ok" => "false", "message" => "wtf is the #{params[:scenario]} scenario?"}.to_json
-    end
-    @user = new_scenario.user
-    {"ok" => "true"}.to_json
-  end
-
   get "/api/v2/current_user" do
     { "user" => @user.to_api_response }.to_json
   end
