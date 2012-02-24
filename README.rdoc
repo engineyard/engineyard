@@ -20,10 +20,15 @@ The ey.yml file allows options to be saved for each environment to which an appl
     ---
     environments:
       env_production:
-        migrate: false
-        migration_command: rake fancy:migrate
-        branch: deploy
-        default: true   # make this environment default
+        migrate: false                            # run migration command on every deploy
+        migration_command: rake fancy:migrate     # default migration command
+        branch: deploy                            # default branch to deploy
+        default: true                             # make this environment default
+        bundle_without: test development mygroup  # exclude groups on bundle install
+        copy_exclude:                             # don't rsync the following dirs
+        - .git
+        verbose: true                             # always run verbose deploy (unless overriden on command line)
+
 
 This ey.yml file will turn off default migrations, set the default command to "rake fancy:migrate" and set the default deploy branch to "deploy".
 
