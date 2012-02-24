@@ -22,12 +22,11 @@ Gem::Specification.new do |s|
   s.rubygems_version = %q{1.3.6}
   s.test_files = Dir.glob("spec/**/*")
 
-  s.add_dependency('thor', '~>0.14.6')
   s.add_dependency('rest-client', '~>1.6.0')
   s.add_dependency('highline', '~>1.6.1')
   s.add_dependency('json_pure')
   s.add_dependency('escape', '~>0.0.4')
-  s.add_dependency('engineyard-serverside-adapter', '=1.5.25')   # This line maintained by rake; edits may be stomped on
+  s.add_dependency('engineyard-serverside-adapter', '=1.5.27')   # This line maintained by rake; edits may be stomped on
   s.add_dependency('net-ssh', '~>2.2.1')
   s.add_dependency('launchy', '2.0.5')
 

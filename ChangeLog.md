@@ -5,6 +5,10 @@
   * Repository interactionns pay attention to $GIT\_DIR and $GIT\_WORK\_TREE
   * Increase responsiveness of most api interactions.
 
+## v1.4.22 (2012-01-27)
+
+  *
+
 ## v1.4.21 (2012-01-19)
 
   * ey logout removes the API token from ~/.eyrc

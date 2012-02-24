@@ -194,4 +194,14 @@ Please specify --app app_name or add this application at #{config.endpoint}"
     end
 
   end
+
+  # patch handle_no_method_error? to work with rubinius' error text.
+  class ::Thor::Task
+    def handle_no_method_error?(instance, error, caller)
+      not_debugging?(instance) && (
+        error.message =~ /^undefined method `#{name}' for #{Regexp.escape(instance.to_s)}$/ ||
+        error.message =~ /undefined method `#{name}' on an instance of #{Regexp.escape(instance.class.name)}/
+      )
+    end
+  end
 end
