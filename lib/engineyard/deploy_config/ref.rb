@@ -28,7 +28,7 @@ module EY
       # a.k.a. not in the correct repo
       #
       # returns the ref if it was passed in the cli opts.
-      # yields the given block if not set
+      # or raise
       def when_outside_repo
         @ref or raise RefAndMigrateRequiredOutsideRepo.new(@cli_opts)
       end
