@@ -118,6 +118,7 @@ Please specify --app app_name or add this application at #{config.endpoint}"
         app_envs.group_by do |app_env|
           [app_env.account_name, app_env.app_name]
         end.sort_by { |k,v| k.join }.each do |(account_name, app_name), grouped_app_envs|
+          message << "\n"
           message << account_name << "/" << app_name << "\n"
           grouped_app_envs.map { |ae| ae.environment_name }.uniq.sort.each do |env_name|
             message << "\t#{env_name.ljust(25)}"
