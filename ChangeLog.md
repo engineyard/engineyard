@@ -5,6 +5,7 @@
   * Repository interactionns pay attention to $GIT\_DIR and $GIT\_WORK\_TREE
   * Increase responsiveness of most api interactions.
   * Print notices when ey.yml defaults are used.
+  * Improve failed deployment output messaging.
 
 ## v1.4.22 (2012-01-27)
 

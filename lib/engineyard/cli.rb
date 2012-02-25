@@ -94,13 +94,13 @@ module EY
         end
         deployment.successful = runner.call(out, err)
       rescue Interrupt
-        out << "Interrupted. Deployment halted.\n"
+        err << "Interrupted. Deployment halted.\n"
         ui.warn "Recording canceled deployment in EY Cloud..."
         ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on EY Cloud."
         raise
       rescue StandardError => e
-        out << "Error encountered during deploy.\n#{e.class} #{e}\n"
-        ui.info "Error encountered during deploy."
+        deployment.err << "Error encountered during deploy.\n#{e.class} #{e}\n"
+        ui.print_exception(e)
         raise
       ensure
         deployment.finished
