@@ -32,8 +32,15 @@ module EY
       ServersideRunner.new(app_env.environment.bridge!.hostname, app_env.app, app_env.environment, verbose)
     end
 
+    def use_default_environment
+      if env = config.default_environment
+        ui.say "Using default environment #{config.default_environment.inspect} from ey.yml."
+        env
+      end
+    end
+
     def fetch_environment(environment_name, account_name)
-      environment_name ||= config.default_environment
+      environment_name ||= use_default_environment
       remotes = repo.remotes if in_repo?
       constraints = {
         :environment_name => environment_name,
@@ -63,7 +70,7 @@ module EY
     end
 
     def fetch_app_environment(app_name, environment_name, account_name)
-      environment_name ||= config.default_environment
+      environment_name ||= use_default_environment
       remotes = repo.remotes if in_repo?
       constraints = {
         :app_name         => app_name,

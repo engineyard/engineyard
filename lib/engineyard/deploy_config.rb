@@ -41,7 +41,7 @@ module EY
     end
 
     def decide_ref
-      ref_decider = EY::DeployConfig::Ref.new(@cli_opts, @env_config, @repo)
+      ref_decider = EY::DeployConfig::Ref.new(@cli_opts, @env_config, @repo, @ui)
       if in_repo?
         ref_decider.when_inside_repo
       else
