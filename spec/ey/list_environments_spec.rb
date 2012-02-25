@@ -10,8 +10,8 @@ describe "ey environments" do
     end
 
     it "suggests that you use environments --all" do
-      fast_ey %w[environments]
-      @out.should =~ /Use ey environments --all to see all environments./
+      fast_failing_ey %w[environments]
+      @err.should =~ /Use ey environments --all to see all environments./
     end
   end
 
@@ -27,6 +27,44 @@ describe "ey environments" do
       @out.should =~ /bakon/
     end
 
+    it "lists the environments with specified app" do
+      fast_ey %w[environments --app rails232app]
+      @out.should include('main/rails232app')
+      @out.should =~ /giblets/
+      @out.should =~ /bakon/
+    end
+
+    it "finds no environments with gibberish app" do
+      fast_failing_ey %w[environments --account main --app gibberish]
+      @err.should =~ /Use ey environments --all to see all environments./
+    end
+
+    it "finds no environments with gibberish account" do
+      fast_failing_ey %w[environments --account gibberish --app rails232]
+      @err.should =~ /Use ey environments --all to see all environments./
+    end
+
+    it "lists the environments that the app is in" do
+      fast_ey %w[environments --app rails232app]
+      @out.should include('main/rails232app')
+      @out.should =~ /giblets/
+      @out.should =~ /bakon/
+    end
+
+    it "lists the environments that the app is in" do
+      fast_ey %w[environments --account main]
+      @out.should include('main/rails232app')
+      @out.should =~ /giblets/
+      @out.should =~ /bakon/
+    end
+
+    it "lists the environments matching --environment" do
+      fast_ey %w[environments -e gib]
+      @out.should include('main/rails232app')
+      @out.should =~ /giblets/
+      @out.should_not =~ /bakon/
+    end
+
     it "reports failure to find a git repo when not in one" do
       Dir.chdir(Dir.tmpdir) do
         fast_failing_ey %w[environments]
@@ -35,8 +73,8 @@ describe "ey environments" do
       end
     end
 
-    it "lists all environments that have apps with -a" do
-      fast_ey %w[environments -a]
+    it "lists all environments that have apps with -A" do
+      fast_ey %w[environments -A]
       @out.should include("bakon")
       @out.should include("giblets")
     end
@@ -46,8 +84,8 @@ describe "ey environments" do
       @out.split(/\n/).sort.should == ["bakon", "giblets"]
     end
 
-    it "outputs all environments (including ones with no apps) simply with -a and -s" do
-      fast_ey %w[environments -a -s], :debug => false
+    it "outputs all environments (including ones with no apps) simply with -A and -s" do
+      fast_ey %w[environments -A -s], :debug => false
       @out.split(/\n/).sort.should == ["bakon", "beef", "giblets"]
     end
   end

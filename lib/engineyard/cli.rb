@@ -147,8 +147,18 @@ module EY
       display all environments, including those for this app.
     DESC
 
-    method_option :all, :type => :boolean, :aliases => %(-a)
-    method_option :simple, :type => :boolean, :aliases => %(-s)
+    method_option :all, :type => :boolean, :aliases => %(-A),
+      :desc => "Show all environments (ignores --app, --account, and --environment arguments)"
+    method_option :simple, :type => :boolean, :aliases => %(-s),
+      :desc => "Display one environment per line with no extra output"
+    method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
+      :desc => "Show environments for this application"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
+      :desc => "Show environments in this account"
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :desc => "Show environments matching environment name"
     def environments
       if options[:all] && options[:simple]
         # just put each env
@@ -156,8 +166,24 @@ module EY
       elsif options[:all]
         ui.print_envs(api.apps, config.default_environment, options[:simple], config.endpoint)
       else
-        repo.fail_on_no_remotes!
-        resolver = api.resolve_app_environments(:remotes => repo.remotes)
+        remotes = nil
+        if options[:app] == ''
+          repo.fail_on_no_remotes!
+          remotes = repo.remotes
+        end
+
+        resolver = api.resolve_app_environments({
+          :account_name     => options[:account],
+          :app_name         => options[:app],
+          :environment_name => options[:environment],
+          :remotes          => remotes,
+        })
+
+        resolver.no_matches do |errors|
+          messages = errors
+          messages << "Use #{self.class.send(:banner_base)} environments --all to see all environments."
+          raise EY::NoMatchesError.new(messages.join("\n"))
+        end
 
         apps = resolver.matches.map { |app_env| app_env.app }.uniq
 
@@ -166,8 +192,6 @@ module EY
           apps.each { |app| message << "\t#{app.name}\n" }
           message << "The following environments contain those applications:\n\n"
           ui.warn(message)
-        elsif apps.empty?
-          ui.warn("Use #{self.class.send(:banner_base)} environments --all to see all environments.")
         end
 
         ui.print_envs(apps, config.default_environment, options[:simple], config.endpoint)

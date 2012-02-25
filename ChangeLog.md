@@ -6,6 +6,7 @@
   * Increase responsiveness of most api interactions.
   * Print notices when ey.yml defaults are used.
   * Improve failed deployment output messaging.
+  * Allow --app, --account, and --environment for `ey environments` for extra filtering
 
 ## v1.4.22 (2012-01-27)
 
@@ -22,7 +23,7 @@
 
 ## v1.4.19 (2012-01-12)
 
-  * Failed releases are now saved in a 'releases_failed' directory, parallel to the existing 'releases' directory.
+  * Failed releases are now saved in a 'releases\_failed' directory, parallel to the existing 'releases' directory.
   * Resolved a bundler version conflict that could occur for apps that specified a particular bundler version.
 
 ## v1.4.18 (2012-01-03)
