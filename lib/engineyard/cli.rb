@@ -81,6 +81,8 @@ module EY
         :extra_config    => deploy_config.extra_config,
       })
 
+      runner = serverside_runner(app_env, deploy_config.verbose)
+
       out = EY::CLI::UI::Tee.new(ui.out, deployment.out)
       err = EY::CLI::UI::Tee.new(ui.err, deployment.err)
 
@@ -90,7 +92,6 @@ module EY
         ui.show_deployment(deployment)
         out << "Deploy initiated.\n"
 
-        runner = serverside_runner(app_env, deploy_config.verbose)
         runner.deploy do |args|
           args.config  = deployment.config          if deployment.config
           args.migrate = deployment.migrate_command if deployment.migrate
