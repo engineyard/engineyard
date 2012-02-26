@@ -26,6 +26,9 @@ module EY
       ui.print_exception(e)
       ui.say("Quitting...")
       raise
+    rescue Exception => e
+      ui.print_exception(e)
+      raise
     end
 
     desc "deploy [--environment ENVIRONMENT] [--ref GIT-REF]",
