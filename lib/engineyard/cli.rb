@@ -97,7 +97,11 @@ module EY
 
         runner.deploy do |args|
           args.config  = deployment.config          if deployment.config
-          args.migrate = deployment.migrate_command if deployment.migrate
+          if deployment.migrate
+            args.migrate = deployment.migrate_command
+          else
+            args.migrate = false
+          end
           args.ref     = deployment.resolved_ref
         end
         deployment.successful = runner.call(out, err)
