@@ -4,6 +4,23 @@ describe "ey environments" do
 
   given "integration"
 
+  before { @succeeds_on_multiple_matches = true }
+
+  def command_to_run(opts)
+    cmd = ["environments"]
+    cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--app"         << opts[:app]         if opts[:app]
+    cmd << "--account"     << opts[:account]     if opts[:account]
+    cmd
+  end
+
+  def verify_ran(scenario)
+    @out.should match(/#{scenario[:environment]}/) if scenario[:environment]
+    @out.should match(/#{scenario[:application]}/) if scenario[:application]
+  end
+
+  include_examples "it takes an environment name and an app name and an account name"
+
   context "with no apps" do
     before do
       login_scenario "empty"

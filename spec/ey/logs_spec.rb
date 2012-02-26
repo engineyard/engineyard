@@ -5,7 +5,7 @@ describe "ey logs" do
 
   it "prints logs returned by awsm" do
     login_scenario "one app, one environment"
-    ey %w[logs -e giblets]
+    fast_ey %w[logs -e giblets]
     @out.should match(/MAIN LOG OUTPUT/)
     @out.should match(/CUSTOM LOG OUTPUT/)
     @err.should == ''
@@ -13,8 +13,8 @@ describe "ey logs" do
 
   it "complains when it can't infer the environment" do
     login_scenario "one app, many environments"
-    ey %w[logs], :expect_failure => true
-    @err.should =~ /repository url in this directory is ambiguous/i
+    fast_failing_ey %w[logs]
+    @err.should =~ /Multiple environments possible, please be more specific/i
   end
 end
 

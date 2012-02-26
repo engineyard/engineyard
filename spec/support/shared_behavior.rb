@@ -18,10 +18,9 @@ shared_examples_for "it requires an unambiguous git repo" do
 
   it "lists disambiguating environments to choose from" do
     run_ey({}, {:expect_failure => true})
-    @err.should =~ /ambiguous/
-    @err.should =~ /specify one of the following environments/
-    @err.should =~ /giblets \(main\)/
-    @err.should =~ /keycollector_production \(main\)/
+    @err.should include('Multiple environments possible, please be more specific')
+    @err.should =~ /giblets/
+    @err.should =~ /keycollector_production/
   end
 end
 
@@ -29,16 +28,28 @@ shared_examples_for "it takes an environment name and an app name and an account
   include_examples "it takes an app name"
   include_examples "it takes an environment name"
 
+  it "complains when you send --account without a value" do
+    login_scenario "empty"
+    fast_failing_ey command_to_run({}) << '--account'
+    @err.should include("No value provided for option '--account'")
+    fast_failing_ey command_to_run({}) << '-c'
+    @err.should include("No value provided for option '--account'")
+  end
+
   context "when multiple accounts with collaboration" do
     before :all do
       login_scenario "two accounts, two apps, two environments, ambiguous"
     end
 
     it "fails when the app and environment are ambiguous across accounts" do
-      run_ey({:environment => "giblets", :app => "rails232app", :ref => 'master'}, {:expect_failure => true})
-      @err.should match(/Multiple application environments possible/i)
-      @err.should match(/ey \S+ --account='account_2' --app='rails232app' --environment='giblets'/i)
-      @err.should match(/ey \S+ --account='main' --app='rails232app' --environment='giblets'/i)
+      run_ey({:environment => "giblets", :app => "rails232app", :ref => 'master'}, {:expect_failure => !@succeeds_on_multiple_matches})
+      if @succeeds_on_multiple_matches
+        @err.should_not match(/multiple/i)
+      else
+        @err.should match(/Multiple application environments possible/i)
+        @err.should match(/ey \S+ --account='account_2' --app='rails232app' --environment='giblets'/i)
+        @err.should match(/ey \S+ --account='main' --app='rails232app' --environment='giblets'/i)
+      end
     end
 
     it "runs when specifying the account disambiguates the app to deploy" do
@@ -55,6 +66,14 @@ end
 
 shared_examples_for "it takes an environment name and an account name" do
   include_examples "it takes an environment name"
+
+  it "complains when you send --account without a value" do
+    login_scenario "empty"
+    fast_failing_ey command_to_run({}) << '--account'
+    @err.should include("No value provided for option '--account'")
+    fast_failing_ey command_to_run({}) << '-c'
+    @err.should include("No value provided for option '--account'")
+  end
 
   context "when multiple accounts with collaboration" do
     before :all do
@@ -113,6 +132,14 @@ shared_examples_for "it takes an environment name" do
     @err.should match(/No environment found matching .*typo-happens-here/i)
   end
 
+  it "complains when you send --environment without a value" do
+    login_scenario "empty"
+    fast_failing_ey command_to_run({}) << '--environment'
+    @err.should include("No value provided for option '--environment'")
+    fast_failing_ey command_to_run({}) << '-e'
+    @err.should include("No value provided for option '--environment'")
+  end
+
   context "outside a git repo" do
 
     define_git_repo("not actually a git repo") do |git_dir|
@@ -141,11 +168,16 @@ shared_examples_for "it takes an environment name" do
     end
 
     it "complains when the substring is ambiguous" do
-      run_ey({:environment => 'staging'}, {:expect_failure => true})
-      if @takes_app_name
-        @err.should match(/multiple application environments possible/i)
+      run_ey({:environment => 'staging'}, {:expect_failure => !@succeeds_on_multiple_matches})
+
+      if @succeeds_on_multiple_matches
+        @err.should_not match(/multiple .* possible/i)
       else
-        @err.should match(/multiple environments possible/i)
+        if @takes_app_name
+          @err.should match(/multiple application environments possible/i)
+        else
+          @err.should match(/multiple environments possible/i)
+        end
       end
     end
 
@@ -170,6 +202,14 @@ end
 
 shared_examples_for "it takes an app name" do
   before { @takes_app_name = true }
+
+  it "complains when you send --app without a value" do
+    login_scenario "empty"
+    fast_failing_ey command_to_run({}) << '--app'
+    @err.should include("No value provided for option '--app'")
+    fast_failing_ey command_to_run({}) << '-a'
+    @err.should include("No value provided for option '--app'")
+  end
 
   it "allows you to specify a valid app" do
     login_scenario "one app, one environment"

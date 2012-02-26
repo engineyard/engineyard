@@ -37,7 +37,7 @@ module EY
 
     # passing an app means we assume PWD is not the app.
     def in_repo?
-      !@cli_opts['app']
+      @cli_opts['app'].nil? || @cli_opts['app'] == ''
     end
 
     def decide_ref

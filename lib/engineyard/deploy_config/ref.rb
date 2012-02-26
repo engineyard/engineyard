@@ -15,6 +15,7 @@ module EY
           @ref, @force_ref = @force_ref, true
         else
           @ref = @cli_opts.fetch('ref', nil)
+          @ref = nil if @ref == ''
         end
       end
 

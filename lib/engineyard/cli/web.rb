@@ -4,13 +4,16 @@ module EY
       desc "enable [--environment/-e ENVIRONMENT]",
         "Remove the maintenance page for this application in the given environment."
       method_option :environment, :type => :string, :aliases => %w(-e),
+        :required => true, :default => '',
         :desc => "Environment on which to take down the maintenance page"
       method_option :app, :type => :string, :aliases => %w(-a),
+        :required => true, :default => '',
         :desc => "Name of the application whose maintenance page will be removed"
+      method_option :account, :type => :string, :aliases => %w(-c),
+        :required => true, :default => '',
+        :desc => "Name of the account in which the environment can be found"
       method_option :verbose, :type => :boolean, :aliases => %w(-v),
         :desc => "Be verbose"
-      method_option :account, :type => :string, :aliases => %w(-c),
-        :desc => "Name of the account in which the environment can be found"
       def enable
         app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
         ui.info "Taking down maintenance page for '#{app_env.app.name}' in '#{app_env.environment.name}'"
@@ -31,13 +34,16 @@ module EY
         * public/system/maintenance.html.default
       DESC
       method_option :environment, :type => :string, :aliases => %w(-e),
+        :required => true, :default => '',
         :desc => "Environment on which to put up the maintenance page"
       method_option :app, :type => :string, :aliases => %w(-a),
+        :required => true, :default => '',
         :desc => "Name of the application whose maintenance page will be put up"
+      method_option :account, :type => :string, :aliases => %w(-c),
+        :required => true, :default => '',
+        :desc => "Name of the account in which the environment can be found"
       method_option :verbose, :type => :boolean, :aliases => %w(-v),
         :desc => "Be verbose"
-      method_option :account, :type => :string, :aliases => %w(-c),
-        :desc => "Name of the account in which the environment can be found"
       def disable
         app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
         ui.info "Putting up maintenance page for '#{app_env.app.name}' in '#{app_env.environment.name}'"

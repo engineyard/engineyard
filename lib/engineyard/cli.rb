@@ -46,16 +46,20 @@ module EY
     method_option :migrate, :type => :string, :aliases => %w(-m),
       :lazy_default => true,
       :desc => "Run migrations via [MIGRATE], defaults to '#{EY::DeployConfig::Migrate::DEFAULT}'; use --no-migrate to avoid running migrations"
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :desc => "Environment in which to deploy this application"
     method_option :ref, :type => :string, :aliases => %w(-r --branch --tag),
+      :required => true, :default => '',
       :desc => "Git ref to deploy. May be a branch, a tag, or a SHA. Use -R to deploy a different ref if a default is set."
     method_option :force_ref, :type => :string, :aliases => %w(--ignore-default-branch -R),
       :lazy_default => true,
       :desc => "Force a deploy of the specified git ref even if a default is set in ey.yml."
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => false,
+      :desc => "Environment in which to deploy this application"
     method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
       :desc => "Name of the application to deploy"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
@@ -122,10 +126,13 @@ module EY
       application and environment.
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Environment where the application is deployed"
     method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
       :desc => "Name of the application"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the application can be found"
     def status
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
@@ -158,6 +165,7 @@ module EY
       :required => true, :default => '',
       :desc => "Show environments in this account"
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Show environments matching environment name"
     def environments
       if options[:all] && options[:simple]
@@ -211,8 +219,10 @@ module EY
     DESC
 
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Environment to rebuild"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
     def rebuild
       environment = fetch_environment(options[:environment], options[:account])
@@ -228,10 +238,13 @@ module EY
     DESC
 
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Environment in which to roll back the application"
     method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
       :desc => "Name of the application to roll back"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
@@ -268,8 +281,10 @@ module EY
       $ #{banner_base} ssh "rm -f /some/file" -e my-environment --all
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Environment to ssh into"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
     method_option :all, :type => :boolean, :aliases => %(-a),
       :desc => "Run command on all servers"
@@ -332,8 +347,10 @@ module EY
       displayed beneath the main configuration logs.
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Environment with the interesting logs"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
     def logs
       environment = fetch_environment(options[:environment], options[:account])
@@ -411,8 +428,10 @@ module EY
 
     desc "launch [--environment ENVIRONMENT] [--account ACCOUNT]", "Open application in browser."
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Name of the environment"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
     def launch
       environment = fetch_environment(options[:environment], options[:account])

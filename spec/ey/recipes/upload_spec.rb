@@ -5,7 +5,7 @@ describe "ey recipes upload" do
 
   define_git_repo('+cookbooks') do |git_dir|
     git_dir.join("cookbooks").mkdir
-    File.open(git_dir.join("cookbooks/file"), "w"){|f| f << "boo" }
+    git_dir.join("cookbooks/file").open("w") {|f| f << "boo" }
   end
   use_git_repo('+cookbooks')
 

@@ -12,8 +12,10 @@ module EY
       DESC
 
       method_option :environment, :type => :string, :aliases => %w(-e),
+        :required => true, :default => '',
         :desc => "Environment in which to apply recipes"
       method_option :account, :type => :string, :aliases => %w(-c),
+        :required => true, :default => '',
         :desc => "Name of the account in which the environment can be found"
       def apply
         environment = fetch_environment(options[:environment], options[:account])
@@ -35,12 +37,15 @@ module EY
       DESC
 
       method_option :environment, :type => :string, :aliases => %w(-e),
+        :required => true, :default => '',
         :desc => "Environment that will receive the recipes"
       method_option :account, :type => :string, :aliases => %w(-c),
+        :required => true, :default => '',
         :desc => "Name of the account in which the environment can be found"
       method_option :apply, :type => :boolean,
         :desc => "Apply the recipes immediately after they are uploaded"
       method_option :file, :type => :string, :aliases => %w(-f),
+        :required => true, :default => '',
         :desc => "Specify a gzipped tar file (.tgz) for upload instead of cookbooks/ directory"
       def upload
         environment = fetch_environment(options[:environment], options[:account])
@@ -57,9 +62,9 @@ module EY
         end
 
         def upload_recipes(environment, filename)
-          if options[:file]
-            environment.upload_recipes_at_path(options[:file])
-            ui.say "Recipes file #{options[:file]} uploaded successfully for #{environment.name}"
+          if filename && filename != ''
+            environment.upload_recipes_at_path(filename)
+            ui.say "Recipes file #{filename} uploaded successfully for #{environment.name}"
           else
             environment.tar_and_upload_recipes_in_cookbooks_dir
             ui.say "Recipes in cookbooks/ uploaded successfully for #{environment.name}"
@@ -76,8 +81,10 @@ module EY
         If the cookbooks directory already exists, an error will be raised.
       DESC
       method_option :environment, :type => :string, :aliases => %w(-e),
+        :required => true, :default => '',
         :desc => "Environment for which to download the recipes"
       method_option :account, :type => :string, :aliases => %w(-c),
+        :required => true, :default => '',
         :desc => "Name of the account in which the environment can be found"
       def download
         environment = fetch_environment(options[:environment], options[:account])

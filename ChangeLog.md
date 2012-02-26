@@ -7,6 +7,7 @@
   * Print notices when ey.yml defaults are used.
   * Improve failed deployment output messaging.
   * Allow --app, --account, and --environment for `ey environments` for extra filtering
+  * Print an error when a command line option, like --environment, is specified without an argument.
 
 ## v1.4.22 (2012-01-27)
 
