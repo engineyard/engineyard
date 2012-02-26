@@ -43,12 +43,14 @@ module EY
 
     def load_adapter(bridge, app, environment)
       EY::Serverside::Adapter.new("/usr/local/ey_resin/ruby/bin") do |args|
-        args.app           = app.name
-        args.repo          = app.repository_uri
-        args.instances     = instances_data(environment.deploy_to_instances, bridge)
-        args.stack         = environment.app_server_stack_name
-        args.framework_env = environment.framework_env
-        args.verbose       = @verbose
+        args.app              = app.name
+        args.repo             = app.repository_uri
+        args.instances        = instances_data(environment.deploy_to_instances, bridge)
+        args.stack            = environment.app_server_stack_name
+        args.framework_env    = environment.framework_env
+        args.environment_name = environment.name
+        args.account_name     = app.account.name
+        args.verbose          = @verbose
       end
     end
 
