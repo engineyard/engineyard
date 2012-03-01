@@ -66,7 +66,7 @@ module EY
 
       EY.ui.info "Beginning deploy of ref '#{deploy_ref}' for '#{app.name}' in '#{environment.name}' on server..."
 
-      deploy_options = {'extras' => {'deployed_by' => api.user.name}.merge(options[:extra_deploy_hook_options])}
+      deploy_options = {'extras' => {'deploy_ref' => deploy_ref, 'deployed_by' => api.user.name}.merge(options[:extra_deploy_hook_options])}
       if options.has_key?('migrate') # thor set migrate => nil when --no-migrate
         deploy_options['migrate'] = options['migrate'].respond_to?(:to_str) ? options['migrate'] : !!options['migrate']
       end
