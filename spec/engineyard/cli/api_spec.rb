@@ -20,6 +20,14 @@ describe EY::CLI::API do
     EY::CLI::API.new.token.should == 'envtoken'
     ENV.delete('ENGINEYARD_API_TOKEN')
   end
+  
+  it "uses the token from the --token option if set" do
+    capture_stdout do
+      EY::CLI.send(:dispatch, "help", [], {:token => 'clitoken'}, {}) do |cli|
+        cli.send(:api).token.should == 'clitoken'
+      end
+    end
+  end
 
   context "without saved api token" do
     before(:each) do
