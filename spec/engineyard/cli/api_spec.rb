@@ -21,9 +21,9 @@ describe EY::CLI::API do
     ENV.delete('ENGINEYARD_API_TOKEN')
   end
   
-  it "uses the token from the --token option if set" do
+  it "uses the token from the --api-token option if set" do
     capture_stdout do
-      EY::CLI.send(:dispatch, "help", [], {:token => 'clitoken'}, {}) do |cli|
+      EY::CLI.send(:dispatch, "help", [], {:api_token => 'clitoken'}, {}) do |cli|
         cli.send(:api).token.should == 'clitoken'
       end
     end

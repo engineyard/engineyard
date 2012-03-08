@@ -4,7 +4,7 @@ module EY
   module UtilityMethods
     protected
     def api
-      @api ||= EY::CLI::API.new options[:token]
+      @api ||= EY::CLI::API.new options[:api_token]
     end
 
     def repo
@@ -36,7 +36,7 @@ module EY
   class Thor < ::Thor
     include UtilityMethods
 
-    class_option :token, :type => :string, :desc => "Use API token TOKEN to authenticate this command" 
+    class_option :"api-token", :type => :string, :desc => "Use API-TOKEN to authenticate this command"
 
     check_unknown_options!
 
