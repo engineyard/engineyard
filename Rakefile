@@ -67,6 +67,11 @@ def bump_serverside_adapter
   end
 end
 
+desc "Bump serverside adapter"
+task "bump:serverside" do
+  bump_serverside_adapter
+end
+
 desc "Bump version of this gem"
 task :bump do
   ver = bump
