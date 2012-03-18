@@ -72,7 +72,7 @@ module EY
         end
       end
 
-      def print_envs(apps, default_env_name = nil, simple = false)
+      def print_envs(apps, default_env_name = nil, simple = false, verbose = false)
         if simple
           envs = apps.map{ |app| app.environments.to_a }
           puts envs.flatten.map{|env| env.name }.uniq
@@ -89,6 +89,11 @@ module EY
                 default_text = env.name == default_env_name ? " [default]" : ""
 
                 puts "  #{short_name}#{default_text} (#{icount} #{iname})"
+                if verbose
+                  env.instances.each do |inst|
+                    puts "    #{inst.role} #{inst.public_hostname} #{inst.status}"
+                  end
+                end
               end
             else
               puts "  (This application is not in any environments; you can make one at #{EY.config.endpoint})"

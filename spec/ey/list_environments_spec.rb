@@ -50,6 +50,12 @@ describe "ey environments" do
       ey %w[environments -a -s], :debug => false
       @out.split(/\n/).sort.should == ["bakon", "beef", "giblets"]
     end
+
+    it "outputs instances with -v" do
+      ey %w[environments -a -v], :debug => false
+      @out.should include "solo app_master_hostname.compute-1.amazonaws.com running"
+    end
+
   end
 end
 
