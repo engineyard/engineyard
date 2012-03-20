@@ -34,7 +34,7 @@ module EY
         output << "Interrupted. Deployment halted.\n"
         EY.ui.warn "Interrupted."
         EY.ui.warn "Recording canceled deployment and exiting..."
-        EY.ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on EY Cloud."
+        EY.ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on Engine Yard Cloud."
         raise
       rescue StandardError => e
         EY.ui.info "Error encountered during deploy."
@@ -43,7 +43,7 @@ module EY
       ensure
         if deployment
           deployment.finished(successful, output)
-          EY.ui.info "#{successful ? 'Successful' : 'Failed'} deployment recorded in EY Cloud"
+          EY.ui.info "#{successful ? 'Successful' : 'Failed'} deployment recorded in Engine Yard Cloud"
         end
       end
 

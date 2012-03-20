@@ -24,7 +24,7 @@ module EY
         "Upload custom chef recipes to specified environment so they can be applied."
       long_desc <<-DESC
         Make an archive of the "cookbooks/" subdirectory in your current working
-        directory and upload it to EY Cloud's recipe storage.
+        directory and upload it to Engine Yard Cloud's recipe storage.
 
         Alternatively, specify a .tgz of a cookbooks/ directory yourself as follows:
 

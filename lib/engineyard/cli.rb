@@ -51,7 +51,7 @@ module EY
     method_option :extra_deploy_hook_options, :type => :hash, :default => {},
       :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
     def deploy
-      EY.ui.info "Loading application data from EY Cloud..."
+      EY.ui.info "Loading application data from Engine Yard Cloud..."
 
       app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
       environment.ignore_bad_master = options[:ignore_bad_master]
@@ -125,7 +125,7 @@ module EY
         apps = api.apps_for_repo(repo)
 
         if apps.size > 1
-          message = "This git repo matches multiple Applications in EY Cloud:\n"
+          message = "This git repo matches multiple Applications in Engine Yard Cloud:\n"
           apps.each { |app| message << "\t#{app.name}\n" }
           message << "The following environments contain those applications:\n\n"
           EY.ui.warn(message)
@@ -357,7 +357,7 @@ module EY
       EY.ui.say "#{user.name} (#{user.email})"
     end
 
-    desc "login", "Log in and verify access to EY Cloud."
+    desc "login", "Log in and verify access to Engine Yard Cloud."
     def login
       whoami
     end
