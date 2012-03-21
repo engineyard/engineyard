@@ -103,7 +103,7 @@ module EY
         else
           begin
             options_for_ssh = {:paranoid => false}
-            options_for_ssh[:verbose] = :debug if verbose
+            options_for_ssh[:verbose] = ENV["DEBUG"].downcase.to_sym if ENV["DEBUG"]
             Net::SSH.start(hostname, environment.username, options_for_ssh) do |net_ssh|
               net_ssh.open_channel do |channel|
                 channel.exec cmd do |_, success|
