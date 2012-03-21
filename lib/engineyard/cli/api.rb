@@ -1,43 +1,51 @@
 require 'highline'
-require 'engineyard/api'
+require 'engineyard-cloud-client'
+require 'engineyard/eyrc'
 
 module EY
   class CLI
-    class API < EY::API
-
-      def initialize(token = nil)
-        @token = token
-        if ENV['ENGINEYARD_API_TOKEN']
-          @token = ENV['ENGINEYARD_API_TOKEN']
-        end
-        @token ||= EY::EYRC.load.api_token
-        @token ||= self.class.fetch_token
-        raise EY::Error, "Sorry, we couldn't get your API token." unless @token
-      end
-
-      def request(*)
-        begin
-          super
-        rescue EY::API::InvalidCredentials
-          EY.ui.warn "Credentials rejected; please authenticate again."
-          refresh
-          retry
-        end
-      end
-
-      def refresh
-        @token = self.class.fetch_token
-      end
-
-      def self.fetch_token
+    class API
+      def self.authenticate
         EY.ui.info("We need to fetch your API token; please log in.")
         begin
           email    = EY.ui.ask("Email: ")
           password = EY.ui.ask("Password: ", true)
-          super(email, password)
-        rescue EY::API::InvalidCredentials
+          token    = EY::CloudClient.authenticate(email, password)
+          EY::EYRC.load.api_token = token
+          token
+        rescue EY::CloudClient::InvalidCredentials
           EY.ui.warn "Invalid username or password; please try again."
           retry
+        end
+      end
+
+      attr_reader :token
+
+      def initialize(endpoint)
+        EY::CloudClient.endpoint = endpoint
+
+        @token = ENV['ENGINEYARD_API_TOKEN'] if ENV['ENGINEYARD_API_TOKEN']
+        @token ||= EY::EYRC.load.api_token
+        @token ||= self.class.authenticate
+
+        unless @token
+          raise EY::Error, "Sorry, we couldn't get your API token."
+        end
+
+        @api = EY::CloudClient.new(@token)
+      end
+
+      def respond_to?(meth)
+        super or @api.respond_to?(meth)
+      end
+
+      protected
+
+      def method_missing(meth, *args, &block)
+        if @api.respond_to?(meth)
+          @api.send(meth, *args, &block)
+        else
+          super
         end
       end
 

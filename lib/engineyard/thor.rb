@@ -4,33 +4,33 @@ module EY
   module UtilityMethods
     protected
     def api
-      @api ||= EY::CLI::API.new
+      @api ||= load_api
+    end
+
+    def load_api
+      api = EY::CLI::API.new(EY.config.endpoint)
+      api.current_user # check login and access to the api
+      api
+    rescue EY::CloudClient::InvalidCredentials
+      EY::CLI::API.authenticate
+      retry
     end
 
     def repo
       @repo ||= EY::Repo.new
     end
 
-    def fetch_environment(environment_name, account_name=nil)
+    def fetch_environment(environment_name, account_name)
       environment_name ||= EY.config.default_environment
-      options = {
-        :environment_name => environment_name,
-        :account_name => account_name
-      }
-      options.merge! :repo => repo if repo.exist?
-      api.resolver.environment(options)
+      existing_repo = repo if repo.exist?
+      api.fetch_environment(environment_name, account_name, existing_repo)
     end
 
-    def fetch_app_and_environment(app_name = nil, environment_name = nil, account_name=nil)
-      options = {
-        :app_name => app_name,
-        :environment_name => environment_name,
-        :account_name => account_name
-      }
-      options.merge! :repo => repo if repo.exist?
-      api.resolver.app_and_environment(options)
+    def fetch_app_environment(app_name, environment_name, account_name)
+      environment_name ||= EY.config.default_environment
+      existing_repo = repo if repo.exist?
+      api.fetch_app_environment(app_name, environment_name, account_name, existing_repo)
     end
-
   end # UtilityMethods
 
   class Thor < ::Thor

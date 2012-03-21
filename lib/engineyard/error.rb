@@ -1,15 +1,6 @@
 module EY
   class Error < RuntimeError
-    def ambiguous(type, name, matches, desc="")
-      pretty_names = matches.map {|x| "'#{x}'"}.join(', ')
-      "The name '#{name}' is ambiguous; it matches all of the following #{type} names: #{pretty_names}.\n" +
-      "Please use a longer, unambiguous substring or the entire #{type} name." + desc
-    end
   end
-
-  class ResolveError < EY::Error; end
-  class NoMatchesError < ResolveError; end
-  class MultipleMatchesError < ResolveError; end
 
   class NoCommandError < EY::Error
     def initialize
@@ -20,28 +11,6 @@ module EY
   class NoRemotesError < EY::Error
     def initialize(path)
       super "fatal: No git remotes found in #{path}"
-    end
-  end
-
-  class NoAppError < Error
-    def initialize(repo)
-      super <<-ERROR
-There is no application configured for any of the following remotes:
-\t#{repo ? repo.urls.join("\n\t") : "No remotes found."}
-You can add this application at #{EY.config.endpoint}
-      ERROR
-    end
-  end
-
-  class InvalidAppError < Error
-    def initialize(name)
-      super %|There is no app configured with the name "#{name}"|
-    end
-  end
-
-  class AmbiguousAppNameError < EY::Error
-    def initialize(name, matches, desc="")
-      super ambiguous("app", name, matches, desc)
     end
   end
 
@@ -63,60 +32,57 @@ You can add this application at #{EY.config.endpoint}
     end
   end
 
-  class EnvironmentError < EY::Error
-  end
-
-  class AmbiguousEnvironmentNameError < EY::EnvironmentError
-    def initialize(name, matches, desc="")
-      super ambiguous("environment", name, matches, desc)
-    end
-  end
-
-  class AmbiguousEnvironmentGitUriError < EY::EnvironmentError
-    def initialize(environments)
-      message = "The repository url in this directory is ambiguous.\n"
-      message << "Please use -e <envname> to specify one of the following environments:\n"
-      environments.sort do |a, b|
-        if a.account == b.account
-          a.name <=> b.name
-        else
-          a.account.name <=> b.account.name
-        end
-      end.each { |env| message << "\t#{env.name} (#{env.account.name})\n" }
-      super message
-    end
-  end
-
-  class NoSingleEnvironmentError < EY::EnvironmentError
-    def initialize(app)
-      size = app.environments.size
-      super "Unable to determine a single environment for the current application (found #{size} environments)"
-    end
-  end
-
-  class NoEnvironmentError < EY::EnvironmentError
-    def initialize(env_name=nil)
-      super "No environment named '#{env_name}'\nYou can create one at #{EY.config.endpoint}"
-    end
-  end
-
   class EnvironmentUnlinkedError < EY::Error
     def initialize(env_name)
       super "Environment '#{env_name}' exists but does not run this application."
     end
   end
 
-  class BranchMismatchError < EY::Error
-    def initialize(default_branch, branch)
-      super(%|Your deploy branch is set to "#{default_branch}".\n| +
-        %|If you want to deploy branch "#{branch}", use --ignore-default-branch.|)
+  class DeployArgumentError < EY::Error
+  end
+
+  class BranchMismatchError < DeployArgumentError
+    def initialize(default, ref)
+      super <<-ERR
+Your default branch is set to #{default.inspect} in ey.yml.
+To deploy #{ref.inspect} you can:
+  * Delete the line 'branch: #{default}' in ey.yml
+OR
+  * Use the -R [REF] or --force-ref [REF] options as follows:
+Usage: ey deploy -R #{ref}
+       ey deploy --force-ref #{ref}
+      ERR
     end
   end
 
-  class DeployArgumentError < EY::Error
-    def initialize
-      super(%("deploy" was called incorrectly. Call as "deploy [--environment <env>] [--ref <branch|tag|ref>]"\n) +
-        %|You can set default environments and branches in ey.yml|)
+  class RefAndMigrateRequiredOutsideRepo < DeployArgumentError
+    def initialize(options)
+      super <<-ERR
+Because defaults are stored in a file in your application dir, when specifying
+--app you must also specify the --ref and the --migrate or --no-migrate options.
+Usage: ey deploy --app #{options[:app]} --ref [ref] --migrate [COMMAND]
+       ey deploy --app #{options[:app]} --ref [branch] --no-migrate
+      ERR
     end
   end
+
+  class RefRequired < DeployArgumentError
+    def initialize(options)
+      super <<-ERR
+Unable to determine the branch or ref to deploy
+Usage: ey deploy --ref [ref]
+      ERR
+    end
+  end
+
+  class MigrateRequired < DeployArgumentError
+    def initialize(options)
+      super <<-ERR
+Unable to determine migration choice. ey deploy no longer migrates by default.
+Usage: ey deploy --migrate
+       ey deploy --no-migrate
+      ERR
+    end
+  end
+
 end

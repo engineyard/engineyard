@@ -12,9 +12,9 @@ module EY
       method_option :account, :type => :string, :aliases => %w(-c),
         :desc => "Name of the account in which the environment can be found"
       def enable
-        app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
-        EY.ui.info "Taking down maintenance page for '#{app.name}' in '#{environment.name}'"
-        environment.take_down_maintenance_page(app, options[:verbose])
+        app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+        EY.ui.info "Taking down maintenance page for '#{app_env.app.name}' in '#{app_env.environment.name}'"
+        app_env.take_down_maintenance_page(options[:verbose])
       end
 
       desc "disable [--environment/-e ENVIRONMENT]",
@@ -39,9 +39,9 @@ module EY
       method_option :account, :type => :string, :aliases => %w(-c),
         :desc => "Name of the account in which the environment can be found"
       def disable
-        app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
-        EY.ui.info "Putting up maintenance page for '#{app.name}' in '#{environment.name}'"
-        environment.put_up_maintenance_page(app, options[:verbose])
+        app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+        EY.ui.info "Putting up maintenance page for '#{app_env.app.name}' in '#{app_env.environment.name}'"
+        app_env.put_up_maintenance_page(options[:verbose])
       end
     end
   end

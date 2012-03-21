@@ -50,6 +50,7 @@ RSpec.configure do |config|
 
   config.before(:each) do
     clean_eyrc
+    EY::CloudClient.default_endpoint!
     EY.instance_eval{ @config = nil }
   end
 end

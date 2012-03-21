@@ -31,12 +31,12 @@ module SpecHelpers
       ey(command_to_run(command_options), ey_options)
     end
 
-    def make_scenario(hash)
+    def make_scenario(opts)
       # since nil will silently turn to empty string when interpolated,
       # and there's a lot of string matching involved in integration
       # testing, it would be nice to have early notification of typos.
       scenario = Hash.new { |h,k| raise "Tried to get key #{k.inspect}, but it's missing!" }
-      scenario.merge!(hash)
+      scenario.merge!(opts)
     end
   end
 
@@ -69,7 +69,7 @@ module SpecHelpers
   ZeroExitStatus = Class.new(UnexpectedExit)
 
   def ey_api
-    @api ||= EY::API.new('asdf')
+    @api ||= EY::CloudClient.new('asdf')
   end
 
   def fast_ey(args)
@@ -94,7 +94,7 @@ module SpecHelpers
       # SystemExit typically indicates a bogus command, which we
       # here in expected-to-fail land are entirely happy with.
       nil
-    rescue EY::Error => e
+    rescue EY::Error, EY::CloudClient::Error => e
       more_err, more_out = StringIO.new, StringIO.new
 
       capture_stderr_into(more_err) do
