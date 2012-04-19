@@ -96,7 +96,9 @@ module EY
 
     def ssh(cmd, hostname, username, out, err)
       exit_code = 1
-      Net::SSH.start(hostname, username, :paranoid => false) do |net_ssh|
+      options_for_ssh = {:paranoid => false}
+      options_for_ssh[:verbose] = ENV["DEBUG"].downcase.to_sym if ENV["DEBUG"]
+      Net::SSH.start(hostname, username, options_for_ssh) do |net_ssh|
         net_ssh.open_channel do |channel|
           channel.exec cmd do |_, success|
             unless success

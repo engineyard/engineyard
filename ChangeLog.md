@@ -9,6 +9,30 @@
   * Allow --app, --account, and --environment for `ey environments` for extra filtering
   * Print an error when a command line option, like --environment, is specified without an argument.
 
+## v1.4.28 (2012-03-29)
+
+  *
+
+## v1.4.27 (2012-03-22)
+
+  *
+
+## v1.4.26 (2012-03-22)
+
+  *
+
+## v1.4.25 (2012-03-21)
+
+  *
+
+## v1.4.24 (2012-03-19)
+
+  *
+
+## v1.4.23 (2012-02-29)
+
+  *
+
 ## v1.4.22 (2012-01-27)
 
   *
