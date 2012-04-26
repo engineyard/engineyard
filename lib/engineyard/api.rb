@@ -14,7 +14,7 @@ module EY
     def initialize(token = nil)
       @token = token
       @token ||= EY::EYRC.load.api_token
-      raise ArgumentError, "EY Cloud API token required" unless @token
+      raise ArgumentError, "Engine Yard Cloud API token required" unless @token
     end
 
     def ==(other)
@@ -82,7 +82,7 @@ module EY
       rescue RestClient::ResourceNotFound
         raise ResourceNotFound, "The requested resource could not be found"
       rescue RestClient::BadGateway
-        raise RequestFailed, "EY Cloud API is temporarily unavailable. Please try again soon."
+        raise RequestFailed, "Engine Yard Cloud API is temporarily unavailable. Please try again soon."
       rescue RestClient::RequestFailed => e
         raise RequestFailed, "#{e.message} #{e.response}"
       rescue OpenSSL::SSL::SSLError

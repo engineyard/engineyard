@@ -201,7 +201,7 @@ Command:
   ey login
 
   Description:
-    Log in and verify access to EY Cloud. Use logout first if you need to switch user accounts.
+    Log in and verify access to Engine Yard Cloud. Use logout first if you need to switch user accounts.
 
 Command:
   ey logout
