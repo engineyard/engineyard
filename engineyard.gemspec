@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_dependency('escape', '~>0.0.4')
   s.add_dependency('engineyard-serverside-adapter', '=1.6.4')   # This line maintained by rake; edits may be stomped on
   s.add_dependency('net-ssh', '~>2.2.1')
-  s.add_dependency('launchy', '2.0.5')
+  s.add_dependency('launchy', '~>2.1')
 
   s.add_development_dependency('rspec', '~>2.0')
   s.add_development_dependency('rake')
