@@ -103,7 +103,7 @@ module EY
       if deployment
         EY.ui.show_deployment(deployment)
       else
-        raise EY::Error, "Application #{app.name} hass not been deployed on #{environment.name}."
+        raise EY::Error, "Application #{app.name} has not been deployed on #{environment.name}."
       end
     end
 
