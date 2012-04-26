@@ -115,12 +115,13 @@ module EY
 
     method_option :all, :type => :boolean, :aliases => %(-a)
     method_option :simple, :type => :boolean, :aliases => %(-s)
+    method_option :verbose, :type => :boolean, :aliases => %(-v)
     def environments
       if options[:all] && options[:simple]
         # just put each env
         puts api.environments.map {|env| env.name}
       elsif options[:all]
-        EY.ui.print_envs(api.apps, EY.config.default_environment, options[:simple])
+        EY.ui.print_envs(api.apps, EY.config.default_environment, options[:simple], options[:verbose])
       else
         apps = api.apps_for_repo(repo)
 
@@ -133,7 +134,7 @@ module EY
           EY.ui.warn(NoAppError.new(repo).message + "\nUse #{self.class.send(:banner_base)} environments --all to see all environments.")
         end
 
-        EY.ui.print_envs(apps, EY.config.default_environment, options[:simple])
+        EY.ui.print_envs(apps, EY.config.default_environment, options[:simple], options[:verbose])
       end
     end
     map "envs" => :environments
