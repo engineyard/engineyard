@@ -28,11 +28,10 @@ require 'rspec'
 require 'tmpdir'
 require 'yaml'
 require 'pp'
-support = Dir[File.join(EY_ROOT,'/spec/support/*.rb')]
-support.each{|helper| require helper }
 
-support = Dir[File.join(EY_ROOT,'/spec/support/fake_awsm/*.rb')]
-support.each{|helper| require helper }
+Dir[File.join(EY_ROOT,'/spec/support/*.rb'), File.join(EY_ROOT,'/spec/support/fake_awsm/*.rb')].each do |helper|
+  require helper
+end
 
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
