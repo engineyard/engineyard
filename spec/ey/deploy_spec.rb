@@ -64,6 +64,17 @@ describe "ey deploy" do
       fast_failing_ey ["deploy"]
       @err.should include("Authentication Failed")
     end
+
+    it "sets useful ssh opts" do
+      api_scenario "one app, one environment"
+      opts_given = nil
+      Net::SSH.should_receive(:start).with do |arg1, arg2, arg3|
+        opts_given = arg3
+        true
+      end.and_raise(Net::SSH::AuthenticationFailed.new("no key"))
+      fast_failing_ey ["deploy"]
+      opts_given.should eq({:paranoid=>false, :verbose=>:debug})
+    end
   end
 
   context "with invalid input" do

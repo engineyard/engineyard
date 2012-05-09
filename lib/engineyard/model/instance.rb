@@ -102,8 +102,7 @@ module EY
           true
         else
           begin
-            options_for_ssh = {:paranoid => false}
-            options_for_ssh[:verbose] = ENV["DEBUG"].downcase.to_sym if ENV["DEBUG"]
+            options_for_ssh = calculate_options_for_ssh(verbose)
             Net::SSH.start(hostname, environment.username, options_for_ssh) do |net_ssh|
               net_ssh.open_channel do |channel|
                 channel.exec cmd do |_, success|
@@ -137,6 +136,16 @@ module EY
             raise EY::Error, "Authentication Failed: Please add your environment's ssh key with: ssh-add path/to/key"
           end
         end
+      end
+
+      def calculate_options_for_ssh(verbose)
+        options_for_ssh = {:paranoid => false}
+        if level = %w( debug info warn error fatal ).detect{ |lvl| lvl == ENV["DEBUG"]}
+          options_for_ssh[:verbose] = level.to_sym
+        elsif ENV["DEBUG"] || verbose
+          options_for_ssh[:verbose] = :debug
+        end
+        options_for_ssh
       end
 
       def invoke(action, &block)
