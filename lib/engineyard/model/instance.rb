@@ -138,11 +138,11 @@ module EY
         end
       end
 
-      def calculate_options_for_ssh(verbose)
+      def calculate_options_for_ssh(verbose_opt)
         options_for_ssh = {:paranoid => false}
         if level = %w( debug info warn error fatal ).detect{ |lvl| lvl == ENV["DEBUG"]}
           options_for_ssh[:verbose] = level.to_sym
-        elsif ENV["DEBUG"] || verbose
+        elsif ENV["DEBUG"] || verbose_opt
           options_for_ssh[:verbose] = :debug
         end
         options_for_ssh
