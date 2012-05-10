@@ -38,12 +38,19 @@ entirely by using --no-migrate.
       :desc => "Environment in which to deploy this application"
     method_option :ref, :type => :string, :aliases => %w(-r),
       :desc => "Git ref to deploy. May be a branch, a tag, or a SHA."
+    method_option :app, :type => :string, :aliases => %w(-a),
+      :desc => "Name of the application to deploy"
     def deploy
-      app         = api.app_for_repo!(repo)
+      app         = api.fetch_app!(options[:app]) || api.app_for_repo!(repo)
       environment = fetch_environment(options[:environment], app)
-      deploy_ref  = environment.resolve_branch(options[:ref], options[:force]) ||
-        repo.current_branch ||
-        raise(DeployArgumentError)
+      deploy_ref  = if options[:app]
+                      environment.resolve_branch(options[:ref], options[:force]) ||
+                        raise(EY::Error, "When specifying the application, you must also specify the ref to deploy\nUsage: ey deploy --app <app name> --ref <branch|tag|ref>")
+                    else
+                      environment.resolve_branch(options[:ref], options[:force]) ||
+                        repo.current_branch ||
+                        raise(DeployArgumentError)
+                    end
 
       EY.ui.info "Connecting to the server..."
 

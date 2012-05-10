@@ -91,7 +91,11 @@ exit(17) # required_version < current_version
         require 'base64'
         encoded_script = Base64.encode64(CHECK_SCRIPT).gsub(/\n/, '')
         ssh "#{ruby_path} -r base64 -e \"eval Base64.decode64(ARGV[0])\" #{encoded_script}", false
-        EXIT_STATUS[$?.exitstatus]
+        if ENV["NO_SSH"]
+          :ok
+        else
+          EXIT_STATUS[$?.exitstatus]
+        end
       end
 
       def install_ey_deploy

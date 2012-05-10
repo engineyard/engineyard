@@ -182,4 +182,21 @@ describe "ey deploy" do
       @out.should match(/Running deploy for 'railsapp_staging'/)
     end
   end
+
+  context "specifying the application" do
+    before(:all) do
+      api_scenario "one app, one environment"
+      Dir.chdir(File.expand_path("~"))
+    end
+
+    it "allows you to specify an app when not in a directory" do
+      ey "deploy --app rails232app --ref master"
+      @ssh_commands.last.should match(/deploy --app rails232app --branch master --migrate 'rake db:migrate'/)
+    end
+
+    it "requires that you specify a ref when specifying the application" do
+      ey "deploy --app rails232app", :expect_failure => true
+      @err.should match(/you must also specify the ref to deploy/)
+    end
+  end
 end

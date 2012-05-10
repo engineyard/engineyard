@@ -6,9 +6,13 @@ module EY
     end
 
     def current_branch
-      head = File.read(File.join(@path, ".git/HEAD")).chomp
-      if head.gsub!("ref: refs/heads/", "")
-        head
+      if File.directory?(File.join(@path, ".git"))
+        head = File.read(File.join(@path, ".git/HEAD")).chomp
+        if head.gsub!("ref: refs/heads/", "")
+          head
+        else
+          nil
+        end
       else
         nil
       end
