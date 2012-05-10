@@ -129,6 +129,16 @@ describe "ey deploy" do
         ey "deploy --ref v1"
         @ssh_commands.last.should =~ /--branch v1/
       end
+
+      it "allows using --branch to specify a branch" do
+        ey "deploy --branch master"
+        @ssh_commands.last.should match(/--branch master/)
+      end
+
+      it "allows using --tag to specify the tag" do
+        ey "deploy --tag v1"
+        @ssh_commands.last.should match(/--branch v1/)
+      end
     end
 
     context "when there is extra configuration" do

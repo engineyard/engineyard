@@ -36,7 +36,7 @@ entirely by using --no-migrate.
       :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations"
     method_option :environment, :type => :string, :aliases => %w(-e),
       :desc => "Environment in which to deploy this application"
-    method_option :ref, :type => :string, :aliases => %w(-r),
+    method_option :ref, :type => :string, :aliases => %w(-r --branch --tag),
       :desc => "Git ref to deploy. May be a branch, a tag, or a SHA."
     def deploy
       app         = api.app_for_repo!(repo)
