@@ -1,5 +1,6 @@
 require 'uri'
 require 'yaml'
+require 'pathname'
 require 'engineyard/error'
 
 module EY
