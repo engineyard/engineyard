@@ -434,16 +434,19 @@ module EY
       end
     end
 
-    desc "launch [--environment ENVIRONMENT] [--account ACCOUNT]", "Open application in browser."
+    desc "launch [--app APP] [--environment ENVIRONMENT] [--account ACCOUNT]", "Open application in browser."
     method_option :environment, :type => :string, :aliases => %w(-e),
       :required => true, :default => '',
-      :desc => "Name of the environment"
+      :desc => "Environment where the application is deployed"
+    method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
+      :desc => "Name of the application"
     method_option :account, :type => :string, :aliases => %w(-c),
       :required => true, :default => '',
-      :desc => "Name of the account in which the environment can be found"
+      :desc => "Name of the account in which the application can be found"
     def launch
-      environment = fetch_environment(options[:environment], options[:account])
-      environment.launch
+      app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+      Launchy.open(app_env.uri)
     end
 
     desc "whoami", "Who am I logged in as?"
