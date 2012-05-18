@@ -44,7 +44,7 @@ module EY
       specifying --migrate or --migrate 'rake db:migrate'.
       Migrations can also be skipped by using --no-migrate.
     DESC
-    method_option :ignore_bad_master, :type => :boolean,
+    method_option :ignore_bad_master, :type => :boolean, :aliases => %w(--ignore-bad-bridge),
       :desc => "Force a deploy even if the master is in a bad state"
     method_option :migrate, :type => :string, :aliases => %w(-m),
       :lazy_default => true,
@@ -72,7 +72,7 @@ module EY
       ui.info "Loading application data from EY Cloud..."
 
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
-      app_env.environment.ignore_bad_master = options[:ignore_bad_master]
+      app_env.environment.ignore_bad_bridge = options[:ignore_bad_master]
 
       env_config    = config.environment_config(app_env.environment_name)
       deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)

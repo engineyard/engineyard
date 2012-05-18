@@ -217,15 +217,28 @@ module SpecHelpers
     [raw_ssh_commands, ssh_commands]
   end
 
-  def api_scenario(scenario)
+  DEPRECATED_SCENARIOS = {
+    "empty"                                               => "User Name",
+    "one app without environment"                         => "App Without Env",
+    "one app, one environment, not linked"                => "Unlinked App",
+    "two apps"                                            => "Two Apps",
+    "one app, one environment"                            => "Linked App",
+    "two accounts, two apps, two environments, ambiguous" => "Multiple Ambiguous Accounts",
+    "one app, one environment, no instances"              => "Linked App Not Running",
+    "one app, one environment, app master red"            => "Linked App Red Master",
+    "one app, many environments"                          => "One App Many Envs",
+    "one app, many similarly-named environments"          => "One App Similarly Named Envs",
+    "two apps, same git uri"                              => "Two Apps Same Git URI",
+  }
+
+  def api_scenario(old_name)
     clean_eyrc # switching scenarios, always clean up
-    response = ::RestClient.get(EY.fake_awsm + '/scenario', {:params => {"scenario" => scenario}})
-    raise "Finding scenario failed: #{response.inspect}" unless response.code == 200
-    scenario = JSON.parse(response)['scenario']
-    @scenario_email     = scenario['email']
-    @scenario_password  = scenario['password']
-    @scenario_api_token = scenario['api_token']
-    scenario
+    name = DEPRECATED_SCENARIOS[old_name]
+    @scenario = EY::CloudClient::Test::Scenario[name]
+    @scenario_email     = @scenario.email
+    @scenario_password  = @scenario.password
+    @scenario_api_token = @scenario.api_token
+    @scenario
   end
 
   def login_scenario(scenario_name)

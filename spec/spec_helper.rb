@@ -23,13 +23,15 @@ require 'json'
 $LOAD_PATH.unshift(File.join(EY_ROOT, "lib"))
 require 'engineyard'
 
+require 'engineyard-cloud-client/test'
+
 # Spec stuff
 require 'rspec'
 require 'tmpdir'
 require 'yaml'
 require 'pp'
 
-Dir[File.join(EY_ROOT,'/spec/support/*.rb'), File.join(EY_ROOT,'/spec/support/fake_awsm/*.rb')].each do |helper|
+Dir[File.join(EY_ROOT,'/spec/support/*.rb')].each do |helper|
   require helper
 end
 
@@ -75,7 +77,7 @@ shared_examples_for "integration" do
 
   before(:all) do
     FakeWeb.allow_net_connect = true
-    ENV['CLOUD_URL'] = EY.fake_awsm
+    ENV['CLOUD_URL'] = EY::CloudClient::Test::FakeAwsm.uri
   end
 
   after(:all) do

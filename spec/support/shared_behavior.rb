@@ -194,7 +194,7 @@ shared_examples_for "it takes an environment name" do
   end
 
   it "complains when it can't guess the environment and its name isn't specified" do
-    login_scenario "one app, one environment, not linked"
+    login_scenario "one app without environment"
     run_ey({:environment => nil}, {:expect_failure => true})
     @err.should match(/No environment found for applications matching remotes:/i)
   end

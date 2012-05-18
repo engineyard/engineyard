@@ -2,16 +2,14 @@ source :rubygems
 
 gemspec
 
-gem 'engineyard-cloud-client', :git => 'git@github.com:engineyard/engineyard-cloud-client.git'
-
-group :test do
+group 'engineyard-cloud-client-test' do
   gem 'dm-core'
   gem 'dm-migrations'
   gem 'dm-aggregates'
   gem 'dm-sqlite-adapter'
-  gem 'ey_resolver', '~>0.1.0'
+  gem 'ey_resolver', '~>0.2.1'
+  gem 'rabl'
 end
-
 
 group :coverage do
   gem 'simplecov', :require => false

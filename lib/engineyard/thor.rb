@@ -53,7 +53,7 @@ module EY
       resolver.one_match { |match| return match  }
 
       resolver.no_matches do |errors, suggestions|
-        raise EY::NoMatchesError.new(errors.join("\n"))
+        raise_no_matches(errors, suggestions)
       end
 
       resolver.many_matches do |matches|
@@ -91,32 +91,21 @@ Please specify --app app_name or add this application at #{config.endpoint}"
 
       resolver.one_match { |match| return match }
       resolver.no_matches do |errors, suggestions|
-        message = ""
-        if suggestions
-          if apps = suggestions[:apps]
-            message << "Matching Applications:\n"
-            apps.each do |app|
-              message << "\t#{app.account.name}/#{app.name}\n"
-              #TODO describe command suggestions
-              #app.environments.each do |env|
-              #  message << "\t\t#{env.name} # ey <command> -e #{env.name} -a #{app.name}\n"
-              #end
-            end
-          end
-
-          if envs = suggestions[:environments]
-            message << "Matching Environments:\n"
-            envs.each do |env|
-              message << "\t#{env.account.name}/#{env.name}\n"
-            end
-          end
-        end
-
-        raise EY::NoMatchesError.new([errors,message].join("\n").strip)
+        raise_no_matches(errors, suggestions)
       end
       resolver.many_matches do |app_envs|
         raise EY::MultipleMatchesError.new(too_many_app_environments_error(app_envs))
       end
+    end
+
+    def raise_no_matches(errors, suggestions)
+      message = "We found the following suggestions:\n" if suggestions.any?
+
+      suggestions.each do |suggest|
+        message << " # ey <command> --account='#{suggest['account_name']}' --app='#{suggest['app_name']}' --environment='#{suggest['env_name']}'\n"
+      end
+
+      raise EY::NoMatchesError.new([errors,message].compact.join("\n").strip)
     end
 
       def too_many_app_environments_error(app_envs)
