@@ -177,10 +177,9 @@ module EY
       :desc => "Show environments matching environment name"
     def environments
       if options[:all] && options[:simple]
-        # just put each env
-        puts api.environments.map {|env| env.name}
+        ui.print_simple_envs api.environments
       elsif options[:all]
-        ui.print_envs(api.apps, config.default_environment, options[:simple], config.endpoint)
+        ui.print_envs(api.apps)
       else
         remotes = nil
         if options[:app] == ''
@@ -203,14 +202,17 @@ module EY
 
         apps = resolver.matches.map { |app_env| app_env.app }.uniq
 
-        if apps.size > 1
-          message = "This git repo matches multiple Applications in EY Cloud:\n"
-          apps.each { |app| message << "\t#{app.name}\n" }
-          message << "The following environments contain those applications:\n\n"
-          ui.warn(message)
+        if options[:simple]
+          if apps.size > 1
+            message = "# This app matches multiple Applications in EY Cloud:\n"
+            apps.each { |app| message << "#\t#{app.name}\n" }
+            message << "# The following environments contain those applications:\n\n"
+            ui.warn(message)
+          end
+          ui.print_simple_envs(apps.map{ |app| app.environments }.flatten)
+        else
+          ui.print_envs(apps, config.default_environment)
         end
-
-        ui.print_envs(apps, config.default_environment, options[:simple], config.endpoint)
       end
     end
     map "envs" => :environments

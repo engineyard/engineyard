@@ -114,7 +114,6 @@ describe "ey environments with an ambiguous git repo" do
 
   it "lists environments from all apps using the git repo" do
     fast_ey %w[environments]
-    @out.should =~ /git repo matches multiple/i
     @out.should include("giblets")
     @out.should include("keycollector_production")
   end

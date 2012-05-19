@@ -127,30 +127,32 @@ module EY
         return ''
       end
 
-      def print_envs(apps, default_env_name = nil, simple = false, endpoint = 'https://cloud.engineyard.com')
-        if simple
-          envs = apps.map{ |app| app.environments.to_a }
-          puts envs.flatten.map{|env| env.name }.uniq
-        else
-          apps.each do |app|
-            puts "#{app.account.name}/#{app.name}"
-            if app.environments.any?
-              app.environments.each do |env|
-                short_name = env.shorten_name_for(app)
+      def print_simple_envs(envs)
+        puts envs.map{|env| env.name }.uniq.sort
+      end
 
-                icount = env.instances_count
-                iname = (icount == 1) ? "instance" : "instances"
+      def print_envs(apps, default_env_name = nil)
+        apps.sort_by {|app| "#{app.account.name}/#{app.name}" }.each do |app|
+          puts "#{app.account.name}/#{app.name}"
+          if app.environments.any?
+            app.environments.sort_by {|env| env.name }.each do |env|
+              icount = env.instances_count
+              iname = case icount
+                      when 0 then "(stopped)"
+                      when 1 then "1 instance"
+                      else "#{icount} instances"
+                      end
 
-                default_text = env.name == default_env_name ? " [default]" : ""
+              name = env.name == default_env_name ? "#{env.name} (default)" : env.name
+              framework_env = env.framework_env && "[#{env.framework_env.center(12)}]"
 
-                puts "  #{short_name}#{default_text} (#{icount} #{iname})"
-              end
-            else
-              puts "  (This application is not in any environments; you can make one at #{endpoint})"
+              puts "    #{name.ljust(30)} #{framework_env}  #{iname}"
             end
-
-            puts ""
+          else
+            puts "    (No environments)"
           end
+
+          puts ""
         end
       end
 
