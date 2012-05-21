@@ -134,7 +134,10 @@ module EY
             end
             exit_code.zero?
           rescue Net::SSH::AuthenticationFailed
-            raise EY::Error, "Authentication Failed: Please add your environment's ssh key with: ssh-add path/to/key"
+            raise EY::Error, "Authentication Failed. Did you:
+                              (1) Add your SSH key to your local SSH agent with `ssh-add path/to/key` and
+                              (2) Add your SSH key to this Engine Yard environment and apply the changes?
+                              (https://support.cloud.engineyard.com/entries/20996846-set-up-ssh-keys)"
           end
         end
       end
