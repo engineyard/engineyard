@@ -61,8 +61,44 @@ module EY
       environments[environment_name] ||= {}
       environments[environment_name][key] = value
       ensure_path
+      comments = ey_yml_comments
       @path.open('w') do |f|
-        YAML.dump(@config, f)
+        f.puts comments
+        f.puts YAML.dump(@config)
+      end
+    end
+
+    EY_YML_HINTS = <<-HINTS
+# ey.yml supports many deploy configuration options when committed in an
+# application's repository.
+#
+# Valid locations: REPO_ROOT/ey.yml or REPO_ROOT/config/ey.yml.
+#
+# Examples options:
+#
+# environments:
+#   YOUR_ENVIRONMENT_NAME: # All options pertain only to the named environment
+#     migrate: true                           # Default --migrate choice for ey deploy
+#     migration_command: 'rake migrate'       # Default migrate command to run when migrations are enabled
+#     branch: default_deploy_branch           # Branch/ref to be deployed by default during ey deploy
+#     bundle_without: development test        # The string to pass to bundle install --without ''
+#     maintenance_on_migrate: true            # Enable maintenance page during migrate action (use with caution) (default: true)
+#     maintenance_on_restart: false           # Enable maintanence page during every deploy (default: false for unicorn & passenger)
+#     ignore_database_adapter_warning: false  # Hide the warning shown when the Gemfile does not contain a recognized database adapter (mongodb for example)
+#     your_own_custom_key: 'any attribute you put in ey.yml is available in deploy hooks'
+#
+# Further information available here:
+# https://support.cloud.engineyard.com/entries/20996661-customize-your-deployment-on-engine-yard-cloud
+#
+# NOTE: Please commit this file into your git repository.
+#
+    HINTS
+
+    def ey_yml_comments
+      if @path.exist?
+        existing = @path.readlines.grep(/^#/).join("\n")
+      else
+        EY_YML_HINTS
       end
     end
 
@@ -71,8 +107,11 @@ module EY
       unless EY::Repo.exist?
         raise "Not in application directory. Unable to save configuration."
       end
-      @path = Pathname.new('config/ey.yml')
-      @path.dirname.mkpath
+      if Pathname.new('config').exist?
+        @path = Pathname.new('config/ey.yml')
+      else
+        @path = Pathname.new('ey.yml')
+      end
       @path
     end
 

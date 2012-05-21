@@ -101,12 +101,12 @@ module EY
           command_from_interaction
         end
         ui.say "#{env_config.path}: migrate settings saved for #{env_config.name}."
-        ui.say  "It's a good idea to git commit #{env_config.path} with these new changes."
+        ui.info "It's a good idea to git commit #{env_config.path} with these new changes."
         true
       rescue Timeout::Error
         @perform = nil
         @command = nil
-        ui.error "Timeout when waiting for input. This is not a terminal."
+        ui.error "Timeout when waiting for input. Maybe this is not a terminal?"
         ui.error "ey deploy no longer migrates when no default is set in ey.yml."
         ui.error "Run interactively for step-by-step ey.yml migration setup."
         return false

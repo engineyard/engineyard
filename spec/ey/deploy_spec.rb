@@ -107,43 +107,57 @@ describe "ey deploy" do
       @ssh_commands.last.should =~ %r{/usr/local/ey_resin/ruby/bin/engineyard-serverside}
     end
 
-    context "without migrate sepecified interactively reads migration command" do
-      after  { File.unlink 'config/ey.yml' }
+    context "without migrate sepecified, interactively reads migration command" do
+      def clean_ey_yml
+        File.unlink 'ey.yml' if File.exist?('ey.yml')
+        FileUtils.rm_r 'config' if FileTest.exist?('config')
+      end
 
-      it "defaults to yes, and then rake db:migrate" do
-        File.exist?('config/ey.yml').should be_false
+      before { clean_ey_yml }
+      after  { clean_ey_yml }
+
+      it "defaults to yes, and then rake db:migrate (and installs to config/ey.yml if config/ exists already)" do
+        ey_yml = Pathname.new('config/ey.yml')
+        File.exist?('ey.yml').should be_false
+        ey_yml.dirname.mkpath
+        ey_yml.should_not be_exist
         ey(%w[deploy]) do |input|
           input.puts('')
           input.puts('')
         end
         @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
         @ssh_commands.last.should =~ /--migrate 'rake db:migrate'/
-        env_conf = read_yaml('config/ey.yml')['environments']['giblets']
+        File.exist?('ey.yml').should be_false
+        ey_yml.should be_exist
+        env_conf = read_yaml(ey_yml.to_s)['environments']['giblets']
         env_conf['migrate'].should == true
         env_conf['migration_command'].should == 'rake db:migrate'
       end
 
       it "accepts new commands" do
-        File.exist?('config/ey.yml').should be_false
+        File.exist?('ey.yml').should be_false
+        FileTest.exist?('config').should be_false
         ey(%w[deploy], :hide_err => true) do |input|
           input.puts("y")
           input.puts("ruby migrate")
         end
         @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
         @ssh_commands.last.should =~ /--migrate 'ruby migrate'/
-        env_conf = read_yaml('config/ey.yml')['environments']['giblets']
+        File.exist?('ey.yml').should be_true
+        env_conf = read_yaml('ey.yml')['environments']['giblets']
         env_conf['migrate'].should == true
         env_conf['migration_command'].should == 'ruby migrate'
       end
 
       it "doesn't ask for the command if you say no" do
-        File.exist?('config/ey.yml').should be_false
+        File.exist?('ey.yml').should be_false
         ey(%w[deploy], :hide_err => true) do |input|
           input.puts("no")
         end
         @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
         @ssh_commands.last.should_not =~ /--migrate/
-        read_yaml('config/ey.yml')['environments']['giblets']['migrate'].should == false
+        File.exist?('ey.yml').should be_true
+        read_yaml('ey.yml')['environments']['giblets']['migrate'].should == false
       end
     end
 
