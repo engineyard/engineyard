@@ -147,7 +147,7 @@ module EY
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       deployment = app_env.last_deployment
       if deployment
-        ui.say "# Status of last deployment of #{app_env.to_hierarchy_str}:"
+        ui.say "# Status of last deployment of #{app_env.hierarchy_name}:"
         ui.say "#"
         ui.show_deployment(deployment)
         ui.say "#"
@@ -266,7 +266,7 @@ module EY
       env_config    = config.environment_config(app_env.environment_name)
       deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)
 
-      ui.info("Rolling back #{app_env.to_hierarchy_str}")
+      ui.info("Rolling back #{app_env.hierarchy_name}")
 
       runner = serverside_runner(app_env, deploy_config.verbose)
       runner.rollback do |args|
