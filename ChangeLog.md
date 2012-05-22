@@ -8,6 +8,18 @@
   * Improve failed deployment output messaging.
   * Allow --app, --account, and --environment for `ey environments` for extra filtering
   * Print an error when a command line option, like --environment, is specified without an argument.
+  * New version of engineyard-serverside (and adapter)
+    * Default bundler version is now 1.1.3
+    * Improved deploy output, especially for --verbose.
+    * Send all log output through a new Shell object that formats and adds timestamps.
+    * Load ey.yml to customize deploy settings.
+    * Control maintenance page through ey.yml options:
+      * maintenance\_on\_restart: true or false (default: false except for glassfish and mongrel)
+      * maintenance\_on\_migrate: true or false (default: true)
+    * Don't remove maintenance pages that weren't put up during this deploy if maintenance options (above) are not enabled.
+    * Control asset precompilation through ey.yml option:
+      * precompile\_assets: true or false (default: nil - means assets compilation will be inferred by app/assets and config/application.rb)
+    * Specify ignore\_database\_adapter\_warning: true to ignore the missing database adapter warning.
 
 ## v1.4.28 (2012-03-29)
 
