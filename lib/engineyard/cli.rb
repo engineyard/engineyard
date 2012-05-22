@@ -3,6 +3,7 @@ require 'engineyard/error'
 require 'engineyard/thor'
 require 'engineyard/deploy_config'
 require 'engineyard/serverside_runner'
+require 'launchy'
 
 module EY
   class CLI < EY::Thor
