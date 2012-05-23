@@ -153,12 +153,12 @@ end
 describe "ey ssh --all" do
   before do
     @ssh_flag = %w[--all]
-    @hosts = %w(app_hostname 
-                app_master_hostname 
-                util_fluffy_hostname 
-                util_rocky_hostname 
-                db_master_hostname 
-                db_slave_1_hostname 
+    @hosts = %w(app_hostname
+                app_master_hostname
+                util_fluffy_hostname
+                util_rocky_hostname
+                db_master_hostname
+                db_slave_1_hostname
                 db_slave_2_hostname)
   end
 
