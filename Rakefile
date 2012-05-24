@@ -21,7 +21,6 @@ Rake::RDocTask.new do |rdoc|
   rdoc.title = "engineyard #{EY::VERSION}"
   rdoc.rdoc_files.include('README*')
   rdoc.rdoc_files.include('lib/**/*.rb')
-  rdoc.rdoc_files.exclude('lib/vendor/**/*.rb')
 end
 
 def bump

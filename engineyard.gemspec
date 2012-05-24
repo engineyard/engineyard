@@ -23,6 +23,7 @@ Gem::Specification.new do |s|
   s.test_files = Dir.glob("spec/**/*")
 
   s.add_dependency('rest-client', '~>1.6.0')
+  s.add_dependency('thor', '~>0.15.2')
   s.add_dependency('highline', '~>1.6.1')
   s.add_dependency('json_pure')
   s.add_dependency('escape', '~>0.0.4')
