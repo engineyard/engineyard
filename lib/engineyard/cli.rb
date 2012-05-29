@@ -70,7 +70,7 @@ module EY
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
     method_option :extra_deploy_hook_options, :type => :hash, :default => {},
-      :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
+      :desc => "Additional options to be made available in deploy hooks (in the @configuration hash)"
     def deploy
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
 
@@ -259,7 +259,7 @@ module EY
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
     method_option :extra_deploy_hook_options, :type => :hash, :default => {},
-      :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
+      :desc => "Additional options to be made available in deploy hooks (in the @configuration hash)"
     def rollback
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       env_config    = config.environment_config(app_env.environment_name)
