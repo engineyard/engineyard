@@ -73,7 +73,6 @@ module EY
       ui.info "Loading application data from EY Cloud..."
 
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
-      app_env.environment.ignore_bad_bridge = options[:ignore_bad_master]
 
       env_config    = config.environment_config(app_env.environment_name)
       deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)
@@ -85,7 +84,7 @@ module EY
         :extra_config    => deploy_config.extra_config,
       })
 
-      runner = serverside_runner(app_env, deploy_config.verbose)
+      runner = serverside_runner(app_env, deploy_config.verbose, options[:ignore_bad_master])
 
       out = EY::CLI::UI::Tee.new(ui.out, deployment.out)
       err = EY::CLI::UI::Tee.new(ui.err, deployment.err)

@@ -28,8 +28,8 @@ module EY
       @repo ||= EY::Repo.new
     end
 
-    def serverside_runner(app_env, verbose)
-      ServersideRunner.new(app_env.environment.bridge!.hostname, app_env.app, app_env.environment, verbose)
+    def serverside_runner(app_env, verbose, ignore_bad_bridge = false)
+      ServersideRunner.new(app_env.environment.bridge!(ignore_bad_bridge).hostname, app_env.app, app_env.environment, verbose)
     end
 
     def use_default_environment
