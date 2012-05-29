@@ -8,6 +8,12 @@ describe EY::CLI::API do
     clean_eyrc
   end
 
+  it "uses the token specified token over the ENV token if passed" do
+    ENV['ENGINEYARD_API_TOKEN'] = 'envtoken'
+    EY::CLI::API.new('http://fake.local', EY::CLI::UI.new, 'specifiedtoken').token.should == 'specifiedtoken'
+    ENV.delete('ENGINEYARD_API_TOKEN')
+  end
+
   it "uses the token from $ENGINEYARD_API_TOKEN if set" do
     ENV['ENGINEYARD_API_TOKEN'] = 'envtoken'
     EY::CLI::API.new('http://fake.local', EY::CLI::UI.new).token.should == 'envtoken'

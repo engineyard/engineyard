@@ -4,7 +4,7 @@ module EY
   module UtilityMethods
     protected
     def api
-      @api ||= EY::CLI::API.new(config.endpoint, ui)
+      @api ||= EY::CLI::API.new(config.endpoint, ui, options[:api_token])
     end
 
     def config

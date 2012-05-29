@@ -32,6 +32,8 @@ module EY
       raise
     end
 
+    class_option :api_token, :type => :string, :desc => "Use API-TOKEN to authenticate this command"
+
     desc "deploy [--environment ENVIRONMENT] [--ref GIT-REF]",
       "Deploy specified branch, tag, or sha to specified environment."
     long_desc <<-DESC

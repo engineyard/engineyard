@@ -21,11 +21,12 @@ module EY
 
       attr_reader :token
 
-      def initialize(endpoint, ui)
+      def initialize(endpoint, ui, token = nil)
         @ui = ui
         EY::CloudClient.endpoint = endpoint
 
-        @token = ENV['ENGINEYARD_API_TOKEN'] if ENV['ENGINEYARD_API_TOKEN']
+        @token = token # specified on command line
+        @token ||= ENV['ENGINEYARD_API_TOKEN'] if ENV['ENGINEYARD_API_TOKEN']
         @token ||= EY::EYRC.load.api_token
         @token ||= self.class.authenticate(ui)
 

@@ -18,6 +18,12 @@ describe "ey deploy without an eyrc file" do
 
     read_eyrc.should == {"api_token" => scenario_api_token}
   end
+
+  it "uses the token on the command line" do
+    api_scenario "one app, one environment"
+    ey(%w[deploy --no-migrate --api-token] + [scenario_api_token])
+    @ssh_commands.should_not be_empty
+  end
 end
 
 
