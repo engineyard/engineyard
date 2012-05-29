@@ -70,8 +70,6 @@ module EY
     method_option :extra_deploy_hook_options, :type => :hash, :default => {},
       :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
     def deploy
-      ui.info "Loading application data from EY Cloud..."
-
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
 
       env_config    = config.environment_config(app_env.environment_name)

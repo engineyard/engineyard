@@ -40,6 +40,8 @@ module EY
     end
 
     def fetch_environment(environment_name, account_name)
+      ui.info "Loading application data from EY Cloud..."
+
       environment_name ||= use_default_environment
       remotes = repo.remotes if in_repo?
       constraints = {
@@ -70,6 +72,8 @@ module EY
     end
 
     def fetch_app_environment(app_name, environment_name, account_name)
+      ui.info "Loading application data from EY Cloud..."
+
       environment_name ||= use_default_environment
       remotes = repo.remotes if in_repo?
       constraints = {
