@@ -10,18 +10,18 @@
   * Prints an error when a command line option, like `--environment`, is specified without an argument.
   * New version of `engineyard-serverside` (and adapter), which includes:
     * Default bundler version is now 1.1.3.
-    * Deploy hooks now have access to `account\_name` and `environment\_name`.
+    * Deploy hooks now have access to `account_name` and `environment_name`.
     * Improves deploy output, especially for `--verbose`.
     * Sends all log output through a new Shell object that formats and adds timestamps.
     * Loads `ey.yml` or `config/ey.yml` to customize deploy settings.
     * Supports new ey.yml options to control automatic maintenance page:
-      * `maintenance\_on\_restart: true or false (default: false except for glassfish and mongrel)`
-      * `maintenance\_on\_migrate: true or false (default: true)`
+      * `maintenance_on_restart: true or false (default: false except for glassfish and mongrel)`
+      * `maintenance_on_migrate: true or false (default: true)`
     * Don't remove maintenance pages that weren't put up during this deploy if maintenance options (above) are set to false.
     * Supports new ey.yml options to control asset precompilation:
-      * `precompile\_assets: true or false (default: nil - means assets compilation will be inferred by app/assets and config/application.rb)`
+      * `precompile_assets: true or false (default: inferred using app/assets and config/application.rb)`
     * Supports new ey.yml option to ignore the missing database adapter warning:
-      * `ignore\_database\_adapter\_warning: true (default: false)'
+      * `ignore_database_adapter_warning: true (default: false)`
 
 ## v1.4.28 (2012-03-29)
 
