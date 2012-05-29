@@ -6,20 +6,22 @@
   * Increases responsiveness of most API interactions.
   * Prints notices when ey.yml defaults are used.
   * Improves failed deployment output messaging.
-  * Allows --app, --account, and --environment for `ey environments` for extra filtering.
-  * Prints an error when a command line option, like --environment, is specified without an argument.
-  * New version of engineyard-serverside (and adapter), which includes:
+  * Allows `--app`, `--account`, and `--environment` for `ey environments` for extra filtering.
+  * Prints an error when a command line option, like `--environment`, is specified without an argument.
+  * New version of `engineyard-serverside` (and adapter), which includes:
     * Default bundler version is now 1.1.3.
-    * Improves deploy output, especially for --verbose.
+    * Deploy hooks now have access to `account\_name` and `environment\_name`.
+    * Improves deploy output, especially for `--verbose`.
     * Sends all log output through a new Shell object that formats and adds timestamps.
-    * Loads ey.yml to customize deploy settings.
-    * Controls maintenance page through ey.yml options:
-      * maintenance\_on\_restart: true or false (default: false except for glassfish and mongrel).
-      * maintenance\_on\_migrate: true or false (default: true).
-    * Don't remove maintenance pages that weren't put up during this deploy if maintenance options (above) are not enabled.
-    * Controls asset precompilation through ey.yml option:
-      * precompile\_assets: true or false (default: nil - means assets compilation will be inferred by app/assets and config/application.rb).
-    * Specifies ignore\_database\_adapter\_warning: true to ignore the missing database adapter warning.
+    * Loads `ey.yml` or `config/ey.yml` to customize deploy settings.
+    * Supports new ey.yml options to control automatic maintenance page:
+      * `maintenance\_on\_restart: true or false (default: false except for glassfish and mongrel)`
+      * `maintenance\_on\_migrate: true or false (default: true)`
+    * Don't remove maintenance pages that weren't put up during this deploy if maintenance options (above) are set to false.
+    * Supports new ey.yml options to control asset precompilation:
+      * `precompile\_assets: true or false (default: nil - means assets compilation will be inferred by app/assets and config/application.rb)`
+    * Supports new ey.yml option to ignore the missing database adapter warning:
+      * `ignore\_database\_adapter\_warning: true (default: false)'
 
 ## v1.4.28 (2012-03-29)
 
