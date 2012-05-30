@@ -28,9 +28,12 @@ The ey.yml file allows options to be saved for each environment to which an appl
         copy_exclude:                             # don't rsync the following dirs
         - .git
         verbose: true                             # always run verbose deploy (unless overriden on command line)
+        maintenance_on_restart: false             # show maintenance page during app restart (default: false except for glassfish and mongrel)
+        maintenance_on_migrate: false             # show maintenance page during migrations (default: true)
+        precompile_assets: true                   # enables rails assets precompilation (default: inferred using app/assets and config/application.rb)
+        ignore_database_adapter_warning: true     # hide database adapter warning if you don't use MySQL or PostgreSQL (default: false)
 
-
-This ey.yml file will turn off default migrations, set the default command to "rake fancy:migrate" and set the default deploy branch to "deploy".
+Many of the options in ey.yml will only work if the file is committed to your application repository. Make sure to commit this file.
 
 == Commands
 
@@ -38,34 +41,39 @@ Command:
   ey deploy
 
   Options:
-    -r, --branch, --tag, [--ref=REF]          # Git ref to deploy. May be a branch, a tag, or a SHA.
-        [--ignore-bad-master]                 # Force a deploy even if the master is in a bad state
-    -v, [--verbose]                           # Be verbose
-    -a, [--app=APP]                           # Name of the application to deploy
-    -m, [--migrate=MIGRATE]                   # Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations
-        [--ignore-default-branch]             # Force a deploy of the specified branch even if a default is set
-    -e, [--environment=ENVIRONMENT]           # Environment in which to deploy this application
+    -r, [--ref=REF] [--branch=] [--tag=]        # Git ref to deploy. May be a branch, a tag, or a SHA.
     -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
+    -a, [--app=APP]                           # Name of the application to deploy
+    -e, [--environment=ENVIRONMENT]           # Environment in which to deploy this application
+    -m, [--migrate=MIGRATE]                   # Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations
+    -v, [--verbose]                           # Be verbose
+        [--ignore-default-branch]             # Force a deploy of the specified branch even if a default is set
+        [--ignore-bad-master]                 # Force a deploy even if the master is in a bad state
         [--extra-deploy-hook-options key:val] # Additional options to be made available in deploy hooks (in the 'config' hash)
+                                              # Add more keys as follows: --extra-deploy-hook-options key1:val1 key2:val2
 
 
   Description:
-    This command must be run with the current directory containing the app to be
+    This command must be run within the current directory containing the app to be
     deployed. If ey.yml specifies a default branch then the ref parameter can be
     omitted. Furthermore, if a default branch is specified but a different
     command is supplied the deploy will fail unless --ignore-default-branch
     is used.
 
-    Migrations are run by default with 'rake db:migrate'. A different command
-    can be specified via --migrate "ruby do_migrations.rb". Migrations can also
-    be skipped entirely by using --no-migrate.
+    If ey.yml does not specify a default migrate choice, you will be prompted to
+    specify a migration choice. A different command can later be specified via
+    --migrate "ruby do_migrations.rb". Migrations can also be skipped entirely
+    by using --no-migrate.
 
 Command:
   ey environments
 
   Options:
-    -s, [--simple]
-    -a, [--all]
+    -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
+    -a, [--app=APP]                           # Name of the application containing the environments
+    -e, [--environment=ENVIRONMENT]           # Show only environments matching named environment
+    -s, [--simple]                            # Print each environment name on its own on a new line
+    -a, [--all]                               # Show all environments, not just ones associated with this application.
 
   Description:
     By default, environments for this app are displayed. The --all option will display all environments, including those for this app.
@@ -162,8 +170,11 @@ Command:
     The maintenance page is taken from the app currently being deployed. This means that you can customize maintenance pages to tell users the reason for downtime on every
     particular deploy.
 
-    Maintenance pages searched for in order of decreasing priority: * public/maintenance.html.custom * public/maintenance.html.tmp * public/maintenance.html *
-    public/system/maintenance.html.default
+    Maintenance pages searched for in order of decreasing priority:
+      * public/maintenance.html.custom
+      * public/maintenance.html.tmp
+      * public/maintenance.html
+      * public/system/maintenance.html.default
 
 Command:
   ey ssh
@@ -217,129 +228,21 @@ Command:
 
 == API Client
 
-This library also contains a Ruby ey_api library to the Engine Yard Cloud API.
+See https://github.com/engineyard/engineyard-cloud-client for the API client library.
 
-Setup:
+== DEBUG
 
-    token  = EY::CloudClient.authenticate("your@email.com", "password")
-    ey_api = EY::CloudClient.new(token)
+The API commands will print internal information if $DEBUG is set:
 
-Current User:
-
-    user = ey_api.current_user
-    user.class # => EY::CloudClient::User
-    user.name  # => "Your Name"
-    user.email # => "your@email.com"
-
-Apps:
-
-    apps = ey_api.apps # loads all your app data at once; caches result
-
-    app = apps.find {|app| app.name == 'myapp'}
-    app.class           # => EY::CloudClient::App
-    app.name            # => 'myapp'
-    app.id              # => 123
-    app.repository_uri  # => git@github.com:myaccount/myapp.git
-
-    app.account.class   # => EY::CloudClient::Account
-
-    app.app_environments.first.class # => EY::CloudClient::AppEnvironment
-    app.app_environments.map {|e| e.environment.name} # => ['myapp_production', 'myapp_staging']
-
-Create a new application (to be booted within Environments):
-
-    account = EY::CloudClient::Account.new(ey_api, {:id => 4212, :name => 'drnic'})
-    app = EY::CloudClient::App.create(ey_api,
-      "account"        => account
-      "name"           => "myapp",
-      "repository_uri" => "git@github.com:mycompany/myapp.git",
-      "app_type_id"    => "rails3",
-    })
-
-Valid `app_type_id` are: `rack, rails2, rails3, rails4, sinatra, nodejs`. For some your account may require an early access feature to be enabled.
-
-Accounts:
-
-    account = app.account
-    account.class   # => EY::CloudClient::Account
-    account.id      # => 1234
-    account.name    # => 'myaccount'
-
-Keypairs:
-
-Upload your SSH public keys before you create Environments.
-
-    keypair = EY::CloudClient::Keypair.create(ey_api, {
-      "name"       => 'laptop',
-      "public_key" => "ssh-rsa OTHERKEYPAIR"
-    })
-
-Environments:
-
-    envs = ey_api.environments # loads all your environment data at once; caches result
-
-    env = envs.find {|e| e.name == 'myapp_production'}
-    env.class             # => EY::CloudClient::Environment
-    env.name              # => 'myapp_production'
-    env.id                # => 2345
-    env.framework_env     # => "production"
-    env.app_server_stack_name     # => "nginx_thin"
-    env.deployment_configurations # => {"myapp"=>{"name"=>"myapp", "uri"=>nil, "migrate"=>{"command"=>"rake db:migrate", "perform"=>false}, "repository_uri"=>"git@github.com:myaccount/myapp.git", "id"=>123, "domain_name"=>"_"}}
-    env.load_balancer_ip_address  # => "1.2.3.4"
-
-    # if environment isn't booted
-    env.instances_count     # => 0
-    env.app_master          # => nil
-    env.instances.count     # => []
-
-    # if environment is booted
-    env.instances_count     # => 1
-    env.app_master.class    # => EY::CloudClient::Instance
-    env.instances.first.class # => EY::CloudClient::Instance
-
-Create a new environment (for a given App):
-
-    app = EY::CloudClient::App.new(ey_api, {:id => 4212, :name => 'drnic'})
-    env = EY::CloudClient::Environment.create(ey_api,
-      "app"                   => app,
-      "name"                  => 'myapp_production',
-      "app_server_stack_name" => 'nginx_thin',       # default: nginx_passenger3
-      "region"                => 'us-west-1',        # default: us-east-1
-      "framework_env"         => 'staging'           # default: production
-    })
-
-
-Valid `app_server_stack_name` values: `nginx_unicorn, nginx_passenger3, nginx_nodejs, nginx_thin, nginx_puma`. For some your account may require an early access feature to be enabled.
-
-Instances:
-
-    instance = env.instances.first
-    instance.class        # => EY::CloudClient::Instance
-    instance.id           # => 12345
-    instance.role         # => "solo"
-    instance.status       # => "running"
-    instance.amazon_id    # => "i-abcdefg"
-    instance.hostname     # => "ec2-1-2-3-4.compute-1.amazonaws.com"
-    instance.public_hostname # => "ec2-1-2-3-4.compute-1.amazonaws.com" # alias of hostname
-
-Debugging:
-
-Setup for debugging:
-
-    ENV['DEBUG']='1'
-    require 'engineyard/cli'
-    EY.ui = EY::CLI::UI.new
-
-The API commands will print internal information:
-
-    app = EY::CloudClient::App.create(ey_api, account, 'myapp2', 'git@github.com:myaccount/myapp2.git', 'rails3')
+    DEBUG=1 ey environments --all
            Token  YOURTOKEN
-         Request  POST https://cloud.engineyard.com/api/v2/accounts/1234/apps
-          Params  {"app"=>{"name"=>"myapp2", "app_type_id"=>"rails3", "repository_uri"=>"git@github.com:myaccount/myapp2.git"}}
+         Request  GET https://cloud.engineyard.com/api/v2/apps
+          Params  {}
         Response
-    {"app"=>
-      {"environments"=>[],
-       "name"=>"myapp2",
-       "repository_uri"=>"git@github.com:myaccount/myapp2.git",
-       "account"=>{"name"=>"myaccount", "id"=>1234},
-       "id"=>12345}}
+    {"apps"=>
+      [{"environments"=>[],
+        "name"=>"myapp",
+        "repository_uri"=>"git@github.com:myaccount/myapp.git",
+        "app_type_id"=>"rails3",
+        "account"=>{"name"=>"myaccount", "id"=>1234},
+        "id"=>12345}]}
