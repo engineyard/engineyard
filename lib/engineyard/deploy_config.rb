@@ -26,11 +26,7 @@ module EY
     end
 
     def extra_config
-      extras = @cli_opts.fetch('extra_deploy_hook_options', {})
-      if in_repo?
-        extras = @env_config.merge(extras)
-      end
-      extras
+      @cli_opts.fetch('extra_deploy_hook_options', {})
     end
 
     private

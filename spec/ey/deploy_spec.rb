@@ -304,9 +304,9 @@ describe "ey deploy" do
         File.unlink("ey.yml")
       end
 
-      it "gets passed along to engineyard-serverside" do
+      it "no longer gets passed along to engineyard-serverside (since serverside will read it on its own)" do
         fast_ey %w[deploy --no-migrate]
-        @ssh_commands.last.should =~ /--config '{.*"bert":"ernie".*}'/
+        @ssh_commands.last.should_not =~ /"bert":"ernie"/
       end
     end
 
