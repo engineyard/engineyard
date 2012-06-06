@@ -22,6 +22,7 @@
       * `precompile_assets: true or false (default: inferred using app/assets and config/application.rb)`
     * Supports new ey.yml option to ignore the missing database adapter warning:
       * `ignore_database_adapter_warning: true (default: false)`
+    * Fixes a bug that could cause Passenger to restart multiple times during each deploy.
 
 ## v1.4.28 (2012-03-29)
 
