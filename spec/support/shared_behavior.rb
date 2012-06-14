@@ -254,7 +254,7 @@ shared_examples_for "it invokes engineyard-serverside" do
     end
 
     it "passes --verbose to engineyard-serverside" do
-      @ssh_commands.should have_command_like(/engineyard-serverside.*deploy.*--verbose/)
+      @ssh_commands.should have_command_like(/engineyard-serverside.*--verbose/)
     end
 
     it "passes along instance information to engineyard-serverside" do

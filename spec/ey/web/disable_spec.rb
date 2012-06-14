@@ -13,7 +13,7 @@ describe "ey web disable" do
   end
 
   def verify_ran(scenario)
-    @ssh_commands.should have_command_like(/engineyard-serverside.*deploy enable_maintenance_page.*--app #{scenario[:application]}/)
+    @ssh_commands.should have_command_like(/engineyard-serverside.*enable_maintenance.*--app #{scenario[:application]}/)
   end
 
   include_examples "it takes an environment name and an app name and an account name"
