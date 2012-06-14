@@ -109,6 +109,13 @@ module EY
         ui.error "Timeout when waiting for input. Maybe this is not a terminal?"
         ui.error "ey deploy no longer migrates when no default is set in ey.yml."
         ui.error "Run interactively for step-by-step ey.yml migration setup."
+        ui.error ""
+        ui.error "Alternatively, you may add ey.yml to your project directly:"
+        ui.error "---"
+        ui.error "environments:"
+        ui.error "  #{env_config.name}:"
+        ui.error "    migrate: true"
+        ui.error "    migration_command: 'rake db:migrate'"
         return false
       end
 
