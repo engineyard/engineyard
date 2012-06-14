@@ -23,12 +23,12 @@ module EY
     end
 
     def put_up_maintenance_page(&block)
-      @command = @adapter.enable_maintenance_page(&block)
+      @command = @adapter.enable_maintenance(&block)
       self
     end
 
     def take_down_maintenance_page(&block)
-      @command = @adapter.disable_maintenance_page(&block)
+      @command = @adapter.disable_maintenance(&block)
       self
     end
 
