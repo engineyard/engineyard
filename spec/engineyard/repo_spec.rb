@@ -1,7 +1,7 @@
 require 'spec_helper'
 
 describe EY::Repo do
-  let(:path) { p = Pathname.new(Dir.tmpdir).join('ey-test'); p.mkpath; p }
+  let(:path) { p = TMPDIR.join('ey-test'); p.mkpath; p }
 
   before(:each) do
     Dir.chdir(path) { `git init -q` }

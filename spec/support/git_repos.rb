@@ -12,8 +12,8 @@ module EY
       return git_repo_dir_cache[name] if git_repo_dir_cache.has_key?(name)
       raise ArgumentError, "No definition for git repo #{name}" unless git_repo_setup[name]
 
-      git_dir = Pathname.new("/tmp/engineyard_test_repo_#{Time.now.tv_sec}_#{Time.now.tv_usec}_#{$$}")
-      git_dir.mkdir
+      git_dir = TMPDIR.join("engineyard_test_repo_#{Time.now.tv_sec}_#{Time.now.tv_usec}_#{$$}")
+      git_dir.mkpath
       Dir.chdir(git_dir) do
         system("git init -q")
         system('git config user.email ey@spec.test')

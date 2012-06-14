@@ -35,6 +35,8 @@ Dir[File.join(EY_ROOT,'/spec/support/*.rb')].each do |helper|
   require helper
 end
 
+TMPDIR = Pathname.new(__FILE__).dirname.parent.join('tmp')
+
 RSpec.configure do |config|
   config.treat_symbols_as_metadata_keys_with_true_values = true
   config.run_all_when_everything_filtered = true
@@ -46,6 +48,15 @@ RSpec.configure do |config|
   config.extend SpecHelpers::GitRepoHelpers
   config.extend SpecHelpers::Given
   config.extend SpecHelpers::Fixtures
+
+  def clean_tmpdir
+    TMPDIR.rmtree if TMPDIR.exist?
+  end
+
+  # Cleaning the tmpdir has to happen outside of the test cycle because git repos
+  # last longer than the before/after :all test block in order to speed up specs.
+  config.before(:suite) { clean_tmpdir }
+  config.after(:suite) { clean_tmpdir }
 
   def clean_eyrc
     ENV['EYRC'] = File.join('/tmp','eyrc')
@@ -64,6 +75,11 @@ RSpec.configure do |config|
   config.before(:each) do
     EY::CloudClient.default_endpoint!
   end
+
+  config.after(:all) do
+    clean_eyrc
+  end
+
 end
 
 EY.define_git_repo("default") do |git_dir|

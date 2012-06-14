@@ -155,16 +155,16 @@ module SpecHelpers
     end
 
     if path_prepends
-      tempdir = File.join(Dir.tmpdir, "ey_test_cmds_#{Time.now.tv_sec}#{Time.now.tv_usec}_#{$$}")
-      Dir.mkdir(tempdir)
+      tempdir = TMPDIR.join("ey_test_cmds_#{Time.now.tv_sec}#{Time.now.tv_usec}_#{$$}")
+      tempdir.mkpath
       path_prepends.each do |name, contents|
-        File.open(File.join(tempdir, name), 'w') do |f|
+        tempdir.join(name).open('w') do |f|
           f.write(contents)
           f.chmod(0755)
         end
       end
 
-      ey_env['PATH'] = tempdir + ':' + ENV['PATH']
+      ey_env['PATH'] = "#{tempdir}:#{ENV['PATH']}"
     end
 
     eybin = File.expand_path('../bundled_ey', __FILE__)
