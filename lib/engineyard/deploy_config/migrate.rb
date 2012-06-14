@@ -90,11 +90,11 @@ module EY
       end
 
       def perform_from_interaction
-        ui.warn "********************************************************************************"
+        ui.warn "**********************************************************************"
         ui.warn "No default migrate choice for environment: #{env_config.name}"
         ui.warn "Migrate can be toggled per-deploy using --migrate or --no-migrate."
         ui.warn "Let's set a default migration choice."
-        ui.warn "********************************************************************************"
+        ui.warn "**********************************************************************"
         @perform = ui.agree('Migrate every deploy by default? ', true)
         env_config.migrate = @perform
         if @perform
