@@ -1,12 +1,24 @@
+Thank you for downloading engineyard gem version 2!
 
-Welcome to Engine Yard!
- 
-Deploying for the first time? The Engine Yard Pandas want to help you! 
+############ NOTICE when upgrading from 1.x to 2.x ############
 
-Email pandas@engineyard.com with your questions or queries. 
-(Panda = 1. Polite Agent of Non-Destructive Assimilation; 2. Cute fluffy animal.)
- 
-We wish you every success with your business!
- 
- - The Pandas
+* IMPORTANT: eydeploy.rb modifications MUST be verified!
+  Many internals have changed that could break eydeploy.rb!
+* The order of compile assets has *changed*. It now runs before
+  the maintenance page is enabled, to reduce downtime.
+* ey.yml files should be checked in to your repository.
+* Default bundler version is now 1.1.3.
 
+A few other nice changes:
+
+* All CLI commands are significantly faster. Woo!
+* Deploy hooks now have access to `account_name` and `environment_name`.
+* Supports new ey.yml options when ey.yml is committed:
+  * maintenance_on_restart: true/false (default: false except for glassfish and mongrel)
+  * maintenance_on_migrate: true/false (default: true)
+  * precompile_assets: true/false (default: inferred using app/assets and config/application.rb)
+  * ignore_database_adapter_warning: true (hides adapter warning)
+* Don't remove maintenance pages that weren't put up during this deploy if maintenance options (above) are set to false.
+
+Deploying for the first time? The Engine Yard Pandas want to help you!
+Email pandas@engineyard.com with your questions.
