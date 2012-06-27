@@ -23,6 +23,7 @@
     * Supports new ey.yml option to ignore the missing database adapter warning:
       * `ignore_database_adapter_warning: true (default: false)`
     * Fixes a bug that could cause Passenger to restart multiple times during each deploy.
+    * Change order of compile\_assets during deploy. Compile assets now happens before enabling maintenance page.
 
 ## v1.4.28 (2012-03-29)
 
