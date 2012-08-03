@@ -96,7 +96,7 @@ module EY
 
     def ey_yml_comments
       if @path.exist?
-        existing = @path.readlines.grep(/^#/).join("\n")
+        existing = @path.readlines.grep(/^#/).map {|line| line.strip }.join("\n")
       else
         EY_YML_HINTS
       end
