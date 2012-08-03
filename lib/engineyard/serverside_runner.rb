@@ -94,11 +94,20 @@ module EY
       end
     end
 
+    def net_ssh_options
+      level = :fatal # default in Net::SSH
+      if debug = ENV["DEBUG"]
+        level = :info
+        if %w[debug info warn error fatal].include?(debug.downcase)
+          level = debug.downcase.to_sym
+        end
+      end
+      {:paranoid => false, :verbose => level}
+    end
+
     def ssh(cmd, hostname, username, out, err)
       exit_code = 1
-      options_for_ssh = {:paranoid => false}
-      options_for_ssh[:verbose] = ENV["DEBUG"].downcase.to_sym if ENV["DEBUG"]
-      Net::SSH.start(hostname, username, options_for_ssh) do |net_ssh|
+      Net::SSH.start(hostname, username, net_ssh_options) do |net_ssh|
         net_ssh.open_channel do |channel|
           channel.exec cmd do |_, success|
             unless success
