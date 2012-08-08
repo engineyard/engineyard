@@ -75,7 +75,7 @@ module SpecHelpers
   ZeroExitStatus = Class.new(UnexpectedExit)
 
   def ey_api
-    @api ||= EY::CloudClient.new('asdf', EY::CLI::UI.new)
+    @api ||= EY::CloudClient.new(:token => 'asdf')
   end
 
   def ensure_eyrc

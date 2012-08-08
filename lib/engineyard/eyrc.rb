@@ -9,7 +9,8 @@ module EY
     end
 
     def initialize(path)
-      self.path = path
+      @path = Pathname.new(path)
+      $stderr.puts @path
     end
 
     def exist?
