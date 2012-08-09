@@ -3,7 +3,7 @@ source :rubygems
 gemspec
 
 group 'engineyard-cloud-client-test' do
-  gem 'dm-core'
+  gem 'dm-core', '~>1.2.0'
   gem 'dm-migrations'
   gem 'dm-aggregates'
   gem 'dm-timestamps'
