@@ -10,6 +10,7 @@ module EY
       @username = environment.username
       @hostname = bridge
       @command = nil
+      @acc_env_name = "#{app.account.name}/#{environment.name}"
     end
 
     def deploy(&block)
@@ -89,7 +90,12 @@ module EY
         begin
           ssh(cmd, @hostname, @username, out, err)
         rescue Net::SSH::AuthenticationFailed
-          raise EY::Error, "Authentication Failed: Please add your environment's ssh key with: ssh-add path/to/key"
+          raise EY::Error, <<-ERROR
+Authentication Failed. Things to fix:
+  1. Add your SSH key to your local SSH agent with `ssh-add path/to/key`.
+  2. Add your SSH key to #{@acc_env_name} on cloud.engineyard.com and apply the changes.
+  (https://support.cloud.engineyard.com/entries/20996846-set-up-ssh-keys)
+          ERROR
         end
       end
     end
