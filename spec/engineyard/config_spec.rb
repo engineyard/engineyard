@@ -17,7 +17,7 @@ describe EY::Config do
   end
 
   describe "endpoint" do
-    it "defaults to production EY Cloud" do
+    it "defaults to production Engine Yard Cloud" do
       EY::Config.new.endpoint.should == EY::Config.new.default_endpoint
     end
 

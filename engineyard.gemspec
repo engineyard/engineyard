@@ -7,7 +7,7 @@ Gem::Specification.new do |s|
   s.name = "engineyard"
   s.version = EY::VERSION
   s.platform = Gem::Platform::RUBY
-  s.author = "EY Cloud Team"
+  s.author = "Engine Yard Cloud Team"
   s.email = "cloud@engineyard.com"
   s.homepage = "http://github.com/engineyard/engineyard"
   s.summary = "Command-line deployment for the Engine Yard cloud"

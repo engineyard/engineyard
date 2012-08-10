@@ -107,8 +107,8 @@ module EY
         deployment.successful = runner.call(out, err)
       rescue Interrupt
         err << "Interrupted. Deployment halted.\n"
-        ui.warn "Recording canceled deployment in EY Cloud..."
-        ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on EY Cloud."
+        ui.warn "Recording canceled deployment in Engine Yard Cloud..."
+        ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on Engine Yard Cloud."
         raise
       rescue StandardError => e
         deployment.err << "Error encountered during deploy.\n#{e.class} #{e}\n"
@@ -118,11 +118,11 @@ module EY
         deployment.finished
 
         if deployment.successful?
-          ui.info "Successful deployment recorded on EY Cloud"
+          ui.info "Successful deployment recorded on Engine Yard Cloud"
           ui.info "Deploy complete"
           ui.info "Now you can run `ey launch' to open the application in a browser."
         else
-          ui.info "Failed deployment recorded on EY Cloud"
+          ui.info "Failed deployment recorded on Engine Yard Cloud"
           raise EY::Error, "Deploy failed"
         end
       end
@@ -204,7 +204,7 @@ module EY
 
         if options[:simple]
           if apps.size > 1
-            message = "# This app matches multiple Applications in EY Cloud:\n"
+            message = "# This app matches multiple Applications in Engine Yard Cloud:\n"
             apps.each { |app| message << "#\t#{app.name}\n" }
             message << "# The following environments contain those applications:\n\n"
             ui.warn(message)
@@ -457,7 +457,7 @@ module EY
       ui.say "#{current_user.name} (#{current_user.email})"
     end
 
-    desc "login", "Log in and verify access to EY Cloud."
+    desc "login", "Log in and verify access to Engine Yard Cloud."
     def login
       whoami
     end
