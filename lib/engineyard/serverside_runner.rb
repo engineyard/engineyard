@@ -93,7 +93,7 @@ module EY
           raise EY::Error, <<-ERROR
 Authentication Failed. Things to fix:
   1. Add your SSH key to your local SSH agent with `ssh-add path/to/key`.
-  2. Add your SSH key to #{@acc_env_name} on cloud.engineyard.com and apply the changes.
+  2. Add your SSH key to #{@acc_env_name} on Engine Yard Cloud and apply the changes.
   (https://support.cloud.engineyard.com/entries/20996846-set-up-ssh-keys)
           ERROR
         end
