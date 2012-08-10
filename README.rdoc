@@ -10,7 +10,7 @@ Note: Don't add engineyard to your application's Gemfile. The engineyard gem is 
 
 == Login
 
-The first command you run will notice that you are not logged in and will ask you for your AppCloud email and password.
+The first command you run will notice that you are not logged in and will ask you for your Engine Yard email and password.
 
 == Configuration
 
