@@ -23,6 +23,11 @@ module EY
       self
     end
 
+    def restart(&block)
+      @command = @adapter.restart(&block)
+      self
+    end
+
     def put_up_maintenance_page(&block)
       @command = @adapter.enable_maintenance(&block)
       self

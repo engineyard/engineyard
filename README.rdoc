@@ -177,6 +177,17 @@ Command:
       * public/system/maintenance.html.default
 
 Command:
+  ey web restart
+
+  Options:
+    -v, [--verbose]                  # Be verbose
+    -a, [--app=APP]                  # Name of the application whose maintenance page will be removed
+    -e, [--environment=ENVIRONMENT]  # Environment on which to take down the maintenance page
+    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+
+  Restarts the application servers for the given application. Enables maintenance pages if they would be enabled during a normal deploy. Respects the maintenance_on_restart ey.yml configuration.
+
+Command:
   ey ssh
 
   Options:
