@@ -9,6 +9,7 @@
   * Allows `--app`, `--account`, and `--environment` for `ey environments` for extra filtering.
   * Prints an error when a command line option, like `--environment`, is specified without an argument.
   * No longer guesses migration behavior. ey.yml must contain `migrate: true # or false` for each environment. ey deploy will walk you through on your first deploy.
+  * Adds command `ey web restart` to restart application servers without deploying.
   * New version of `engineyard-serverside` (and adapter), which includes:
     * Default bundler version is now 1.1.3.
     * Deploy hooks now have access to `account_name` and `environment_name`.
