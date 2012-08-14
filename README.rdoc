@@ -66,6 +66,17 @@ Command:
     by using --no-migrate.
 
 Command:
+  ey status
+
+  Options:
+    -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
+    -a, [--app=APP]                           # Name of the application containing the environments
+    -e, [--environment=ENVIRONMENT]           # Show only environments matching named environment
+
+  Description:
+    Show the current status of most recent deployment of the specified application and environment. This action only informational and will not change your application.
+
+Command:
   ey environments
 
   Options:
