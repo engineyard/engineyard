@@ -73,7 +73,7 @@ Command:
     -e, [--environment=ENVIRONMENT]           # Show only environments matching named environment
 
   Description:
-    Show the current status of most recent deployment of the specified application and environment. This action only informational and will not change your application.
+    Show the status of most recent deployment of the specified application and environment. This action only informational and will not change your application.
 
 Command:
   ey environments
