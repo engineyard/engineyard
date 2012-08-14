@@ -27,7 +27,6 @@ The ey.yml file allows options to be saved for each environment to which an appl
         bundle_without: test development mygroup  # exclude groups on bundle install
         copy_exclude:                             # don't rsync the following dirs
         - .git
-        verbose: true                             # always run verbose deploy (unless overriden on command line)
         maintenance_on_restart: false             # show maintenance page during app restart (default: false except for glassfish and mongrel)
         maintenance_on_migrate: false             # show maintenance page during migrations (default: true)
         precompile_assets: true                   # enables rails assets precompilation (default: inferred using app/assets and config/application.rb)
@@ -41,7 +40,7 @@ Command:
   ey deploy
 
   Options:
-    -r, [--ref=REF] [--branch=] [--tag=]        # Git ref to deploy. May be a branch, a tag, or a SHA.
+    -r, [--ref=REF] [--branch=] [--tag=]      # Git ref to deploy. May be a branch, a tag, or a SHA.
     -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
     -a, [--app=APP]                           # Name of the application to deploy
     -e, [--environment=ENVIRONMENT]           # Environment in which to deploy this application
