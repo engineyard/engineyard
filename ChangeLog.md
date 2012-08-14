@@ -11,7 +11,7 @@
   * No longer guesses migration behavior. ey.yml must contain `migrate: true # or false` for each environment. ey deploy will walk you through on your first deploy.
   * Adds command `ey web restart` to restart application servers without deploying.
   * New version of `engineyard-serverside` (and adapter), which includes:
-    * Default bundler version is now 1.1.3.
+    * Default bundler version is now 1.1.5.
     * Deploy hooks now have access to `account_name` and `environment_name`.
     * Improves deploy output, especially for `--verbose`.
     * Sends all log output through a new Shell object that formats and adds timestamps.
