@@ -50,6 +50,7 @@ module EY
       end
 
       # Get the token from the provided block, saving it if it works.
+      # Specified will help us know what to do if loading the token fails.
       # Returns true if it gets a token.
       # Returns false if there is no token.
       def token_from(source, specified = true)

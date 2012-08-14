@@ -2,14 +2,14 @@ module EY
   class EYRC
     attr_reader :path
 
-    DEFAULT_PATH = "~/.eyrc"
+    DEFAULT_PATH = "#{ENV['HOME']}/.eyrc"
 
     def self.load
       new(ENV['EYRC'] || DEFAULT_PATH)
     end
 
     def initialize(path)
-      @path = Pathname.new(path)
+      @path = Pathname.new(path).expand_path
     end
 
     def exist?

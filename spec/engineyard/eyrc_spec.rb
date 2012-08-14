@@ -11,7 +11,7 @@ describe EY::EYRC do
 
     it "looks for .eyrc in $HOME/.eyrc by default" do
       ENV.delete('EYRC')
-      EY::EYRC.load.path.should == Pathname.new("~/.eyrc")
+      EY::EYRC.load.path.should == Pathname.new("#{ENV['HOME']}/.eyrc")
     end
   end
 
