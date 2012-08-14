@@ -36,215 +36,199 @@ Many of the options in ey.yml will only work if the file is committed to your ap
 
 == Commands
 
-Command:
-  ey deploy
+=== ey deploy
 
-  Options:
-    -r, [--ref=REF] [--branch=] [--tag=]      # Git ref to deploy. May be a branch, a tag, or a SHA.
-    -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
-    -a, [--app=APP]                           # Name of the application to deploy
-    -e, [--environment=ENVIRONMENT]           # Environment in which to deploy this application
-    -m, [--migrate=MIGRATE]                   # Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations
-    -v, [--verbose]                           # Be verbose
-        [--ignore-default-branch]             # Force a deploy of the specified branch even if a default is set
-        [--ignore-bad-master]                 # Force a deploy even if the master is in a bad state
-        [--extra-deploy-hook-options key:val] # Additional options to be made available in deploy hooks (in the 'config' hash)
-                                              # Add more keys as follows: --extra-deploy-hook-options key1:val1 key2:val2
+This command must be run within the current directory containing the app to be
+deployed. If ey.yml specifies a default branch then the ref parameter can be
+omitted. Furthermore, if a default branch is specified but a different
+command is supplied the deploy will fail unless --ignore-default-branch
+is used.
+
+If ey.yml does not specify a default migrate choice, you will be prompted to
+specify a migration choice. A different command can later be specified via
+--migrate "ruby do_migrations.rb". Migrations can also be skipped entirely
+by using --no-migrate.
+
+Options:
+
+  -r, [--ref=REF] [--branch=] [--tag=]      # Git ref to deploy. May be a branch, a tag, or a SHA.
+  -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
+  -a, [--app=APP]                           # Name of the application to deploy
+  -e, [--environment=ENVIRONMENT]           # Environment in which to deploy this application
+  -m, [--migrate=MIGRATE]                   # Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations
+  -v, [--verbose]                           # Be verbose
+      [--ignore-default-branch]             # Force a deploy of the specified branch even if a default is set
+      [--ignore-bad-master]                 # Force a deploy even if the master is in a bad state
+      [--extra-deploy-hook-options key:val] # Additional options to be made available in deploy hooks (in the 'config' hash)
+                                            # Add more keys as follows: --extra-deploy-hook-options key1:val1 key2:val2
 
 
-  Description:
-    This command must be run within the current directory containing the app to be
-    deployed. If ey.yml specifies a default branch then the ref parameter can be
-    omitted. Furthermore, if a default branch is specified but a different
-    command is supplied the deploy will fail unless --ignore-default-branch
-    is used.
+=== ey status
 
-    If ey.yml does not specify a default migrate choice, you will be prompted to
-    specify a migration choice. A different command can later be specified via
-    --migrate "ruby do_migrations.rb". Migrations can also be skipped entirely
-    by using --no-migrate.
+Show the status of most recent deployment of the specified application and environment. This action only informational and will not change your application.
 
-Command:
-  ey status
+Options:
 
-  Options:
-    -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
-    -a, [--app=APP]                           # Name of the application containing the environments
-    -e, [--environment=ENVIRONMENT]           # Show only environments matching named environment
+  -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
+  -a, [--app=APP]                           # Name of the application containing the environment
+  -e, [--environment=ENVIRONMENT]           # Name of the environment with the desired deployment
 
-  Description:
-    Show the status of most recent deployment of the specified application and environment. This action only informational and will not change your application.
+=== ey environments
 
-Command:
-  ey environments
+By default, environments for this app are displayed. The --all option will display all environments, including those for this app.
 
-  Options:
-    -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
-    -a, [--app=APP]                           # Name of the application containing the environments
-    -e, [--environment=ENVIRONMENT]           # Show only environments matching named environment
-    -s, [--simple]                            # Print each environment name on its own on a new line
-    -a, [--all]                               # Show all environments, not just ones associated with this application.
+Options:
 
-  Description:
-    By default, environments for this app are displayed. The --all option will display all environments, including those for this app.
+  -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
+  -a, [--app=APP]                           # Name of the application containing the environments
+  -e, [--environment=ENVIRONMENT]           # Show only environments matching named environment
+  -s, [--simple]                            # Print each environment name on its own on a new line
+  -a, [--all]                               # Show all environments, not just ones associated with this application.
 
-Command:
-  ey logs
 
-  Options:
-    -e, [--environment=ENVIRONMENT]  # Environment with the interesting logs
-    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+=== ey logs
 
-  Description:
-    Displays Engine Yard configuration logs for all servers in the environment. If recipes were uploaded to the environment & run, their logs will also be displayed beneath the
-    main configuration logs.
+Displays Engine Yard configuration logs for all servers in the environment. If recipes were uploaded to the environment & run, their logs will also be displayed beneath the main configuration logs.
 
-Command:
-  ey rebuild
+Options:
 
-  Options:
-    -e, [--environment=ENVIRONMENT]  # Environment to rebuild
-    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+  -e, [--environment=ENVIRONMENT]  # Environment with the interesting logs
+  -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-  Description:
-    Engine Yard's main configuration run occurs on all servers. Mainly used to fix failed configuration of new or existing servers, or to update servers to latest Engine Yard stack
-    (e.g. to apply an Engine Yard supplied security patch).
+=== ey rebuild
 
-    Note that uploaded recipes are also run after the main configuration run has successfully completed.
+Engine Yard's main configuration run occurs on all servers. Mainly used to fix failed configuration of new or existing servers, or to update servers to latest Engine Yard stack
+(e.g. to apply an Engine Yard supplied security patch).
 
-Command:
-  ey rollback
+Note that uploaded recipes are also run after the main configuration run has successfully completed.
 
-  Options:
-    -v, [--verbose]                  # Be verbose
-    -a, [--app=APP]                  # Name of the application to roll back
-    -e, [--environment=ENVIRONMENT]  # Environment in which to roll back the application
-    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+Options:
 
-  Description:
-    Uses code from previous deploy in the "/data/APP_NAME/releases" directory on remote server(s) to restart application servers.
+  -e, [--environment=ENVIRONMENT]  # Environment to rebuild
+  -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-Command:
-  ey recipes apply
+=== ey rollback
 
-  Options:
-    -e, [--environment=ENVIRONMENT]  # Environment in which to apply recipes
-    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+Uses code from previous deploy in the "/data/APP_NAME/releases" directory on remote server(s) to restart application servers.
 
-  Description:
-    This is similar to 'ey rebuild' except Engine Yard's main configuration step is skipped.
+Options:
 
-Command:
-  ey recipes upload
+  -v, [--verbose]                  # Be verbose
+  -a, [--app=APP]                  # Name of the application to roll back
+  -e, [--environment=ENVIRONMENT]  # Environment in which to roll back the application
+  -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-  Options:
-    -e, [--environment=ENVIRONMENT]  # Environment that will receive the recipes
-    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+=== ey recipes apply
 
-  Description:
-    The current directory should contain a subdirectory named "cookbooks" to be uploaded.
+This is similar to 'ey rebuild' except Engine Yard's main configuration step is skipped.
 
-Command:
-  ey recipes download
+Options:
 
-  Options:
-    -e, [--environment=ENVIRONMENT]  # Environment for which to download the recipes
-    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+  -e, [--environment=ENVIRONMENT]  # Environment in which to apply recipes
+  -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-  Description:
-    The recipes will be unpacked into a directory called "cookbooks" in the current directory.
+=== ey recipes upload
 
-    If the cookbooks directory already exists, an error will be raised.
+The current directory should contain a subdirectory named "cookbooks" to be uploaded.
 
-Command:
-  ey web enable
+Options:
 
-  Options:
-    -v, [--verbose]                  # Be verbose
-    -a, [--app=APP]                  # Name of the application whose maintenance page will be removed
-    -e, [--environment=ENVIRONMENT]  # Environment on which to take down the maintenance page
-    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+  -e, [--environment=ENVIRONMENT]  # Environment that will receive the recipes
+  -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+      [--apply]                    # Apply the recipes (same as above) immediately after uploading
+  -f, [--file=FILE]                # Specify a gzipped tar file (.tgz) for upload instead of cookbooks/ directory
 
-  Remove the maintenance page for this application in the given environment.
+=== ey recipes download
 
-Command:
-  ey web disable
+The recipes will be unpacked into a directory called "cookbooks" in the current directory.
 
-  Options:
-    -v, [--verbose]                  # Be verbose
-    -a, [--app=APP]                  # Name of the application whose maintenance page will be put up
-    -e, [--environment=ENVIRONMENT]  # Environment on which to put up the maintenance page
-    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+If the cookbooks directory already exists, an error will be raised.
 
-  Description:
-    The maintenance page is taken from the app currently being deployed. This means that you can customize maintenance pages to tell users the reason for downtime on every
-    particular deploy.
+Options:
 
-    Maintenance pages searched for in order of decreasing priority:
-      * public/maintenance.html.custom
-      * public/maintenance.html.tmp
-      * public/maintenance.html
-      * public/system/maintenance.html.default
+  -e, [--environment=ENVIRONMENT]  # Environment for which to download the recipes
+  -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-Command:
-  ey web restart
+=== ey web enable
 
-  Options:
-    -v, [--verbose]                  # Be verbose
-    -a, [--app=APP]                  # Name of the application whose maintenance page will be removed
-    -e, [--environment=ENVIRONMENT]  # Environment on which to take down the maintenance page
-    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+Remove the maintenance page for this application in the given environment.
 
-  Restarts the application servers for the given application. Enables maintenance pages if it would be enabled during a normal deploy. Respects the maintenance_on_restart ey.yml configuration.
+Options:
 
-Command:
-  ey ssh
+  -v, [--verbose]                  # Be verbose
+  -a, [--app=APP]                  # Name of the application whose maintenance page will be removed
+  -e, [--environment=ENVIRONMENT]  # Environment on which to take down the maintenance page
+  -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-  Options:
-        [--utilities=one two three]  # Run command on the utility servers with the given names. If no names are given, run on all utility servers.
-        [--app-servers]              # Run command on all application servers
-        [--db-servers]               # Run command on the database servers
-        [--db-master]                # Run command on the master database server
-    -a, [--all]                      # Run command on all servers
-        [--db-slaves]                # Run command on the slave database servers
-    -e, [--environment=ENVIRONMENT]  # Environment to ssh into
-    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+=== ey web disable
 
-  Description:
-    If a command is supplied, it will be run, otherwise a session will be opened. The application master is used for environments with clusters. Option --all requires a command to
-    be supplied and runs it on all servers.
+The maintenance page is taken from the app currently being deployed. This means that you can customize maintenance pages to tell users the reason for downtime on every particular deploy.
 
-    Note: this command is a bit picky about its ordering. To run a command with arguments on all servers, like "rm -f /some/file", you need to order it like so:
+Maintenance pages searched for in order of decreasing priority:
+  * public/maintenance.html.custom
+  * public/maintenance.html.tmp
+  * public/maintenance.html
+  * public/system/maintenance.html.default
 
-    $ ey ssh "rm -f /some/file" -e my-environment --all
+Options:
 
-Command:
-  ey launch
+  -v, [--verbose]                  # Be verbose
+  -a, [--app=APP]                  # Name of the application whose maintenance page will be put up
+  -e, [--environment=ENVIRONMENT]  # Environment on which to put up the maintenance page
+  -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-  Options:
-    -e, [--environment=ENVIRONMENT]  # Environment to ssh into
-    -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-  Description:
-    Open the application in a browser.
+=== ey web restart
 
-Command:
-  ey whoami
+Restarts the application servers for the given application. Enables maintenance pages if it would be enabled during a normal deploy. Respects the maintenance_on_restart ey.yml configuration.
 
-  Description:
-    Who am I logged in as?
+Options:
 
-Command:
-  ey login
+  -v, [--verbose]                  # Be verbose
+  -a, [--app=APP]                  # Name of the application to restart
+  -e, [--environment=ENVIRONMENT]  # Name of the environment to restart
+  -c, [--account=ACCOUNT]          # Name of the account in which the app and environment can be found
 
-  Description:
-    Log in and verify access to EY Cloud. Use logout first if you need to switch user accounts.
+=== ey ssh
 
-Command:
-  ey logout
+If a command is supplied, it will be run, otherwise a session will be opened. The application master is used for environments with clusters. Option --all requires a command to be supplied and runs it on all servers.
 
-  Description:
-    Remove the current API key from ~/.eyrc or env variable $EYRC
+Note: this command is a bit picky about its ordering. To run a command with arguments on all servers, like "rm -f /some/file", you need to order it like so:
+
+  $ ey ssh "rm -f /some/file" -e my-environment --all
+
+Options:
+
+      [--utilities=one two three]  # Run command on the utility servers with the given names. If no names are given, run on all utility servers.
+      [--app-servers]              # Run command on all application servers
+      [--db-servers]               # Run command on the database servers
+      [--db-master]                # Run command on the master database server
+  -a, [--all]                      # Run command on all servers
+      [--db-slaves]                # Run command on the slave database servers
+  -e, [--environment=ENVIRONMENT]  # Name of the environment to ssh into
+  -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+
+=== ey launch
+
+Open the application in a browser.
+
+Options:
+
+  -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+  -a, [--app=APP]                  # Name of the application to launch
+  -e, [--environment=ENVIRONMENT]  # Name of the environment for the application
+
+=== ey whoami
+
+Who am I logged in as? Prints the name and email of the current logged in user.
+
+=== ey login
+
+Log in and verify access to EY Cloud. Use logout first if you need to switch user accounts.
+
+=== ey logout
+
+Remove the current API key from ~/.eyrc or env variable $EYRC
 
 
 == API Client
@@ -255,15 +239,16 @@ See https://github.com/engineyard/engineyard-cloud-client for the API client lib
 
 The API commands will print internal information if $DEBUG is set:
 
-    DEBUG=1 ey environments --all
-           Token  YOURTOKEN
-         Request  GET https://cloud.engineyard.com/api/v2/apps
-          Params  {}
-        Response
-    {"apps"=>
-      [{"environments"=>[],
-        "name"=>"myapp",
-        "repository_uri"=>"git@github.com:myaccount/myapp.git",
-        "app_type_id"=>"rails3",
-        "account"=>{"name"=>"myaccount", "id"=>1234},
-        "id"=>12345}]}
+  $ DEBUG=1 ey environments --all
+         GET  https://cloud.engineyard.com/api/v2/apps
+      Params  {"no_instances"=>"true"}
+     Headers  {"User-Agent"=>"EngineYard/2.0.0 EngineYardCloudClient/1.0.5",
+              "Accept"=>"application/json",
+              "X-EY-Cloud-Token"=>"YOURTOKEN"}
+    Response  {"apps"=>
+                [{"environments"=>[],
+                  "name"=>"myapp",
+                  "repository_uri"=>"git@github.com:myaccount/myapp.git",
+                  "app_type_id"=>"rails3",
+                  "account"=>{"name"=>"myaccount", "id"=>1234},
+                  "id"=>12345}]}
