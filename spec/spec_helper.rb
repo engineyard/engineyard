@@ -72,10 +72,6 @@ RSpec.configure do |config|
     ENV["NO_SSH"] = "true"
   end
 
-  config.before(:each) do
-    EY::CloudClient.default_endpoint!
-  end
-
   config.after(:all) do
     clean_eyrc
   end

@@ -458,6 +458,18 @@ module EY
     end
 
     desc "login", "Log in and verify access to Engine Yard Cloud."
+    long_desc <<-DESC
+      You may run this command to log in to EY Cloud without performing
+      any other action.
+
+      Once you are logged in, a file will be stored at ~/.eyrc with your
+      API token. You may override the location of this file using the
+      $EYRC environment variable.
+
+      Instead of logging in, you may specify a token on the command line
+      with --api-token or using the $ENGINEYARD_API_TOKEN environment
+      variable.
+    DESC
     def login
       whoami
     end
