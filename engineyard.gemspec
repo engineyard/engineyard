@@ -28,7 +28,7 @@ Gem::Specification.new do |s|
   s.add_dependency('json_pure')
   s.add_dependency('escape', '~>0.0.4')
   s.add_dependency('engineyard-serverside-adapter', '=2.0.0.rc1')   # This line maintained by rake; edits may be stomped on
-  s.add_dependency('engineyard-cloud-client', '~>1.0.3')
+  s.add_dependency('engineyard-cloud-client', '~>1.0.4')
   s.add_dependency('net-ssh', '~>2.2.1')
   s.add_dependency('launchy', '2.1.0')
 
