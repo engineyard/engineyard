@@ -296,7 +296,7 @@ module EY
     method_option :account, :type => :string, :aliases => %w(-c),
       :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
-    method_option :all, :type => :boolean, :aliases => %(-a),
+    method_option :all, :type => :boolean, :aliases => %(-A),
       :desc => "Run command on all servers"
     method_option :app_servers, :type => :boolean,
       :desc => "Run command on all application servers"
