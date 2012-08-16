@@ -90,18 +90,15 @@ module EY
       end
 
       def perform_from_interaction
-        ui.warn "**********************************************************************"
-        ui.warn "No default migrate choice for environment: #{env_config.name}"
-        ui.warn "Migrate can be toggled per-deploy using --migrate or --no-migrate."
-        ui.warn "Let's set a default migration choice."
-        ui.warn "**********************************************************************"
-        @perform = ui.agree('Migrate every deploy by default? ', true)
+        ui.warn "Please choose a default migration behavior for this environment."
+        @perform = ui.agree("Run migrations by default on #{env_config.name}? ", true)
         env_config.migrate = @perform
         if @perform
           command_from_interaction
         end
         ui.say "#{env_config.path}: migrate settings saved for #{env_config.name}."
-        ui.info "It's a good idea to git commit #{env_config.path} with these new changes."
+        ui.say "You can override this default with --migrate or --no-migrate."
+        ui.info "Please git commit #{env_config.path} with these new changes."
         true
       rescue Timeout::Error
         @perform = nil
