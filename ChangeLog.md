@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.0.0 (2012-08-16)
+
   * Repository interactions pay attention to $GIT\_DIR and $GIT\_WORK\_TREE.
   * Increases responsiveness of most API interactions.
   * Prints notices when ey.yml defaults are used.
