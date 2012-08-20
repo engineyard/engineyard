@@ -8,9 +8,14 @@ describe "ey environments" do
     login_scenario "one app, many environments"
   end
 
+  it "tells you it's never been deployed" do
+    fast_failing_ey %w[status -e giblets]
+    @err.should =~ /Application rails232app has not been deployed on giblets./
+  end
+
   it "outputs the status of the deployment" do
-    ey %w[deploy -e giblets --ref HEAD --no-migrate]
-    ey %w[status -e giblets]
+    fast_ey %w[deploy -e giblets --ref HEAD --no-migrate]
+    fast_ey %w[status -e giblets]
     @out.should =~ /Application:\s+rails232app/
     @out.should =~ /Environment:\s+giblets/
     @out.should =~ /Ref:\s+HEAD/
