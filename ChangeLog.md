@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.0.1 (2012-08-21)
+
   * Update serverside to print less deprecation warnings.
 
 ## v2.0.0 (2012-08-16)
