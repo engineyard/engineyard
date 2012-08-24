@@ -50,7 +50,7 @@ module EY
               highline.ask(question) do |q|
                 q.echo = "*"        if password
                 q.default = default if default
-              end
+              end.to_s
             end
           end
         end
