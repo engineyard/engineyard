@@ -4,6 +4,10 @@
 
   *
 
+## v2.0.2 (2012-08-24)
+
+  *
+
 ## v2.0.1 (2012-08-21)
 
   * Update serverside to print less deprecation warnings.
