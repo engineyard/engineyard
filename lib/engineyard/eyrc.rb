@@ -2,7 +2,7 @@ module EY
   class EYRC
     attr_reader :path
 
-    DEFAULT_PATH = "#{ENV['HOME']}/.eyrc"
+    DEFAULT_PATH = "~/.eyrc"
 
     def self.load
       new(ENV['EYRC'] || DEFAULT_PATH)
