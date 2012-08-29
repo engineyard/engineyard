@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.0.3 (2012-08-29)
+
   * Use new serverside-adapter that allows setting engineyard-serverside version separately.
 
 ## v2.0.2 (2012-08-24)
