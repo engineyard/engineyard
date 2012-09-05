@@ -2,7 +2,7 @@
 
 ## NEXT
 
-  *
+  * Don't redirect command output to /dev/null because windows doesn't like it.
 
 ## v2.0.3 (2012-08-29)
 
