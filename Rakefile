@@ -25,15 +25,11 @@ end
 
 def remove_pre
   require 'engineyard/version'
-  version = EY::VERSION
-  unless version =~ /\.pre$/
-    raise "Version #{version.inspect} does not end with .pre, you should release manually if you want a custom version name."
-  end
-  version.gsub(/\.pre$/, '')
+  Gem::Version.create(EY::VERSION).release
 end
 
 def next_pre(version)
-  digits = version.scan(/(\d+)/).map { |x| x.first.to_i }
+  digits = version.to_s.scan(/(\d+)/).map { |x| x.first.to_i }
   digits[-1] += 1
   digits.join('.') + ".pre"
 end
