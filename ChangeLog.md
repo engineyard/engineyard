@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.0.5 (2012-09-05)
+
   * Fix calls to system() leaking stdout into the command output.
 
 ## v2.0.4 (2012-09-05)
