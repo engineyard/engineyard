@@ -18,7 +18,8 @@ module EY
     end
 
     def self.exist?
-      system("git rev-parse --git-dir 2>&1")
+      `git rev-parse --git-dir 2>&1`
+      $?.success?
     end
 
     attr_reader :root

@@ -2,7 +2,7 @@
 
 ## NEXT
 
-  *
+  * Fix calls to system() leaking stdout into the command output.
 
 ## v2.0.4 (2012-09-05)
 
