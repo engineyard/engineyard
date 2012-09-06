@@ -95,6 +95,7 @@ def update_serverside_adapter
   gem_name = "engineyard-serverside-adapter"
   specs = Gem::SpecFetcher.fetcher.fetch(Gem::Dependency.new(gem_name))
   latest_adapter_version = specs.map {|spec,| spec.version}.sort.last.to_s
+  version_changed = false
 
   gemspec_file = Pathname.new('engineyard.gemspec')
 
@@ -102,13 +103,22 @@ def update_serverside_adapter
     gemspec_file.unlink
     gemspec_file.open('w') do |write_gemfile|
       read_gemfile.each_line do |line|
-        if line =~ /s.add_dependency\('#{gem_name}',/
+        if line =~ /s.add_dependency\('#{gem_name}', '=([^']+)'/
+          version_changed = ($1 != latest_adapter_version)
           puts "#{gem_name} (#{latest_adapter_version})"
           write_gemfile.write("  s.add_dependency(\'#{gem_name}\', \'=#{latest_adapter_version}\')   # This line maintained by rake; edits may be stomped on\n")
         else
           write_gemfile.write(line)
         end
       end
+    end
+  end
+
+  # re-bundle if the version changed
+  if version_changed
+    puts "Bundled gem version changed. Running bundle install..."
+    Bundler.with_clean_env do
+      system('bundle install')
     end
   end
 end
