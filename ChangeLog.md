@@ -2,7 +2,9 @@
 
 ## NEXT
 
-  *
+  * During deploy, only symlink shared config files that actually exist.
+  * During deploy, don't display the database adapter warning when the environment does not have a database.
+  * During deploy, chown shared/bundled\_gems dir to deploy user to ensure bundle install works.
 
 ## v2.0.5 (2012-09-05)
 
