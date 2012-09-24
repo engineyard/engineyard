@@ -26,7 +26,7 @@ module EY
     end
 
     def extra_config
-      @cli_opts.fetch('extra_deploy_hook_options', {})
+      @cli_opts.fetch('config', {})
     end
 
     private

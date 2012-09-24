@@ -2,7 +2,8 @@
 
 ## NEXT
 
-  *
+  * During deploy, --config can be used to override most ey.yml options on demand.
+  * Alias --extra-deploy-hook-options as --config for easier usage.
 
 ## v2.0.6 (2012-09-19)
 
