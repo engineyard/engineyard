@@ -1,3 +1,4 @@
+$:.unshift(File.expand_path('../vendor/thor/lib/', File.dirname(__FILE__)))
 require 'thor'
 
 module EY
