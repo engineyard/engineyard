@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.0.8 (2012-10-23)
+
   * Vendor Thor to help reduce Rails incompatibilities.
 
 ## v2.0.7 (2012-09-24)
