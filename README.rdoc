@@ -231,6 +231,22 @@ Log in and verify access to EY Cloud. Use logout first if you need to switch use
 Remove the current API key from ~/.eyrc or env variable $EYRC
 
 
+== Global Options
+
+All commands accept the following options.
+
+  --api-token=API_TOKEN                    # Use API-TOKEN to authenticate this command
+  --serverside-version=SERVERSIDE_VERSION  # Please use with care! Override deploy system version
+                                           # (same as ENV variable ENGINEYARD_SERVERSIDE_VERSION)
+
+Not all commands will make use of these options. For example,
+ey status does not use, and will ignore the --serverside-version flag.
+
+Also, please consider that it's usually not a good idea to override the
+version of serverside unless you know what you're doing. CLI and serverside
+versions are designed to work together and mixing them can cause errors.
+
+
 == API Client
 
 See https://github.com/engineyard/engineyard-cloud-client for the API client library.

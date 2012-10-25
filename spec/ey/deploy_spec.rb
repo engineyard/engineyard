@@ -431,6 +431,26 @@ describe "ey deploy" do
     end
   end
 
+  context "setting a specific serverside version" do
+    use_git_repo("deploy test")
+
+    before(:all) do
+      login_scenario "one app, one environment"
+    end
+
+    it "should send the correct serverside version when specified" do
+      fast_ey %w[deploy --no-migrate --serverside-version 1.6.4]
+      deploy_command = @ssh_commands.find {|c| c =~ /engineyard-serverside.*deploy/ }
+      deploy_command.should =~ /engineyard-serverside _1.6.4_ deploy/
+    end
+
+    it "should send the default serverside version when unspecified" do
+      fast_ey %w[deploy --no-migrate]
+      deploy_command = @ssh_commands.find {|c| c =~ /engineyard-serverside.*deploy/ }
+      deploy_command.should =~ /engineyard-serverside _#{EY::ENGINEYARD_SERVERSIDE_VERSION}_ deploy/
+    end
+  end
+
   context "sending necessary information" do
     use_git_repo("deploy test")
 

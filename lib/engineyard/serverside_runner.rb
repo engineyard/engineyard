@@ -4,13 +4,14 @@ require 'engineyard-serverside-adapter'
 
 module EY
   class ServersideRunner
-    def initialize(bridge, app, environment, verbose)
-      @verbose = verbose || ENV['DEBUG']
-      @adapter = load_adapter(bridge, app, environment)
-      @username = environment.username
-      @hostname = bridge
-      @command = nil
-      @acc_env_name = "#{app.account.name}/#{environment.name}"
+    def initialize(options)
+      @verbose        = options[:verbose] || !!ENV['DEBUG']
+      @hostname       = options[:bridge]
+      env             = options[:environment]
+      @adapter        = load_adapter(@hostname, options[:app], env, @verbose, options[:serverside_version])
+      @username       = env.username
+      @hierarchy_name = env.hierarchy_name
+      @command        = nil
     end
 
     def deploy(&block)
@@ -47,9 +48,9 @@ module EY
 
   private
 
-    def load_adapter(bridge, app, environment)
+    def load_adapter(bridge, app, environment, verbose, serverside_version)
       EY::Serverside::Adapter.new("/usr/local/ey_resin/ruby/bin") do |args|
-        args.serverside_version = EY::ENGINEYARD_SERVERSIDE_VERSION
+        args.serverside_version = serverside_version
         args.app              = app.name
         args.repo             = app.repository_uri
         args.instances        = instances_data(environment.deploy_to_instances, bridge)
@@ -57,7 +58,7 @@ module EY
         args.framework_env    = environment.framework_env
         args.environment_name = environment.name
         args.account_name     = app.account.name
-        args.verbose          = @verbose
+        args.verbose          = verbose
       end
     end
 
@@ -99,7 +100,7 @@ module EY
           raise EY::Error, <<-ERROR
 Authentication Failed. Things to fix:
   1. Add your SSH key to your local SSH agent with `ssh-add path/to/key`.
-  2. Add your SSH key to #{@acc_env_name} on Engine Yard Cloud and apply the changes.
+  2. Add your SSH key to #{@hierarchy_name} on Engine Yard Cloud and apply the changes.
   (https://support.cloud.engineyard.com/entries/20996846-set-up-ssh-keys)
           ERROR
         end

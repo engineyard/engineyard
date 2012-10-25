@@ -36,6 +36,7 @@ module EY
     end
 
     class_option :api_token, :type => :string, :desc => "Use API-TOKEN to authenticate this command"
+    class_option :serverside_version, :type => :string, :desc => "Please use with care! Override deploy system version (same as ENV variable ENGINEYARD_SERVERSIDE_VERSION)"
 
     desc "deploy [--environment ENVIRONMENT] [--ref GIT-REF]",
       "Deploy specified branch, tag, or sha to specified environment."
@@ -81,13 +82,14 @@ module EY
       deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)
 
       deployment = app_env.new_deployment({
-        :ref             => deploy_config.ref,
-        :migrate         => deploy_config.migrate,
-        :migrate_command => deploy_config.migrate_command,
-        :extra_config    => deploy_config.extra_config,
+        :ref                => deploy_config.ref,
+        :migrate            => deploy_config.migrate,
+        :migrate_command    => deploy_config.migrate_command,
+        :extra_config       => deploy_config.extra_config,
+        :serverside_version => serverside_version,
       })
 
-      runner = serverside_runner(app_env, deploy_config.verbose, options[:ignore_bad_master])
+      runner = serverside_runner(app_env, deploy_config.verbose, deployment.serverside_version, options[:ignore_bad_master])
 
       out = EY::CLI::UI::Tee.new(ui.out, deployment.out)
       err = EY::CLI::UI::Tee.new(ui.err, deployment.err)

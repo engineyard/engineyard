@@ -29,8 +29,18 @@ module EY
       @repo ||= EY::Repo.new
     end
 
-    def serverside_runner(app_env, verbose, ignore_bad_bridge = false)
-      ServersideRunner.new(app_env.environment.bridge!(ignore_bad_bridge).hostname, app_env.app, app_env.environment, verbose)
+    def serverside_version
+      respond_to?(:options) && options[:serverside_version] || EY::ENGINEYARD_SERVERSIDE_VERSION
+    end
+
+    def serverside_runner(app_env, verbose, serverside_version = serverside_version, ignore_bad_bridge = false)
+      ServersideRunner.new({
+        :bridge             => app_env.environment.bridge!(ignore_bad_bridge).hostname,
+        :app                => app_env.app,
+        :environment        => app_env.environment,
+        :verbose            => verbose,
+        :serverside_version => serverside_version
+      })
     end
 
     def use_default_environment
