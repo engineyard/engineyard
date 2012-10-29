@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.0.9 (2012-10-29)
+
   * Send serverside version to the deploy API to help with 2.0.x upgrade path on dashboard.
   * Upgrade to engineyard-cloud-client version 1.0.7
 
