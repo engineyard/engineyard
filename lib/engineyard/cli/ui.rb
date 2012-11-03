@@ -36,7 +36,7 @@ module EY
         end
 
         def self.interactive?
-          @mock || ($stdin && $stdin.tty?)
+          @mock || ($stdout && $stdout.tty?)
         end
 
         def self.ask(question, password = false, default = nil)
@@ -77,7 +77,7 @@ module EY
           if interactive?
             block.call
           else
-            Timeout.timeout(5, &block)
+            Timeout.timeout(2, &block)
           end
         end
       end
