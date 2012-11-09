@@ -27,8 +27,8 @@ module EY
       ui.print_exception(e)
       ui.say("Quitting...")
       raise
-    rescue SystemExit
-      # don't print a message for exit
+    rescue SystemExit, Errno::EPIPE
+      # don't print a message for safe exits
       raise
     rescue Exception => e
       ui.print_exception(e)
