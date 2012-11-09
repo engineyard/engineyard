@@ -78,11 +78,12 @@ module EY
         if @perfom.nil? && @command = command_from_config
           @perform = true
           env_config.migrate = @perform
-          ui.warn "********************************************************************************"
-          ui.info "#{env_config.path} config for #{env_config.name} has been updated to"
-          ui.info "migrate by default to maintain previous expected default behavior."
-          ui.warn "********************************************************************************"
-          ui.say  "It's a good idea to git commit #{env_config.path} with these new changes."
+          ui.say "********************************************************************************", :yellow
+          ui.say "#{env_config.path} config for #{env_config.name} has been updated to"
+          ui.say "migrate by default to maintain previous expected default behavior."
+          ui.say ""
+          ui.say "Please git commit #{env_config.path} with these new changes.", :yellow
+          ui.say ""
           true
         else
           false
@@ -90,15 +91,14 @@ module EY
       end
 
       def perform_from_interaction
-        ui.warn "Please choose a default migration behavior for this environment."
         @perform = ui.agree("Run migrations by default on #{env_config.name}? ", true)
         env_config.migrate = @perform
         if @perform
           command_from_interaction
         end
-        ui.say "#{env_config.path}: migrate settings saved for #{env_config.name}."
-        ui.say "You can override this default with --migrate or --no-migrate."
-        ui.info "Please git commit #{env_config.path} with these new changes."
+        ui.info "#{env_config.path}: migrate settings saved for #{env_config.name}."
+        ui.info "You can override this default with --migrate or --no-migrate."
+        ui.say  "Please git commit #{env_config.path} with these new changes.", :yellow
         true
       rescue Timeout::Error
         @perform = nil

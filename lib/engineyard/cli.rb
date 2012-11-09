@@ -38,6 +38,7 @@ module EY
 
     class_option :api_token, :type => :string, :desc => "Use API-TOKEN to authenticate this command"
     class_option :serverside_version, :type => :string, :desc => "Please use with care! Override deploy system version (same as ENV variable ENGINEYARD_SERVERSIDE_VERSION)"
+    class_option :quiet, :aliases => %w[-q], :type => :boolean, :desc => "Quieter CLI output."
 
     desc "deploy [--environment ENVIRONMENT] [--ref GIT-REF]",
       "Deploy specified branch, tag, or sha to specified environment."
@@ -152,11 +153,7 @@ module EY
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       deployment = app_env.last_deployment
       if deployment
-        ui.say "# Status of last deployment of #{app_env.hierarchy_name}:"
-        ui.say "#"
-        ui.show_deployment(deployment)
-        ui.say "#"
-        ui.deployment_result(deployment)
+        ui.deployment_status(deployment)
       else
         raise EY::Error, "Application #{app_env.app.name} has not been deployed on #{app_env.environment.name}."
       end
@@ -185,7 +182,7 @@ module EY
       if options[:all] && options[:simple]
         ui.print_simple_envs api.environments
       elsif options[:all]
-        ui.print_envs(api.apps)
+        ui.print_envs api.apps
       else
         remotes = nil
         if options[:app] == ''
@@ -242,7 +239,7 @@ module EY
       :desc => "Name of the account in which the environment can be found"
     def rebuild
       environment = fetch_environment(options[:environment], options[:account])
-      ui.debug("Rebuilding #{environment.name}")
+      ui.info "Updating instances on #{environment.hierarchy_name}"
       environment.rebuild
     end
     map "update" => :rebuild
@@ -271,7 +268,7 @@ module EY
       env_config    = config.environment_config(app_env.environment_name)
       deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)
 
-      ui.info("Rolling back #{app_env.hierarchy_name}")
+      ui.info "Rolling back #{app_env.hierarchy_name}"
 
       runner = serverside_runner(app_env, deploy_config.verbose)
       runner.rollback do |args|
@@ -371,15 +368,15 @@ module EY
     def logs
       environment = fetch_environment(options[:environment], options[:account])
       environment.logs.each do |log|
-        ui.info log.instance_name
+        ui.say "Instance: #{log.instance_name}"
 
         if log.main
-          ui.info "Main logs for #{environment.name}:"
+          ui.say "Main logs for #{environment.name}:", :green
           ui.say  log.main
         end
 
         if log.custom
-          ui.info "Custom logs for #{environment.name}:"
+          ui.say "Custom logs for #{environment.name}:", :green
           ui.say  log.custom
         end
       end

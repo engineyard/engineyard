@@ -2,7 +2,7 @@
 
 ## NEXT
 
-  *
+  * -q (or --quiet) option mutes non-essential CLI output for all commands.
 
 ## v2.0.9 (2012-10-29)
 

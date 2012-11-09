@@ -94,6 +94,7 @@ module EY
       end
 
       def info(name, message = nil)
+        return if quiet?
         say_with_status(name, message, :green)
       end
 
@@ -156,7 +157,18 @@ module EY
         end
       end
 
+      def deployment_status(deployment)
+        unless quiet?
+          say "# Status of last deployment of #{deployment.app_environment.hierarchy_name}:"
+          say "#"
+          show_deployment(deployment)
+          say "#"
+        end
+        deployment_result(deployment)
+      end
+
       def show_deployment(dep)
+        return if quiet?
         output = []
         output << ["Account",         dep.app.account.name]
         output << ["Application",     dep.app.name]
@@ -177,11 +189,11 @@ module EY
 
       def deployment_result(dep)
         if dep.successful?
-          info 'This deployment was successful.'
+          say 'Deployment was successful.', :green
         elsif dep.finished_at.nil?
-          warn 'This deployment is not finished.'
+          say 'Deployment is not finished.', :yellow
         else
-          say_with_status('This deployment failed.', nil, :red)
+          say 'Deployment failed.', :red
         end
       end
 

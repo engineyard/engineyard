@@ -76,7 +76,7 @@ module EY
         @source    = "credentials"
         @specified = false
 
-        @ui.info("We need to fetch your API token; please log in.")
+        @ui.info "We need to fetch your API token; please log in."
         begin
           email  = @ui.ask("Email: ")
           passwd = @ui.ask("Password: ", true)

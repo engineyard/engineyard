@@ -41,7 +41,7 @@ module EY
 
     def use_default_environment
       if env = config.default_environment
-        ui.say "Using default environment #{config.default_environment.inspect} from ey.yml."
+        ui.info "Using default environment #{config.default_environment.inspect} from ey.yml."
         env
       end
     end

@@ -25,6 +25,21 @@ describe "ey environments" do
     @out.should =~ /Deployed by:\s+One App Many Envs/
     @out.should =~ /Started at:/
     @out.should =~ /Finished at:/
-    @out.should =~ /This deployment was successful/
+    @out.should =~ /Deployment was successful/
+  end
+
+  it "quiets almost all of the output with --quiet" do
+    fast_ey %w[deploy -e giblets --ref HEAD --no-migrate]
+    fast_ey %w[status -e giblets -q]
+    @out.should_not =~ /Application:\s+rails232app/
+    @out.should_not =~ /Environment:\s+giblets/
+    @out.should_not =~ /Ref:\s+HEAD/
+    @out.should_not =~ /Resolved Ref:\s+resolved-HEAD/
+    @out.should_not =~ /Commit:\s+[a-f0-9]{40}/
+    @out.should_not =~ /Migrate:\s+false/
+    @out.should_not =~ /Deployed by:\s+One App Many Envs/
+    @out.should_not =~ /Started at:/
+    @out.should_not =~ /Finished at:/
+    @out.should =~ /Deployment was successful/
   end
 end

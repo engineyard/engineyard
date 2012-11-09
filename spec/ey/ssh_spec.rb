@@ -26,6 +26,7 @@ shared_examples_for "running ey ssh for select role" do
   def command_to_run(opts)
     cmd = ["ssh", opts[:ssh_command]].compact + (@ssh_flag || [])
     cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--quiet" if opts[:quiet]
     cmd
   end
 
@@ -40,6 +41,13 @@ shared_examples_for "running ey ssh for select role" do
     @raw_ssh_commands.select do |command|
       command =~ /^ssh turkey.+ ls$/
     end.count.should == @hosts.count
+  end
+
+  it "is quiet" do
+    login_scenario "one app, one environment"
+    ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :quiet => true)
+    @out.should =~ /ssh.*ls/
+    @out.should_not =~ /Loading application data/
   end
 
   it "raises an error when there are no matching hosts" do
