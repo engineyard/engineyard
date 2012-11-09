@@ -93,10 +93,10 @@ module EY
 
       runner = serverside_runner(app_env, deploy_config.verbose, deployment.serverside_version, options[:ignore_bad_master])
 
-      out = EY::CLI::UI::Tee.new(ui.out, deployment.out)
-      err = EY::CLI::UI::Tee.new(ui.err, deployment.err)
+      out = EY::CLI::UI::Tee.new(ui.out, deployment.output)
+      err = EY::CLI::UI::Tee.new(ui.err, deployment.output)
 
-      ui.info  "Beginning deploy..."
+      ui.info  "Beginning deploy...", :green
       begin
         deployment.start
         ui.show_deployment(deployment)
@@ -125,11 +125,10 @@ module EY
         deployment.finished
 
         if deployment.successful?
-          ui.info "Successful deployment recorded on Engine Yard Cloud"
-          ui.info "Deploy complete"
-          ui.info "Now you can run `ey launch' to open the application in a browser."
+          ui.info "Successful deployment recorded on Engine Yard Cloud.", :green
+          ui.info "Run `ey launch` to open the application in a browser."
         else
-          ui.info "Failed deployment recorded on Engine Yard Cloud"
+          ui.info "Failed deployment recorded on Engine Yard Cloud", :green
           raise EY::Error, "Deploy failed"
         end
       end
@@ -481,10 +480,11 @@ module EY
     def logout
       eyrc = EYRC.load
       if eyrc.delete_api_token
-        ui.say "API token removed: #{eyrc.path}"
-        ui.say "Run any other command to login again."
+        ui.info "API token removed: #{eyrc.path}"
+        ui.info "Run any other command to login again."
       else
-        ui.say "Already logged out. Run any other command to login again."
+        ui.info "Already logged out. Run any other command to login again."
+        exit 1
       end
     end
 

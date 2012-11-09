@@ -60,17 +60,17 @@ module EY
       no_tasks do
         def apply_recipes(environment)
           environment.run_custom_recipes
-          ui.say "Uploaded recipes started for #{environment.name}"
+          ui.info "Uploaded recipes started for #{environment.name}"
         end
 
         def upload_recipes(environment, filename)
           if filename && filename != ''
             environment.upload_recipes_at_path(filename)
-            ui.say "Recipes file #{filename} uploaded successfully for #{environment.name}"
+            ui.info "Recipes file #{filename} uploaded successfully for #{environment.name}"
           else
             path = cookbooks_dir_archive_path
             environment.upload_recipes_at_path(path)
-            ui.say "Recipes in cookbooks/ uploaded successfully for #{environment.name}"
+            ui.info "Recipes in cookbooks/ uploaded successfully for #{environment.name}"
           end
         end
 
@@ -114,7 +114,7 @@ module EY
         cmd = "tar xzf '#{recipes.path}' cookbooks"
 
         if system(cmd)
-          ui.say "Recipes downloaded successfully for #{environment.name}"
+          ui.info "Recipes downloaded successfully for #{environment.name}"
         else
           raise EY::Error, "Could not unarchive recipes.\nCommand `#{cmd}` exited with an error."
         end

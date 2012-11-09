@@ -93,9 +93,9 @@ module EY
         say_with_status(name, message, :yellow)
       end
 
-      def info(name, message = nil)
+      def info(message, color = nil)
         return if quiet?
-        say_with_status(name, message, :green)
+        say_with_status(message, nil, color)
       end
 
       def debug(name, message = nil)

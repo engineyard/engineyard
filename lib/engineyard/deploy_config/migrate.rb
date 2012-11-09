@@ -78,12 +78,12 @@ module EY
         if @perfom.nil? && @command = command_from_config
           @perform = true
           env_config.migrate = @perform
-          ui.say "********************************************************************************", :yellow
-          ui.say "#{env_config.path} config for #{env_config.name} has been updated to"
-          ui.say "migrate by default to maintain previous expected default behavior."
-          ui.say ""
-          ui.say "Please git commit #{env_config.path} with these new changes.", :yellow
-          ui.say ""
+          ui.info "********************************************************************************"
+          ui.info "#{env_config.path} config for #{env_config.name} has been updated to"
+          ui.info "migrate by default to maintain previous expected default behavior."
+          ui.info ""
+          ui.info "Please git commit #{env_config.path} with these new changes.", :yellow
+          ui.info ""
           true
         else
           false
@@ -98,7 +98,7 @@ module EY
         end
         ui.info "#{env_config.path}: migrate settings saved for #{env_config.name}."
         ui.info "You can override this default with --migrate or --no-migrate."
-        ui.say  "Please git commit #{env_config.path} with these new changes.", :yellow
+        ui.info "Please git commit #{env_config.path} with these new changes.", :yellow
         true
       rescue Timeout::Error
         @perform = nil
