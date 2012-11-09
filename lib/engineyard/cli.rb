@@ -16,9 +16,10 @@ module EY
 
     include Thor::Actions
 
-    def self.start(*)
+    def self.start(given_args=ARGV, config={})
+      Thor::Base.shell = EY::CLI::UI
       ui = EY::CLI::UI.new
-      super
+      super(given_args, {:shell => ui}.merge(config))
     rescue EY::Error, EY::CloudClient::Error => e
       ui.print_exception(e)
       raise

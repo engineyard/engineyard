@@ -12,13 +12,9 @@ module EY
       @config ||= EY::Config.new
     end
 
+    # engineyard gem uses ui everywhere, thore supplies shell
     def ui
-      @ui ||= load_ui
-    end
-
-    def load_ui
-      Thor::Base.shell = EY::CLI::UI
-      EY::CLI::UI.new
+      shell
     end
 
     def in_repo?
