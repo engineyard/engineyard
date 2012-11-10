@@ -484,7 +484,6 @@ module EY
         ui.info "Run any other command to login again."
       else
         ui.info "Already logged out. Run any other command to login again."
-        exit 1
       end
     end
 
