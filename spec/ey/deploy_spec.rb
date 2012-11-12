@@ -69,9 +69,9 @@ describe "ey deploy" do
       ENV['NO_SSH'] = 'true'
     end
 
-    it "tells you that you need to add an appropriate ssh key" do
+    it "tells you that you need to add an appropriate ssh key (even with --quiet)" do
       login_scenario "one app, one environment"
-      fast_failing_ey %w[deploy --no-migrate]
+      fast_failing_ey %w[deploy --no-migrate --quiet]
       @err.should include("Authentication Failed")
     end
   end
@@ -249,19 +249,6 @@ describe "ey deploy" do
   end
 
   context "choosing something to deploy" do
-    define_git_repo('deploy test') do
-      # we'll have one commit on master
-      system("echo 'source :gemcutter' > Gemfile")
-      system("git add Gemfile")
-      system("git commit -m 'initial commit' >/dev/null 2>&1")
-
-      # and a tag
-      system("git tag -a -m 'version one' v1")
-
-      # and we need a non-master branch
-      system("git checkout -b current-branch >/dev/null 2>&1")
-    end
-
     use_git_repo('deploy test')
 
     before(:all) do

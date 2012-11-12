@@ -12,16 +12,6 @@ module SpecHelpers
     end
   end
 
-  module Fixtures
-    def fixture_recipes_tgz
-      File.expand_path('../fixture_recipes.tgz', __FILE__)
-    end
-
-    def link_recipes_tgz(git_dir)
-      system("ln -s #{fixture_recipes_tgz} #{git_dir.join('recipes.tgz')}")
-    end
-  end
-
   module IntegrationHelpers
     def run_ey(command_options, ey_options={})
 
@@ -55,13 +45,11 @@ module SpecHelpers
 
     def use_git_repo(repo_name)
       before(:all) do
-        @_original_wd ||= []
-        @_original_wd << Dir.getwd
-        Dir.chdir(EY.git_repo_dir(repo_name))
+        EY.chdir_to_repo(repo_name)
       end
 
       after(:all) do
-        Dir.chdir(@_original_wd.pop)
+        EY.chdir_return
       end
     end
   end
@@ -93,11 +81,11 @@ module SpecHelpers
     ensure_eyrc
 
     begin
+      debug = options[:debug] ? 'true' : nil
       err, out = StringIO.new, StringIO.new
-      debug = options[:debug] == false ? nil : 'true'
       capture_stderr_into(err) do
         capture_stdout_into(out) do
-          with_env('DEBUG' => debug) do
+          with_env('DEBUG' => debug, 'PRINT_CMD' => 'true') do
             EY::CLI.start(args)
           end
         end
@@ -145,7 +133,8 @@ module SpecHelpers
     path_prepends = options[:prepend_to_path]
 
     ey_env = {
-      'DEBUG'     => 'true',
+      'DEBUG'     => ENV['DEBUG'],
+      'PRINT_CMD' => 'true',
       'EYRC'      => ENV['EYRC'],
       'CLOUD_URL' => ENV['CLOUD_URL'],
     }
@@ -282,7 +271,7 @@ module SpecHelpers
       if ENV.has_key?(k)
         old_env_vars[k] = ENV[k]
       end
-      ENV[k] = v
+      ENV[k] = v if v
     end
 
     retval = yield

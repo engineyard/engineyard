@@ -29,7 +29,9 @@ describe EY::CLI::API do
       EY::CLI::UI::Prompter.add_answer "my@email.example.com"
       EY::CLI::UI::Prompter.add_answer "secret"
 
-      @api = EY::CLI::API.new('http://fake.local', EY::CLI::UI.new)
+      capture_stdout do
+        @api = EY::CLI::API.new('http://fake.local', EY::CLI::UI.new)
+      end
     end
 
     it "asks you for your credentials" do

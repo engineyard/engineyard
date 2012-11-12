@@ -22,7 +22,7 @@ module EY
       super(given_args, {:shell => ui}.merge(config))
     rescue EY::Error, EY::CloudClient::Error => e
       ui.print_exception(e)
-      raise
+      exit 1
     rescue Interrupt => e
       puts
       ui.print_exception(e)
@@ -122,6 +122,7 @@ module EY
         ui.print_exception(e)
         raise
       ensure
+        ui.info "Saving log... ", :green
         deployment.finished
 
         if deployment.successful?

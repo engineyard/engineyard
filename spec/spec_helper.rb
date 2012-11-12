@@ -47,7 +47,6 @@ RSpec.configure do |config|
 
   config.extend SpecHelpers::GitRepoHelpers
   config.extend SpecHelpers::Given
-  config.extend SpecHelpers::Fixtures
 
   def clean_tmpdir
     TMPDIR.rmtree if TMPDIR.exist?
@@ -76,12 +75,6 @@ RSpec.configure do |config|
     clean_eyrc
   end
 
-end
-
-EY.define_git_repo("default") do |git_dir|
-  system("echo 'source :gemcutter' > Gemfile")
-  system("git add Gemfile")
-  system("git commit -m 'initial commit' >/dev/null 2>&1")
 end
 
 shared_examples_for "integration" do

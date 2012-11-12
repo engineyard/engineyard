@@ -26,8 +26,13 @@ describe EY::DeployConfig::Migrate do
         @parent.should_receive(:set_environment_option).with('envname', 'migrate', true)
         @parent.should_receive(:set_environment_option).with('envname', 'migration_command', 'rake db:migrate')
         dc = deploy_config({})
-        dc.migrate.should be_true
-        dc.migrate_command.should == 'rake db:migrate'
+        out = capture_stdout do
+          dc.migrate.should be_true
+          dc.migrate_command.should == 'rake db:migrate'
+        end
+        out.should =~ /path: migrate settings saved for envname/
+        out.should =~ /You can override this default with --migrate or --no-migrate/
+        out.should =~ /Please git commit path with these new changes./
       end
 
       it "prompts migration_command if first answer is yes" do
@@ -36,16 +41,20 @@ describe EY::DeployConfig::Migrate do
         @parent.should_receive(:set_environment_option).with('envname', 'migrate', true)
         @parent.should_receive(:set_environment_option).with('envname', 'migration_command', 'ruby script/migrate')
         dc = deploy_config({})
-        dc.migrate.should be_true
-        dc.migrate_command.should == 'ruby script/migrate'
+        capture_stdout do
+          dc.migrate.should be_true
+          dc.migrate_command.should == 'ruby script/migrate'
+        end
       end
 
       it "doesn't prompt migration_command if first answer is no" do
         EY::CLI::UI::Prompter.add_answer "no" # default
         @parent.should_receive(:set_environment_option).with('envname', 'migrate', false)
         dc = deploy_config({})
-        dc.migrate.should be_false
-        dc.migrate_command.should be_nil
+        capture_stdout do
+          dc.migrate.should be_false
+          dc.migrate_command.should be_nil
+        end
       end
     end
 
@@ -120,7 +129,10 @@ describe EY::DeployConfig::Migrate do
         before { env_config('branch' => 'default') }
 
         it "uses the configured default if ref is not passed" do
-          deploy_config({}).ref.should == 'default'
+          out = capture_stdout do
+            deploy_config({}).ref.should == 'default'
+          end
+          out.should =~ /Using default branch "default" from ey.yml/
         end
 
         it "raises if a default is set and --ref is passed on the cli (and they don't match)" do
@@ -132,18 +144,27 @@ describe EY::DeployConfig::Migrate do
         end
 
         it "returns the ref if force_ref is set" do
-          deploy_config({'ref' => 'master', 'force_ref' => true}).ref.should == 'master'
+          out = capture_stdout do
+            deploy_config({'ref' => 'master', 'force_ref' => true}).ref.should == 'master'
+          end
+          out.should =~ /Default ref overridden with "master"/
         end
 
         it "returns the ref if force_ref is a branch" do
-          deploy_config({'force_ref' => 'master'}).ref.should == 'master'
+          out = capture_stdout do
+            deploy_config({'force_ref' => 'master'}).ref.should == 'master'
+          end
+          out.should =~ /Default ref overridden with "master"/
         end
       end
 
       context "no options, no default" do
         it "uses the repo's current branch" do
           @repo.should_receive(:current_branch).and_return('current')
-          deploy_config({}).ref.should == 'current'
+          out = capture_stdout do
+            deploy_config({}).ref.should == 'current'
+          end
+          out.should =~ /Using current HEAD branch "current"/
         end
       end
     end

@@ -88,7 +88,7 @@ module EY
       end
 
       out << "Running command on #{@username}@#{@hostname}.\n"
-      out << cmd << "\n" if @verbose
+      out << cmd << "\n" if @verbose || ENV['PRINT_CMD']
 
       if ENV["NO_SSH"]
         out << "NO_SSH is set. No output.\n"
