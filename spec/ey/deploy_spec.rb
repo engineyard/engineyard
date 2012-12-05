@@ -350,7 +350,7 @@ describe "ey deploy" do
       if @ssh_commands.last =~ /--config (.*?)(?: -|$)/
         # the echo strips off the layer of shell escaping, leaving us
         # with pristine JSON
-        JSON.parse `echo #{$1}`
+        MultiJson.load `echo #{$1}`
       end
     end
 
