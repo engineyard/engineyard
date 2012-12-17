@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.0.10 (2012-12-17)
+
   * Command line option -q (or --quiet) mutes non-essential CLI output for most commands.
   * Uses new version 2.0.4 of the deploy system.
   * Supports new ey.yml option during deploy to control on which roles asset precompilation happens.
