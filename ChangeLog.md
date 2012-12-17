@@ -2,7 +2,16 @@
 
 ## NEXT
 
-  * -q (or --quiet) option mutes non-essential CLI output for all commands.
+  * Command line option -q (or --quiet) mutes non-essential CLI output for most commands.
+  * Uses new version 2.0.4 of the deploy system.
+  * Supports new ey.yml option during deploy to control on which roles asset precompilation happens.
+    * Follows YAML Array syntax (using :app, :app\_master, :solo, :util) or :all.
+    * Syntax: `asset_roles: :all (default is to exclude :util but include all others. [:app, :app_master, :solo])`
+  * During deploy, adds `RAILS_GROUPS=assets` to rake assets:precompile to improve asset compilation performance.
+  * Records exceptions raised during deploy into the deploy log when possible.
+  * Fixes a bug where permissions problems may cause integrate action to fail.
+  * Fixes a problem where "maintenance page still up" notice would stay on Cloud Dashboard too long. Downgraded message severity.
+  * Garbage collect git at the end of each deploy. First one may take a while but the next ones will be faster and reduce extra disk usage.
 
 ## v2.0.9 (2012-10-29)
 
