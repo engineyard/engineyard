@@ -23,6 +23,7 @@ A few other nice changes:
   * maintenance_on_migrate: true/false (default: true)
   * precompile_assets: true/false (default: inferred using app/assets and config/application.rb)
   * ignore_database_adapter_warning: true (hides adapter warning)
+  * asset_roles: :all (specify on which roles to compile assets (default: [:app, :app_master, :solo])
 * Don't remove maintenance pages that weren't put up during this deploy if maintenance options (above) are set to false.
 * ey web restart - restarts web servers without deploying.
 
