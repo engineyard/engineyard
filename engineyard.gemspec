@@ -36,7 +36,7 @@ Gem::Specification.new do |s|
   s.add_development_dependency('fakeweb')
   s.add_development_dependency('fakeweb-matcher')
   s.add_development_dependency('sinatra')
-  s.add_development_dependency('realweb', '~>1.0.0')
+  s.add_development_dependency('realweb', '~>1.0.1')
   s.add_development_dependency('open4', '~>1.0.1')
   s.add_development_dependency('hashie')
   s.add_development_dependency('gitable')
