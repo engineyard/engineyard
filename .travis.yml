@@ -6,7 +6,6 @@ rvm:
   - ree
 notifications:
   recipients:
-    - drnicwilliams@gmail.com
     - memde@engineyard.com
     - srosenfeld@engineyard.com
     - jallen@engineyard.com
