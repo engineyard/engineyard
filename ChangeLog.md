@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.0.11 (2013-02-12)
+
   * New version of `engineyard-serverside` which includes:
     * Change concurrency code to use a simple threaded model (faster deploys on some instances)
     * Clean up local branches that might interfere with the git checkout.
