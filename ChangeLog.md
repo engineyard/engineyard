@@ -9,7 +9,7 @@
   * Uses new version of engineyard-serverside 2.0.6 with the following bug fixes:
     * Fix for command line config option `--config precompile_assets:true/false` which was being interpreted as a string.
     * Don't exclude the `RAILS_ENV` Gemfile group from bundle install. (i.e. don't do `--without development` in `development` mode)
-
+  * Add a new command `ey timeout-deploy` which will mark stuck deploys as canceled.
 
 ## v2.0.11 (2013-02-12)
 

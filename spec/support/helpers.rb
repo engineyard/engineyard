@@ -212,6 +212,7 @@ module SpecHelpers
     "one app, one environment, not linked"                => "Unlinked App",
     "two apps"                                            => "Two Apps",
     "one app, one environment"                            => "Linked App",
+    "Stuck Deployment"                                    => "Stuck Deployment",
     "two accounts, two apps, two environments, ambiguous" => "Multiple Ambiguous Accounts",
     "one app, one environment, no instances"              => "Linked App Not Running",
     "one app, one environment, app master red"            => "Linked App Red Master",

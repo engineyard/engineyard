@@ -67,10 +67,30 @@ Options:
       [--extra-deploy-hook-options key:val] # Additional options to be made available in deploy hooks (in the 'config' hash)
                                             # Add more keys as follows: --extra-deploy-hook-options key1:val1 key2:val2
 
+=== ey timeout-deploy
+
+The latest running deployment will be marked as failed, allowing a
+new deployment to be run. It is possible to mark a potentially successful
+deployment as failed. Only run this when a deployment is known to be
+wrongly unfinished/stuck and when further deployments are blocked.
+
+NOTICE: This command is will indiscriminately timeout any deploy, with no
+regard for its potential successful or failure. Confirm that the running
+deploy is actually stuck or broken before running this command. If run
+against a deploy that would succeed, it could cause the deployment to be
+marked as failed incorrectly.
+
+Options:
+
+  -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
+  -a, [--app=APP]                           # Name of the application containing the environment
+  -e, [--environment=ENVIRONMENT]           # Name of the environment with the desired deployment
+
 
 === ey status
 
-Show the status of most recent deployment of the specified application and environment. This action only informational and will not change your application.
+Show the status of most recent deployment of the specified application and
+environment. This action only informational and will not change your application.
 
 Options:
 
