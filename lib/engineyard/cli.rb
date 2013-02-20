@@ -99,6 +99,12 @@ module EY
       ui.info  "Beginning deploy...", :green
       begin
         deployment.start
+      rescue
+        ui.error "Error encountered before deploy. Deploy not started."
+        raise
+      end
+
+      begin
         ui.show_deployment(deployment)
         out << "Deploy initiated.\n"
 
@@ -113,9 +119,17 @@ module EY
         end
         deployment.successful = runner.call(out, err)
       rescue Interrupt
+        Signal.trap(:INT) { # The fingers you have used to dial are too fat...
+          ui.info "\nRun `ey timeout-deploy` to mark an unfinished deployment as failed."
+          exit 1
+        }
         err << "Interrupted. Deployment halted.\n"
-        ui.warn "Recording canceled deployment in Engine Yard Cloud..."
-        ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on Engine Yard Cloud."
+        ui.warn <<-WARN
+Recording interruption of this unfinished deployment in Engine Yard Cloud...
+
+WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
+         failed deployment. Unfinished deployments can block future deploys.
+        WARN
         raise
       rescue StandardError => e
         deployment.err << "Error encountered during deploy.\n#{e.class} #{e}\n"
@@ -132,6 +146,44 @@ module EY
           ui.info "Failed deployment recorded on Engine Yard Cloud", :green
           raise EY::Error, "Deploy failed"
         end
+      end
+    end
+
+    desc "timeout-deploy [--environment ENVIRONMENT]",
+      "Cancel a stuck unfinished deployment by marking it as failed."
+    long_desc <<-DESC
+      NOTICE: Timing out a deploy does not stop currently running deploy
+      processes.
+
+      This command must be run in the current directory containing the app.
+      The latest running deployment will be marked as failed, allowing a
+      new deployment to be run. It is possible to mark a potentially successful
+      deployment as failed. Only run this when a deployment is known to be
+      wrongly unfinished/stuck and when further deployments are blocked.
+    DESC
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => false,
+      :desc => "Environment in which to deploy this application"
+    method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
+      :desc => "Name of the application to deploy"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
+      :desc => "Name of the account in which the environment can be found"
+    def timeout_deploy
+      app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+      deployment = app_env.last_deployment
+      if deployment && !deployment.finished?
+        begin
+          ui.info  "Marking last deployment failed...", :green
+          deployment.timeout
+          ui.deployment_status(deployment)
+        rescue EY::CloudClient::RequestFailed => e
+          ui.error "Error encountered attempting to timeout previous deployment."
+          raise
+        end
+      else
+        raise EY::Error, "No unfinished deployment was found for #{app_env.hierarchy_name}."
       end
     end
 
