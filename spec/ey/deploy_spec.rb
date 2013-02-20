@@ -1,22 +1,27 @@
 require 'spec_helper'
 
 describe "ey deploy without an eyrc file" do
-
-  given "integration without an eyrc file"
-
-  before(:each) do
-    api_scenario "one app, one environment"
-  end
+  given "integration"
 
   it "prompts for authentication before continuing" do
-    ey(%w[deploy], :hide_err => true) do |input|
-      input.puts("test@test.test")
-      input.puts("test")
+    api_scenario "one app, one environment"
+
+    ey(%w[deploy --no-migrate], :hide_err => true) do |input|
+      input.puts(scenario_email)
+      input.puts(scenario_password)
     end
 
     @out.should include("We need to fetch your API token; please log in.")
     @out.should include("Email:")
     @out.should include("Password:")
+    @ssh_commands.should_not be_empty
+
+    read_eyrc.should == {"api_token" => scenario_api_token}
+  end
+
+  it "uses the token on the command line" do
+    api_scenario "one app, one environment"
+    ey(%w[deploy --no-migrate --api-token] + [scenario_api_token])
     @ssh_commands.should_not be_empty
   end
 end
@@ -31,12 +36,17 @@ describe "ey deploy" do
     cmd << "--app"         << opts[:app]         if opts[:app]
     cmd << "--account"     << opts[:account]     if opts[:account]
     cmd << "--ref"         << opts[:ref]         if opts[:ref]
+    cmd << "--migrate"                           if opts[:migrate]
+    cmd                    << opts[:migrate]     if opts[:migrate].respond_to?(:str)
+    cmd << "--no-migrate"                        if opts[:migrate] == nil
     cmd << "--verbose"                           if opts[:verbose]
     cmd
   end
 
   def verify_ran(scenario)
-    @out.should match(/Beginning deploy of ref '[^']+' for '#{scenario[:application]}' in '#{scenario[:environment]}'/)
+    @out.should match(/Beginning deploy.../)
+    @out.should match(/Application:\s+#{scenario[:application]}/)
+    @out.should match(/Environment:\s+#{scenario[:environment]}/)
     @out.should match(/deployment recorded/i)
     @ssh_commands.should have_command_like(/engineyard-serverside.*deploy.*--app #{scenario[:application]}/)
   end
@@ -51,7 +61,7 @@ describe "ey deploy" do
 
   context "without ssh keys (with ssh enabled)" do
     before do
-      ENV['NO_SSH'] = nil
+      ENV.delete('NO_SSH')
       Net::SSH.stub!(:start).and_raise(Net::SSH::AuthenticationFailed.new("no key"))
     end
 
@@ -59,35 +69,35 @@ describe "ey deploy" do
       ENV['NO_SSH'] = 'true'
     end
 
-    it "tells you that you need to add an appropriate ssh key" do
-      api_scenario "one app, one environment"
-      fast_failing_ey ["deploy"]
+    it "tells you that you need to add an appropriate ssh key (even with --quiet)" do
+      login_scenario "one app, one environment"
+      fast_failing_ey %w[deploy --no-migrate --quiet]
       @err.should include("Authentication Failed")
     end
   end
 
   context "with invalid input" do
     it "complains when there is no app" do
-      api_scenario "empty"
+      login_scenario "empty"
       fast_failing_ey ["deploy"]
-      @err.should include(%|no application configured|)
+      @err.should include(%|No application found|)
     end
 
     it "complains when the specified environment does not contain the app" do
-      api_scenario "one app, one environment, not linked"
+      login_scenario "one app, one environment, not linked"
       fast_failing_ey %w[deploy -e giblets -r master]
-      @err.should match(/there is no application configured/i)
+      @err.should match(/Application "rails232app" and environment "giblets" are not associated./)
     end
 
     it "complains when environment is not specified and app is in >1 environment" do
-      api_scenario "one app, many environments"
-      fast_failing_ey %w[deploy]
-      @err.should match(/multiple app deployments possible/i)
+      login_scenario "one app, many environments"
+      fast_failing_ey %w[deploy --ref master --no-migrate]
+      @err.should match(/Multiple application environments possible/i)
     end
 
     it "complains when the app master is in a non-running state" do
-      api_scenario "one app, one environment, app master red"
-      fast_failing_ey %w[deploy --environment giblets --ref master]
+      login_scenario "one app, one environment, app master red"
+      fast_failing_ey %w[deploy --environment giblets --ref master --no-migrate]
       @err.should_not match(/No running instances/i)
       @err.should match(/running.*\(green\)/)
     end
@@ -95,18 +105,66 @@ describe "ey deploy" do
 
   context "migration command" do
     before(:each) do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
     end
 
     it "finds engineyard-serverside despite its being buried in the filesystem" do
-      fast_ey %w[deploy]
+      fast_ey %w[deploy --no-migrate]
       @ssh_commands.last.should =~ %r{/usr/local/ey_resin/ruby/bin/engineyard-serverside}
     end
 
-    it "defaults to 'rake db:migrate'" do
-      fast_ey %w[deploy]
-      @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
-      @ssh_commands.last.should =~ /--migrate 'rake db:migrate'/
+    context "without migrate sepecified, interactively reads migration command" do
+      def clean_ey_yml
+        File.unlink 'ey.yml' if File.exist?('ey.yml')
+        FileUtils.rm_r 'config' if FileTest.exist?('config')
+      end
+
+      before { clean_ey_yml }
+      after  { clean_ey_yml }
+
+      it "defaults to yes, and then rake db:migrate (and installs to config/ey.yml if config/ exists already)" do
+        ey_yml = Pathname.new('config/ey.yml')
+        File.exist?('ey.yml').should be_false
+        ey_yml.dirname.mkpath
+        ey_yml.should_not be_exist
+        ey(%w[deploy]) do |input|
+          input.puts('')
+          input.puts('')
+        end
+        @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
+        @ssh_commands.last.should =~ /--migrate 'rake db:migrate'/
+        File.exist?('ey.yml').should be_false
+        ey_yml.should be_exist
+        env_conf = read_yaml(ey_yml.to_s)['environments']['giblets']
+        env_conf['migrate'].should == true
+        env_conf['migration_command'].should == 'rake db:migrate'
+      end
+
+      it "accepts new commands" do
+        File.exist?('ey.yml').should be_false
+        FileTest.exist?('config').should be_false
+        ey(%w[deploy], :hide_err => true) do |input|
+          input.puts("y")
+          input.puts("ruby migrate")
+        end
+        @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
+        @ssh_commands.last.should =~ /--migrate 'ruby migrate'/
+        File.exist?('ey.yml').should be_true
+        env_conf = read_yaml('ey.yml')['environments']['giblets']
+        env_conf['migrate'].should == true
+        env_conf['migration_command'].should == 'ruby migrate'
+      end
+
+      it "doesn't ask for the command if you say no" do
+        File.exist?('ey.yml').should be_false
+        ey(%w[deploy], :hide_err => true) do |input|
+          input.puts("no")
+        end
+        @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
+        @ssh_commands.last.should_not =~ /--migrate/
+        File.exist?('ey.yml').should be_true
+        read_yaml('ey.yml')['environments']['giblets']['migrate'].should == false
+      end
     end
 
     it "can be disabled with --no-migrate" do
@@ -124,9 +182,10 @@ describe "ey deploy" do
       before { write_yaml({"environments" => {"giblets" => { "migration_command" => 'thor fancy:migrate' }}}, 'ey.yml') }
       after  { File.unlink 'ey.yml' }
 
-      it "migrates with the custom command by default" do
+      it "migrates with the custom command by default (and fixes ey.yml to reflect the previous default behavior)" do
         fast_ey %w[deploy]
         @ssh_commands.last.should =~ /--migrate 'thor fancy:migrate'/
+        read_yaml('ey.yml')['environments']['giblets']['migrate'].should == true
       end
     end
 
@@ -155,9 +214,10 @@ describe "ey deploy" do
       before { write_yaml({"environments" => {"giblets" => {"migrate" => true}}}, 'ey.yml') }
       after  { File.unlink 'ey.yml' }
 
-      it "migrates with the default" do
+      it "migrates with the default (and writes the default to ey.yml)" do
         fast_ey %w[deploy]
         @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
+        read_yaml('ey.yml')['environments']['giblets']['migration_command'].should == 'rake db:migrate'
       end
     end
 
@@ -179,58 +239,45 @@ describe "ey deploy" do
 
   context "the --framework-env option" do
     before(:each) do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
     end
 
     it "passes the framework environment" do
-      fast_ey %w[deploy]
+      fast_ey %w[deploy --no-migrate]
       @ssh_commands.last.should match(/--framework-env production/)
     end
   end
 
   context "choosing something to deploy" do
-    define_git_repo('deploy test') do
-      # we'll have one commit on master
-      system("echo 'source :gemcutter' > Gemfile")
-      system("git add Gemfile")
-      system("git commit -m 'initial commit' >/dev/null 2>&1")
-
-      # and a tag
-      system("git tag -a -m 'version one' v1")
-
-      # and we need a non-master branch
-      system("git checkout -b current-branch >/dev/null 2>&1")
-    end
-
     use_git_repo('deploy test')
 
     before(:all) do
-      api_scenario "one app, one environment", "user@git.host:path/to/repo.git"
+      login_scenario "one app, one environment"
     end
 
     context "without a configured default branch" do
       it "defaults to the checked-out local branch" do
-        fast_ey %w[deploy]
+        fast_ey %w[deploy --no-migrate]
         @ssh_commands.last.should =~ /--ref resolved-current-branch/
       end
 
       it "deploys another branch if given" do
-        fast_ey %w[deploy --ref master]
+        fast_ey %w[deploy --ref master --no-migrate]
         @ssh_commands.last.should =~ /--ref resolved-master/
       end
 
       it "deploys a tag if given" do
-        fast_ey %w[deploy --ref v1]
+        fast_ey %w[deploy --ref v1 --no-migrate]
         @ssh_commands.last.should =~ /--ref resolved-v1/
       end
 
       it "allows using --branch to specify a branch" do
-        fast_ey %w[deploy --branch master]
+        fast_ey %w[deploy --branch master --no-migrate]
         @ssh_commands.last.should match(/--ref resolved-master/)
       end
 
       it "allows using --tag to specify the tag" do
-        fast_ey %w[deploy --tag v1]
+        fast_ey %w[deploy --tag v1 --no-migrate]
         @ssh_commands.last.should match(/--ref resolved-v1/)
       end
     end
@@ -244,15 +291,15 @@ describe "ey deploy" do
         File.unlink("ey.yml")
       end
 
-      it "gets passed along to engineyard-serverside" do
-        fast_ey %w[deploy]
-        @ssh_commands.last.should =~ /--config '{.*"bert":"ernie".*}'/
+      it "no longer gets passed along to engineyard-serverside (since serverside will read it on its own)" do
+        fast_ey %w[deploy --no-migrate]
+        @ssh_commands.last.should_not =~ /"bert":"ernie"/
       end
     end
 
     context "with a configured default branch" do
       before(:each) do
-        write_yaml({"environments" => {"giblets" => {"branch" => "master"}}}, 'ey.yml')
+        write_yaml({"environments" => {"giblets" => {"branch" => "master", "migrate" => false}}}, 'ey.yml')
       end
 
       after(:each) do
@@ -266,7 +313,7 @@ describe "ey deploy" do
 
       it "complains about a non-default branch without --ignore-default-branch" do
         fast_failing_ey %w[deploy -r current-branch]
-        @err.should =~ /deploy branch is set to "master"/
+        @err.should =~ /default branch is set to "master"/
       end
 
       it "deploys a non-default branch with --ignore-default-branch" do
@@ -283,52 +330,61 @@ describe "ey deploy" do
 
   context "specifying an environment" do
     before(:all) do
-      api_scenario "one app, many similarly-named environments"
+      login_scenario "one app, many similarly-named environments"
     end
 
     it "lets you choose by complete name even if the complete name is ambiguous" do
-      fast_ey %w[deploy --environment railsapp_staging]
-      @out.should match(/Beginning deploy of ref 'master' for '[\w]+' in 'railsapp_staging'/)
+      fast_ey %w[deploy --environment railsapp_staging --no-migrate]
+      @out.should match(/Beginning deploy.../)
+      @out.should match(/Ref:\s+master/)
+      @out.should match(/Environment:\s+railsapp_staging/)
     end
   end
 
-  context "--extra-deploy-hook-options" do
+  context "--config (--extra-deploy-hook-options)" do
     before(:all) do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
     end
 
-    def extra_deploy_hook_options
+    def config_options
       if @ssh_commands.last =~ /--config (.*?)(?: -|$)/
         # the echo strips off the layer of shell escaping, leaving us
         # with pristine JSON
-        JSON.parse `echo #{$1}`
+        MultiJson.load `echo #{$1}`
       end
     end
 
-    it "passes the extra configuration to engineyard-serverside" do
-      ey %w[deploy --extra-deploy-hook-options some:stuff more:crap]
-      extra_deploy_hook_options.should_not be_nil
-      extra_deploy_hook_options['some'].should == 'stuff'
-      extra_deploy_hook_options['more'].should == 'crap'
+    it "passes --config to engineyard-serverside" do
+      ey %w[deploy --config some:stuff more:crap --no-migrate]
+      config_options.should_not be_nil
+      config_options['some'].should == 'stuff'
+      config_options['more'].should == 'crap'
+    end
+
+    it "supports legacy --extra-deploy-hook-options" do
+      ey %w[deploy --extra-deploy-hook-options some:stuff more:crap --no-migrate]
+      config_options.should_not be_nil
+      config_options['some'].should == 'stuff'
+      config_options['more'].should == 'crap'
     end
 
     context "when ey.yml is present" do
       before do
-        write_yaml({"environments" => {"giblets" => {"beer" => "stout"}}}, 'ey.yml')
+        write_yaml({"environments" => {"giblets" => {"beer" => "stout", "migrate" => true}}}, 'ey.yml')
       end
 
       after { File.unlink("ey.yml") }
 
       it "overrides what's in ey.yml" do
-        fast_ey %w[deploy --extra-deploy-hook-options beer:esb]
-        extra_deploy_hook_options['beer'].should == 'esb'
+        fast_ey %w[deploy --config beer:esb]
+        config_options['beer'].should == 'esb'
       end
     end
   end
 
   context "specifying the application" do
     before(:all) do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
     end
 
     before(:each) do
@@ -341,16 +397,44 @@ describe "ey deploy" do
     end
 
     it "allows you to specify an app when not in a directory" do
-      fast_ey %w[deploy --app rails232app --ref master]
+      fast_ey %w[deploy --app rails232app --ref master --migrate]
       @ssh_commands.last.should match(/--app rails232app/)
       @ssh_commands.last.should match(/--ref resolved-master/)
+      @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
     end
 
     it "requires that you specify a ref when specifying the application" do
       Dir.chdir(File.expand_path("~")) do
-        fast_failing_ey %w[deploy --app rails232app]
-        @err.should match(/you must also specify the ref to deploy/)
+        fast_failing_ey %w[deploy --app rails232app --no-migrate]
+        @err.should match(/you must also specify the --ref/)
       end
+    end
+
+    it "requires that you specify a migrate option when specifying the application" do
+      Dir.chdir(File.expand_path("~")) do
+        fast_failing_ey %w[deploy --app rails232app --ref master]
+        @err.should match(/you must also specify .* --migrate or --no-migrate/)
+      end
+    end
+  end
+
+  context "setting a specific serverside version" do
+    use_git_repo("deploy test")
+
+    before(:all) do
+      login_scenario "one app, one environment"
+    end
+
+    it "should send the correct serverside version when specified" do
+      fast_ey %w[deploy --no-migrate --serverside-version 1.6.4]
+      deploy_command = @ssh_commands.find {|c| c =~ /engineyard-serverside.*deploy/ }
+      deploy_command.should =~ /engineyard-serverside _1.6.4_ deploy/
+    end
+
+    it "should send the default serverside version when unspecified" do
+      fast_ey %w[deploy --no-migrate]
+      deploy_command = @ssh_commands.find {|c| c =~ /engineyard-serverside.*deploy/ }
+      deploy_command.should =~ /engineyard-serverside _#{EY::ENGINEYARD_SERVERSIDE_VERSION}_ deploy/
     end
   end
 
@@ -358,8 +442,8 @@ describe "ey deploy" do
     use_git_repo("deploy test")
 
     before(:all) do
-      api_scenario "one app, one environment", "user@git.host:path/to/repo.git"
-      fast_ey ["deploy"]
+      login_scenario "one app, one environment"
+      fast_ey %w[deploy --no-migrate]
       @deploy_command = @ssh_commands.find {|c| c =~ /engineyard-serverside.*deploy/ }
     end
 

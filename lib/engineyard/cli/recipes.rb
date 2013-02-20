@@ -1,3 +1,5 @@
+require 'tempfile'
+
 module EY
   class CLI
     class Recipes < EY::Thor
@@ -12,8 +14,10 @@ module EY
       DESC
 
       method_option :environment, :type => :string, :aliases => %w(-e),
+        :required => true, :default => '',
         :desc => "Environment in which to apply recipes"
       method_option :account, :type => :string, :aliases => %w(-c),
+        :required => true, :default => '',
         :desc => "Name of the account in which the environment can be found"
       def apply
         environment = fetch_environment(options[:environment], options[:account])
@@ -24,7 +28,7 @@ module EY
         "Upload custom chef recipes to specified environment so they can be applied."
       long_desc <<-DESC
         Make an archive of the "cookbooks/" subdirectory in your current working
-        directory and upload it to EY Cloud's recipe storage.
+        directory and upload it to Engine Yard Cloud's recipe storage.
 
         Alternatively, specify a .tgz of a cookbooks/ directory yourself as follows:
 
@@ -35,12 +39,15 @@ module EY
       DESC
 
       method_option :environment, :type => :string, :aliases => %w(-e),
+        :required => true, :default => '',
         :desc => "Environment that will receive the recipes"
       method_option :account, :type => :string, :aliases => %w(-c),
+        :required => true, :default => '',
         :desc => "Name of the account in which the environment can be found"
       method_option :apply, :type => :boolean,
         :desc => "Apply the recipes immediately after they are uploaded"
       method_option :file, :type => :string, :aliases => %w(-f),
+        :required => true, :default => '',
         :desc => "Specify a gzipped tar file (.tgz) for upload instead of cookbooks/ directory"
       def upload
         environment = fetch_environment(options[:environment], options[:account])
@@ -53,17 +60,32 @@ module EY
       no_tasks do
         def apply_recipes(environment)
           environment.run_custom_recipes
-          EY.ui.say "Uploaded recipes started for #{environment.name}"
+          ui.info "Uploaded recipes started for #{environment.name}"
         end
 
         def upload_recipes(environment, filename)
-          if options[:file]
-            environment.upload_recipes_at_path(options[:file])
-            EY.ui.say "Recipes file #{options[:file]} uploaded successfully for #{environment.name}"
+          if filename && filename != ''
+            environment.upload_recipes_at_path(filename)
+            ui.info "Recipes file #{filename} uploaded successfully for #{environment.name}"
           else
-            environment.tar_and_upload_recipes_in_cookbooks_dir
-            EY.ui.say "Recipes in cookbooks/ uploaded successfully for #{environment.name}"
+            path = cookbooks_dir_archive_path
+            environment.upload_recipes_at_path(path)
+            ui.info "Recipes in cookbooks/ uploaded successfully for #{environment.name}"
           end
+        end
+
+        def cookbooks_dir_archive_path
+          unless FileTest.exist?("cookbooks")
+            raise EY::Error, "Could not find chef recipes. Please run from the root of your recipes repo."
+          end
+
+          recipes_file = Tempfile.new("recipes")
+          cmd = "tar czf '#{recipes_file.path}' cookbooks/"
+
+          unless system(cmd)
+            raise EY::Error, "Could not archive recipes.\nCommand `#{cmd}` exited with an error."
+          end
+          recipes_file.path
         end
       end
 
@@ -76,13 +98,26 @@ module EY
         If the cookbooks directory already exists, an error will be raised.
       DESC
       method_option :environment, :type => :string, :aliases => %w(-e),
+        :required => true, :default => '',
         :desc => "Environment for which to download the recipes"
       method_option :account, :type => :string, :aliases => %w(-c),
+        :required => true, :default => '',
         :desc => "Name of the account in which the environment can be found"
       def download
+        if File.exist?('cookbooks')
+          raise EY::Error, "Cannot download recipes, cookbooks directory already exists."
+        end
+
         environment = fetch_environment(options[:environment], options[:account])
-        environment.download_recipes
-        EY.ui.say "Recipes downloaded successfully for #{environment.name}"
+
+        recipes = environment.download_recipes
+        cmd = "tar xzf '#{recipes.path}' cookbooks"
+
+        if system(cmd)
+          ui.info "Recipes downloaded successfully for #{environment.name}"
+        else
+          raise EY::Error, "Could not unarchive recipes.\nCommand `#{cmd}` exited with an error."
+        end
       end
 
     end

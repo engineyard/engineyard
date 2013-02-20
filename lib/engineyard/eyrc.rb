@@ -9,7 +9,7 @@ module EY
     end
 
     def initialize(path)
-      self.path = path
+      @path = Pathname.new(path).expand_path
     end
 
     def exist?
@@ -29,10 +29,6 @@ module EY
     end
 
     private
-
-    def path=(p)
-      @path = Pathname.new(p).expand_path
-    end
 
     def [](key)
       read_data[key.to_s]

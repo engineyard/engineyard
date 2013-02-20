@@ -1,29 +1,84 @@
+require 'highline'
+
 module EY
   class CLI
     class UI < Thor::Base.shell
 
+      class Tee
+        def initialize(*ios)
+          @ios = ios
+        end
+
+        def <<(str)
+          @ios.each { |io| io << str }
+          self
+        end
+      end
+
       class Prompter
-        class Mock
-          def next_answer=(arg)
-            @answers ||= []
-            @answers << arg
-          end
-          def ask(*args, &block)
-            @questions ||= []
-            @questions << args.first
-            @answers.pop
-          end
-          attr_reader :questions
+        def self.add_answer(arg)
+          @answers ||= []
+          @answers << arg
         end
+
+        def self.questions
+          @questions
+        end
+
         def self.enable_mock!
-          @backend = Mock.new
+          @questions = []
+          @answers = []
+          @mock = true
         end
-        def self.backend
-          require 'highline'
-          @backend ||= HighLine.new($stdin)
+
+        def self.highline
+          @highline ||= HighLine.new($stdin)
         end
-        def self.ask(*args, &block)
-          backend.ask(*args, &block)
+
+        def self.interactive?
+          @mock || ($stdout && $stdout.tty?)
+        end
+
+        def self.ask(question, password = false, default = nil)
+          if @mock
+            @questions ||= []
+            @questions << question
+            answer = @answers.shift
+            (answer == '' && default) ? default : answer
+          else
+            timeout_if_not_interactive do
+              highline.ask(question) do |q|
+                q.echo = "*"        if password
+                q.default = default if default
+              end.to_s
+            end
+          end
+        end
+
+        def self.agree(question, default)
+          if @mock
+            @questions ||= []
+            @questions << question
+            answer = @answers.shift
+            answer == '' ? default : %w[y yes].include?(answer)
+          else
+            timeout_if_not_interactive do
+              answer = highline.agree(question) {|q| q.default = default ? 'Y/n' : 'N/y' }
+              case answer
+              when 'Y/n' then true
+              when 'N/y' then false
+              else            answer
+              end
+            end
+          end
+        end
+
+        def self.timeout_if_not_interactive(&block)
+          if interactive?
+            block.call
+          else
+            Timeout.timeout(2, &block)
+          end
         end
       end
 
@@ -38,8 +93,9 @@ module EY
         say_with_status(name, message, :yellow)
       end
 
-      def info(name, message = nil)
-        say_with_status(name, message, :green)
+      def info(message, color = nil)
+        return if quiet?
+        say_with_status(message, nil, color)
       end
 
       def debug(name, message = nil)
@@ -58,75 +114,86 @@ module EY
         end
       end
 
-      def ask(message, password = false)
-        begin
-          if !$stdin || !$stdin.tty?
-            Prompter.ask(message)
-          elsif password
-            Prompter.ask(message) {|q| q.echo = "*" }
+      def interactive?
+        Prompter.interactive?
+      end
+
+      def agree(message, default)
+        Prompter.agree(message, default)
+      end
+
+      def ask(message, password = false, default = nil)
+        Prompter.ask(message, password, default)
+      rescue EOFError
+        return ''
+      end
+
+      def print_simple_envs(envs)
+        puts envs.map{|env| env.name }.uniq.sort
+      end
+
+      def print_envs(apps, default_env_name = nil)
+        apps.sort_by {|app| "#{app.account.name}/#{app.name}" }.each do |app|
+          puts "#{app.account.name}/#{app.name}"
+          if app.environments.any?
+            app.environments.sort_by {|env| env.name }.each do |env|
+              icount = env.instances_count
+              iname = case icount
+                      when 0 then "(stopped)"
+                      when 1 then "1 instance"
+                      else "#{icount} instances"
+                      end
+
+              name = env.name == default_env_name ? "#{env.name} (default)" : env.name
+              framework_env = env.framework_env && "[#{env.framework_env.center(12)}]"
+
+              puts "    #{name.ljust(30)} #{framework_env}  #{iname}"
+            end
           else
-            Prompter.ask(message) {|q| q.readline = true }
+            puts "    (No environments)"
           end
-        rescue EOFError
-          return ''
+
+          puts ""
         end
       end
 
-      def print_envs(apps, default_env_name = nil, simple = false)
-        if simple
-          envs = apps.map{ |app| app.environments.to_a }
-          puts envs.flatten.map{|env| env.name }.uniq
-        else
-          apps.each do |app|
-            puts "#{app.name} (#{app.account.name})"
-            if app.environments.any?
-              app.environments.each do |env|
-                short_name = env.shorten_name_for(app)
-
-                icount = env.instances_count
-                iname = (icount == 1) ? "instance" : "instances"
-
-                default_text = env.name == default_env_name ? " [default]" : ""
-
-                puts "  #{short_name}#{default_text} (#{icount} #{iname})"
-              end
-            else
-              puts "  (This application is not in any environments; you can make one at #{EY.config.endpoint})"
-            end
-
-            puts ""
-          end
+      def deployment_status(deployment)
+        unless quiet?
+          say "# Status of last deployment of #{deployment.app_environment.hierarchy_name}:"
+          say "#"
+          show_deployment(deployment)
+          say "#"
         end
+        deployment_result(deployment)
       end
 
       def show_deployment(dep)
-        puts "# Status of last deployment of #{dep.app.account.name}/#{dep.app.name}/#{dep.environment.name}:"
-        puts "#"
-
+        return if quiet?
         output = []
         output << ["Account",         dep.app.account.name]
         output << ["Application",     dep.app.name]
         output << ["Environment",     dep.environment.name]
         output << ["Input Ref",       dep.ref]
-        output << ["Resolved Ref",    dep.ref]
-        output << ["Commit",          dep.commit || '(Unable to resolve)']
+        output << ["Resolved Ref",    dep.resolved_ref]
+        output << ["Commit",          dep.commit || '(not resolved)']
         output << ["Migrate",         dep.migrate]
         output << ["Migrate command", dep.migrate_command] if dep.migrate
-        output << ["Deployed by",     dep.user_name]
-        output << ["Created at",      dep.created_at]
-        output << ["Finished at",     dep.finished_at]
+        output << ["Deployed by",     dep.deployed_by]
+        output << ["Started at",      dep.created_at] if dep.created_at
+        output << ["Finished at",     dep.finished_at] if dep.finished_at
 
         output.each do |att, val|
-          puts "#\t%-15s %s" % ["#{att}:", val.to_s]
+          puts "#\t%-16s %s" % ["#{att}:", val.to_s]
         end
-        puts "#"
+      end
 
+      def deployment_result(dep)
         if dep.successful?
-          info 'This deployment was successful.'
+          say 'Deployment was successful.', :green
         elsif dep.finished_at.nil?
-          warn 'This deployment is not finished.'
+          say 'Deployment is not finished.', :yellow
         else
-          say_with_status('This deployment failed.', nil, :red)
+          say 'Deployment failed.', :red
         end
       end
 
@@ -151,6 +218,14 @@ module EY
 
       def set_color(string, color, bold=false)
         ($stdout.tty? || ENV['THOR_SHELL']) ? super : string
+      end
+
+      def err
+        $stderr
+      end
+
+      def out
+        $stdout
       end
 
     end

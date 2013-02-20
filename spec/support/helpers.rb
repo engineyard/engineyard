@@ -12,31 +12,27 @@ module SpecHelpers
     end
   end
 
-  module Fixtures
-    def fixture_recipes_tgz
-      File.expand_path('../fixture_recipes.tgz', __FILE__)
-    end
-
-    def link_recipes_tgz(git_dir)
-      system("ln -s #{fixture_recipes_tgz} #{git_dir.join('recipes.tgz')}")
-    end
-  end
-
   module IntegrationHelpers
     def run_ey(command_options, ey_options={})
+
       if respond_to?(:extra_ey_options)   # needed for ssh tests
         ey_options.merge!(extra_ey_options)
+        return ey(command_to_run(command_options), ey_options)
       end
 
-      ey(command_to_run(command_options), ey_options)
+      if ey_options[:expect_failure]
+        fast_failing_ey(command_to_run(command_options))
+      else
+        fast_ey(command_to_run(command_options))
+      end
     end
 
-    def make_scenario(hash)
+    def make_scenario(opts)
       # since nil will silently turn to empty string when interpolated,
       # and there's a lot of string matching involved in integration
       # testing, it would be nice to have early notification of typos.
       scenario = Hash.new { |h,k| raise "Tried to get key #{k.inspect}, but it's missing!" }
-      scenario.merge!(hash)
+      scenario.merge!(opts)
     end
   end
 
@@ -49,13 +45,11 @@ module SpecHelpers
 
     def use_git_repo(repo_name)
       before(:all) do
-        @_original_wd ||= []
-        @_original_wd << Dir.getwd
-        Dir.chdir(EY.git_repo_dir(repo_name))
+        EY.chdir_to_repo(repo_name)
       end
 
       after(:all) do
-        Dir.chdir(@_original_wd.pop)
+        EY.chdir_return
       end
     end
   end
@@ -69,21 +63,37 @@ module SpecHelpers
   ZeroExitStatus = Class.new(UnexpectedExit)
 
   def ey_api
-    @api ||= EY::API.new('asdf')
+    @api ||= EY::CloudClient.new(:token => 'asdf')
   end
 
-  def fast_ey(args)
-    err, out = StringIO.new, StringIO.new
-    capture_stderr_into(err) do
-      capture_stdout_into(out) do
-        with_env('DEBUG' => 'true') do
-          EY::CLI.start(args)
+  def ensure_eyrc
+    begin
+      unless (data = read_eyrc) and data['api_token']
+        raise ".eyrc has no token, specs will stall waiting for stdin authentication input"
+      end
+    rescue Errno::ENOENT => e
+      raise ".eyrc must be written before calling run_ey or specs will stall waiting for stdin authentication input"
+    end
+  end
+
+  def fast_ey(args, options = {})
+
+    ensure_eyrc
+
+    begin
+      debug = options[:debug] ? 'true' : nil
+      err, out = StringIO.new, StringIO.new
+      capture_stderr_into(err) do
+        capture_stdout_into(out) do
+          with_env('DEBUG' => debug, 'PRINT_CMD' => 'true') do
+            EY::CLI.start(args)
+          end
         end
       end
+    ensure
+      @err, @out = err.string, out.string
+      @raw_ssh_commands, @ssh_commands = extract_ssh_commands(@out)
     end
-  ensure
-    @err, @out = err.string, out.string
-    @raw_ssh_commands, @ssh_commands = extract_ssh_commands(@out)
   end
 
   def fast_failing_ey(*args)
@@ -94,17 +104,8 @@ module SpecHelpers
       # SystemExit typically indicates a bogus command, which we
       # here in expected-to-fail land are entirely happy with.
       nil
-    rescue EY::Error => e
-      more_err, more_out = StringIO.new, StringIO.new
-
-      capture_stderr_into(more_err) do
-        capture_stdout_into(more_out) do
-          EY.ui.print_exception(e)
-        end
-      end
-
-      @err << more_err.string
-      @out << more_out.string
+    rescue EY::Error, EY::CloudClient::Error => e
+      nil
     end
   end
 
@@ -123,11 +124,17 @@ module SpecHelpers
   end
 
   def ey(args = [], options = {}, &block)
+    if respond_to?(:extra_ey_options)   # needed for ssh tests
+      options.merge!(extra_ey_options)
+    end
+
     hide_err = options.has_key?(:hide_err) ? options[:hide_err] : options[:expect_failure]
+
     path_prepends = options[:prepend_to_path]
 
     ey_env = {
-      'DEBUG'     => 'true',
+      'DEBUG'     => ENV['DEBUG'],
+      'PRINT_CMD' => 'true',
       'EYRC'      => ENV['EYRC'],
       'CLOUD_URL' => ENV['CLOUD_URL'],
     }
@@ -137,16 +144,16 @@ module SpecHelpers
     end
 
     if path_prepends
-      tempdir = File.join(Dir.tmpdir, "ey_test_cmds_#{Time.now.tv_sec}#{Time.now.tv_usec}_#{$$}")
-      Dir.mkdir(tempdir)
+      tempdir = TMPDIR.join("ey_test_cmds_#{Time.now.tv_sec}#{Time.now.tv_usec}_#{$$}")
+      tempdir.mkpath
       path_prepends.each do |name, contents|
-        File.open(File.join(tempdir, name), 'w') do |f|
+        tempdir.join(name).open('w') do |f|
           f.write(contents)
           f.chmod(0755)
         end
       end
 
-      ey_env['PATH'] = tempdir + ':' + ENV['PATH']
+      ey_env['PATH'] = "#{tempdir}:#{ENV['PATH']}"
     end
 
     eybin = File.expand_path('../bundled_ey', __FILE__)
@@ -154,6 +161,7 @@ module SpecHelpers
     with_env(ey_env) do
       exit_status = Open4::open4("#{eybin} #{Escape.shell_command(args)}") do |pid, stdin, stdout, stderr|
         block.call(stdin) if block
+        stdin.close
         @out = stdout.read
         @err = stderr.read
       end
@@ -172,7 +180,7 @@ module SpecHelpers
   end
 
   def extract_ssh_commands(output)
-    raw_ssh_commands = @out.split(/\n/).find_all do |line|
+    raw_ssh_commands = [@out,@err].join("\n").split(/\n/).find_all do |line|
       line =~ /^bash -lc/ || line =~ /^ssh/
     end
 
@@ -198,9 +206,46 @@ module SpecHelpers
     [raw_ssh_commands, ssh_commands]
   end
 
-  def api_scenario(scenario, remote = "user@git.host:path/to/repo.git")
-    response = ::RestClient.put(EY.fake_awsm + '/scenario', {"scenario" => scenario, "remote" => remote}, {})
-    raise "Setting scenario failed: #{response.inspect}" unless response.code == 200
+  DEPRECATED_SCENARIOS = {
+    "empty"                                               => "User Name",
+    "one app without environment"                         => "App Without Env",
+    "one app, one environment, not linked"                => "Unlinked App",
+    "two apps"                                            => "Two Apps",
+    "one app, one environment"                            => "Linked App",
+    "two accounts, two apps, two environments, ambiguous" => "Multiple Ambiguous Accounts",
+    "one app, one environment, no instances"              => "Linked App Not Running",
+    "one app, one environment, app master red"            => "Linked App Red Master",
+    "one app, many environments"                          => "One App Many Envs",
+    "one app, many similarly-named environments"          => "One App Similarly Named Envs",
+    "two apps, same git uri"                              => "Two Apps Same Git URI",
+  }
+
+  def api_scenario(old_name)
+    clean_eyrc # switching scenarios, always clean up
+    name = DEPRECATED_SCENARIOS[old_name]
+    @scenario = EY::CloudClient::Test::Scenario[name]
+    @scenario_email     = @scenario.email
+    @scenario_password  = @scenario.password
+    @scenario_api_token = @scenario.api_token
+    @scenario
+  end
+
+  def login_scenario(scenario_name)
+    scen = api_scenario(scenario_name)
+    write_eyrc('api_token' => scenario_api_token)
+    scen
+  end
+
+  def scenario_email
+    @scenario_email
+  end
+
+  def scenario_password
+    @scenario_password
+  end
+
+  def scenario_api_token
+    @scenario_api_token
   end
 
   def read_yaml(file)
@@ -226,7 +271,7 @@ module SpecHelpers
       if ENV.has_key?(k)
         old_env_vars[k] = ENV[k]
       end
-      ENV[k] = v
+      ENV[k] = v if v
     end
 
     retval = yield

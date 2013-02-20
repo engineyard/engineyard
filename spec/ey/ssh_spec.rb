@@ -26,12 +26,13 @@ shared_examples_for "running ey ssh for select role" do
   def command_to_run(opts)
     cmd = ["ssh", opts[:ssh_command]].compact + (@ssh_flag || [])
     cmd << "--environment" << opts[:environment] if opts[:environment]
+    cmd << "--quiet" if opts[:quiet]
     cmd
   end
 
   it "runs the command on the right servers" do
-    api_scenario "one app, one environment"
-    run_ey(:ssh_command => "ls", :environment => 'giblets', :verbose => true)
+    login_scenario "one app, one environment"
+    ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :verbose => true)
     @hosts.each do |host|
       @raw_ssh_commands.select do |command|
         command =~ /^ssh turkey@#{host}.+ ls$/
@@ -42,15 +43,22 @@ shared_examples_for "running ey ssh for select role" do
     end.count.should == @hosts.count
   end
 
+  it "is quiet" do
+    login_scenario "one app, one environment"
+    ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :quiet => true)
+    @out.should =~ /ssh.*ls/
+    @out.should_not =~ /Loading application data/
+  end
+
   it "raises an error when there are no matching hosts" do
-    api_scenario "one app, one environment, no instances"
-    run_ey({:ssh_command => "ls", :environment => 'giblets', :verbose => true}, :expect_failure => true)
+    login_scenario "one app, one environment, no instances"
+    ey command_to_run({:ssh_command => "ls", :environment => 'giblets', :verbose => true}), :expect_failure => true
   end
 
   it "responds correctly when there is no command" do
     if @hosts.count != 1
-      api_scenario "one app, one environment"
-      run_ey({:environment => 'giblets', :verbose => true}, :expect_failure => true)
+      login_scenario "one app, one environment"
+      ey command_to_run({:environment => 'giblets', :verbose => true}), :expect_failure => true
     end
   end
 end
@@ -59,7 +67,7 @@ describe "ey ssh" do
   include_examples "running ey ssh"
 
   before(:all) do
-    api_scenario "one app, many environments"
+    login_scenario "one app, many environments"
   end
 
   it "complains if it has no app master" do
@@ -127,8 +135,8 @@ describe "ey ssh with a command that fails" do
   end
 
   it "fails just like the ssh command fails" do
-    api_scenario "one app, one environment"
-    run_ey({:ssh_command => "ls", :environment => 'giblets', :verbose => true}, :expect_failure => true)
+    login_scenario "one app, one environment"
+    ey command_to_run({:ssh_command => "ls", :environment => 'giblets', :verbose => true}), :expect_failure => true
   end
 end
 
@@ -153,12 +161,12 @@ end
 describe "ey ssh --all" do
   before do
     @ssh_flag = %w[--all]
-    @hosts = %w(app_hostname 
-                app_master_hostname 
-                util_fluffy_hostname 
-                util_rocky_hostname 
-                db_master_hostname 
-                db_slave_1_hostname 
+    @hosts = %w(app_hostname
+                app_master_hostname
+                util_fluffy_hostname
+                util_rocky_hostname
+                db_master_hostname
+                db_slave_1_hostname
                 db_slave_2_hostname)
   end
 

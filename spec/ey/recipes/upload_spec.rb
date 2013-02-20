@@ -3,10 +3,6 @@ require 'spec_helper'
 describe "ey recipes upload" do
   given "integration"
 
-  define_git_repo('+cookbooks') do |git_dir|
-    git_dir.join("cookbooks").mkdir
-    File.open(git_dir.join("cookbooks/file"), "w"){|f| f << "boo" }
-  end
   use_git_repo('+cookbooks')
 
   def command_to_run(opts)
@@ -26,9 +22,6 @@ end
 describe "ey recipes upload -f recipes.tgz" do
   given "integration"
 
-  define_git_repo('+recipes') do |git_dir|
-    link_recipes_tgz(git_dir)
-  end
   use_git_repo('+recipes')
 
   def command_to_run(opts)
@@ -57,8 +50,8 @@ describe "ey recipes upload -f with a missing filenamen" do
   end
 
   it "errors with file not found" do
-    api_scenario "one app, one environment"
-    ey(%w[recipes upload --environment giblets -f recipes.tgz], :expect_failure => true)
+    login_scenario "one app, one environment"
+    fast_failing_ey(%w[recipes upload --environment giblets -f recipes.tgz])
     @err.should match(/Recipes file not found: recipes.tgz/i)
   end
 end
@@ -73,19 +66,10 @@ describe "ey recipes upload from a separate cookbooks directory" do
   given "integration"
 
   context "without any git remotes" do
-    define_git_repo "only cookbooks, no remotes" do |git_dir|
-      `git --git-dir "#{git_dir}/.git" remote`.split("\n").each do |remote|
-        `git --git-dir "#{git_dir}/.git" remote rm #{remote}`
-      end
-
-      git_dir.join("cookbooks").mkdir
-      File.open(git_dir.join("cookbooks/file"), "w"){|f| f << "stuff" }
-    end
-
     use_git_repo "only cookbooks, no remotes"
 
     it "takes the environment specified by -e" do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets]
       @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|
@@ -93,7 +77,7 @@ describe "ey recipes upload from a separate cookbooks directory" do
     end
 
     it "applies the recipes with --apply" do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets --apply]
       @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|
@@ -102,21 +86,10 @@ describe "ey recipes upload from a separate cookbooks directory" do
   end
 
   context "with a git remote unrelated to any application" do
-    define_git_repo "only cookbooks, unrelated remotes" do |git_dir|
-      `git --git-dir "#{git_dir}/.git" remote`.split("\n").each do |remote|
-        `git --git-dir "#{git_dir}/.git" remote rm #{remote}`
-      end
-
-      `git remote add origin polly@pirate.example.com:wanna/cracker.git`
-
-      git_dir.join("cookbooks").mkdir
-      File.open(git_dir.join("cookbooks/file"), "w"){|f| f << "rawk" }
-    end
-
     use_git_repo "only cookbooks, unrelated remotes"
 
     it "takes the environment specified by -e" do
-      api_scenario "one app, one environment"
+      login_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets]
       @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|

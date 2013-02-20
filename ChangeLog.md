@@ -4,9 +4,91 @@
 
   *
 
-## v1.4.29 (2012-04-26)
+## v2.0.11 (2013-02-12)
+
+  * New version of `engineyard-serverside` which includes:
+    * Change concurrency code to use a simple threaded model (faster deploys on some instances)
+    * Clean up local branches that might interfere with the git checkout.
+
+## v2.0.10 (2012-12-17)
+
+  * Command line option -q (or --quiet) mutes non-essential CLI output for most commands.
+  * Uses new version 2.0.4 of the deploy system.
+  * Supports new ey.yml option during deploy to control on which roles asset precompilation happens.
+    * Follows YAML Array syntax (using :app, :app\_master, :solo, :util) or :all.
+    * Syntax: `asset_roles: :all (default is to exclude :util but include all others. [:app, :app_master, :solo])`
+  * During deploy, adds `RAILS_GROUPS=assets` to rake assets:precompile to improve asset compilation performance.
+  * Records exceptions raised during deploy into the deploy log when possible.
+  * Fixes a bug where permissions problems may cause integrate action to fail.
+  * Fixes a problem where "maintenance page still up" notice would stay on Cloud Dashboard too long. Downgraded message severity.
+  * Garbage collect git at the end of each deploy. First one may take a while but the next ones will be faster and reduce extra disk usage.
+
+## v2.0.9 (2012-10-29)
+
+  * Send serverside version to the deploy API to help with 2.0.x upgrade path on dashboard.
+  * Upgrade to engineyard-cloud-client version 1.0.7
+
+## v2.0.8 (2012-10-23)
+
+  * Vendor Thor to help reduce Rails incompatibilities.
+
+## v2.0.7 (2012-09-24)
+
+  * During deploy, --config can be used to override most ey.yml options on demand.
+  * Alias --extra-deploy-hook-options as --config for easier usage.
+
+## v2.0.6 (2012-09-19)
+
+  * During deploy, only symlink shared config files that actually exist.
+  * During deploy, don't display the database adapter warning when the environment does not have a database.
+  * During deploy, chown shared/bundled\_gems dir to deploy user to ensure bundle install works.
+
+## v2.0.5 (2012-09-05)
+
+  * Fix calls to system() leaking stdout into the command output.
+
+## v2.0.4 (2012-09-05)
+
+  * Don't redirect command output to /dev/null because windows doesn't like it.
+
+## v2.0.3 (2012-08-29)
+
+  * Use new serverside-adapter that allows setting engineyard-serverside version separately.
+
+## v2.0.2 (2012-08-24)
 
   *
+
+## v2.0.1 (2012-08-21)
+
+  * Update serverside to print less deprecation warnings.
+
+## v2.0.0 (2012-08-16)
+
+  * Repository interactions pay attention to $GIT\_DIR and $GIT\_WORK\_TREE.
+  * Increases responsiveness of most API interactions.
+  * Prints notices when ey.yml defaults are used.
+  * Improves failed deployment output messaging.
+  * Allows `--app`, `--account`, and `--environment` for `ey environments` for extra filtering.
+  * Prints an error when a command line option, like `--environment`, is specified without an argument.
+  * No longer guesses migration behavior. ey.yml must contain `migrate: true # or false` for each environment. ey deploy will walk you through on your first deploy.
+  * Adds command `ey web restart` to restart application servers without deploying.
+  * New version of `engineyard-serverside` (and adapter), which includes:
+    * Default bundler version is now 1.1.5.
+    * Deploy hooks now have access to `account_name` and `environment_name`.
+    * Improves deploy output, especially for `--verbose`.
+    * Sends all log output through a new Shell object that formats and adds timestamps.
+    * Loads `ey.yml` or `config/ey.yml` to customize deploy settings.
+    * Supports new ey.yml options to control automatic maintenance page:
+      * `maintenance_on_restart: true or false (default: false except for glassfish and mongrel)`
+      * `maintenance_on_migrate: true or false (default: true)`
+    * Don't remove maintenance pages that weren't put up during this deploy if maintenance options (above) are set to false.
+    * Supports new ey.yml options to control asset precompilation:
+      * `precompile_assets: true or false (default: inferred using app/assets and config/application.rb)`
+    * Supports new ey.yml option to ignore the missing database adapter warning:
+      * `ignore_database_adapter_warning: true (default: false)`
+    * Fixes a bug that could cause Passenger to restart multiple times during each deploy.
+    * Change order of compile\_assets during deploy. Compile assets now happens before enabling maintenance page.
 
 ## v1.4.28 (2012-03-29)
 
@@ -47,7 +129,7 @@
 
 ## v1.4.19 (2012-01-12)
 
-  * Failed releases are now saved in a 'releases_failed' directory, parallel to the existing 'releases' directory.
+  * Failed releases are now saved in a 'releases\_failed' directory, parallel to the existing 'releases' directory.
   * Resolved a bundler version conflict that could occur for apps that specified a particular bundler version.
 
 ## v1.4.18 (2012-01-03)

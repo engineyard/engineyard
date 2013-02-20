@@ -1,6 +1,9 @@
 require 'engineyard'
 require 'engineyard/error'
 require 'engineyard/thor'
+require 'engineyard/deploy_config'
+require 'engineyard/serverside_runner'
+require 'launchy'
 
 module EY
   class CLI < EY::Thor
@@ -8,14 +11,34 @@ module EY
     require 'engineyard/cli/web'
     require 'engineyard/cli/api'
     require 'engineyard/cli/ui'
+    require 'engineyard/error'
+    require 'engineyard-cloud-client/errors'
 
     include Thor::Actions
 
-    def self.start(*)
+    def self.start(given_args=ARGV, config={})
       Thor::Base.shell = EY::CLI::UI
-      EY.ui = EY::CLI::UI.new
-      super
+      ui = EY::CLI::UI.new
+      super(given_args, {:shell => ui}.merge(config))
+    rescue EY::Error, EY::CloudClient::Error => e
+      ui.print_exception(e)
+      exit 1
+    rescue Interrupt => e
+      puts
+      ui.print_exception(e)
+      ui.say("Quitting...")
+      raise
+    rescue SystemExit, Errno::EPIPE
+      # don't print a message for safe exits
+      raise
+    rescue Exception => e
+      ui.print_exception(e)
+      raise
     end
+
+    class_option :api_token, :type => :string, :desc => "Use API-TOKEN to authenticate this command"
+    class_option :serverside_version, :type => :string, :desc => "Please use with care! Override deploy system version (same as ENV variable ENGINEYARD_SERVERSIDE_VERSION)"
+    class_option :quiet, :aliases => %w[-q], :type => :boolean, :desc => "Quieter CLI output."
 
     desc "deploy [--environment ENVIRONMENT] [--ref GIT-REF]",
       "Deploy specified branch, tag, or sha to specified environment."
@@ -23,67 +46,93 @@ module EY
       This command must be run with the current directory containing the app to be
       deployed. If ey.yml specifies a default branch then the ref parameter can be
       omitted. Furthermore, if a default branch is specified but a different command
-      is supplied the deploy will fail unless --ignore-default-branch is used.
+      is supplied the deploy will fail unless -R or --force-ref is used.
 
-      Migrations are run based on the 'Migrate?' setting you define in your dashboard
-      for the application. If you want to override these settings, a different
-      command can be specified via --migrate "ruby do_migrations.rb". Migrations
-      can also be skipped entirely by using --no-migrate.
+      Migrations are run based on the settings in your ey.yml file.
+      With each deploy the default migration setting can be overriden by
+      specifying --migrate or --migrate 'rake db:migrate'.
+      Migrations can also be skipped by using --no-migrate.
     DESC
-    method_option :force_ref, :type => :string, :aliases => %w(--ignore-default-branch -R),
-      :lazy_default => true,
-      :desc => "Force a deploy of the specified git ref even if a default is set in ey.yml."
-    method_option :ignore_bad_master, :type => :boolean,
+    method_option :ignore_bad_master, :type => :boolean, :aliases => %w(--ignore-bad-bridge),
       :desc => "Force a deploy even if the master is in a bad state"
     method_option :migrate, :type => :string, :aliases => %w(-m),
       :lazy_default => true,
-      :desc => "Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations"
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :desc => "Environment in which to deploy this application"
+      :desc => "Run migrations via [MIGRATE], defaults to '#{EY::DeployConfig::Migrate::DEFAULT}'; use --no-migrate to avoid running migrations"
     method_option :ref, :type => :string, :aliases => %w(-r --branch --tag),
+      :required => true, :default => '',
       :desc => "Git ref to deploy. May be a branch, a tag, or a SHA. Use -R to deploy a different ref if a default is set."
+    method_option :force_ref, :type => :string, :aliases => %w(--ignore-default-branch -R),
+      :lazy_default => true,
+      :desc => "Force a deploy of the specified git ref even if a default is set in ey.yml."
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => false,
+      :desc => "Environment in which to deploy this application"
     method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
       :desc => "Name of the application to deploy"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
-    method_option :extra_deploy_hook_options, :type => :hash, :default => {},
-      :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
+    method_option :config, :type => :hash, :default => {}, :aliases => %w(--extra-deploy-hook-options),
+      :desc => "Hash made available in deploy hooks (in the 'config' hash), can also override some ey.yml settings."
     def deploy
-      EY.ui.info "Loading application data from EY Cloud..."
+      app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
 
-      app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
-      environment.ignore_bad_master = options[:ignore_bad_master]
-      deploy_ref  = if options[:app]
-                      environment.resolve_branch(options[:ref], options[:force_ref]) ||
-                        raise(EY::Error, "When specifying the application, you must also specify the ref to deploy\nUsage: ey deploy --app <app name> --ref <branch|tag|ref>")
-                    else
-                      environment.resolve_branch(options[:ref], options[:force_ref]) ||
-                        repo.current_branch ||
-                        raise(DeployArgumentError)
-                    end
+      env_config    = config.environment_config(app_env.environment_name)
+      deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)
 
-      EY.ui.info "Beginning deploy of ref '#{deploy_ref}' for '#{app.name}' in '#{environment.name}' on server..."
+      deployment = app_env.new_deployment({
+        :ref                => deploy_config.ref,
+        :migrate            => deploy_config.migrate,
+        :migrate_command    => deploy_config.migrate_command,
+        :extra_config       => deploy_config.extra_config,
+        :serverside_version => serverside_version,
+      })
 
-      deploy_options = {'extras' => {'deployed_by' => api.user.name}.merge(options[:extra_deploy_hook_options])}
-      if options.has_key?('migrate') # thor set migrate => nil when --no-migrate
-        deploy_options['migrate'] = options['migrate'].respond_to?(:to_str) ? options['migrate'] : !!options['migrate']
+      runner = serverside_runner(app_env, deploy_config.verbose, deployment.serverside_version, options[:ignore_bad_master])
+
+      out = EY::CLI::UI::Tee.new(ui.out, deployment.output)
+      err = EY::CLI::UI::Tee.new(ui.err, deployment.output)
+
+      ui.info  "Beginning deploy...", :green
+      begin
+        deployment.start
+        ui.show_deployment(deployment)
+        out << "Deploy initiated.\n"
+
+        runner.deploy do |args|
+          args.config  = deployment.config          if deployment.config
+          if deployment.migrate
+            args.migrate = deployment.migrate_command
+          else
+            args.migrate = false
+          end
+          args.ref     = deployment.resolved_ref
+        end
+        deployment.successful = runner.call(out, err)
+      rescue Interrupt
+        err << "Interrupted. Deployment halted.\n"
+        ui.warn "Recording canceled deployment in Engine Yard Cloud..."
+        ui.warn "WARNING: Interrupting again may result in a never-finished deployment in the deployment history on Engine Yard Cloud."
+        raise
+      rescue StandardError => e
+        deployment.err << "Error encountered during deploy.\n#{e.class} #{e}\n"
+        ui.print_exception(e)
+        raise
+      ensure
+        ui.info "Saving log... ", :green
+        deployment.finished
+
+        if deployment.successful?
+          ui.info "Successful deployment recorded on Engine Yard Cloud.", :green
+          ui.info "Run `ey launch` to open the application in a browser."
+        else
+          ui.info "Failed deployment recorded on Engine Yard Cloud", :green
+          raise EY::Error, "Deploy failed"
+        end
       end
-      deploy_options['verbose'] = options['verbose'] if options.has_key?('verbose')
-
-
-      if environment.deploy(app, deploy_ref, deploy_options)
-        EY.ui.info "Deploy complete"
-        EY.ui.info "Now you can run `ey launch' to open the application in a browser."
-      else
-        raise EY::Error, "Deploy failed"
-      end
-
-    rescue NoEnvironmentError => e
-      # Give better feedback about why we couldn't find the environment.
-      exists = api.environments.named(options[:environment])
-      raise exists ? EnvironmentUnlinkedError.new(options[:environment]) : e
     end
 
     desc "status", "Show the deployment status of the app"
@@ -92,18 +141,21 @@ module EY
       application and environment.
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Environment where the application is deployed"
     method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
       :desc => "Name of the application"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the application can be found"
     def status
-      app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
-      deployment = app.last_deployment_on(environment)
+      app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+      deployment = app_env.last_deployment
       if deployment
-        EY.ui.show_deployment(deployment)
+        ui.deployment_status(deployment)
       else
-        raise EY::Error, "Application #{app.name} hass not been deployed on #{environment.name}."
+        raise EY::Error, "Application #{app_env.app.name} has not been deployed on #{app_env.environment.name}."
       end
     end
 
@@ -113,27 +165,57 @@ module EY
       display all environments, including those for this app.
     DESC
 
-    method_option :all, :type => :boolean, :aliases => %(-a)
-    method_option :simple, :type => :boolean, :aliases => %(-s)
+    method_option :all, :type => :boolean, :aliases => %(-A),
+      :desc => "Show all environments (ignores --app, --account, and --environment arguments)"
+    method_option :simple, :type => :boolean, :aliases => %(-s),
+      :desc => "Display one environment per line with no extra output"
+    method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
+      :desc => "Show environments for this application"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
+      :desc => "Show environments in this account"
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
+      :desc => "Show environments matching environment name"
     def environments
       if options[:all] && options[:simple]
-        # just put each env
-        puts api.environments.map {|env| env.name}
+        ui.print_simple_envs api.environments
       elsif options[:all]
-        EY.ui.print_envs(api.apps, EY.config.default_environment, options[:simple])
+        ui.print_envs api.apps
       else
-        apps = api.apps_for_repo(repo)
-
-        if apps.size > 1
-          message = "This git repo matches multiple Applications in EY Cloud:\n"
-          apps.each { |app| message << "\t#{app.name}\n" }
-          message << "The following environments contain those applications:\n\n"
-          EY.ui.warn(message)
-        elsif apps.empty?
-          EY.ui.warn(NoAppError.new(repo).message + "\nUse #{self.class.send(:banner_base)} environments --all to see all environments.")
+        remotes = nil
+        if options[:app] == ''
+          repo.fail_on_no_remotes!
+          remotes = repo.remotes
         end
 
-        EY.ui.print_envs(apps, EY.config.default_environment, options[:simple])
+        resolver = api.resolve_app_environments({
+          :account_name     => options[:account],
+          :app_name         => options[:app],
+          :environment_name => options[:environment],
+          :remotes          => remotes,
+        })
+
+        resolver.no_matches do |errors|
+          messages = errors
+          messages << "Use #{self.class.send(:banner_base)} environments --all to see all environments."
+          raise EY::NoMatchesError.new(messages.join("\n"))
+        end
+
+        apps = resolver.matches.map { |app_env| app_env.app }.uniq
+
+        if options[:simple]
+          if apps.size > 1
+            message = "# This app matches multiple Applications in Engine Yard Cloud:\n"
+            apps.each { |app| message << "#\t#{app.name}\n" }
+            message << "# The following environments contain those applications:\n\n"
+            ui.warn(message)
+          end
+          ui.print_simple_envs(apps.map{ |app| app.environments }.flatten)
+        else
+          ui.print_envs(apps, config.default_environment)
+        end
       end
     end
     map "envs" => :environments
@@ -150,12 +232,14 @@ module EY
     DESC
 
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Environment to rebuild"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
     def rebuild
       environment = fetch_environment(options[:environment], options[:account])
-      EY.ui.debug("Rebuilding #{environment.name}")
+      ui.info "Updating instances on #{environment.hierarchy_name}"
       environment.rebuild
     end
     map "update" => :rebuild
@@ -167,21 +251,32 @@ module EY
     DESC
 
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Environment in which to roll back the application"
     method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
       :desc => "Name of the application to roll back"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
     method_option :verbose, :type => :boolean, :aliases => %w(-v),
       :desc => "Be verbose"
-    method_option :extra_deploy_hook_options, :type => :hash, :default => {},
-      :desc => "Additional options to be made available in deploy hooks (in the 'config' hash)"
+    method_option :config, :type => :hash, :default => {}, :aliases => %w(--extra-deploy-hook-options),
+      :desc => "Hash made available in deploy hooks (in the 'config' hash), can also override some ey.yml settings."
     def rollback
-      app, environment = fetch_app_and_environment(options[:app], options[:environment], options[:account])
+      app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+      env_config    = config.environment_config(app_env.environment_name)
+      deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)
 
-      EY.ui.info("Rolling back '#{app.name}' in '#{environment.name}'")
-      if environment.rollback(app, options[:extra_deploy_hook_options], options[:verbose])
-        EY.ui.info "Rollback complete"
+      ui.info "Rolling back #{app_env.hierarchy_name}"
+
+      runner = serverside_runner(app_env, deploy_config.verbose)
+      runner.rollback do |args|
+        args.config = deploy_config.extra_config if deploy_config.extra_config
+      end
+
+      if runner.call(ui.out, ui.err)
+        ui.info "Rollback complete"
       else
         raise EY::Error, "Rollback failed"
       end
@@ -199,10 +294,12 @@ module EY
       $ #{banner_base} ssh "rm -f /some/file" -e my-environment --all
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Environment to ssh into"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
-    method_option :all, :type => :boolean, :aliases => %(-a),
+    method_option :all, :type => :boolean, :aliases => %(-A),
       :desc => "Run command on all servers"
     method_option :app_servers, :type => :boolean,
       :desc => "Run command on all application servers"
@@ -235,8 +332,7 @@ module EY
         return lambda {|instance| %w(solo db_master db_slave).include?(instance.role) } if opts[:db_servers ]
         return lambda {|instance| %w(solo db_master         ).include?(instance.role) } if opts[:db_master  ]
         return lambda {|instance| %w(db_slave               ).include?(instance.role) } if opts[:db_slaves  ]
-        return lambda {|instance| %w(util                   ).include?(instance.role) &&
-                                             opts[:utilities].include?(instance.name) } if opts[:utilities  ]
+        return lambda {|instance| %w(util).include?(instance.role) && opts[:utilities].include?(instance.name) } if opts[:utilities]
         return lambda {|instance| %w(solo app_master        ).include?(instance.role) }
       end
 
@@ -264,22 +360,24 @@ module EY
       displayed beneath the main configuration logs.
     DESC
     method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
       :desc => "Environment with the interesting logs"
     method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
       :desc => "Name of the account in which the environment can be found"
     def logs
       environment = fetch_environment(options[:environment], options[:account])
       environment.logs.each do |log|
-        EY.ui.info log.instance_name
+        ui.say "Instance: #{log.instance_name}"
 
         if log.main
-          EY.ui.info "Main logs for #{environment.name}:"
-          EY.ui.say  log.main
+          ui.say "Main logs for #{environment.name}:", :green
+          ui.say  log.main
         end
 
         if log.custom
-          EY.ui.info "Custom logs for #{environment.name}:"
-          EY.ui.say  log.custom
+          ui.say "Custom logs for #{environment.name}:", :green
+          ui.say  log.custom
         end
       end
     end
@@ -292,7 +390,7 @@ module EY
 
     desc "version", "Print version number."
     def version
-      EY.ui.say %{engineyard version #{EY::VERSION}}
+      ui.say %{engineyard version #{EY::VERSION}}
     end
     map ["-v", "--version"] => :version
 
@@ -302,38 +400,38 @@ module EY
         base = self.class.send(:banner_base)
         list = self.class.printable_tasks
 
-        EY.ui.say "Usage:"
-        EY.ui.say "  #{base} [--help] [--version] COMMAND [ARGS]"
-        EY.ui.say
+        ui.say "Usage:"
+        ui.say "  #{base} [--help] [--version] COMMAND [ARGS]"
+        ui.say
 
-        EY.ui.say "Deploy commands:"
+        ui.say "Deploy commands:"
         deploy_cmds = %w(deploy environments logs rebuild rollback status)
         deploy_cmds.map! do |name|
           list.find{|task| task[0] =~ /^#{base} #{name}/ }
         end
         list -= deploy_cmds
 
-        EY.ui.print_help(deploy_cmds)
-        EY.ui.say
+        ui.print_help(deploy_cmds)
+        ui.say
 
         self.class.subcommands.each do |name|
           klass = self.class.subcommand_class_for(name)
           list.reject!{|cmd| cmd[0] =~ /^#{base} #{name}/}
-          EY.ui.say "#{name.capitalize} commands:"
+          ui.say "#{name.capitalize} commands:"
           tasks = klass.printable_tasks.reject{|t| t[0] =~ /help$/ }
-          EY.ui.print_help(tasks)
-          EY.ui.say
+          ui.print_help(tasks)
+          ui.say
         end
 
         %w(help version).each{|n| list.reject!{|c| c[0] =~ /^#{base} #{n}/ } }
         if list.any?
-          EY.ui.say "Other commands:"
-          EY.ui.print_help(list)
-          EY.ui.say
+          ui.say "Other commands:"
+          ui.print_help(list)
+          ui.say
         end
 
         self.class.send(:class_options_help, shell)
-        EY.ui.say "See '#{base} help COMMAND' for more information on a specific command."
+        ui.say "See '#{base} help COMMAND' for more information on a specific command."
       elsif klass = self.class.subcommand_class_for(cmds.first)
         klass.new.help(*cmds[1..-1])
       else
@@ -341,23 +439,40 @@ module EY
       end
     end
 
-    desc "launch [--environment ENVIRONMENT] [--account ACCOUNT]", "Open application in browser."
+    desc "launch [--app APP] [--environment ENVIRONMENT] [--account ACCOUNT]", "Open application in browser."
     method_option :environment, :type => :string, :aliases => %w(-e),
-      :desc => "Name of the environment"
+      :required => true, :default => '',
+      :desc => "Environment where the application is deployed"
+    method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
+      :desc => "Name of the application"
     method_option :account, :type => :string, :aliases => %w(-c),
-      :desc => "Name of the account in which the environment can be found"
+      :required => true, :default => '',
+      :desc => "Name of the account in which the application can be found"
     def launch
-      environment = fetch_environment(options[:environment], options[:account])
-      environment.launch
+      app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+      Launchy.open(app_env.uri)
     end
 
     desc "whoami", "Who am I logged in as?"
     def whoami
-      user = api.user
-      EY.ui.say "#{user.name} (#{user.email})"
+      current_user = api.current_user
+      ui.say "#{current_user.name} (#{current_user.email})"
     end
 
-    desc "login", "Log in and verify access to EY Cloud."
+    desc "login", "Log in and verify access to Engine Yard Cloud."
+    long_desc <<-DESC
+      You may run this command to log in to EY Cloud without performing
+      any other action.
+
+      Once you are logged in, a file will be stored at ~/.eyrc with your
+      API token. You may override the location of this file using the
+      $EYRC environment variable.
+
+      Instead of logging in, you may specify a token on the command line
+      with --api-token or using the $ENGINEYARD_API_TOKEN environment
+      variable.
+    DESC
     def login
       whoami
     end
@@ -366,10 +481,10 @@ module EY
     def logout
       eyrc = EYRC.load
       if eyrc.delete_api_token
-        EY.ui.say "API token removed: #{eyrc.path}"
-        EY.ui.say "Run any other command to login again."
+        ui.info "API token removed: #{eyrc.path}"
+        ui.info "Run any other command to login again."
       else
-        EY.ui.say "Already logged out. Run any other command to login again."
+        ui.info "Already logged out. Run any other command to login again."
       end
     end
 

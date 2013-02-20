@@ -4,12 +4,6 @@ require 'engineyard/cli'
 
 begin
   EY::CLI.start
-rescue EY::Error => e
-  EY.ui.print_exception(e)
-  exit(1)
-rescue Interrupt => e
-  puts
-  EY.ui.print_exception(e)
-  EY.ui.say("Quitting...")
+rescue
   exit(1)
 end

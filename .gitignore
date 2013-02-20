@@ -20,9 +20,9 @@ pkg
 .bundle
 *.gem
 Gemfile.lock
+coverage
+.rvmrc
+*.rbc
 
 ## PROJECT::SPECIFIC
 cloud.yml
-
-.rvmrc
-*.rbc
