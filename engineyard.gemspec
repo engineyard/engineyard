@@ -27,8 +27,8 @@ Gem::Specification.new do |s|
   s.add_dependency('escape', '~>0.0.4')
   s.add_dependency('engineyard-serverside-adapter', '=2.0.4')   # This line maintained by rake; edits may be stomped on
   s.add_dependency('engineyard-cloud-client', '~>1.0.7')
-  s.add_dependency('net-ssh', '~>2.2.1')
-  s.add_dependency('launchy', '2.1.0')
+  s.add_dependency('net-ssh')
+  s.add_dependency('launchy')
 
   s.add_development_dependency('rspec', '~>2.0')
   s.add_development_dependency('rake')
@@ -40,5 +40,5 @@ Gem::Specification.new do |s|
   s.add_development_dependency('open4', '~>1.0.1')
   s.add_development_dependency('hashie')
   s.add_development_dependency('gitable')
-  s.add_development_dependency('multi_json')
+  s.add_development_dependency('multi_json', '~> 1.5')
 end
