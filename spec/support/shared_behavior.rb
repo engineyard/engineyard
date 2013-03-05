@@ -94,14 +94,13 @@ shared_examples_for "it takes an environment name and an account name" do
 
     context "when the backend raises an error" do
       before do
-        failed_response = RestClient::Response.create(
-          '{ "message": "Important infos about how you failed!"}', OpenStruct.new(:code => 400), nil)
-        RestClient.stub!(:send).and_raise(RestClient::RequestFailed.new(failed_response))
+        # FIXME, cloud-client needs to provide an API for making responses raise
+        EY::CLI::API.stub!(:new).and_raise(EY::CloudClient::RequestFailed.new("Error: Important infos"))
       end
 
       it "returns the error message to the user" do
         fast_failing_ey(command_to_run({:environment => "giblets", :account => "main"}))
-        @err.should match(/400.*Important infos/)
+        @err.should match(/Important infos/)
       end
     end
 
