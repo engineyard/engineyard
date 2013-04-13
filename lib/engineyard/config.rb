@@ -10,7 +10,7 @@ module EY
     attr_reader :path
 
     def initialize(file = nil)
-      @path = file || CONFIG_FILES.find{|pathname| pathname.exist? }
+      @path = file ? Pathname.new(file) : CONFIG_FILES.find{|pathname| pathname.exist? }
       @config = (@path ? YAML.load_file(@path.to_s) : {}) || {} # load_file returns `false' when the file is empty
       @config["environments"] ||= {}
     end
@@ -27,6 +27,18 @@ module EY
     def respond_to?(meth)
       key = meth.to_s.downcase
       @config.key?(key) || super
+    end
+
+    def fetch(key, default = nil, &block)
+      block ? @config.fetch(key.to_s, &block) : @config.fetch(key.to_s, default)
+    end
+
+    def fetch_from_defaults(key, default=nil, &block)
+      block ? defaults.fetch(key.to_s, &block) : defaults.fetch(key.to_s, default)
+    end
+
+    def [](key)
+      @config[key.to_s.downcase]
     end
 
     def endpoint
@@ -52,6 +64,10 @@ module EY
       d && d.first
     end
 
+    def defaults
+      @config['defaults'] ||= {}
+    end
+
     def environment_config(environment_name)
       environments[environment_name] ||= {}
       EnvironmentConfig.new(environments[environment_name], environment_name, self)
@@ -60,6 +76,10 @@ module EY
     def set_environment_option(environment_name, key, value)
       environments[environment_name] ||= {}
       environments[environment_name][key] = value
+      write_ey_yaml
+    end
+
+    def write_ey_yaml
       ensure_path
       comments = ey_yml_comments
       @path.open('w') do |f|
@@ -68,24 +88,32 @@ module EY
       end
     end
 
+    def set_default_option(key, value)
+      defaults[key] = value
+      write_ey_yaml
+    end
+
     EY_YML_HINTS = <<-HINTS
 # ey.yml supports many deploy configuration options when committed in an
 # application's repository.
 #
 # Valid locations: REPO_ROOT/ey.yml or REPO_ROOT/config/ey.yml.
 #
-# Examples options:
+# Examples options (defaults apply to all environments for this application):
 #
+# defaults:
+#   migrate: true                           # Default --migrate choice for ey deploy
+#   migration_command: 'rake migrate'       # Default migrate command to run when migrations are enabled
+#   branch: default_deploy_branch           # Branch/ref to be deployed by default during ey deploy
+#   bundle_without: development test        # The string to pass to bundle install --without ''
+#   maintenance_on_migrate: true            # Enable maintenance page during migrate action (use with caution) (default: true)
+#   maintenance_on_restart: false           # Enable maintanence page during every deploy (default: false for unicorn & passenger)
+#   ignore_database_adapter_warning: false  # Hide the warning shown when the Gemfile does not contain a recognized database adapter (mongodb for example)
+#   your_own_custom_key: 'any attribute you put in ey.yml is available in deploy hooks'
 # environments:
 #   YOUR_ENVIRONMENT_NAME: # All options pertain only to the named environment
-#     migrate: true                           # Default --migrate choice for ey deploy
-#     migration_command: 'rake migrate'       # Default migrate command to run when migrations are enabled
-#     branch: default_deploy_branch           # Branch/ref to be deployed by default during ey deploy
-#     bundle_without: development test        # The string to pass to bundle install --without ''
-#     maintenance_on_migrate: true            # Enable maintenance page during migrate action (use with caution) (default: true)
-#     maintenance_on_restart: false           # Enable maintanence page during every deploy (default: false for unicorn & passenger)
-#     ignore_database_adapter_warning: false  # Hide the warning shown when the Gemfile does not contain a recognized database adapter (mongodb for example)
-#     your_own_custom_key: 'any attribute you put in ey.yml is available in deploy hooks'
+#     any_option: 'override any of the options above with specific options for certain environments'
+#     migrate: false
 #
 # Further information available here:
 # https://support.cloud.engineyard.com/entries/20996661-customize-your-deployment-on-engine-yard-cloud
@@ -129,16 +157,18 @@ module EY
       end
 
       def fetch(key, default = nil, &block)
-        if block
-          @config.fetch(key.to_s, &block)
-        else
-          @config.fetch(key.to_s, default)
+        @config.fetch(key.to_s) do
+          @parent.fetch_from_defaults(key.to_s, default, &block)
         end
       end
 
       def set(key, val)
-        @config[key.to_s] = val
-        @parent.set_environment_option(@name, key, val)
+        if @config.empty? || !@config.has_key?(key.to_s)
+          @parent.set_default_option(key, val)
+        else
+          @config[key.to_s] = val
+          @parent.set_environment_option(@name, key, val)
+        end
         val
       end
 
@@ -154,8 +184,8 @@ module EY
         fetch('branch', nil)
       end
 
-      def migrate(&block)
-        fetch('migrate', &block)
+      def migrate
+        fetch('migrate')
       end
 
       def migrate=(mig)

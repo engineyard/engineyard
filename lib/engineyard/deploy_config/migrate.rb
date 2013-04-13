@@ -57,12 +57,12 @@ module EY
       end
 
       def perform_from_cli_opts
-        @perform = !!cli_opts.fetch('migrate') { return false } # yields on not found
+        @perform = cli_opts.fetch('migrate') { return false } # yields on not found
         true
       end
 
       def perform_from_config
-        @perform = !!env_config.migrate { return perform_implied_via_command_in_config }
+        @perform = env_config.fetch('migrate') { return perform_implied_via_command_in_config }
         if @perform
           unless command_from_config
             env_config.migration_command = DEFAULT

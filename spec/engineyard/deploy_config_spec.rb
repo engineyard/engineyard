@@ -1,13 +1,17 @@
 require 'spec_helper'
+require 'tempfile'
 
 describe EY::DeployConfig::Migrate do
   before do
-    @parent = mock('parent config mock')
-    @parent.stub!(:set_environment_option)
-    @parent.stub!(:path).and_return('path')
+    @tempfile = Tempfile.new('ey.yml')
+    @parent = EY::Config.new(@tempfile.path)
     @ui = EY::CLI::UI.new
     EY::CLI::UI::Prompter.enable_mock!
     @repo = mock('repo')
+  end
+
+  after do
+    @tempfile.unlink
   end
 
   def env_config(opts=nil)
@@ -20,26 +24,26 @@ describe EY::DeployConfig::Migrate do
 
   context "inside a repository" do
     context "no migrate options set (interactive)" do
-      it "prompts migrate and command by default" do
+      it "prompts migrate and command and adds to defaults section" do
         EY::CLI::UI::Prompter.add_answer "" # default
         EY::CLI::UI::Prompter.add_answer ""
-        @parent.should_receive(:set_environment_option).with('envname', 'migrate', true)
-        @parent.should_receive(:set_environment_option).with('envname', 'migration_command', 'rake db:migrate')
+        @parent.should_receive(:set_default_option).with('migrate', true)
+        @parent.should_receive(:set_default_option).with('migration_command', 'rake db:migrate')
         dc = deploy_config({})
         out = capture_stdout do
           dc.migrate.should be_true
           dc.migrate_command.should == 'rake db:migrate'
         end
-        out.should =~ /path: migrate settings saved for envname/
+        out.should =~ /#{@tempfile.path}: migrate settings saved for envname/
         out.should =~ /You can override this default with --migrate or --no-migrate/
-        out.should =~ /Please git commit path with these new changes./
+        out.should =~ /Please git commit #{@tempfile.path} with these new changes./
       end
 
       it "prompts migration_command if first answer is yes" do
         EY::CLI::UI::Prompter.add_answer "yes" # default
         EY::CLI::UI::Prompter.add_answer "ruby script/migrate"
-        @parent.should_receive(:set_environment_option).with('envname', 'migrate', true)
-        @parent.should_receive(:set_environment_option).with('envname', 'migration_command', 'ruby script/migrate')
+        @parent.should_receive(:set_default_option).with('migrate', true)
+        @parent.should_receive(:set_default_option).with('migration_command', 'ruby script/migrate')
         dc = deploy_config({})
         capture_stdout do
           dc.migrate.should be_true
@@ -49,7 +53,7 @@ describe EY::DeployConfig::Migrate do
 
       it "doesn't prompt migration_command if first answer is no" do
         EY::CLI::UI::Prompter.add_answer "no" # default
-        @parent.should_receive(:set_environment_option).with('envname', 'migrate', false)
+        @parent.should_receive(:set_default_option).with('migrate', false)
         dc = deploy_config({})
         capture_stdout do
           dc.migrate.should be_false
