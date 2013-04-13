@@ -22,7 +22,7 @@ module EY
       super(given_args, {:shell => ui}.merge(config))
     rescue EY::Error, EY::CloudClient::Error => e
       ui.print_exception(e)
-      exit 1
+      raise
     rescue Interrupt => e
       puts
       ui.print_exception(e)

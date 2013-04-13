@@ -135,7 +135,7 @@ describe "ey deploy" do
         @ssh_commands.last.should =~ /--migrate 'rake db:migrate'/
         File.exist?('ey.yml').should be_false
         ey_yml.should be_exist
-        env_conf = read_yaml(ey_yml.to_s)['environments']['giblets']
+        env_conf = read_yaml(ey_yml.to_s)['defaults']
         env_conf['migrate'].should == true
         env_conf['migration_command'].should == 'rake db:migrate'
       end
@@ -150,7 +150,7 @@ describe "ey deploy" do
         @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
         @ssh_commands.last.should =~ /--migrate 'ruby migrate'/
         File.exist?('ey.yml').should be_true
-        env_conf = read_yaml('ey.yml')['environments']['giblets']
+        env_conf = read_yaml('ey.yml')['defaults']
         env_conf['migrate'].should == true
         env_conf['migration_command'].should == 'ruby migrate'
       end
@@ -163,7 +163,7 @@ describe "ey deploy" do
         @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
         @ssh_commands.last.should_not =~ /--migrate/
         File.exist?('ey.yml').should be_true
-        read_yaml('ey.yml')['environments']['giblets']['migrate'].should == false
+        read_yaml('ey.yml')['defaults']['migrate'].should == false
       end
     end
 
@@ -178,14 +178,30 @@ describe "ey deploy" do
       @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
     end
 
-    context "customized in ey.yml" do
-      before { write_yaml({"environments" => {"giblets" => { "migration_command" => 'thor fancy:migrate' }}}, 'ey.yml') }
+    context "customized in ey.yml with defaults" do
+      before { write_yaml({"defaults" => { "migration_command" => "thor fancy:migrate"}}, 'ey.yml') }
       after  { File.unlink 'ey.yml' }
 
       it "migrates with the custom command by default (and fixes ey.yml to reflect the previous default behavior)" do
         fast_ey %w[deploy]
         @ssh_commands.last.should =~ /--migrate 'thor fancy:migrate'/
-        read_yaml('ey.yml')['environments']['giblets']['migrate'].should == true
+        read_yaml('ey.yml')['defaults']['migrate'].should == true
+      end
+    end
+
+    context "customized in ey.yml with environment specific options overriding the defaults" do
+      before do
+        write_yaml({
+          "defaults" => { "migration_command" => "rake plain:migrate"},
+          "environments" => {"giblets" => { "migration_command" => 'thor fancy:migrate' }}
+        }, 'ey.yml')
+      end
+      after  { File.unlink 'ey.yml' }
+
+      it "migrates with the custom command by default (and fixes ey.yml for the specific environment to reflect the previous default behavior)" do
+        fast_ey %w[deploy]
+        @ssh_commands.last.should =~ /--migrate 'thor fancy:migrate'/
+        read_yaml('ey.yml')['defaults']['migrate'].should == true
       end
     end
 
@@ -217,7 +233,7 @@ describe "ey deploy" do
       it "migrates with the default (and writes the default to ey.yml)" do
         fast_ey %w[deploy]
         @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
-        read_yaml('ey.yml')['environments']['giblets']['migration_command'].should == 'rake db:migrate'
+        read_yaml('ey.yml')['defaults']['migration_command'].should == 'rake db:migrate'
       end
     end
 
