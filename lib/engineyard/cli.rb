@@ -150,7 +150,7 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
     end
 
     desc "timeout-deploy [--environment ENVIRONMENT]",
-      "Cancel a stuck unfinished deployment by marking it as failed."
+      "Fail a stuck unfinished deployment."
     long_desc <<-DESC
       NOTICE: Timing out a deploy does not stop currently running deploy
       processes.
