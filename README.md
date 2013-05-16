@@ -1,6 +1,6 @@
-= ey
+# ey
 
-== Install
+### Install
 
 Install engineyard like any other ruby gem:
 
@@ -8,11 +8,11 @@ Install engineyard like any other ruby gem:
 
 Note: Don't add engineyard to your application's Gemfile. The engineyard gem is not made to be a part of your application and may cause version conflicts with other parts of rails.
 
-== Login
+### Login
 
 The first command you run will notice that you are not logged in and will ask you for your Engine Yard email and password.
 
-== Configuration
+### Configuration
 
 The ey.yml file allows options to be saved for each environment to which an application is deployed. Here's an example ey.yml file in RAILS_ROOT/config/ey.yml:
 
@@ -39,9 +39,9 @@ The ey.yml file allows options to be saved for each environment to which an appl
 
 Many of the options in ey.yml will only work if the file is committed to your application repository. Make sure to commit this file.
 
-== Commands
+### Commands
 
-=== ey deploy
+#### ey deploy
 
 This command must be run within the current directory containing the app to be
 deployed. If ey.yml specifies a default branch then the ref parameter can be
@@ -87,7 +87,7 @@ Options:
   -e, [--environment=ENVIRONMENT]           # Name of the environment with the desired deployment
 
 
-=== ey status
+#### ey status
 
 Show the status of most recent deployment of the specified application and
 environment. This action only informational and will not change your application.
@@ -98,7 +98,7 @@ Options:
   -a, [--app=APP]                           # Name of the application containing the environment
   -e, [--environment=ENVIRONMENT]           # Name of the environment with the desired deployment
 
-=== ey environments
+#### ey environments
 
 By default, environments for this app are displayed. The --all option will display all environments, including those for this app.
 
@@ -111,7 +111,7 @@ Options:
   -a, [--all]                               # Show all environments, not just ones associated with this application.
 
 
-=== ey logs
+#### ey logs
 
 Displays Engine Yard configuration logs for all servers in the environment. If recipes were uploaded to the environment & run, their logs will also be displayed beneath the main configuration logs.
 
@@ -120,7 +120,7 @@ Options:
   -e, [--environment=ENVIRONMENT]  # Environment with the interesting logs
   -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-=== ey rebuild
+#### ey rebuild
 
 Engine Yard's main configuration run occurs on all servers. Mainly used to fix failed configuration of new or existing servers, or to update servers to latest Engine Yard stack
 (e.g. to apply an Engine Yard supplied security patch).
@@ -132,7 +132,7 @@ Options:
   -e, [--environment=ENVIRONMENT]  # Environment to rebuild
   -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-=== ey rollback
+#### ey rollback
 
 Uses code from previous deploy in the "/data/APP_NAME/releases" directory on remote server(s) to restart application servers.
 
@@ -143,7 +143,7 @@ Options:
   -e, [--environment=ENVIRONMENT]  # Environment in which to roll back the application
   -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-=== ey recipes apply
+#### ey recipes apply
 
 This is similar to 'ey rebuild' except Engine Yard's main configuration step is skipped.
 
@@ -152,7 +152,7 @@ Options:
   -e, [--environment=ENVIRONMENT]  # Environment in which to apply recipes
   -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-=== ey recipes upload
+#### ey recipes upload
 
 The current directory should contain a subdirectory named "cookbooks" to be uploaded.
 
@@ -163,7 +163,7 @@ Options:
       [--apply]                    # Apply the recipes (same as above) immediately after uploading
   -f, [--file=FILE]                # Specify a gzipped tar file (.tgz) for upload instead of cookbooks/ directory
 
-=== ey recipes download
+#### ey recipes download
 
 The recipes will be unpacked into a directory called "cookbooks" in the current directory.
 
@@ -174,7 +174,7 @@ Options:
   -e, [--environment=ENVIRONMENT]  # Environment for which to download the recipes
   -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-=== ey web enable
+#### ey web enable
 
 Remove the maintenance page for this application in the given environment.
 
@@ -185,7 +185,7 @@ Options:
   -e, [--environment=ENVIRONMENT]  # Environment on which to take down the maintenance page
   -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-=== ey web disable
+#### ey web disable
 
 The maintenance page is taken from the app currently being deployed. This means that you can customize maintenance pages to tell users the reason for downtime on every particular deploy.
 
@@ -203,7 +203,7 @@ Options:
   -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
 
-=== ey web restart
+#### ey web restart
 
 Restarts the application servers for the given application. Enables maintenance pages if it would be enabled during a normal deploy. Respects the maintenance_on_restart ey.yml configuration.
 
@@ -214,7 +214,7 @@ Options:
   -e, [--environment=ENVIRONMENT]  # Name of the environment to restart
   -c, [--account=ACCOUNT]          # Name of the account in which the app and environment can be found
 
-=== ey ssh
+#### ey ssh
 
 If a command is supplied, it will be run, otherwise a session will be opened. The application master is used for environments with clusters. Option --all requires a command to be supplied and runs it on all servers.
 
@@ -233,7 +233,7 @@ Options:
   -e, [--environment=ENVIRONMENT]  # Name of the environment to ssh into
   -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
 
-=== ey launch
+#### ey launch
 
 Open the application in a browser.
 
@@ -243,20 +243,20 @@ Options:
   -a, [--app=APP]                  # Name of the application to launch
   -e, [--environment=ENVIRONMENT]  # Name of the environment for the application
 
-=== ey whoami
+#### ey whoami
 
 Who am I logged in as? Prints the name and email of the current logged in user.
 
-=== ey login
+#### ey login
 
 Log in and verify access to EY Cloud. Use logout first if you need to switch user accounts.
 
-=== ey logout
+#### ey logout
 
 Remove the current API key from ~/.eyrc or env variable $EYRC
 
 
-== Global Options
+### Global Options
 
 All commands accept the following options.
 
@@ -272,11 +272,11 @@ version of serverside unless you know what you're doing. CLI and serverside
 versions are designed to work together and mixing them can cause errors.
 
 
-== API Client
+### API Client
 
 See https://github.com/engineyard/engineyard-cloud-client for the API client library.
 
-== DEBUG
+### DEBUG
 
 The API commands will print internal information if $DEBUG is set:
 
@@ -293,3 +293,23 @@ The API commands will print internal information if $DEBUG is set:
                   "app_type_id"=>"rails3",
                   "account"=>{"name"=>"myaccount", "id"=>1234},
                   "id"=>12345}]}
+
+### Releasing
+
+To release the engineyard gem, use the command below and then follow the
+instructions it outputs.
+
+  bundle exec rake release
+
+This will remove the .pre from the current version, then bump the patch level
+and add .pre after. A git tag for the version will be added.
+
+To release a new engineyard-serverside gem that has already been pushed to
+rubygems.org, update lib/engineyard/version.rb to refer to the
+engineyard-serverside version you want to release, then make a commit.
+Each engineyard gem is hard-linked to a specific default engineyard-serverside
+version which can be overriden with the --serverside-version option.
+
+The engineyard-serverside-adapter version does not need to be bumped in the
+gemspec unless you're also releasing a new version of that gem. Versions
+of adapter are no longer linked to serverside.
