@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.0.13 (2013-05-16)
+
   * Uses new version of engineyard-serverside 2.0.7 which fixes an encoding error that may occur.
 
 ## v2.0.12 (2013-04-11)
