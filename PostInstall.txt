@@ -1,31 +1,11 @@
-Thank you for downloading engineyard gem version 2!
+Thanks for installing engineyard 2.1.
 
-############ NOTICE when upgrading from 1.x to 2.x ############
+Need help? Problem? https://support.cloud.engineyard.com
+Not working? Uninstall this version to downgrade.
 
-First, if you have any trouble, you can uninstall this version to downgrade.
-This version of the CLI does not affect the web deploy system.
-Please file a support ticket if you have any issues at: support.cloud.engineyard.com
-
-* IMPORTANT: eydeploy.rb modifications MUST be verified in staging!
-  Many internals have changed that could break eydeploy.rb!
-* The order of compile_assets has *changed*. It now runs before
-  the maintenance page is enabled, to reduce downtime.
-* ey.yml files should be checked in to your repository.
-* Default bundler version is now 1.1.5.
-
-A few other nice changes:
-
-* All CLI commands are significantly faster. Woo!
-* Deploy hooks now have access to `account_name` and `environment_name`.
-* Deploy hooks can now use run! and sudo! to abort on failure.
-* Supports new ey.yml options when ey.yml is committed:
-  * maintenance_on_restart: true/false (default: false except for glassfish and mongrel)
-  * maintenance_on_migrate: true/false (default: true)
-  * precompile_assets: true/false (default: inferred using app/assets and config/application.rb)
-  * ignore_database_adapter_warning: true (hides adapter warning)
-  * asset_roles: :all (specify on which roles to compile assets (default: [:app, :app_master, :solo])
-* Don't remove maintenance pages that weren't put up during this deploy if maintenance options (above) are set to false.
-* ey web restart - restarts web servers without deploying.
+IMPORTANT:
+  Please verify eydeploy.rb files in staging after upgrading!
+  Many internals have changed that could break eydeploy.rb.
 
 Deploying for the first time? The Engine Yard Pandas want to help you!
 Email pandas@engineyard.com with your questions.
