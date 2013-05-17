@@ -14,7 +14,7 @@ Gem::Specification.new do |s|
   s.description = "This gem allows you to deploy your rails application to the Engine Yard cloud directly from the command line."
   s.post_install_message = File.read("PostInstall.txt")
 
-  s.files = Dir.glob("{bin,lib}/**/*") + %w(LICENSE README.rdoc)
+  s.files = Dir.glob("{bin,lib}/**/*") + %w(LICENSE README.md)
   s.executables = ["ey"]
   s.default_executable = "ey"
   s.require_path = 'lib'
