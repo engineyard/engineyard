@@ -3,6 +3,21 @@
 ## NEXT
 
   * Add a new command `ey timeout-deploy` which will mark stuck deploys as canceled.
+  * Bumps default bundler version to latest 1.3.4
+  * During deploy, doesn't precompile assets when git-diff shows no changes to `asset_dependencies`
+  * Supports new ey.yml option `asset_dependencies` which is a list of relative paths to search for asset changes each deploy.
+    * The default `asset_dependencies` are: app/assets lib/assets vendor/assets Gemfile.lock config/routes.rb
+  * Supports new ey.yml option `precompile_unchanged_assets: true` compiles assets even if no changes would be detected.
+  * Supports new ey.yml option `precompile_assets_task: taskname` which overrides the default `assets:precompile`
+  * Supports new ey.yml option `asset_strategy` which supports: `shared`, `private`, `cleaning`, or `shifting`.
+    * The default asset strategy is `shifting` which is the same behavior as previous versions.
+    * See `README.markdown` or [`lib/engineyard-serverside/rails_assets/strategy.rb`](https://github.com/engineyard/engineyard-serverside/blob/master/lib/engineyard-serverside/rails_assets/strategy.rb) for full explanation.
+  * Supports new ey.yml option `bundle_options` which can be used to specify additional bundle install command line options.
+  * Supports setting of ey.yml option `bundle_without` to nil to remove `--without` from the bundle install command.
+  * Refactor dependency management (bundler, npm, none) to allow more flexibility (may break existing eydeploy.rb files)
+  * Supports new ey.yml option `eydeploy_rb: false` which enables or disables eydeploy.rb file loading. (default: load eydeploy.rb)
+  * Changes the order of eydeploy.rb loading to happen after ey.yml is parsed during deploy.
+  * Fixes a race condition during deploy where `current` symlink was not moved atomically.
 
 ## v2.0.12 (2013-04-11)
 
