@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.1.0 (2013-05-28)
+
   * Add a new command `ey timeout-deploy` which will mark stuck deploys as canceled.
   * Bumps default bundler version to latest 1.3.4
   * During deploy, doesn't precompile assets when git-diff shows no changes to `asset_dependencies`
