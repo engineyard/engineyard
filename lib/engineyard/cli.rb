@@ -315,9 +315,24 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       :desc => "Be verbose"
     method_option :config, :type => :hash, :default => {}, :aliases => %w(--extra-deploy-hook-options),
       :desc => "Hash made available in deploy hooks (in the 'config' hash), can also override some ey.yml settings."
+    method_option :force, :type => :boolean, :aliases => %w(-f),
+      :desc => "Rollback even if ey.yml does not enable rollback"
     def rollback
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       env_config    = config.environment_config(app_env.environment_name)
+
+      unless env_config.rollback?
+        ui.error <<-ROLLBACK_WARNING
+Rollback is error prone!
+ * Rollbacks do not downgrade shared compiled assets!
+ * Rollbacks cannot undo database migrations!
+ * Some deploy hooks, but not all, are run during rollback!
+ * Rollback is heavily reliant on compatible application code and deploy hooks.
+To enable rollback for this app, add rollback: true to your ey.yml for this environment.
+        ROLLBACK_WARNING
+        exit
+      end
+
       deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)
 
       ui.info "Rolling back #{app_env.hierarchy_name}"

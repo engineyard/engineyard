@@ -184,6 +184,10 @@ module EY
         fetch('branch', nil)
       end
 
+      def rollback?
+        fetch('rollback', false)
+      end
+
       def migrate
         fetch('migrate')
       end
