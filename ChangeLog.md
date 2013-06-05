@@ -2,7 +2,9 @@
 
 ## NEXT
 
-  *
+  * Uses newest version of engineyard-serverside 2.1.3
+    * Fixes a formatting error in sqlite database.yml files.
+    * Patches LANG gem install error.
 
 ## v2.1.1 (2013-05-30)
 
