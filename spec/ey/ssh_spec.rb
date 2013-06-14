@@ -61,7 +61,8 @@ shared_examples_for "running ey ssh for select role" do
   it "excludes shell with --no-shell" do
     login_scenario "one app, one environment"
     ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :no_shell => true)
-    @out.should =~ /ssh.*bash -lc ls/
+    @out.should_not =~ /bash/
+    @out.should =~ /ssh.*ls/
   end
 
   it "accepts an alternate shell" do
@@ -128,12 +129,14 @@ describe "ey ssh with a command" do
     cmd = %w[ssh ls]
     cmd << "--environment" << opts[:environment] if opts[:environment]
     cmd << "--account"     << opts[:account]     if opts[:account]
+    cmd << "--shell"       << opts[:shell]       if opts[:shell]
+    cmd << "--no-shell"                          if opts[:no_shell]
     cmd
   end
 
   def verify_ran(scenario)
     ssh_target = scenario[:ssh_username] + '@' + scenario[:master_hostname]
-    @raw_ssh_commands.should == ["ssh #{ssh_target} ls"]
+    @raw_ssh_commands.should == ["ssh #{ssh_target} 'bash -lc ls'"]
   end
 
   include_examples "it takes an environment name and an account name"
@@ -151,6 +154,8 @@ describe "ey ssh with a command that fails" do
     cmd = %w[ssh ls]
     cmd << "--environment" << opts[:environment] if opts[:environment]
     cmd << "--account"     << opts[:account]     if opts[:account]
+    cmd << "--shell"       << opts[:shell]       if opts[:shell]
+    cmd << "--no-shell"                          if opts[:no_shell]
     cmd
   end
 
@@ -167,12 +172,14 @@ describe "ey ssh with a multi-part command" do
     cmd = ['ssh', 'echo "echo"']
     cmd << "--environment" << opts[:environment] if opts[:environment]
     cmd << "--account"     << opts[:account]     if opts[:account]
+    cmd << "--shell"       << opts[:shell]       if opts[:shell]
+    cmd << "--no-shell"                          if opts[:no_shell]
     cmd
   end
 
   def verify_ran(scenario)
     ssh_target = scenario[:ssh_username] + '@' + scenario[:master_hostname]
-    @raw_ssh_commands.should == ["ssh #{ssh_target} 'echo \"echo\"'"]
+    @raw_ssh_commands.should == ["ssh #{ssh_target} 'bash -lc '\\''echo \"echo\"'\\'"]
   end
 
   include_examples "it takes an environment name and an account name"
