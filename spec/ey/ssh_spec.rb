@@ -26,7 +26,9 @@ shared_examples_for "running ey ssh for select role" do
   def command_to_run(opts)
     cmd = ["ssh", opts[:ssh_command]].compact + (@ssh_flag || [])
     cmd << "--environment" << opts[:environment] if opts[:environment]
-    cmd << "--quiet" if opts[:quiet]
+    cmd << "--shell"       << opts[:shell]       if opts[:shell]
+    cmd << "--no-shell"                          if opts[:no_shell]
+    cmd << "--quiet"                             if opts[:quiet]
     cmd
   end
 
@@ -48,6 +50,24 @@ shared_examples_for "running ey ssh for select role" do
     ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :quiet => true)
     @out.should =~ /ssh.*ls/
     @out.should_not =~ /Loading application data/
+  end
+
+  it "runs in bash by default" do
+    login_scenario "one app, one environment"
+    ey command_to_run(:ssh_command => "ls", :environment => 'giblets')
+    @out.should =~ /ssh.*bash -lc ls/
+  end
+
+  it "excludes shell with --no-shell" do
+    login_scenario "one app, one environment"
+    ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :no_shell => true)
+    @out.should =~ /ssh.*bash -lc ls/
+  end
+
+  it "accepts an alternate shell" do
+    login_scenario "one app, one environment"
+    ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :shell => 'zsh')
+    @out.should =~ /ssh.*zsh -lc ls/
   end
 
   it "raises an error when there are no matching hosts" do

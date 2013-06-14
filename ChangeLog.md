@@ -2,7 +2,8 @@
 
 ## NEXT
 
-  *
+  * Supports new flag --shell (-s) for ey ssh which allows you to choose the shell that runs the command. (default: bash)
+    * Use --no-shell to run the command without a shell. (this is the standard behavior of the unix ssh command)
 
 ## v2.1.2 (2013-06-05)
 
