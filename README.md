@@ -267,6 +267,8 @@ Options:
         [--db-slaves]                # Run command on the slave database servers
     -e, [--environment=ENVIRONMENT]  # Name of the environment to ssh into
     -c, [--account=ACCOUNT]          # Name of the account in which the environment can be found
+    -s, [--shell]                    # Use a particular shell instead of the default bash
+        [--no-shell]                 # Don't use a shell to run the command (default behavior of ssh)
 
 #### ey launch
 

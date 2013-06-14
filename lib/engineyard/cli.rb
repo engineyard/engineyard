@@ -363,7 +363,7 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       :desc => "Run command on the slave database servers"
     method_option :utilities, :type => :array, :lazy_default => true,
       :desc => "Run command on the utility servers with the given names. If no names are given, run on all utility servers."
-    method_option :shell, :type => :string, :lazy_default => 'bash', :aliases => %w(-s),
+    method_option :shell, :type => :string, :default => 'bash', :aliases => %w(-s),
       :desc => "Run command in a shell other than bash. Use --no-shell to run the command without a shell."
 
     def ssh(cmd=nil)
