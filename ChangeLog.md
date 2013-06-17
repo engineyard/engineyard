@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.1.3 (2013-06-17)
+
   * Uses newest version of engineyard-serverside 2.1.4
     * Doesn't reuse assets when assets were not compiled last deployment.
     * Improves composer support.
