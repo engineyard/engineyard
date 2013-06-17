@@ -2,8 +2,11 @@
 
 ## NEXT
 
-  * Supports new flag --shell (-s) for ey ssh which allows you to choose the shell that runs the command. (default: bash)
-    * Use --no-shell to run the command without a shell. (this is the standard behavior of the unix ssh command)
+  * Uses newest version of engineyard-serverside 2.1.4
+    * Doesn't reuse assets when assets were not compiled last deployment.
+    * Improves composer support.
+  * Supports new flag `--shell (-s)` for `ey ssh` which allows you to choose the shell that runs the command. (default: bash) Has no effect on `ey ssh` without a command.
+  * Supports new flag `--no-shell` to run the `ey ssh` command without a shell. (this is the standard behavior of the unix ssh command) Has no effect on `ey ssh` without a command.
 
 ## v2.1.2 (2013-06-05)
 
