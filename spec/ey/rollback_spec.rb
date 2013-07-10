@@ -45,6 +45,8 @@ describe "ey rollback" do
       config_options.should_not be_nil
       config_options['some'].should == 'stuff'
       config_options['more'].should == 'crap'
+      config_options['input_ref'].should_not be_nil
+      config_options['deployed_by'].should_not be_nil
     end
 
     it "supports legacy --extra-deploy-hook-options" do

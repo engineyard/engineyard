@@ -324,7 +324,7 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
 
       runner = serverside_runner(app_env, deploy_config.verbose)
       runner.rollback do |args|
-        args.config = deploy_config.extra_config if deploy_config.extra_config
+        args.config = {'deployed_by' => api.current_user.name, 'input_ref' => 'N/A'}.merge(deploy_config.extra_config || {})
       end
 
       if runner.call(ui.out, ui.err)
