@@ -14,6 +14,11 @@ describe EY::Config do
       write_yaml({}, 'ey.yml')
       EY::Config.new.environments.should == {}
     end
+
+    it "rases an error when yaml produces an unexpected result" do
+      File.open('ey.yml', "w") {|f| f << "this isn't a hash" }
+      expect { EY::Config.new }.to raise_error(RuntimeError, "ey.yml load error: Expected a Hash but a String was returned.")
+    end
   end
 
   describe "endpoint" do

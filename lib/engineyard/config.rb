@@ -11,7 +11,13 @@ module EY
 
     def initialize(file = nil)
       @path = file ? Pathname.new(file) : CONFIG_FILES.find{|pathname| pathname.exist? }
-      @config = (@path ? YAML.load_file(@path.to_s) : {}) || {} # load_file returns `false' when the file is empty
+      @config = @path ? YAML.load_file(@path.to_s) : {}
+      @config ||= {} # load_file returns `false' when the file is empty
+
+      unless Hash === @config
+        raise "ey.yml load error: Expected a Hash but a #{@config.class.name} was returned."
+      end
+
       @config["environments"] ||= {}
     end
 
