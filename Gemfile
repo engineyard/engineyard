@@ -15,7 +15,8 @@ group 'engineyard-cloud-client-test' do
   gem 'dm-timestamps'
   gem 'dm-sqlite-adapter'
   gem 'ey_resolver', '~>0.2.1'
-  gem 'rabl', '~>0.7.0'
+  gem 'rabl'
+  gem 'activesupport', '< 4.0.0'
 end
 
 group :coverage do
