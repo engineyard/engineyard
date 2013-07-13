@@ -7,7 +7,7 @@ describe EY::DeployConfig::Migrate do
     @parent = EY::Config.new(@tempfile.path)
     @ui = EY::CLI::UI.new
     EY::CLI::UI::Prompter.enable_mock!
-    @repo = mock('repo')
+    @repo = double('repo')
   end
 
   after do

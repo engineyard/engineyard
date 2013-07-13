@@ -95,7 +95,7 @@ shared_examples_for "it takes an environment name and an account name" do
     context "when the backend raises an error" do
       before do
         # FIXME, cloud-client needs to provide an API for making responses raise
-        EY::CLI::API.stub!(:new).and_raise(EY::CloudClient::RequestFailed.new("Error: Important infos"))
+        EY::CLI::API.stub(:new).and_raise(EY::CloudClient::RequestFailed.new("Error: Important infos"))
       end
 
       it "returns the error message to the user" do

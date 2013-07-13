@@ -62,7 +62,7 @@ describe "ey deploy" do
   context "without ssh keys (with ssh enabled)" do
     before do
       ENV.delete('NO_SSH')
-      Net::SSH.stub!(:start).and_raise(Net::SSH::AuthenticationFailed.new("no key"))
+      Net::SSH.stub(:start).and_raise(Net::SSH::AuthenticationFailed.new("no key"))
     end
 
     after do
