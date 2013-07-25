@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.2.0 (2013-07-25)
+
   * Send `deployed_by` and `input_ref` information with rollback (no ref is input so `input_ref` only has a placeholder value)
   * When ey.yml loads as anything other than a Hash, raise an error telling the user that ey.yml is malformed.
 
