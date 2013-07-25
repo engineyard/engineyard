@@ -8,6 +8,17 @@
 
   * Send `deployed_by` and `input_ref` information with rollback (no ref is input so `input_ref` only has a placeholder value)
   * When ey.yml loads as anything other than a Hash, raise an error telling the user that ey.yml is malformed.
+  * Uses newest version of engineyard-serverside 2.2.0
+    * Updates fallback bundler version to latest v1.3.5.
+    * Supports using multiple dependency managers at the same time (bundler, composer, and/or npm)
+    * Replaces command runner to address streaming log, idle connection, and random systemu failures.
+    * Adds `config/application.rb` to the `asset_dependencies` to trigger asset precompilation.
+    * Removes syncing of file modification times during push code operation in deploy. Syncing times occasionally causes unfixable permissions errors.
+    * Clarifies inferred asset warning message.
+    * Improves some of the maintenance page status messages.
+    * Removes poorly encapsulated methods `config.enable_maintenance\_page?` and `config.disable_maintenance_page?`. Relocated to Maintenance class. (Check eydeploy.rb files)
+    * Removes deprecated `c` method (use `config` instead)
+    * In deploy hooks, deprecates @configuration (use `config`), @node (use `config.node`), and method\_missing access of config methods (use `config.method`).
 
 ## v2.1.3 (2013-06-17)
 
