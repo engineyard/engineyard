@@ -20,7 +20,7 @@ module EY
     def self.start(given_args=ARGV, config={})
       Thor::Base.shell = EY::CLI::UI
       ui = EY::CLI::UI.new
-      super(given_args, {:shell => ui}.merge(config))
+      super(given_args, {shell: ui}.merge(config))
     rescue Thor::Error, EY::Error, EY::CloudClient::Error => e
       ui.print_exception(e)
       raise
@@ -37,9 +37,9 @@ module EY
       raise
     end
 
-    class_option :api_token, :type => :string, :desc => "Use API_TOKEN to authenticate this command"
-    class_option :serverside_version, :type => :string, :desc => "Please use with care! Override deploy system version (same as ENV variable ENGINEYARD_SERVERSIDE_VERSION)"
-    class_option :quiet, :aliases => %w[-q], :type => :boolean, :desc => "Quieter CLI output."
+    class_option :api_token, type: :string, desc: "Use API_TOKEN to authenticate this command"
+    class_option :serverside_version, type: :string, desc: "Please use with care! Override deploy system version (same as ENV variable ENGINEYARD_SERVERSIDE_VERSION)"
+    class_option :quiet, aliases: %w[-q], type: :boolean, desc: "Quieter CLI output."
 
     desc "init",
       "Initialize the current directory with an ey.yml configuration file."
@@ -53,8 +53,8 @@ module EY
       IMPORTANT: THE GENERATED FILE '#{EY::Config.pathname_for_write}'
       MUST BE COMMITTED TO YOUR REPOSITORY OR OPTIONS WILL NOT BE LOADED.
     DESC
-    method_option :path, :type => :string, :aliases => %w(-p),
-      :desc => "Path for ey.yml (supported paths: #{EY::Config::CONFIG_FILES.join(', ')})"
+    method_option :path, type: :string, aliases: %w(-p),
+      desc: "Path for ey.yml (supported paths: #{EY::Config::CONFIG_FILES.join(', ')})"
     def init
       unless EY::Repo.exist?
         raise EY::Error, "Working directory is not a repository. Aborting."
@@ -96,30 +96,30 @@ Go look at it, then add it to your repository!
       specifying --migrate or --migrate 'rake db:migrate'.
       Migrations can also be skipped by using --no-migrate.
     DESC
-    method_option :ignore_bad_master, :type => :boolean, :aliases => %w(--ignore-bad-bridge),
-      :desc => "Force a deploy even if the master is in a bad state"
-    method_option :migrate, :type => :string, :aliases => %w(-m),
-      :lazy_default => true,
-      :desc => "Run migrations via [MIGRATE]; use --no-migrate to avoid running migrations"
-    method_option :ref, :type => :string, :aliases => %w(-r --branch --tag),
-      :required => true, :default => '',
-      :desc => "Git ref to deploy. May be a branch, a tag, or a SHA. Use -R to deploy a different ref if a default is set."
-    method_option :force_ref, :type => :string, :aliases => %w(--ignore-default-branch -R),
-      :lazy_default => true,
-      :desc => "Force a deploy of the specified git ref even if a default is set in ey.yml."
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :required => true, :default => false,
-      :desc => "Environment in which to deploy this application"
-    method_option :app, :type => :string, :aliases => %w(-a),
-      :required => true, :default => '',
-      :desc => "Name of the application to deploy"
-    method_option :account, :type => :string, :aliases => %w(-c),
-      :required => true, :default => '',
-      :desc => "Name of the account in which the environment can be found"
-    method_option :verbose, :type => :boolean, :aliases => %w(-v),
-      :desc => "Be verbose"
-    method_option :config, :type => :hash, :default => {}, :aliases => %w(--extra-deploy-hook-options),
-      :desc => "Hash made available in deploy hooks (in the 'config' hash), can also override some ey.yml settings."
+    method_option :ignore_bad_master, type: :boolean, aliases: %w(--ignore-bad-bridge),
+      desc: "Force a deploy even if the master is in a bad state"
+    method_option :migrate, type: :string, aliases: %w(-m),
+      lazy_default: true,
+      desc: "Run migrations via [MIGRATE]; use --no-migrate to avoid running migrations"
+    method_option :ref, type: :string, aliases: %w(-r --branch --tag),
+      required: true, default: '',
+      desc: "Git ref to deploy. May be a branch, a tag, or a SHA. Use -R to deploy a different ref if a default is set."
+    method_option :force_ref, type: :string, aliases: %w(--ignore-default-branch -R),
+      lazy_default: true,
+      desc: "Force a deploy of the specified git ref even if a default is set in ey.yml."
+    method_option :environment, type: :string, aliases: %w(-e),
+      required: true, default: false,
+      desc: "Environment in which to deploy this application"
+    method_option :app, type: :string, aliases: %w(-a),
+      required: true, default: '',
+      desc: "Name of the application to deploy"
+    method_option :account, type: :string, aliases: %w(-c),
+      required: true, default: '',
+      desc: "Name of the account in which the environment can be found"
+    method_option :verbose, type: :boolean, aliases: %w(-v),
+      desc: "Be verbose"
+    method_option :config, type: :hash, default: {}, aliases: %w(--extra-deploy-hook-options),
+      desc: "Hash made available in deploy hooks (in the 'config' hash), can also override some ey.yml settings."
     def deploy
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
 
@@ -127,11 +127,11 @@ Go look at it, then add it to your repository!
       deploy_config = EY::DeployConfig.new(options, env_config, repo, ui)
 
       deployment = app_env.new_deployment({
-        :ref                => deploy_config.ref,
-        :migrate            => deploy_config.migrate,
-        :migrate_command    => deploy_config.migrate_command,
-        :extra_config       => deploy_config.extra_config,
-        :serverside_version => serverside_version,
+        ref:                deploy_config.ref,
+        migrate:            deploy_config.migrate,
+        migrate_command:    deploy_config.migrate_command,
+        extra_config:       deploy_config.extra_config,
+        serverside_version: serverside_version,
       })
 
       runner = serverside_runner(app_env, deploy_config.verbose, deployment.serverside_version, options[:ignore_bad_master])
@@ -204,15 +204,15 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       deployment as failed. Only run this when a deployment is known to be
       wrongly unfinished/stuck and when further deployments are blocked.
     DESC
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :required => true, :default => false,
-      :desc => "Environment in which to deploy this application"
-    method_option :app, :type => :string, :aliases => %w(-a),
-      :required => true, :default => '',
-      :desc => "Name of the application to deploy"
-    method_option :account, :type => :string, :aliases => %w(-c),
-      :required => true, :default => '',
-      :desc => "Name of the account in which the environment can be found"
+    method_option :environment, type: :string, aliases: %w(-e),
+      required: true, default: false,
+      desc: "Environment in which to deploy this application"
+    method_option :app, type: :string, aliases: %w(-a),
+      required: true, default: '',
+      desc: "Name of the application to deploy"
+    method_option :account, type: :string, aliases: %w(-c),
+      required: true, default: '',
+      desc: "Name of the account in which the environment can be found"
     def timeout_deploy
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       deployment = app_env.last_deployment
@@ -235,15 +235,15 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       Show the current status of most recent deployment of the specified
       application and environment.
     DESC
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :required => true, :default => '',
-      :desc => "Environment where the application is deployed"
-    method_option :app, :type => :string, :aliases => %w(-a),
-      :required => true, :default => '',
-      :desc => "Name of the application"
-    method_option :account, :type => :string, :aliases => %w(-c),
-      :required => true, :default => '',
-      :desc => "Name of the account in which the application can be found"
+    method_option :environment, type: :string, aliases: %w(-e),
+      required: true, default: '',
+      desc: "Environment where the application is deployed"
+    method_option :app, type: :string, aliases: %w(-a),
+      required: true, default: '',
+      desc: "Name of the application"
+    method_option :account, type: :string, aliases: %w(-c),
+      required: true, default: '',
+      desc: "Name of the account in which the application can be found"
     def status
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       deployment = app_env.last_deployment
@@ -260,19 +260,19 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       display all environments, including those for this app.
     DESC
 
-    method_option :all, :type => :boolean, :aliases => %(-A),
-      :desc => "Show all environments (ignores --app, --account, and --environment arguments)"
-    method_option :simple, :type => :boolean, :aliases => %(-s),
-      :desc => "Display one environment per line with no extra output"
-    method_option :app, :type => :string, :aliases => %w(-a),
-      :required => true, :default => '',
-      :desc => "Show environments for this application"
-    method_option :account, :type => :string, :aliases => %w(-c),
-      :required => true, :default => '',
-      :desc => "Show environments in this account"
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :required => true, :default => '',
-      :desc => "Show environments matching environment name"
+    method_option :all, type: :boolean, aliases: %(-A),
+      desc: "Show all environments (ignores --app, --account, and --environment arguments)"
+    method_option :simple, type: :boolean, aliases: %(-s),
+      desc: "Display one environment per line with no extra output"
+    method_option :app, type: :string, aliases: %w(-a),
+      required: true, default: '',
+      desc: "Show environments for this application"
+    method_option :account, type: :string, aliases: %w(-c),
+      required: true, default: '',
+      desc: "Show environments in this account"
+    method_option :environment, type: :string, aliases: %w(-e),
+      required: true, default: '',
+      desc: "Show environments matching environment name"
     def environments
       if options[:all] && options[:simple]
         ui.print_simple_envs api.environments
@@ -286,10 +286,10 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
         end
 
         resolver = api.resolve_app_environments({
-          :account_name     => options[:account],
-          :app_name         => options[:app],
-          :environment_name => options[:environment],
-          :remotes          => remotes,
+          account_name:     options[:account],
+          app_name:         options[:app],
+          environment_name: options[:environment],
+          remotes:          remotes,
         })
 
         resolver.no_matches do |errors|
@@ -322,18 +322,18 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       or -uS (--user --host) to output bash loop friendly "user@hostname"
     DESC
 
-    method_option :simple, :type => :boolean, :aliases => %(-s),
-      :desc => "Display all information in a simplified format without extra text or column alignment"
-    method_option :host, :type => :boolean, :aliases => %(-S),
-      :desc => "Display only hostnames, one per newline (use options -uS (--user --host) for user@hostname)"
-    method_option :user, :type => :boolean, :aliases => %w(-u),
-      :desc => "Include the ssh username in front of the hostname for easy SSH scripting"
-    method_option :account, :type => :string, :aliases => %w(-c),
-      :required => true, :default => '',
-      :desc => "Find environment in this account"
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :required => true, :default => '',
-      :desc => "Show servers in environment matching environment name"
+    method_option :simple, type: :boolean, aliases: %(-s),
+      desc: "Display all information in a simplified format without extra text or column alignment"
+    method_option :host, type: :boolean, aliases: %(-S),
+      desc: "Display only hostnames, one per newline (use options -uS (--user --host) for user@hostname)"
+    method_option :user, type: :boolean, aliases: %w(-u),
+      desc: "Include the ssh username in front of the hostname for easy SSH scripting"
+    method_option :account, type: :string, aliases: %w(-c),
+      required: true, default: '',
+      desc: "Find environment in this account"
+    method_option :environment, type: :string, aliases: %w(-e),
+      required: true, default: '',
+      desc: "Show servers in environment matching environment name"
     def servers
       if options[:environment] == '' && options[:account] == ''
         repo.fail_on_no_remotes!
@@ -367,12 +367,12 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       successfully completed.
     DESC
 
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :required => true, :default => '',
-      :desc => "Environment to rebuild"
-    method_option :account, :type => :string, :aliases => %w(-c),
-      :required => true, :default => '',
-      :desc => "Name of the account in which the environment can be found"
+    method_option :environment, type: :string, aliases: %w(-e),
+      required: true, default: '',
+      desc: "Environment to rebuild"
+    method_option :account, type: :string, aliases: %w(-c),
+      required: true, default: '',
+      desc: "Name of the account in which the environment can be found"
     def rebuild
       environment = fetch_environment(options[:environment], options[:account])
       ui.info "Updating instances on #{environment.hierarchy_name}"
@@ -386,19 +386,19 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       remote server(s) to restart application servers.
     DESC
 
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :required => true, :default => '',
-      :desc => "Environment in which to roll back the application"
-    method_option :app, :type => :string, :aliases => %w(-a),
-      :required => true, :default => '',
-      :desc => "Name of the application to roll back"
-    method_option :account, :type => :string, :aliases => %w(-c),
-      :required => true, :default => '',
-      :desc => "Name of the account in which the environment can be found"
-    method_option :verbose, :type => :boolean, :aliases => %w(-v),
-      :desc => "Be verbose"
-    method_option :config, :type => :hash, :default => {}, :aliases => %w(--extra-deploy-hook-options),
-      :desc => "Hash made available in deploy hooks (in the 'config' hash), can also override some ey.yml settings."
+    method_option :environment, type: :string, aliases: %w(-e),
+      required: true, default: '',
+      desc: "Environment in which to roll back the application"
+    method_option :app, type: :string, aliases: %w(-a),
+      required: true, default: '',
+      desc: "Name of the application to roll back"
+    method_option :account, type: :string, aliases: %w(-c),
+      required: true, default: '',
+      desc: "Name of the account in which the environment can be found"
+    method_option :verbose, type: :boolean, aliases: %w(-v),
+      desc: "Be verbose"
+    method_option :config, type: :hash, default: {}, aliases: %w(--extra-deploy-hook-options),
+      desc: "Hash made available in deploy hooks (in the 'config' hash), can also override some ey.yml settings."
     def rollback
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       env_config    = config.environment_config(app_env.environment_name)
@@ -431,32 +431,32 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
 
       $ #{banner_base} ssh "rm -f /some/file" -e my-environment --all
     DESC
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :required => true, :default => '',
-      :desc => "Environment to ssh into"
-    method_option :account, :type => :string, :aliases => %w(-c),
-      :required => true, :default => '',
-      :desc => "Name of the account in which the environment can be found"
-    method_option :all, :type => :boolean, :aliases => %(-A),
-      :desc => "Run command on all servers"
-    method_option :app_servers, :type => :boolean,
-      :desc => "Run command on all application servers"
-    method_option :db_servers, :type => :boolean,
-      :desc => "Run command on the database servers"
-    method_option :db_master, :type => :boolean,
-      :desc => "Run command on the master database server"
-    method_option :db_slaves, :type => :boolean,
-      :desc => "Run command on the slave database servers"
-    method_option :utilities, :type => :array, :lazy_default => true,
-      :desc => "Run command on the utility servers with the given names. If no names are given, run on all utility servers."
-    method_option :shell, :type => :string, :default => 'bash', :aliases => %w(-s),
-      :desc => "Run command in a shell other than bash. Use --no-shell to run the command without a shell."
-    method_option :pty, :type => :boolean, :default => false, :aliases => %w(-t),
-      :desc => "If a command is given, run in a pty. Required for interactive commands like sudo."
-    method_option :bind_address, :type => :string, :aliases => %w(-L),
-      :desc => "When a command is not given, pass -L to the ssh command."
-    method_option :each, :type => :boolean, :default => false,
-      :desc => "If no command is given, connect to multiple servers each one after another, instead of exiting with an error."
+    method_option :environment, type: :string, aliases: %w(-e),
+      required: true, default: '',
+      desc: "Environment to ssh into"
+    method_option :account, type: :string, aliases: %w(-c),
+      required: true, default: '',
+      desc: "Name of the account in which the environment can be found"
+    method_option :all, type: :boolean, aliases: %(-A),
+      desc: "Run command on all servers"
+    method_option :app_servers, type: :boolean,
+      desc: "Run command on all application servers"
+    method_option :db_servers, type: :boolean,
+      desc: "Run command on the database servers"
+    method_option :db_master, type: :boolean,
+      desc: "Run command on the master database server"
+    method_option :db_slaves, type: :boolean,
+      desc: "Run command on the slave database servers"
+    method_option :utilities, type: :array, lazy_default: true,
+      desc: "Run command on the utility servers with the given names. If no names are given, run on all utility servers."
+    method_option :shell, type: :string, default: 'bash', aliases: %w(-s),
+      desc: "Run command in a shell other than bash. Use --no-shell to run the command without a shell."
+    method_option :pty, type: :boolean, default: false, aliases: %w(-t),
+      desc: "If a command is given, run in a pty. Required for interactive commands like sudo."
+    method_option :bind_address, type: :string, aliases: %w(-L),
+      desc: "When a command is not given, pass -L to the ssh command."
+    method_option :each, type: :boolean, default: false,
+      desc: "If no command is given, connect to multiple servers each one after another, instead of exiting with an error."
 
     def ssh(cmd=nil)
       environment = fetch_environment(options[:environment], options[:account])
@@ -520,7 +520,7 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
           class << includes_everything
             def include?(*) true end
           end
-          filter = ssh_host_filter(opts.merge(:utilities => includes_everything))
+          filter = ssh_host_filter(opts.merge(utilities: includes_everything))
         else
           filter = ssh_host_filter(opts)
         end
@@ -537,12 +537,12 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       recipes were uploaded to the environment & run, their logs will also be
       displayed beneath the main configuration logs.
     DESC
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :required => true, :default => '',
-      :desc => "Environment with the interesting logs"
-    method_option :account, :type => :string, :aliases => %w(-c),
-      :required => true, :default => '',
-      :desc => "Name of the account in which the environment can be found"
+    method_option :environment, type: :string, aliases: %w(-e),
+      required: true, default: '',
+      desc: "Environment with the interesting logs"
+    method_option :account, type: :string, aliases: %w(-c),
+      required: true, default: '',
+      desc: "Name of the account in which the environment can be found"
     def logs
       environment = fetch_environment(options[:environment], options[:account])
       environment.logs.each do |log|
@@ -618,15 +618,15 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
     end
 
     desc "launch [--app APP] [--environment ENVIRONMENT] [--account ACCOUNT]", "Open application in browser."
-    method_option :environment, :type => :string, :aliases => %w(-e),
-      :required => true, :default => '',
-      :desc => "Environment where the application is deployed"
-    method_option :app, :type => :string, :aliases => %w(-a),
-      :required => true, :default => '',
-      :desc => "Name of the application"
-    method_option :account, :type => :string, :aliases => %w(-c),
-      :required => true, :default => '',
-      :desc => "Name of the account in which the application can be found"
+    method_option :environment, type: :string, aliases: %w(-e),
+      required: true, default: '',
+      desc: "Environment where the application is deployed"
+    method_option :app, type: :string, aliases: %w(-a),
+      required: true, default: '',
+      desc: "Name of the application"
+    method_option :account, type: :string, aliases: %w(-c),
+      required: true, default: '',
+      desc: "Name of the account in which the application can be found"
     def launch
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       Launchy.open(app_env.uri)

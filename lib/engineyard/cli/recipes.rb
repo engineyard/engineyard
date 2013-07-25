@@ -13,12 +13,12 @@ module EY
         you run '#{banner_base} recipes apply'.
       DESC
 
-      method_option :environment, :type => :string, :aliases => %w(-e),
-        :required => true, :default => '',
-        :desc => "Environment in which to apply recipes"
-      method_option :account, :type => :string, :aliases => %w(-c),
-        :required => true, :default => '',
-        :desc => "Name of the account in which the environment can be found"
+      method_option :environment, type: :string, aliases: %w(-e),
+        required: true, default: '',
+        desc: "Environment in which to apply recipes"
+      method_option :account, type: :string, aliases: %w(-c),
+        required: true, default: '',
+        desc: "Name of the account in which the environment can be found"
       def apply
         environment = fetch_environment(options[:environment], options[:account])
         apply_recipes(environment)
@@ -38,17 +38,17 @@ module EY
         and also automatically each time you update/rebuild your instances.
       DESC
 
-      method_option :environment, :type => :string, :aliases => %w(-e),
-        :required => true, :default => '',
-        :desc => "Environment that will receive the recipes"
-      method_option :account, :type => :string, :aliases => %w(-c),
-        :required => true, :default => '',
-        :desc => "Name of the account in which the environment can be found"
-      method_option :apply, :type => :boolean,
-        :desc => "Apply the recipes immediately after they are uploaded"
-      method_option :file, :type => :string, :aliases => %w(-f),
-        :required => true, :default => '',
-        :desc => "Specify a gzipped tar file (.tgz) for upload instead of cookbooks/ directory"
+      method_option :environment, type: :string, aliases: %w(-e),
+        required: true, default: '',
+        desc: "Environment that will receive the recipes"
+      method_option :account, type: :string, aliases: %w(-c),
+        required: true, default: '',
+        desc: "Name of the account in which the environment can be found"
+      method_option :apply, type: :boolean,
+        desc: "Apply the recipes immediately after they are uploaded"
+      method_option :file, type: :string, aliases: %w(-f),
+        required: true, default: '',
+        desc: "Specify a gzipped tar file (.tgz) for upload instead of cookbooks/ directory"
       def upload
         environment = fetch_environment(options[:environment], options[:account])
         upload_recipes(environment, options[:file])
@@ -97,12 +97,12 @@ module EY
 
         If the cookbooks directory already exists, an error will be raised.
       DESC
-      method_option :environment, :type => :string, :aliases => %w(-e),
-        :required => true, :default => '',
-        :desc => "Environment for which to download the recipes"
-      method_option :account, :type => :string, :aliases => %w(-c),
-        :required => true, :default => '',
-        :desc => "Name of the account in which the environment can be found"
+      method_option :environment, type: :string, aliases: %w(-e),
+        required: true, default: '',
+        desc: "Environment for which to download the recipes"
+      method_option :account, type: :string, aliases: %w(-c),
+        required: true, default: '',
+        desc: "Name of the account in which the environment can be found"
       def download
         if File.exist?('cookbooks')
           raise EY::Error, "Cannot download recipes, cookbooks directory already exists."
