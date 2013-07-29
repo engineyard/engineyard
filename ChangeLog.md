@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.2.1 (2013-07-29)
+
   * Uses newest version of engineyard-serverside 2.2.1
     * Fixes deprecation warnings for internal method calls in deploy hooks.
 
