@@ -52,7 +52,7 @@ module EY
       EY::Serverside::Adapter.new("/usr/local/ey_resin/ruby/bin") do |args|
         args.serverside_version = serverside_version
         args.app              = app.name
-        args.repo             = app.repository_uri
+        args.git              = app.repository_uri
         args.instances        = instances_data(environment.deploy_to_instances, bridge)
         args.stack            = environment.app_server_stack_name
         args.framework_env    = environment.framework_env
