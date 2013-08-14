@@ -254,6 +254,81 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       end
     end
 
+    desc "vars", "Manage vars on an app environment"
+    long_desc <<-DESC
+      Manage vars on an app environment
+      TODO: longer long description
+    DESC
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
+      :desc => "Environment where the application is deployed"
+    method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
+      :desc => "Name of the application"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
+      :desc => "Name of the account in which the application can be found"
+    method_option :set, :type => :string,
+      :desc => "Add a var by name"
+    method_option :value, :type => :string,
+      :desc => "Value of var when using --set"
+    method_option :nil, :type => :boolean,
+      :desc => "Set's the value to nil when using --set (essentially deleting it)"
+    def vars
+      app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+      if key = options[:set]
+        app_env.vars ||= {}
+        if value = options[:value]
+          app_env.vars[key] = value
+        elsif options[:nil]
+          app_env.vars.delete(key)
+        else
+          raise EY::Error, "Please specify a value for '#{key}' using --value or --nil"
+        end
+        api.update_vars(app_env)
+        ui.vars(app_env.vars)
+      else
+        ui.vars(app_env.vars || {})
+      end
+    end
+
+    desc "addons", "Show account-wide addons"
+    long_desc <<-DESC
+      Show account-wide addons
+      TODO: longer long description
+    DESC
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
+      :desc => "Environment where the application is deployed"
+    method_option :app, :type => :string, :aliases => %w(-a),
+      :required => true, :default => '',
+      :desc => "Name of the application"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
+      :desc => "Name of the account in which the application can be found"
+    def addons
+      account = fetch_account(options[:app], options[:environment], options[:account])
+      addons = api.addons_for(account)
+      ui.addons(addons)
+      # ui.vars(app_env.vars)
+      # if options[:list]
+      #   ui.vars(app_env.vars || {})
+      # elsif key = options[:set]
+      #   app_env.vars ||= {}
+      #   if value = options[:value]
+      #     app_env.vars[key] = value
+      #   elsif options[:nil]
+      #     app_env.vars.delete(key)
+      #   else
+      #     raise EY::Error, "Please specify a value for '#{key}' using --value or --nil"
+      #   end
+      #   api.update_vars(app_env)
+      #   ui.vars(app_env.vars)
+      # else
+      #   raise EY::Error, "Please specify a command. Supported commands are: --list --add --remove"
+      # end
+    end
+
     desc "environments [--all]", "List environments for this app; use --all to list all environments."
     long_desc <<-DESC
       By default, environments for this app are displayed. The --all option will

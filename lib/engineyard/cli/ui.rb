@@ -199,6 +199,28 @@ module EY
         end
       end
 
+      def vars(vars)
+        if !vars || vars.empty?
+          puts "(no vars set)"
+        else
+          vars.each do |k,v|
+            puts "#{k} => #{v}"
+          end
+        end
+      end
+
+      def addons(addons_list)
+        addons_list.each do |name,attributes|
+          puts "#{name}:"
+          attributes["vars"].each do |k,v|
+            puts "    #{k}: #{v}"
+          end
+          attributes["app_envs"].each do |app_env|
+            puts "connected to: #{app_env}"
+          end
+        end
+      end
+
       def deployment_status(deployment)
         unless quiet?
           say "# Status of last deployment of #{deployment.app_environment.hierarchy_name}:"

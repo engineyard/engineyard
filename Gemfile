@@ -2,6 +2,9 @@ source "https://rubygems.org"
 
 gemspec
 
+gem 'engineyard-cloud-client', :path => "../engineyard-cloud-client"
+gem 'pry'
+
 group 'engineyard-cloud-client-test' do
   gem 'dm-core', '~>1.2.0'
   gem 'dm-migrations'

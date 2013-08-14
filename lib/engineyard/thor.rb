@@ -78,7 +78,7 @@ module EY
       end
     end
 
-    def fetch_app_environment(app_name, environment_name, account_name)
+    def fetch_resolver(app_name, environment_name, account_name)
       ui.info "Loading application data from Engine Yard Cloud..."
 
       environment_name ||= use_default_environment
@@ -98,7 +98,11 @@ Please specify --app=app_name or add this application at #{config.endpoint}"
         ERROR
       end
 
-      resolver = api.resolve_app_environments(constraints)
+      api.resolve_app_environments(constraints)
+    end
+
+    def fetch_app_environment(app_name, environment_name, account_name)
+      resolver = fetch_resolver(app_name, environment_name, account_name)
 
       resolver.one_match { |match| return match }
       resolver.no_matches do |errors, suggestions|
@@ -106,6 +110,23 @@ Please specify --app=app_name or add this application at #{config.endpoint}"
       end
       resolver.many_matches do |app_envs|
         raise EY::MultipleMatchesError.new(too_many_app_environments_error(app_envs))
+      end
+    end
+
+    def fetch_account(app_name, environment_name, account_name)
+      resolver = fetch_resolver(app_name, environment_name, account_name)
+
+      resolver.one_match { |match| return match.account }
+      resolver.no_matches do |errors, suggestions|
+        raise_no_matches(errors, suggestions)
+      end
+      resolver.many_matches do |app_envs|
+        accounts = app_envs.map(&:account).uniq
+        if accounts.size == 1
+          return accounts.first
+        else
+          raise EY::MultipleMatchesError.new(too_many_app_environments_error(app_envs))
+        end
       end
     end
 
