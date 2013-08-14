@@ -33,7 +33,12 @@ application is deployed. Here's an example ey.yml file in `ROOT/config/ey.yml`:
       precompile_assets: true                   # enables rails assets precompilation (default: inferred using app/assets and config/application.rb)
       precomplie_assets_task: assets:precompile # override the assets:precompile rake task
       precompile_unchanged_assets: true         # precompiles assets even if no changes would be detected (does not check for changes at all).
-      asset_dependencies: app/assets            # a list of relative paths to search for asset changes during each deploy.
+      asset_dependencies:                       # a list of relative paths to search for asset changes during each deploy.
+      - app/assets                              # Defaults: app/assets lib/assets vendor/assets Gemfile.lock config/routes.rb config/application.rb
+      - lib/assets                              # anything you specify will overwrite the defaults.
+      - Gemfile.lock
+      - config/application.rb
+      - config/requirejs.yml
       assets_strategy: shifting                 # choose an alternet asset management strategy (shifting, cleaning, private, shared)
       asset_roles: :all                         # specify on which roles to compile assets (default: [:app, :app_master, :solo] - must be an Array)
       asset_roles:                              # (Array input for multiple roles) - Use hook deploy/before_compile_assets.rb for finer grained control.
