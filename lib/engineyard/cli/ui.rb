@@ -199,12 +199,16 @@ module EY
         end
       end
 
-      def vars(vars)
-        if !vars || vars.empty?
+      def vars(vars, vars_resolved)
+        if !vars || vars.empty? || !vars_resolved || vars_resolved.empty?
           puts "(no vars set)"
         else
           vars.each do |k,v|
-            puts "#{k} => #{v}"
+            values = vars_resolved[k]
+            pp(k => values)
+            if v.is_a?(String)
+              puts "        via: #{v}"
+            end
           end
         end
       end
