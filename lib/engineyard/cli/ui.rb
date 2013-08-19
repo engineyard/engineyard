@@ -214,6 +214,9 @@ module EY
       end
 
       def addons(addons_list)
+        if addons_list.empty?
+          puts "(no addons enabled)"
+        end
         addons_list.each do |name,attributes|
           puts "#{name}:"
           attributes["vars"].each do |k,v|

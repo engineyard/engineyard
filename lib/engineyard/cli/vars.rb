@@ -63,6 +63,7 @@ module EY
         app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
         ui.info "Deleting vars at '#{options[:namespace]}'"
         app_env.vars.delete(options[:namespace])
+        api.update_vars(app_env)
         ui.vars(app_env.vars, app_env.vars_resolved)
       end
 
