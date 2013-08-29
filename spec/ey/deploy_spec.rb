@@ -464,7 +464,7 @@ describe "ey deploy" do
     end
 
     it "passes along the repository URL to engineyard-serverside" do
-      @deploy_command.should =~ /--repo user@git.host:path\/to\/repo.git/
+      @deploy_command.should =~ /--git user@git.host:path\/to\/repo.git/
     end
 
     it "passes along the web server stack to engineyard-serverside" do
