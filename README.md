@@ -18,33 +18,43 @@ you for your Engine Yard email and password.
 ### Configuration
 
 The `ey.yml` file allows options to be saved for each environment to which an
-application is deployed. Here's an example ey.yml file in `ROOT/config/ey.yml`:
+application is deployed.
 
-    $ cat config/ey.yml
+A typical Rails application will have a `config/ey.yml` like this:
+
+    ---
+    # This is all you need for a typical rails application.
+    defaults:
+      migrate: true
+      migration_command: rake db:migrate
+      precompile_assets: true
+
+The following `ey.yml` file shows other things that can be customized.
+A typical application will not need most of these options.
+
     ---
     # 'defaults' applies to all environments running this application.
+    # Only set these options if needed. The defaults are correct for most applications.
     defaults:
-      bundle_without: test development mygroup  # exclude groups on bundle install (leave blank to remove --without)
-      bundle_options: --local                   # add extra options to the bundle install command line (does not override bundle_without)
-      copy_exclude:                             # don't rsync the following dirs
-      - .git
+      bundle_without: GROUP1 GROUP2             # exclude groups on bundle install (default: test development)
+      bundle_options: --OPTION                  # extra bundle install options (--local, --quiet, etc; does not override bundle_without)
+      copy_exclude:                             # don't rsync the following dirs (some people like to skip .git)
+      - SOME_LARGE_DIR 
       maintenance_on_restart: false             # show maintenance page during app restart (default: false except for glassfish and mongrel)
-      maintenance_on_migrate: false             # show maintenance page during migrations (default: true)
+      maintenance_on_migrate: true              # show maintenance page during migrations (default: true)
       precompile_assets: true                   # enables rails assets precompilation (default: inferred using app/assets and config/application.rb)
       precomplie_assets_task: assets:precompile # override the assets:precompile rake task
-      precompile_unchanged_assets: true         # precompiles assets even if no changes would be detected (does not check for changes at all).
+      precompile_unchanged_assets: false        # if true, does not check git for changes before precompiling assets.
       asset_dependencies:                       # a list of relative paths to search for asset changes during each deploy.
       - app/assets                              # Defaults: app/assets lib/assets vendor/assets Gemfile.lock config/routes.rb config/application.rb
-      - lib/assets                              # anything you specify will overwrite the defaults.
+      - lib/assets                              # If you specify any options, it will overwrite the defaults.
+      - vendor/assets
       - Gemfile.lock
+      - config/routes.rb
       - config/application.rb
       - config/requirejs.yml
-      assets_strategy: shifting                 # choose an alternet asset management strategy (shifting, cleaning, private, shared)
-      asset_roles: :all                         # specify on which roles to compile assets (default: [:app, :app_master, :solo] - must be an Array)
-      asset_roles:                              # (Array input for multiple roles) - Use hook deploy/before_compile_assets.rb for finer grained control.
-      - :app
-      - :app_master
-      - :util
+      assets_strategy: shifting                 # choose an alternet asset management strategy. See rails_assets/strategy.rb for more info.
+      asset_roles: :all                         # specify on which roles to compile assets (default: [:app, :app_master, :solo])
       ignore_database_adapter_warning: true     # hide database adapter warning if you don't use MySQL or PostgreSQL (default: false)
 
     # Environment specific options apply only to a single environment and override settings in defaults.
