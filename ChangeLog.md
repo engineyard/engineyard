@@ -2,6 +2,8 @@
 
 ## NEXT
 
+  * New command `ey init` writes or updates an ey.yml configuration file to help users understand all the ey.yml options.
+    * `ey init` is recommended for all applications to provide extra documentation in ey.yml.
   * New command `ey servers -e env` shows servers for a specified environment in a machine/user readable format.
   * `ey ssh` accepts new options -t and --each. Experimintal option -L is also supported.
   * Uses newest version of engineyard-serverside 2.3.1

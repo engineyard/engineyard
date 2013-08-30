@@ -56,13 +56,6 @@ RSpec.configure do |config|
   config.before(:suite) { clean_tmpdir }
   config.after(:suite) { clean_tmpdir }
 
-  def clean_eyrc
-    ENV['EYRC'] = File.join('/tmp','eyrc')
-    if ENV['EYRC'] && File.exist?(ENV['EYRC'])
-      File.unlink(ENV['EYRC'])
-    end
-  end
-
   config.before(:all) do
     clean_eyrc
     FakeWeb.allow_net_connect = false

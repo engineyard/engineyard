@@ -5,19 +5,37 @@ require 'engineyard/error'
 
 module EY
   class Config
+    # This order is important.
     CONFIG_FILES = ["config/ey.yml", "ey.yml"].map {|path| Pathname.new(path)}.freeze
+    TEMPLATE_PATHNAME = Pathname.new(__FILE__).dirname.join('templates','ey.yml').freeze
+
+    def self.pathname_for_write
+      pathname || CONFIG_FILES.find{|pathname| pathname.dirname.exist? }
+    end
+
+    def self.pathname
+      CONFIG_FILES.find{|pathname| pathname.exist? }
+    end
+
+    def self.template_pathname
+      TEMPLATE_PATHNAME
+    end
+
+    def self.load_config(path = pathname)
+      config = YAML.load_file(path.to_s) if path && path.exist?
+      config ||= {} # load_file returns `false' when the file is empty
+
+      unless Hash === config
+        raise "ey.yml load error: Expected a Hash but a #{config.class.name} was returned."
+      end
+      config
+    end
 
     attr_reader :path
 
     def initialize(file = nil)
-      @path = file ? Pathname.new(file) : CONFIG_FILES.find{|pathname| pathname.exist? }
-      @config = @path ? YAML.load_file(@path.to_s) : {}
-      @config ||= {} # load_file returns `false' when the file is empty
-
-      unless Hash === @config
-        raise "ey.yml load error: Expected a Hash but a #{@config.class.name} was returned."
-      end
-
+      @path = file ? Pathname.new(file) : self.class.pathname
+      @config = self.class.load_config(@path)
       @config["environments"] ||= {}
     end
 
@@ -79,76 +97,6 @@ module EY
       EnvironmentConfig.new(environments[environment_name], environment_name, self)
     end
 
-    def set_environment_option(environment_name, key, value)
-      environments[environment_name] ||= {}
-      environments[environment_name][key] = value
-      write_ey_yaml
-    end
-
-    def write_ey_yaml
-      ensure_path
-      comments = ey_yml_comments
-      @path.open('w') do |f|
-        f.puts comments
-        f.puts YAML.dump(@config)
-      end
-    end
-
-    def set_default_option(key, value)
-      defaults[key] = value
-      write_ey_yaml
-    end
-
-    EY_YML_HINTS = <<-HINTS
-# ey.yml supports many deploy configuration options when committed in an
-# application's repository.
-#
-# Valid locations: REPO_ROOT/ey.yml or REPO_ROOT/config/ey.yml.
-#
-# Examples options (defaults apply to all environments for this application):
-#
-# defaults:
-#   migrate: true                           # Default --migrate choice for ey deploy
-#   migration_command: 'rake migrate'       # Default migrate command to run when migrations are enabled
-#   branch: default_deploy_branch           # Branch/ref to be deployed by default during ey deploy
-#   bundle_without: development test        # The string to pass to bundle install --without ''
-#   maintenance_on_migrate: true            # Enable maintenance page during migrate action (use with caution) (default: true)
-#   maintenance_on_restart: false           # Enable maintanence page during every deploy (default: false for unicorn & passenger)
-#   ignore_database_adapter_warning: false  # Hide the warning shown when the Gemfile does not contain a recognized database adapter (mongodb for example)
-#   your_own_custom_key: 'any attribute you put in ey.yml is available in deploy hooks'
-# environments:
-#   YOUR_ENVIRONMENT_NAME: # All options pertain only to the named environment
-#     any_option: 'override any of the options above with specific options for certain environments'
-#     migrate: false
-#
-# Further information available here:
-# https://support.cloud.engineyard.com/entries/20996661-customize-your-deployment-on-engine-yard-cloud
-#
-# NOTE: Please commit this file into your git repository.
-#
-    HINTS
-
-    def ey_yml_comments
-      if @path.exist?
-        existing = @path.readlines.grep(/^#/).map {|line| line.strip }.join("\n")
-      else
-        EY_YML_HINTS
-      end
-    end
-
-    def ensure_path
-      return if @path && @path.exist?
-      unless EY::Repo.exist?
-        raise "Not in application directory. Unable to save configuration."
-      end
-      if Pathname.new('config').exist?
-        @path = Pathname.new('config/ey.yml')
-      else
-        @path = Pathname.new('ey.yml')
-      end
-      @path
-    end
-
     class EnvironmentConfig
       attr_reader :name
 
@@ -162,28 +110,16 @@ module EY
         @parent.path
       end
 
+      def ensure_exists
+        unless path && path.exist?
+          raise EY::Error, "Please initialize this application with the following command:\n\tey init"
+        end
+      end
+
       def fetch(key, default = nil, &block)
         @config.fetch(key.to_s) do
           @parent.fetch_from_defaults(key.to_s, default, &block)
         end
-      end
-
-      def set(key, val)
-        if @config.empty? || !@config.has_key?(key.to_s)
-          @parent.set_default_option(key, val)
-        else
-          @config[key.to_s] = val
-          @parent.set_environment_option(@name, key, val)
-        end
-        val
-      end
-
-      def merge(other)
-        to_clean_hash.merge(other)
-      end
-
-      def to_clean_hash
-        @config.reject { |k,v| %w[branch migrate migration_command verbose].include?(k) }
       end
 
       def branch
@@ -191,22 +127,20 @@ module EY
       end
 
       def migrate
-        fetch('migrate')
-      end
-
-      def migrate=(mig)
-        set('migrate', mig)
+        ensure_exists
+        fetch('migrate') do
+          raise EY::Error, "'migrate' not found in #{path}. Reinitialize with:\n\tey init"
+        end
       end
 
       def migration_command
-        fetch('migration_command', nil)
+        ensure_exists
+        fetch('migration_command') do
+          raise EY::Error, "'migration_command' not found in #{path}. Reinitialize with:\n\tey init"
+        end
       end
 
-      def migration_command=(cmd)
-        set('migration_command', cmd)
-      end
       alias migrate_command migration_command
-      alias migrate_command= migration_command=
 
       def verbose
         fetch('verbose', false)
