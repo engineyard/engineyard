@@ -46,13 +46,13 @@ A typical application will not need most of these options.
       precomplie_assets_task: assets:precompile # override the assets:precompile rake task
       precompile_unchanged_assets: false        # if true, does not check git for changes before precompiling assets.
       asset_dependencies:                       # a list of relative paths to search for asset changes during each deploy.
-      - app/assets                              # Defaults: app/assets lib/assets vendor/assets Gemfile.lock config/routes.rb config/application.rb
-      - lib/assets                              # If you specify any options, it will overwrite the defaults.
-      - vendor/assets
-      - Gemfile.lock
-      - config/routes.rb
-      - config/application.rb
-      - config/requirejs.yml
+      - app/assets                              # default
+      - lib/assets                              # default
+      - vendor/assets                           # default
+      - Gemfile.lock                            # default
+      - config/routes.rb                        # default
+      - config/application.rb                   # default
+      - config/requirejs.yml                    # custom option (be sure to include defaults if you specify this option)
       assets_strategy: shifting                 # choose an alternet asset management strategy. See rails_assets/strategy.rb for more info.
       asset_roles: :all                         # specify on which roles to compile assets (default: [:app, :app_master, :solo])
       ignore_database_adapter_warning: true     # hide database adapter warning if you don't use MySQL or PostgreSQL (default: false)
