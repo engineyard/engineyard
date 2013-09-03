@@ -1,4 +1,4 @@
-Thanks for installing engineyard 2.1.
+Thanks for installing the engineyard gem!
 
 Need help? Problem? https://support.cloud.engineyard.com
 Not working? Uninstall this version to downgrade.
