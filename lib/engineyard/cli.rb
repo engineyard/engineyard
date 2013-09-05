@@ -287,6 +287,8 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       :desc => "Show servers in environment matching environment name"
     method_option :simple, :type => :boolean, :aliases => %(-s),
       :desc => "Display simplified format without extra text"
+    method_option :user, :type => :boolean, :aliases => %w(-u),
+      :desc => "Include the ssh username in front of the hostname for easy SSH scripting"
     def servers
       environment = fetch_environment(options[:environment], options[:account])
       servers = environment.instances
@@ -296,8 +298,11 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
         puts "# #{count} server#{count != 1 && 's'} on #{environment.hierarchy_name}"
       end
 
+      user = options[:user] ? "#{environment.username}@" : ""
+
       environment.instances.each do |server|
-        puts [server.hostname, server.role, server.name].join("\t")
+        host = "#{user}#{server.hostname}"
+        puts [host, server.role, server.name].join("\t")
       end
     end
 

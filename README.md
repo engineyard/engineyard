@@ -155,6 +155,7 @@ Options:
     -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
     -e, [--environment=ENVIRONMENT]           # Show only servers in the named environment
     -s, [--simple]                            # Print each server on a new line with hostname, role, and name separated by tabs
+    -u, [--user]                              # Print the user@ in front of the server hostname to make ssh connections simpler
 
 Example output:
 
