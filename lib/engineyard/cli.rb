@@ -272,6 +272,35 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
     end
     map "envs" => :environments
 
+    desc "servers", "List servers for an environment."
+    long_desc <<-DESC
+      Display a list of all servers on an environment.
+      Specify --simple and/or --quiet to make parsing the output easier.
+      Output format is hostname\trole\tname separated by tabs on each line.
+    DESC
+
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
+      :desc => "Find environment in this account"
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
+      :desc => "Show servers in environment matching environment name"
+    method_option :simple, :type => :boolean, :aliases => %(-s),
+      :desc => "Display simplified format without extra text"
+    def servers
+      environment = fetch_environment(options[:environment], options[:account])
+      servers = environment.instances
+
+      unless options[:simple] || options[:quiet]
+        count = servers.size
+        puts "# #{count} server#{count != 1 && 's'} on #{environment.hierarchy_name}"
+      end
+
+      environment.instances.each do |server|
+        puts [server.hostname, server.role, server.name].join("\t")
+      end
+    end
+
     desc "rebuild [--environment ENVIRONMENT]", "Rebuild specified environment."
     long_desc <<-DESC
       Engine Yard's main configuration run occurs on all servers. Mainly used to fix

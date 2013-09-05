@@ -144,6 +144,24 @@ Options:
     -s, [--simple]                            # Print each environment name on its own on a new line
     -a, [--all]                               # Show all environments, not just ones associated with this application.
 
+#### ey servers
+
+List all servers on an environment.
+
+For machine parsing, use `-q [--quiet]` to ensure no other output is printed.
+
+Options:
+
+    -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
+    -e, [--environment=ENVIRONMENT]           # Show only servers in the named environment
+    -s, [--simple]                            # Print each server on a new line with hostname, role, and name separated by tabs
+
+Example output:
+
+    ec2-10-0-0-0.us-west-2.compute.amazonaws.com	app_master
+    ec2-10-0-0-1.us-west-2.compute.amazonaws.com	app
+    ec2-10-0-0-2.us-west-2.compute.amazonaws.com	db_master
+    ec2-10-0-0-3.us-west-2.compute.amazonaws.com	util	resque
 
 #### ey logs
 
