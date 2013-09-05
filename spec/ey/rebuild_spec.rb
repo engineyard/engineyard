@@ -11,7 +11,7 @@ describe "ey rebuild" do
   end
 
   def verify_ran(scenario)
-    @out.should =~ /Updating instances on \w+\/#{scenario[:environment]}/
+    @out.should =~ /Updating instances on #{scenario[:account]} \/ #{scenario[:environment]}/
   end
 
   include_examples "it takes an environment name and an account name"

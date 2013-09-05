@@ -157,12 +157,12 @@ Options:
     -s, [--simple]                            # Print each server on a new line with hostname, role, and name separated by tabs
     -u, [--user]                              # Print the user@ in front of the server hostname to make ssh connections simpler
 
-Example output:
+Example output for simple format:
 
-    ec2-10-0-0-0.us-west-2.compute.amazonaws.com	app_master
-    ec2-10-0-0-1.us-west-2.compute.amazonaws.com	app
-    ec2-10-0-0-2.us-west-2.compute.amazonaws.com	db_master
-    ec2-10-0-0-3.us-west-2.compute.amazonaws.com	util	resque
+    ec2-10-0-0-0.us-west-2.compute.amazonaws.com	i-aabbccdd	app_master
+    ec2-10-0-0-1.us-west-2.compute.amazonaws.com	i-bbccddee	app
+    ec2-10-0-0-2.us-west-2.compute.amazonaws.com	i-ccddeeff	db_master
+    ec2-10-0-0-3.us-west-2.compute.amazonaws.com	i-ddeeffaa	util	resque
 
 #### ey logs
 

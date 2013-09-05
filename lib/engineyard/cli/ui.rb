@@ -128,6 +128,42 @@ module EY
         return ''
       end
 
+      def mute_if(bool, &block)
+        bool ? mute(&block) : yield
+      end
+
+      def server_tuples(servers, username=nil)
+        user = username && "#{username}@"
+
+        servers.map do |server|
+          host = "#{user}#{server.hostname}"
+          [host, server.amazon_id, server.role, server.name]
+        end
+      end
+      private :server_tuples
+
+      def print_simple_servers(servers, username=nil)
+        server_tuples(servers, username).each do |server_tuple|
+          puts server_tuple.join("\t")
+        end
+      end
+
+      def print_servers(servers, name, username=nil)
+        tuples = server_tuples(servers, username)
+        count = tuples.size
+        puts "# #{count} server#{count == 1 ? '' : 's'} on #{name}"
+
+        host_width = tuples.map {|s| s[0].length }.max
+        host_format = "%-#{host_width}s" # "%-10s" left align
+
+        role_width = tuples.map {|s| s[2].length }.max
+        role_format = "%-#{role_width}s" # "%-10s" left align
+
+        tuples.each do |server_tuple|
+          puts "#{host_format}\t%s\t#{role_format}\t%s" % server_tuple
+        end
+      end
+
       def print_simple_envs(envs)
         puts envs.map{|env| env.name }.uniq.sort
       end

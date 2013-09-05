@@ -13,6 +13,6 @@ describe "ey timeout-deploy" do
   it "complains when there is no stuck deployment" do
     login_scenario "one app, one environment"
     fast_failing_ey ["timeout-deploy"]
-    @err.should include(%|No unfinished deployment was found for main/rails232app/giblets.|)
+    @err.should include(%|No unfinished deployment was found for main / rails232app / giblets.|)
   end
 end

@@ -86,6 +86,7 @@ shared_examples_for "it takes an environment name and an account name" do
       run_ey({:environment => "giblets", :account => "main"})
       verify_ran(make_scenario({
           :environment      => 'giblets',
+          :account          => 'main',
           :application      => 'rails232app',
           :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
           :ssh_username     => 'turkey',
@@ -113,6 +114,7 @@ shared_examples_for "it takes an environment name" do
     run_ey(:environment => nil)
     verify_ran(make_scenario({
           :environment      => 'giblets',
+          :account          => 'main',
           :application      => 'rails232app',
           :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
           :ssh_username     => 'turkey',
@@ -172,6 +174,7 @@ shared_examples_for "it takes an environment name" do
       verify_ran(make_scenario({
         :environment      => 'railsapp_production',
         :application      => 'rails232app',
+        :account          => 'main',
         :master_hostname  => 'app_master_hostname.compute-1.amazonaws.com',
         :ssh_username     => 'turkey',
       }))
