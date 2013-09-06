@@ -36,6 +36,9 @@ A typical application will not need most of these options.
     # 'defaults' applies to all environments running this application.
     # Only set these options if needed. The defaults are correct for most applications.
     defaults:
+      bundler: detect                           # By default, bundler is detected via Gemfile. Options: true: always run bundler; false: never run bundler
+      composer: detect                          # By default, composer is detected via composer.lock. Options: true: always run composer; false: never run composer
+      npm: detect                               # By default, npm is detected via package.json. Options: true: always run npm; false: never run npm
       bundle_without: GROUP1 GROUP2             # exclude groups on bundle install (default: test development)
       bundle_options: --OPTION                  # extra bundle install options (--local, --quiet, etc; does not override bundle_without)
       copy_exclude:                             # don't rsync the following dirs (some people like to skip .git)

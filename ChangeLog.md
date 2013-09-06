@@ -3,10 +3,11 @@
 ## NEXT
 
   * New command `ey servers -e env` shows servers for a specified environment in a machine/user readable format.
-  * Uses newest version of engineyard-serverside 2.3.0
+  * Uses newest version of engineyard-serverside 2.3.1
     * Abort rollbacks if unexpected files are found in the /data/app/releases/ directory because they disrupt the ability to find the previous and latest releases.
     * Supports alternative deploy strategy that fetches an archive at a remote URI and expands it. (Not yet supported from the command line)
     * Changes the name of the Strategy class to Source::Git.
+    * Supports ey.yml options `bundler`, `npm`, and `composer` which can be set to false to disable that dependency manager during deploy.
 
 ## v2.2.1 (2013-07-29)
 
