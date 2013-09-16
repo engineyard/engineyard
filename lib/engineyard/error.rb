@@ -4,7 +4,7 @@ module EY
 
   class NoCommandError < EY::Error
     def initialize
-      super "Must specify a command to run via ssh"
+      super "Specify a command to run via ssh or use --each to cycle through each server one at a time."
     end
   end
 

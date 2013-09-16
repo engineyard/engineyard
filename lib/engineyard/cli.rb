@@ -36,7 +36,7 @@ module EY
       raise
     end
 
-    class_option :api_token, :type => :string, :desc => "Use API-TOKEN to authenticate this command"
+    class_option :api_token, :type => :string, :desc => "Use API_TOKEN to authenticate this command"
     class_option :serverside_version, :type => :string, :desc => "Please use with care! Override deploy system version (same as ENV variable ENGINEYARD_SERVERSIDE_VERSION)"
     class_option :quiet, :aliases => %w[-q], :type => :boolean, :desc => "Quieter CLI output."
 
@@ -374,7 +374,9 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
     long_desc <<-DESC
       If a command is supplied, it will be run, otherwise a session will be
       opened. The application master is used for environments with clusters.
-      Option --all requires a command to be supplied and runs it on all servers.
+
+      Option --all requires a command to be supplied and runs it on all servers or
+      pass --each to connect to each server one after another.
 
       Note: this command is a bit picky about its ordering. To run a command with arguments on
       all servers, like "rm -f /some/file", you need to order it like so:
@@ -401,22 +403,56 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       :desc => "Run command on the utility servers with the given names. If no names are given, run on all utility servers."
     method_option :shell, :type => :string, :default => 'bash', :aliases => %w(-s),
       :desc => "Run command in a shell other than bash. Use --no-shell to run the command without a shell."
+    method_option :pty, :type => :boolean, :default => false, :aliases => %w(-t),
+      :desc => "If a command is given, run in a pty. Required for interactive commands like sudo."
+    method_option :bind_address, :type => :string, :aliases => %w(-L),
+      :desc => "When a command is not given, pass -L to the ssh command."
+    method_option :each, :type => :boolean, :default => false,
+      :desc => "If no command is given, connect to multiple servers each one after another, instead of exiting with an error."
 
     def ssh(cmd=nil)
       environment = fetch_environment(options[:environment], options[:account])
-      hosts = ssh_hosts(options, environment)
+      instances = ssh_hosts(options, environment)
+      ssh_opts = []
 
-      raise NoCommandError.new if cmd.nil? and hosts.size != 1
+      if cmd
+        if options[:shell]
+          cmd = Escape.shell_command([options[:shell],'-lc',cmd])
+        end
 
-      if options[:shell] && cmd
-        cmd = Escape.shell_command([options[:shell],'-lc',cmd])
+        if options[:pty]
+          ssh_opts = ["-t"]
+        elsif cmd =~ /sudo/
+          ui.warn "sudo commands often need a tty to run correctly. Use -t option to spawn a tty."
+        end
+      else
+        if instances.size != 1 && options[:each] == false
+          raise NoCommandError.new
+        end
+
+        if options[:bind_address]
+          ssh_opts = ["-L", options[:bind_address]]
+        end
       end
 
-      exits = hosts.map do |host|
-        system Escape.shell_command(['ssh', "#{environment.username}@#{host}", cmd].compact)
+      ssh_cmd = ["ssh"]
+      ssh_cmd += ssh_opts
+
+      trap(:INT) { abort "Aborting..." }
+
+      exits = instances.map do |instance|
+        host = instance.public_hostname
+        name = instance.name ? "#{instance.role} (#{instance.name})" : instance.role
+        ui.info "\nConnecting to #{name} #{host}..."
+        unless cmd
+          ui.info "Ctrl + C to abort"
+          sleep 1.3
+        end
+        system Escape.shell_command((ssh_cmd + ["#{environment.username}@#{host}"] + [cmd]).compact)
         $?.exitstatus
       end
-      exit exits.detect {|status| !status.zero?} || 0
+
+      exit exits.detect {|status| status != 0 } || 0
     end
 
     no_tasks do
@@ -443,7 +479,7 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
 
         instances = environment.instances.select {|instance| filter[instance] }
         raise NoInstancesError.new(environment.name) if instances.empty?
-        return instances.map { |instance| instance.public_hostname }
+        return instances
       end
     end
 
