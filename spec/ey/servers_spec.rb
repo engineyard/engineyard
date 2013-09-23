@@ -96,6 +96,32 @@ describe "ey servers" do
       ]
     end
 
+    it "lists host only" do
+      fast_ey %w[servers -c main -e giblets -qS], :debug => false
+      @out.split(/\n/).should == [
+        'app_master_hostname.compute-1.amazonaws.com',
+        'app_hostname.compute-1.amazonaws.com',
+        'db_master_hostname.compute-1.amazonaws.com',
+        'db_slave_1_hostname.compute-1.amazonaws.com',
+        'db_slave_2_hostname.compute-1.amazonaws.com',
+        'util_fluffy_hostname.compute-1.amazonaws.com',
+        'util_rocky_hostname.compute-1.amazonaws.com',
+      ]
+    end
+
+    it "lists host only with users" do
+      fast_ey %w[servers -c main -e giblets -qSu], :debug => false
+      @out.split(/\n/).should == [
+        'turkey@app_master_hostname.compute-1.amazonaws.com',
+        'turkey@app_hostname.compute-1.amazonaws.com',
+        'turkey@db_master_hostname.compute-1.amazonaws.com',
+        'turkey@db_slave_1_hostname.compute-1.amazonaws.com',
+        'turkey@db_slave_2_hostname.compute-1.amazonaws.com',
+        'turkey@util_fluffy_hostname.compute-1.amazonaws.com',
+        'turkey@util_rocky_hostname.compute-1.amazonaws.com',
+      ]
+    end
+
     it "finds no servers with gibberish " do
       fast_failing_ey %w[servers --account main --environment gibberish]
       @err.should include('No environment found matching "gibberish"')

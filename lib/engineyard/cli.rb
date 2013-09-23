@@ -275,33 +275,38 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
     desc "servers", "List servers for an environment."
     long_desc <<-DESC
       Display a list of all servers on an environment.
-      Specify -s (--simple) to make parsing the output easier.
+      Specify -s (--simple) to make parsing the output easier
+      or -uS (--user --host) to output bash loop friendly "user@hostname"
     DESC
 
     method_option :simple, :type => :boolean, :aliases => %(-s),
-      :desc => "Display simplified format without extra text or column alignment"
+      :desc => "Display all information in a simplified format without extra text or column alignment"
+    method_option :host, :type => :boolean, :aliases => %(-S),
+      :desc => "Display only hostnames, one per newline (use options -uS (--user --host) for user@hostname)"
+    method_option :user, :type => :boolean, :aliases => %w(-u),
+      :desc => "Include the ssh username in front of the hostname for easy SSH scripting"
     method_option :account, :type => :string, :aliases => %w(-c),
       :required => true, :default => '',
       :desc => "Find environment in this account"
     method_option :environment, :type => :string, :aliases => %w(-e),
       :required => true, :default => '',
       :desc => "Show servers in environment matching environment name"
-    method_option :user, :type => :boolean, :aliases => %w(-u),
-      :desc => "Include the ssh username in front of the hostname for easy SSH scripting"
     def servers
       if options[:environment] == '' && options[:account] == ''
         repo.fail_on_no_remotes!
       end
 
       environment = nil
-      ui.mute_if(options[:simple]) do
+      ui.mute_if(options[:simple] || options[:host]) do
         environment = fetch_environment(options[:environment], options[:account])
       end
 
       username = options[:user] && environment.username
       servers = environment.instances
 
-      if options[:simple]
+      if options[:host]
+        ui.print_hostnames(servers, username)
+      elsif options[:simple]
         ui.print_simple_servers(servers, username)
       else
         ui.print_servers(servers, environment.hierarchy_name, username)

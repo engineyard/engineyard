@@ -151,21 +151,28 @@ Options:
 
 List all servers on an environment.
 
-For machine parsing, use `-q [--quiet]` to ensure no other output is printed.
-
 Options:
 
     -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
     -e, [--environment=ENVIRONMENT]           # Show only servers in the named environment
-    -s, [--simple]                            # Print each server on a new line with hostname, role, and name separated by tabs
     -u, [--user]                              # Print the user@ in front of the server hostname to make ssh connections simpler
+    -s, [--simple]                            # Print each server on a new line with hostname, role, and name separated by tabs
+    -S, [--host]                              # Print each server on a new line with hostname only. Use -Su for 'user@host'
 
-Example output for simple format:
+Example output:
 
+    $ ey servers -s
     ec2-10-0-0-0.us-west-2.compute.amazonaws.com	i-aabbccdd	app_master
     ec2-10-0-0-1.us-west-2.compute.amazonaws.com	i-bbccddee	app
     ec2-10-0-0-2.us-west-2.compute.amazonaws.com	i-ccddeeff	db_master
     ec2-10-0-0-3.us-west-2.compute.amazonaws.com	i-ddeeffaa	util	resque
+
+    $ ey servers -Su
+    deploy@ec2-10-0-0-0.us-west-2.compute.amazonaws.com
+    deploy@ec2-10-0-0-1.us-west-2.compute.amazonaws.com
+    deploy@ec2-10-0-0-2.us-west-2.compute.amazonaws.com
+    deploy@ec2-10-0-0-3.us-west-2.compute.amazonaws.com
+
 
 #### ey logs
 

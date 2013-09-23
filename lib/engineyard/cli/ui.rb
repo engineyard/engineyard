@@ -142,6 +142,12 @@ module EY
       end
       private :server_tuples
 
+      def print_hostnames(servers, username=nil)
+        server_tuples(servers, username).each do |server_tuple|
+          puts server_tuple.first
+        end
+      end
+
       def print_simple_servers(servers, username=nil)
         server_tuples(servers, username).each do |server_tuple|
           puts server_tuple.join("\t")
