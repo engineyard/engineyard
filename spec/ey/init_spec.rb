@@ -3,7 +3,7 @@ require 'spec_helper'
 describe "ey init" do
   given "integration"
 
-  let(:default_migration_command) { "rake db:migrate" }
+  let(:default_migration_command) { "rake db:migrate --trace" }
 
   before do
     login_scenario "one app, one environment"

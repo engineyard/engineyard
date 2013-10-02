@@ -47,7 +47,7 @@ module EY
       def defaults
         {
           "migrate"                         => Pathname.new('db/migrate').exist?,
-          "migration_command"               => "rake db:migrate",
+          "migration_command"               => "rake db:migrate --trace",
           "precompile_assets"               => Pathname.new('app/assets').exist?,
           "precompile_assets_task"          => "assets:precompile",
           "asset_dependencies"              => nil, # %w[app/assets lib/assets vendor/assets Gemfile.lock config/application.rb config/routes.rb],

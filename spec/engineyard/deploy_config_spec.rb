@@ -145,7 +145,7 @@ describe EY::DeployConfig do
       it "returns the default migration command when migrate is true" do
         dc = deploy_config({'app' => 'app', 'migrate' => true})
         dc.migrate.should be_true
-        dc.migrate_command.should == 'rake db:migrate'
+        dc.migrate_command.should == 'rake db:migrate --trace'
       end
 
       it "returns false when nil" do

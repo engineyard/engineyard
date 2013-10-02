@@ -1,6 +1,6 @@
 module EY
   class DeployConfig
-    MIGRATE = 'rake db:migrate'
+    MIGRATE = 'rake db:migrate --trace'
 
     def initialize(cli_opts, env_config, repo, ui)
       @cli_opts = cli_opts

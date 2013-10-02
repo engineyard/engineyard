@@ -6,6 +6,7 @@
     * `ey init` is recommended for all applications to provide extra documentation in ey.yml.
   * New command `ey servers -e env` shows servers for a specified environment in a machine/user readable format.
   * `ey ssh` accepts new options -t and --each. Experimintal option -L is also supported.
+  * Default migrate command is now `rake db:migrate --trace`
   * Uses newest version of engineyard-serverside 2.3.1
     * Abort rollbacks if unexpected files are found in the /data/app/releases/ directory because they disrupt the ability to find the previous and latest releases.
     * Supports alternative deploy strategy that fetches an archive at a remote URI and expands it. (Not yet supported from the command line)

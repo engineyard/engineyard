@@ -376,7 +376,7 @@ describe "ey deploy" do
       fast_ey %w[deploy --app rails232app --ref master --migrate]
       @ssh_commands.last.should match(/--app rails232app/)
       @ssh_commands.last.should match(/--ref resolved-master/)
-      @ssh_commands.last.should match(/--migrate 'rake db:migrate'/)
+      @ssh_commands.last.should match(/--migrate 'rake db:migrate --trace'/)
     end
 
     it "requires that you specify a ref when specifying the application" do

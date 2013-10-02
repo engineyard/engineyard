@@ -100,7 +100,7 @@ Go look at it, then add it to your repository!
       :desc => "Force a deploy even if the master is in a bad state"
     method_option :migrate, :type => :string, :aliases => %w(-m),
       :lazy_default => true,
-      :desc => "Run migrations via [MIGRATE], defaults to '#{EY::DeployConfig::MIGRATE}'; use --no-migrate to avoid running migrations"
+      :desc => "Run migrations via [MIGRATE]; use --no-migrate to avoid running migrations"
     method_option :ref, :type => :string, :aliases => %w(-r --branch --tag),
       :required => true, :default => '',
       :desc => "Git ref to deploy. May be a branch, a tag, or a SHA. Use -R to deploy a different ref if a default is set."

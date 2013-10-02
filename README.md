@@ -109,7 +109,7 @@ Options:
     -c, [--account=ACCOUNT]                   # Name of the account in which the environment can be found
     -a, [--app=APP]                           # Name of the application to deploy
     -e, [--environment=ENVIRONMENT]           # Environment in which to deploy this application
-    -m, [--migrate=MIGRATE]                   # Run migrations via [MIGRATE], defaults to 'rake db:migrate'; use --no-migrate to avoid running migrations
+    -m, [--migrate=MIGRATE]                   # Run migrations via [MIGRATE]; use --no-migrate to avoid running migrations
     -v, [--verbose]                           # Be verbose
         [--ignore-default-branch]             # Force a deploy of the specified branch even if a default is set
         [--ignore-bad-master]                 # Force a deploy even if the master is in a bad state
