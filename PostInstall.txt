@@ -5,7 +5,11 @@ Not working? Uninstall this version to downgrade.
 
 IMPORTANT:
   Please verify eydeploy.rb files in staging after upgrading!
-  Many internals have changed that could break eydeploy.rb.
+  Internals frequently change that could break eydeploy.rb.
 
-Deploying for the first time? The Engine Yard Pandas want to help you!
+Getting started:
+  1. Run `ey init` to generate an annotated config file.
+  2. Review the ey.yml file and commit it to your repository.
+  3. Run `ey deploy` when you're ready to deploy.
+The Engine Yard Pandas want to help you!
 Email pandas@engineyard.com with your questions.
