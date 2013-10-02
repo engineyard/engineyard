@@ -4,6 +4,7 @@ require 'engineyard/thor'
 require 'engineyard/deploy_config'
 require 'engineyard/serverside_runner'
 require 'launchy'
+require 'fileutils'
 
 module EY
   class CLI < EY::Thor
@@ -40,6 +41,48 @@ module EY
     class_option :serverside_version, :type => :string, :desc => "Please use with care! Override deploy system version (same as ENV variable ENGINEYARD_SERVERSIDE_VERSION)"
     class_option :quiet, :aliases => %w[-q], :type => :boolean, :desc => "Quieter CLI output."
 
+    desc "init",
+      "Initialize the current directory with an ey.yml configuration file."
+    long_desc <<-DESC
+      Initialize the current directory with an ey.yml configuration file.
+
+      Please read the generated file and make adjustments.
+      Many applications will need only the default behavior.
+      For reference, many available options are explained in the generated file.
+
+      IMPORTANT: THE GENERATED FILE '#{EY::Config.pathname_for_write}'
+      MUST BE COMMITTED TO YOUR REPOSITORY OR OPTIONS WILL NOT BE LOADED.
+    DESC
+    method_option :path, :type => :string, :aliases => %w(-p),
+      :desc => "Path for ey.yml (supported paths: #{EY::Config::CONFIG_FILES.join(', ')})"
+    def init
+      unless EY::Repo.exist?
+        raise EY::Error, "Working directory is not a repository. Aborting."
+      end
+
+      path = Pathname.new(options['path'] || EY::Config.pathname_for_write)
+
+      existing = {}
+      if path.exist?
+        ui.warn "Reinitializing existing file: #{path}"
+        existing = EY::Config.load_config
+      end
+
+      template = EY::Templates::EyYml.new(existing)
+      template.write(path)
+
+      ui.info <<-GIT
+
+Configuration generated: #{path}
+Go look at it, then add it to your repository!
+
+\tgit add #{path}
+\tgit commit -m "Add generated #{path} from ey init"
+
+      GIT
+    end
+
+
     desc "deploy [--environment ENVIRONMENT] [--ref GIT-REF]",
       "Deploy specified branch, tag, or sha to specified environment."
     long_desc <<-DESC
@@ -57,7 +100,7 @@ module EY
       :desc => "Force a deploy even if the master is in a bad state"
     method_option :migrate, :type => :string, :aliases => %w(-m),
       :lazy_default => true,
-      :desc => "Run migrations via [MIGRATE], defaults to '#{EY::DeployConfig::Migrate::DEFAULT}'; use --no-migrate to avoid running migrations"
+      :desc => "Run migrations via [MIGRATE], defaults to '#{EY::DeployConfig::MIGRATE}'; use --no-migrate to avoid running migrations"
     method_option :ref, :type => :string, :aliases => %w(-r --branch --tag),
       :required => true, :default => '',
       :desc => "Git ref to deploy. May be a branch, a tag, or a SHA. Use -R to deploy a different ref if a default is set."

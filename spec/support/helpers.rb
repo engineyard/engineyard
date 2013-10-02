@@ -249,12 +249,26 @@ module SpecHelpers
     @scenario_api_token
   end
 
+  def clean_tmpdir
+    TMPDIR.rmtree if TMPDIR.exist?
+  end
+
   def read_yaml(file)
-    YAML.load(File.read(File.expand_path(file)))
+    contents = File.read(File.expand_path(file))
+    YAML.load(contents)
+  rescue Exception => e
+    raise "#{e}\n#{contents}"
   end
 
   def write_yaml(data, file)
     File.open(file, "w"){|f| YAML.dump(data, f) }
+  end
+
+  def clean_eyrc
+    ENV['EYRC'] = File.join('/tmp','eyrc')
+    if ENV['EYRC'] && File.exist?(ENV['EYRC'])
+      File.unlink(ENV['EYRC'])
+    end
   end
 
   def read_eyrc
@@ -263,6 +277,34 @@ module SpecHelpers
 
   def write_eyrc(data)
     write_yaml(data, ENV['EYRC'])
+  end
+
+  def ey_yml
+    EY::Config.pathname
+  end
+
+  def clean_ey_yml
+    ey_yml.unlink if ey_yml && ey_yml.exist?
+    FileUtils.rm_r 'config' if FileTest.exist?('config')
+  end
+
+  def read_ey_yml
+    read_yaml(EY::Config.pathname)
+  end
+
+  def write_ey_yml(data)
+    write_yaml(data, EY::Config.pathname_for_write)
+  end
+
+  def expect_config(*keys)
+    root = keys.unshift('defaults') unless %w[defaults environments].include?(keys.first)
+    config = read_ey_yml
+    value = keys.inject(config) { |conf, key| conf[key] }
+    expect(value)
+  end
+
+  def exist
+    be_exist
   end
 
   def with_env(new_env_vars)

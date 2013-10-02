@@ -56,7 +56,7 @@ A typical application will not need most of these options.
       - config/routes.rb                        # default
       - config/application.rb                   # default
       - config/requirejs.yml                    # custom option (be sure to include defaults if you specify this option)
-      assets_strategy: shifting                 # choose an alternet asset management strategy. See rails_assets/strategy.rb for more info.
+      asset_strategy: shifting                  # choose an alternet asset management strategy. See rails_assets/strategy.rb for more info.
       asset_roles: :all                         # specify on which roles to compile assets (default: [:app, :app_master, :solo])
       ignore_database_adapter_warning: true     # hide database adapter warning if you don't use MySQL or PostgreSQL (default: false)
 
@@ -64,10 +64,10 @@ A typical application will not need most of these options.
     environments:
       env_production:
         precompile_unchanged_assets: true       # precompiles assets even if no changes would be detected (does not check for changes at all).
-        assets_strategy: shifting               # choose an alternet asset management strategy (shifting, cleaning, private, shared)
+        asset_strategy: shifting                # choose an alternet asset management strategy (shifting, cleaning, private, shared)
         asset_roles: :all                       # specify on which roles to compile assets (default: [:app, :app_master, :solo] - must be an Array)
       env_staging
-        assets_strategy: private                # Use an asset management that always refreshes, so staging enviroments don't get conflicts
+        asset_strategy: private                 # Use an asset management that always refreshes, so staging enviroments don't get conflicts
 
 These options in `ey.yml` will only work if the file is committed to your
 application repository. Make sure to commit this file. Different branches
@@ -76,6 +76,19 @@ found in the deploying commit will be used for the current deploy.
 
 
 ### Commands
+
+#### ey init
+
+Initialize a repository for deployment on Engine Yard Cloud.
+
+This command writes or updates an ey.yml file which explains options available
+for customizing the deployment process.
+
+`ey init` can be run in existing applications to update the ey.yml file
+without losing existing settings.
+
+NOTE: Please verify all settings and changes after running ey init for
+the first time.
 
 #### ey deploy
 

@@ -1,72 +1,38 @@
 require 'spec_helper'
 require 'tempfile'
 
-describe EY::DeployConfig::Migrate do
-  before do
-    @tempfile = Tempfile.new('ey.yml')
-    @parent = EY::Config.new(@tempfile.path)
-    @ui = EY::CLI::UI.new
-    EY::CLI::UI::Prompter.enable_mock!
-    @repo = double('repo')
+describe EY::DeployConfig do
+  let(:tempfile) { @tempfile = Tempfile.new('ey.yml') }
+  let(:parent)   { EY::Config.new(tempfile.path) }
+  let(:ui)       { EY::CLI::UI.new }
+  let(:repo)     { double('repo') }
+  let(:env)      { env_config(nil) }
+
+  after { @tempfile.unlink if @tempfile }
+
+  def env_config(opts, config = parent)
+    EY::Config::EnvironmentConfig.new(opts, 'envname', config)
   end
 
-  after do
-    @tempfile.unlink
-  end
-
-  def env_config(opts=nil)
-    @env_config ||= EY::Config::EnvironmentConfig.new(opts, 'envname', @parent)
-  end
-
-  def deploy_config(cli_options)
-    EY::DeployConfig.new(cli_options, env_config, @repo, @ui)
+  def deploy_config(cli_opts, ec = env)
+    EY::DeployConfig.new(cli_opts, ec, repo, ui)
   end
 
   context "inside a repository" do
-    context "no migrate options set (interactive)" do
-      it "prompts migrate and command and adds to defaults section" do
-        EY::CLI::UI::Prompter.add_answer "" # default
-        EY::CLI::UI::Prompter.add_answer ""
-        @parent.should_receive(:set_default_option).with('migrate', true)
-        @parent.should_receive(:set_default_option).with('migration_command', 'rake db:migrate')
-        dc = deploy_config({})
-        out = capture_stdout do
-          dc.migrate.should be_true
-          dc.migrate_command.should == 'rake db:migrate'
-        end
-        out.should =~ /#{@tempfile.path}: migrate settings saved for envname/
-        out.should =~ /You can override this default with --migrate or --no-migrate/
-        out.should =~ /Please git commit #{@tempfile.path} with these new changes./
-      end
+    context "with no ey.yml file" do
+      let(:env) { env_config(nil, EY::Config.new('noexisto.yml')) }
 
-      it "prompts migration_command if first answer is yes" do
-        EY::CLI::UI::Prompter.add_answer "yes" # default
-        EY::CLI::UI::Prompter.add_answer "ruby script/migrate"
-        @parent.should_receive(:set_default_option).with('migrate', true)
-        @parent.should_receive(:set_default_option).with('migration_command', 'ruby script/migrate')
-        dc = deploy_config({})
-        capture_stdout do
-          dc.migrate.should be_true
-          dc.migrate_command.should == 'ruby script/migrate'
-        end
-      end
-
-      it "doesn't prompt migration_command if first answer is no" do
-        EY::CLI::UI::Prompter.add_answer "no" # default
-        @parent.should_receive(:set_default_option).with('migrate', false)
-        dc = deploy_config({})
-        capture_stdout do
-          dc.migrate.should be_false
-          dc.migrate_command.should be_nil
-        end
+      it "tells you to initialize a new repository with ey init" do
+        dc = deploy_config({}, env)
+        expect { dc.migrate }.to raise_error(EY::Error, /Please initialize this application with the following command:/)
       end
     end
 
     context "with the migrate cli option" do
-      it "returns the default migration command when is true" do
+      it "returns default command when true" do
         dc = deploy_config({'migrate' => true})
         dc.migrate.should be_true
-        dc.migrate_command.should == 'rake db:migrate'
+        expect { dc.migrate_command }.to raise_error(EY::Error, /'migration_command' not found/)
       end
 
       it "returns false when nil" do
@@ -83,30 +49,30 @@ describe EY::DeployConfig::Migrate do
     end
 
     context "with the migrate option in the global configuration" do
-      it "return the default migration command when the option is true" do
-        env_config('migrate' => true, 'migration_command' => 'bar migrate')
-        dc = deploy_config({})
+      it "return the migration command when the option is true" do
+        env = env_config('migrate' => true, 'migration_command' => 'bar migrate')
+        dc = deploy_config({}, env)
         dc.migrate.should be_true
         dc.migrate_command.should == 'bar migrate'
       end
 
       it "return the false when migrate is false" do
-        env_config('migrate' => false, 'migration_command' => 'bar migrate')
-        dc = deploy_config({})
+        env = env_config('migrate' => false, 'migration_command' => 'bar migrate')
+        dc = deploy_config({}, env)
         dc.migrate.should be_false
         dc.migrate_command.should be_nil
       end
 
-      it "return the default migration command when the option is true" do
-        env_config('migrate' => true)
-        dc = deploy_config({})
-        dc.migrate.should be_true
-        dc.migrate_command.should == 'rake db:migrate'
+      it "tells you to run ey init" do
+        env = env_config('migrate' => true)
+        dc = deploy_config({}, env)
+        expect(dc.migrate).to be_true
+        expect { dc.migrate_command }.to raise_error(EY::Error, /'migration_command' not found/)
       end
 
       it "return the ey.yml migration_command when command line option --migrate is passed" do
-        env_config('migrate' => false, 'migration_command' => 'bar migrate')
-        dc = deploy_config({'migrate' => true})
+        env = env_config('migrate' => false, 'migration_command' => 'bar migrate')
+        dc = deploy_config({'migrate' => true}, env)
         dc.migrate.should be_true
         dc.migrate_command.should == 'bar migrate'
       end
@@ -130,7 +96,7 @@ describe EY::DeployConfig::Migrate do
       end
 
       context "with a default branch" do
-        before { env_config('branch' => 'default') }
+        let(:env) { env_config('branch' => 'default') }
 
         it "uses the configured default if ref is not passed" do
           out = capture_stdout do
@@ -164,7 +130,7 @@ describe EY::DeployConfig::Migrate do
 
       context "no options, no default" do
         it "uses the repo's current branch" do
-          @repo.should_receive(:current_branch).and_return('current')
+          repo.should_receive(:current_branch).and_return('current')
           out = capture_stdout do
             deploy_config({}).ref.should == 'current'
           end

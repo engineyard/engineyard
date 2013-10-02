@@ -1,5 +1,7 @@
 module EY
   class DeployConfig
+    MIGRATE = 'rake db:migrate'
+
     def initialize(cli_opts, env_config, repo, ui)
       @cli_opts = cli_opts
       @env_config = env_config
@@ -12,13 +14,26 @@ module EY
     end
 
     def migrate
-      decide_migrate
-      @migrate
+      @migrate ||= @cli_opts.fetch('migrate') do
+        if in_repo?
+          @env_config.migrate
+        else
+          raise RefAndMigrateRequiredOutsideRepo.new(@cli_opts)
+        end
+      end
     end
 
     def migrate_command
-      decide_migrate
-      @migrate_command
+      return @command if defined? @command
+
+      if migrate
+        @command = migrate.respond_to?(:to_str) && migrate.to_str
+        @command ||= in_repo? ? @env_config.migration_command : MIGRATE
+      else
+        @command = nil
+      end
+
+      @command
     end
 
     def verbose
@@ -44,19 +59,7 @@ module EY
         ref_decider.when_outside_repo
       end
     end
-
-    def decide_migrate
-      return if @migrate_decider
-      @migrate_decider = EY::DeployConfig::Migrate.new(@cli_opts, @env_config, @ui)
-      @migrate, @migrate_command =
-        if in_repo?
-          @migrate_decider.when_inside_repo
-        else
-          @migrate_decider.when_outside_repo
-        end
-    end
   end
 end
 
-require 'engineyard/deploy_config/migrate'
 require 'engineyard/deploy_config/ref'

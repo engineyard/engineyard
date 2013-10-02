@@ -170,7 +170,7 @@ shared_examples_for "it takes an environment name" do
 
     it "works when the substring is unambiguous" do
       login_scenario "one app, many similarly-named environments"
-      run_ey({:environment => 'prod', :migrate => true}, {:debug => true})
+      run_ey({:environment => 'prod', :migrate => 'rake db:migrate'}, {:debug => true})
       verify_ran(make_scenario({
         :environment      => 'railsapp_production',
         :application      => 'rails232app',
