@@ -205,10 +205,11 @@ module EY
         else
           vars.each do |k,v|
             values = vars_resolved[k]
-            pp(k => values)
+            tooutput = {k => values}.to_yaml
             if v.is_a?(String)
-              puts "        via: #{v}"
+              tooutput.gsub!("---", "--- # via: #{v}")
             end
+            puts(tooutput)
           end
         end
       end

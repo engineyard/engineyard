@@ -1,23 +1,6 @@
 module EY
   class CLI
     class Vars < EY::Thor
-      desc "show",
-        "List all the vars"
-      method_option :environment, :type => :string, :aliases => %w(-e),
-        :required => true, :default => '',
-        :desc => "Environment where the application is deployed"
-      method_option :app, :type => :string, :aliases => %w(-a),
-        :required => true, :default => '',
-        :desc => "Name of the application"
-      method_option :account, :type => :string, :aliases => %w(-c),
-        :required => true, :default => '',
-        :desc => "Name of the account in which the application can be found"
-      def show
-        app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
-        ui.vars(app_env.vars, app_env.vars_resolved)
-      end
-      map :ls => :show
-      map :list => :show
 
       desc "set --namespace NAMESPACE key:val key2:val2",
         "Set a hash of vars to a namespace"
@@ -36,15 +19,19 @@ module EY
         :desc => "value pairs. Ex: foo:bar red:blue"
       def set
         if vars.nil? || vars.empty?
-          raise ArgumentError, "Please specify vars, Ex: foo:bar"
+          app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+          ui.info "Vars:"
+          ui.vars(app_env.vars, app_env.vars_resolved)
+        else
+          namespace = options[:namespace]
+          app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+          app_env.vars[namespace] = vars
+          api.update_vars(app_env)
+          ui.info "Vars updated:"
+          ui.vars(app_env.vars, app_env.vars_resolved)
         end
-        namespace = options[:namespace]
-        app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
-        app_env.vars[namespace] = vars
-        api.update_vars(app_env)
-        ui.info "Vars updated:"
-        ui.vars(app_env.vars, app_env.vars_resolved)
       end
+      default_task :set
 
       desc "delete --namespace NAMESPACE",
         "Delete a vars namespace"
