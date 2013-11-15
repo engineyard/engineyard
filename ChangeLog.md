@@ -2,7 +2,14 @@
 
 ## NEXT
 
-  *
+  * Tighter requirement on `rest-client` gem through `engineyard-cloud-client` to fix gem dep problems.
+  * Uses newest version of engineyard-serverside 2.3.6
+    * Disable automatic git garbage collection. To reenable, add `gc: true` to ey.yml.
+    * Fix a bug where force pushed tags and other branch changes are never fixed in the repository cache.
+    * Put the hostname in the filename for integrate logs so that they aren't overwritten by other integrate actions, thus becoming undebuggable.
+    * More specific find command for permissions problems.
+    * Fix file ownership on the integrate destination server before trying to rsync.
+    * Fixes a problem where symlinks were not chown'd correctly, causing invalid permissions for rsync.
 
 ## v2.3.1 (2013-10-09)
 
