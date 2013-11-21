@@ -104,7 +104,7 @@ module SpecHelpers
       # SystemExit typically indicates a bogus command, which we
       # here in expected-to-fail land are entirely happy with.
       nil
-    rescue EY::Error, EY::CloudClient::Error => e
+    rescue Thor::Error, EY::Error, EY::CloudClient::Error => e
       nil
     end
   end

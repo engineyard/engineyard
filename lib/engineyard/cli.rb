@@ -21,7 +21,7 @@ module EY
       Thor::Base.shell = EY::CLI::UI
       ui = EY::CLI::UI.new
       super(given_args, {:shell => ui}.merge(config))
-    rescue EY::Error, EY::CloudClient::Error => e
+    rescue Thor::Error, EY::Error, EY::CloudClient::Error => e
       ui.print_exception(e)
       raise
     rescue Interrupt => e
