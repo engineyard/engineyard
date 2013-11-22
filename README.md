@@ -1,4 +1,16 @@
-# ey
+# `ey` engineyard Command Line Interface
+
+[![Gem Version](https://badge.fury.io/rb/engineyard.png)][gem]
+[![Build Status](https://travis-ci.org/engineyard/engineyard.png?branch=master)][travis]
+[![Dependency Status](https://gemnasium.com/engineyard/engineyard.png?travis)][gemnasium]
+[![Code Climate](https://codeclimate.com/github/engineyard/engineyard.png)][codeclimate]
+
+[gem]: https://rubygems.org/gems/engineyard
+[travis]: https://travis-ci.org/engineyard/engineyard
+[gemnasium]: https://gemnasium.com/engineyard/engineyard
+[codeclimate]: https://codeclimate.com/github/engineyard/engineyard
+
+The Engine Yard command line utility.
 
 ### Install
 
