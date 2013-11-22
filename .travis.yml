@@ -1,10 +1,18 @@
+language: ruby
 rvm:
   - 1.8.7
   - 1.9.2
   - 1.9.3
   - 2.0.0
+  - ruby-head
   - rbx
   - ree
+  - jruby-head
+matrix:
+  allow_failures:
+    - rvm: rbx
+    - rvm: jruby-head
+    - rvm: ruby-head
 notifications:
   recipients:
     - memde@engineyard.com
