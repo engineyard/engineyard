@@ -15,19 +15,20 @@ Gem::Specification.new do |s|
   s.post_install_message = File.read("PostInstall.txt")
   s.license = 'MIT'
 
+  s.required_ruby_version = '>= 1.9.3'
+
   s.files = Dir.glob("{bin,lib}/**/*") + %w(LICENSE README.md)
   s.executables = ["ey"]
   s.default_executable = "ey"
   s.require_path = 'lib'
 
-  s.rubygems_version = %q{1.3.6}
   s.test_files = Dir.glob("spec/**/*")
 
   s.add_dependency('rest-client', '~>1.6.0')
   s.add_dependency('highline', '~>1.6.1')
   s.add_dependency('escape', '~>0.0.4')
   s.add_dependency('engineyard-serverside-adapter', '=2.2.0')   # This line maintained by rake; edits may be stomped on
-  s.add_dependency('engineyard-cloud-client', '~>1.0.16')
+  s.add_dependency('engineyard-cloud-client', '~>2.0.1')
   s.add_dependency('net-ssh', '~>2.2')
   s.add_dependency('launchy', '~>2.1')
 
