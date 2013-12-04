@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.3.2 (2013-12-04)
+
   * Uses newest version of engineyard-serverside 2.3.7
     * Disable automatic git garbage collection. To reenable, add `gc: true` to ey.yml.
     * Fix checking out force pushed tags and branches that sometimes would checkout the wrong commit.
