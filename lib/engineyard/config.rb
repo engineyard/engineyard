@@ -83,7 +83,7 @@ module EY
 
     def default_environment
       d = environments.find do |name, env|
-        env["default"]
+        env && env["default"]
       end
       d && d.first
     end
