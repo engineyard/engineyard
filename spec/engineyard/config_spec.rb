@@ -19,6 +19,11 @@ describe EY::Config do
       File.open('ey.yml', "w") {|f| f << "this isn't a hash" }
       expect { EY::Config.new }.to raise_error(RuntimeError, "ey.yml load error: Expected a Hash but a String was returned.")
     end
+
+    it "doesnt crash on nil environment" do
+      write_yaml({"environments" => {"production" => nil}}, 'ey.yml')
+      EY::Config.new.default_environment.should be_nil
+    end
   end
 
   describe "endpoint" do
