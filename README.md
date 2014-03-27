@@ -12,6 +12,22 @@
 
 The Engine Yard command line utility.
 
+### Installing on Ruby 1.8.7 or 1.9.2
+
+**NOTE: This has *no effect* on your Engine Yard environment ruby version. This
+is only regarding the local development Ruby version for running this gem. An
+environment can continue using a chosen Ruby version regardless of this change.**
+
+The `2.x` series of `engineyard` gem will be the last major version to
+support Ruby 1.8.7 and 1.9.2. If you cannot run Ruby `>= 1.9.3` in your
+development environment, you may continue using engineyard `~> 2.3.2`. This
+version will continue to exist but will not receive regular updates or features.
+
+*As of version 3.0.0, `engineyard` gem will require Ruby 1.9.3. Your application
+may still use `1.8.7` while running engineyard in `1.9.3` via `rvm` or similar.
+Deployment will not be affected. This does not affect your Engine Yard Cloud
+environment. More details will be available when 3.0.0 is released.*
+
 ### Install
 
 Install engineyard like any other ruby gem:
