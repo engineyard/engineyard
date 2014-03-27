@@ -2,6 +2,7 @@
 
 ## NEXT
 
+  * Use net-ssh 2.7 which support keepalive. Set server keep alive to 60 to avoid idle connections being closed.
   * Uses newest version of engineyard-serverside 2.3.9
     * Run `git remote prune origin` to remove possible branch name collisions before fetching.
     * Update git fetch command to use + for heads and not just tags. "If the optional plus + is used, the local ref is updated even if it does not result in a fast-forward update."
