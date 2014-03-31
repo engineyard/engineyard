@@ -115,7 +115,7 @@ Authentication Failed. Things to fix:
           level = debug.downcase.to_sym
         end
       end
-      {:paranoid => false, :verbose => level}
+      {:paranoid => false, :verbose => level, :keepalive => true, :keepalive_interval => 60}
     end
 
     def ssh(cmd, hostname, username, out, err)
