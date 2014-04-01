@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v2.3.3 (2014-04-01)
+
   * Use net-ssh 2.7 which support keepalive. Set server keep alive to 60 to avoid idle connections being closed.
   * Uses newest version of engineyard-serverside 2.3.9
     * Run `git remote prune origin` to remove possible branch name collisions before fetching.
