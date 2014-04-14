@@ -15,12 +15,13 @@ Gem::Specification.new do |s|
   s.post_install_message = File.read("PostInstall.txt")
   s.license = 'MIT'
 
+  s.required_ruby_version = '>= 1.9.3'
+
   s.files = Dir.glob("{bin,lib}/**/*") + %w(LICENSE README.md)
   s.executables = ["ey"]
   s.default_executable = "ey"
   s.require_path = 'lib'
 
-  s.rubygems_version = %q{1.3.6}
   s.test_files = Dir.glob("spec/**/*")
 
   s.add_dependency('rest-client', '~>1.6.0')
