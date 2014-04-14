@@ -71,9 +71,9 @@ module EY
     def instances_data(instances, bridge)
       instances.map do |i|
         {
-          :hostname => i.hostname == bridge ? 'localhost' : i.hostname,
-          :roles    => [i.role],
-          :name     => i.name,
+          hostname: i.hostname == bridge ? 'localhost' : i.hostname,
+          roles:    [i.role],
+          name:     i.name,
         }
       end
     end
@@ -115,7 +115,8 @@ Authentication Failed. Things to fix:
           level = debug.downcase.to_sym
         end
       end
-      {:paranoid => false, :verbose => level, :keepalive => true, :keepalive_interval => 60}
+
+      {paranoid: false, verbose: level, keepalive: true, keepalive_interval: 60}
     end
 
     def ssh(cmd, hostname, username, out, err)

@@ -31,11 +31,11 @@ module EY
 
     def serverside_runner(app_env, verbose, serverside_version = serverside_version, ignore_bad_bridge = false)
       ServersideRunner.new({
-        :bridge             => app_env.environment.bridge!(ignore_bad_bridge).hostname,
-        :app                => app_env.app,
-        :environment        => app_env.environment,
-        :verbose            => verbose,
-        :serverside_version => serverside_version
+        bridge:             app_env.environment.bridge!(ignore_bad_bridge).hostname,
+        app:                app_env.app,
+        environment:        app_env.environment,
+        verbose:            verbose,
+        serverside_version: serverside_version
       })
     end
 
@@ -52,9 +52,9 @@ module EY
       environment_name ||= use_default_environment
       remotes = repo.remotes if in_repo?
       constraints = {
-        :environment_name => environment_name,
-        :account_name     => account_name,
-        :remotes          => remotes,
+        environment_name: environment_name,
+        account_name:     account_name,
+        remotes:          remotes,
       }
 
       resolver = api.resolve_environments(constraints)
@@ -84,10 +84,10 @@ module EY
       environment_name ||= use_default_environment
       remotes = repo.remotes if in_repo?
       constraints = {
-        :app_name         => app_name,
-        :environment_name => environment_name,
-        :account_name     => account_name,
-        :remotes          => remotes,
+        app_name:         app_name,
+        environment_name: environment_name,
+        account_name:     account_name,
+        remotes:          remotes,
       }
 
       if constraints.all? { |k,v| v.nil? || v.empty? || v.to_s.empty? }
