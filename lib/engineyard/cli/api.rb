@@ -10,7 +10,7 @@ module EY
       attr_reader :token
 
       def initialize(endpoint, ui, token = nil)
-        @client = EY::CloudClient.new(:endpoint => endpoint, :output => ui.out, :user_agent => USER_AGENT)
+        @client = EY::CloudClient.new(endpoint: endpoint, output: ui.out, user_agent: USER_AGENT)
         @ui = ui
         @eyrc = EY::EYRC.load
         token_from('--api-token') { token } ||
