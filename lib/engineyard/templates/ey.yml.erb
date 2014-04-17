@@ -38,7 +38,10 @@ defaults:
   #
   # By default, assets are detected using app/assets and config/application.rb.
   #
-  # If you use rails assets, set this to true.
+  # If you use rails assets and you want Engine Yard to compile your assets
+  # during deploy, set this to true. If you want to compile assets locally
+  # before deploy, set this to false. Make sure you add `public/assets` to
+  # `.gitignore` if you want Engine Yard to precompile your assets.
   #
   # For more control over assets, set precompile_assets: false and
   # run your precompile task in the deploy/before_compile_assets.rb deploy hook.
