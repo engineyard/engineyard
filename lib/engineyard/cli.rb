@@ -476,6 +476,7 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
     def ssh(cmd=nil)
       environment = fetch_environment(options[:environment], options[:account])
       instances = filter_servers(environment, options, default: {app_master: true})
+      user = environment.username
       ssh_opts = []
 
       if cmd
@@ -503,7 +504,8 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
 
       trap(:INT) { abort "Aborting..." }
 
-      exits = instances.map do |instance|
+      exits = []
+      instances.each do |instance|
         host = instance.public_hostname
         name = instance.name ? "#{instance.role} (#{instance.name})" : instance.role
         ui.info "\nConnecting to #{name} #{host}..."
@@ -511,8 +513,10 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
           ui.info "Ctrl + C to abort"
           sleep 1.3
         end
-        system Escape.shell_command((ssh_cmd + ["#{environment.username}@#{host}"] + [cmd]).compact)
-        $?.exitstatus
+        sshcmd = Escape.shell_command((ssh_cmd + ["#{user}@#{host}"] + [cmd]).compact)
+        ui.debug "$ #{sshcmd}"
+        system sshcmd
+        exits << $?.exitstatus
       end
 
       exit exits.detect {|status| status != 0 } || 0
