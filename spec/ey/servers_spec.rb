@@ -122,6 +122,72 @@ describe "ey servers" do
       ]
     end
 
+    it "lists servers constrained to app servers" do
+      fast_ey %w[servers -c main -e giblets -qs --app-servers], :debug => false
+      @out.split(/\n/).map {|x| x.split(/\t/) }.should == [
+        ['app_master_hostname.compute-1.amazonaws.com',  'i-ddbbdd92',   'app_master'         ],
+        ['app_hostname.compute-1.amazonaws.com',         'i-d2e3f1b9',   'app'                ],
+      ]
+    end
+
+    it "lists servers constrained to db servers" do
+      fast_ey %w[servers -c main -e giblets -qs --db-servers], :debug => false
+      @out.split(/\n/).map {|x| x.split(/\t/) }.should == [
+        ['db_master_hostname.compute-1.amazonaws.com',   'i-d4cdddbf',   'db_master'          ],
+        ['db_slave_1_hostname.compute-1.amazonaws.com',  'i-asdfasdfaj', 'db_slave', 'Slave I'],
+        ['db_slave_2_hostname.compute-1.amazonaws.com',  'i-asdfasdfaj', 'db_slave'           ],
+      ]
+    end
+
+    it "lists servers constrained to db master" do
+      fast_ey %w[servers -c main -e giblets -qs --db-master], :debug => false
+      @out.split(/\n/).map {|x| x.split(/\t/) }.should == [
+        ['db_master_hostname.compute-1.amazonaws.com',   'i-d4cdddbf',   'db_master'          ],
+      ]
+    end
+
+    it "lists servers constrained to db slaves" do
+      fast_ey %w[servers -c main -e giblets -qs --db-slaves], :debug => false
+      @out.split(/\n/).map {|x| x.split(/\t/) }.should == [
+        ['db_slave_1_hostname.compute-1.amazonaws.com',  'i-asdfasdfaj', 'db_slave', 'Slave I'],
+        ['db_slave_2_hostname.compute-1.amazonaws.com',  'i-asdfasdfaj', 'db_slave'           ],
+      ]
+    end
+
+    it "lists servers constrained to utilities" do
+      fast_ey %w[servers -c main -e giblets -qs --utilities], :debug => false
+      @out.split(/\n/).map {|x| x.split(/\t/) }.should == [
+        ['util_fluffy_hostname.compute-1.amazonaws.com', 'i-80e3f1eb',   'util',     'fluffy' ],
+        ['util_rocky_hostname.compute-1.amazonaws.com',  'i-80etf1eb',   'util',     'rocky'  ],
+      ]
+    end
+
+    it "lists servers constrained to utilities with names" do
+      fast_ey %w[servers -c main -e giblets -qs --utilities fluffy], :debug => false
+      @out.split(/\n/).map {|x| x.split(/\t/) }.should == [
+        ['util_fluffy_hostname.compute-1.amazonaws.com', 'i-80e3f1eb',   'util',     'fluffy' ],
+      ]
+    end
+
+    it "lists servers constrained to app servers and utilities" do
+      fast_ey %w[servers -c main -e giblets -qs --app --util], :debug => false
+      @out.split(/\n/).map {|x| x.split(/\t/) }.should == [
+        ['app_master_hostname.compute-1.amazonaws.com',  'i-ddbbdd92',   'app_master'         ],
+        ['app_hostname.compute-1.amazonaws.com',         'i-d2e3f1b9',   'app'                ],
+        ['util_fluffy_hostname.compute-1.amazonaws.com', 'i-80e3f1eb',   'util',     'fluffy' ],
+        ['util_rocky_hostname.compute-1.amazonaws.com',  'i-80etf1eb',   'util',     'rocky'  ],
+      ]
+    end
+
+    it "lists servers constrained to app or util with name" do
+      fast_ey %w[servers -c main -e giblets -qs --app --util rocky], :debug => false
+      @out.split(/\n/).map {|x| x.split(/\t/) }.should == [
+        ['app_master_hostname.compute-1.amazonaws.com',  'i-ddbbdd92',   'app_master'         ],
+        ['app_hostname.compute-1.amazonaws.com',         'i-d2e3f1b9',   'app'                ],
+        ['util_rocky_hostname.compute-1.amazonaws.com',  'i-80etf1eb',   'util',     'rocky'  ],
+      ]
+    end
+
     it "finds no servers with gibberish " do
       fast_failing_ey %w[servers --account main --environment gibberish]
       @err.should include('No environment found matching "gibberish"')
