@@ -334,6 +334,20 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
     method_option :environment, type: :string, aliases: %w(-e),
       required: true, default: '',
       desc: "Show servers in environment matching environment name"
+    method_option :all, type: :boolean, aliases: %(-A),
+      desc: "Show all servers (for compatibility only, this is the default for this command)"
+    method_option :app_master, type: :boolean,
+      desc: "Show only app master server"
+    method_option :app_servers, type: :boolean, aliases: %w(--app),
+      desc: "Show only application servers"
+    method_option :db_servers, type: :boolean, aliases: %w(--db),
+      desc: "Show only database servers"
+    method_option :db_master, type: :boolean,
+      desc: "Show only the master database server"
+    method_option :db_slaves, type: :boolean,
+      desc: "Show only the slave database servers"
+    method_option :utilities, type: :array, lazy_default: true, aliases: %w(--util),
+      desc: "Show only utility servers or only utility servers with the given names"
     def servers
       if options[:environment] == '' && options[:account] == ''
         repo.fail_on_no_remotes!
@@ -345,7 +359,8 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       end
 
       username = options[:user] && environment.username
-      servers = environment.instances
+
+      servers = filter_servers(environment, options, default: {all: true})
 
       if options[:host]
         ui.print_hostnames(servers, username)
@@ -421,7 +436,7 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
     desc "ssh [COMMAND] [--all] [--environment ENVIRONMENT]", "Open an ssh session to the master app server, or run a command."
     long_desc <<-DESC
       If a command is supplied, it will be run, otherwise a session will be
-      opened. The application master is used for environments with clusters.
+      opened. The bridge server (app master) is used for environments with multiple instances.
 
       Option --all requires a command to be supplied and runs it on all servers or
       pass --each to connect to each server one after another.
@@ -460,7 +475,7 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
 
     def ssh(cmd=nil)
       environment = fetch_environment(options[:environment], options[:account])
-      instances = ssh_hosts(options, environment)
+      instances = filter_servers(environment, options, default: {app_master: true})
       ssh_opts = []
 
       if cmd
@@ -504,29 +519,43 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
     end
 
     no_tasks do
-      def ssh_host_filter(opts)
-        return lambda {|instance| true }                                                if opts[:all]
-        return lambda {|instance| %w(solo app app_master    ).include?(instance.role) } if opts[:app_servers]
-        return lambda {|instance| %w(solo db_master db_slave).include?(instance.role) } if opts[:db_servers ]
-        return lambda {|instance| %w(solo db_master         ).include?(instance.role) } if opts[:db_master  ]
-        return lambda {|instance| %w(db_slave               ).include?(instance.role) } if opts[:db_slaves  ]
-        return lambda {|instance| %w(util).include?(instance.role) && opts[:utilities].include?(instance.name) } if opts[:utilities]
-        return lambda {|instance| %w(solo app_master        ).include?(instance.role) }
-      end
+      OPT_TO_ROLES = {
+        all:         %w[all],
+        app_master:  %w[solo app_master],
+        app_servers: %w[solo app app_master],
+        db_servers:  %w[solo db_master db_slave],
+        db_master:   %w[solo db_master],
+        db_slaves:   %w[db_slave],
+        utilities:   %w[util],
+      }
 
-      def ssh_hosts(opts, environment)
-        if opts[:utilities] and not opts[:utilities].respond_to?(:include?)
-          includes_everything = []
-          class << includes_everything
-            def include?(*) true end
-          end
-          filter = ssh_host_filter(opts.merge(utilities: includes_everything))
+      def filter_servers(environment, cli_opts, filter_opts)
+        if (cli_opts.keys.map(&:to_sym) & OPT_TO_ROLES.keys).any?
+          options = cli_opts.dup
         else
-          filter = ssh_host_filter(opts)
+          options = filter_opts[:default].dup
         end
 
-        instances = environment.instances.select {|instance| filter[instance] }
-        raise NoInstancesError.new(environment.name) if instances.empty?
+        options.keep_if {|k,v| OPT_TO_ROLES.has_key?(k.to_sym) }
+
+        if options[:all]
+          instances = environment.instances
+        else
+          roles = {}
+          options.each do |cli_opt,cli_val|
+            if cli_val && OPT_TO_ROLES.has_key?(cli_opt.to_sym)
+              OPT_TO_ROLES[cli_opt.to_sym].each do |role|
+                roles[role] = cli_val # val is true or an array of strings
+              end
+            end
+          end
+          instances = environment.select_instances(roles)
+        end
+
+        if instances.empty?
+          raise NoInstancesError.new(environment.name)
+        end
+
         return instances
       end
     end
