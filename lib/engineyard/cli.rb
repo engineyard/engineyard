@@ -476,6 +476,7 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
     def ssh(cmd=nil)
       environment = fetch_environment(options[:environment], options[:account])
       instances = filter_servers(environment, options, default: {app_master: true})
+      user = environment.username
       ssh_opts = []
 
       if cmd
@@ -503,7 +504,8 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
 
       trap(:INT) { abort "Aborting..." }
 
-      exits = instances.map do |instance|
+      exits = []
+      instances.each do |instance|
         host = instance.public_hostname
         name = instance.name ? "#{instance.role} (#{instance.name})" : instance.role
         ui.info "\nConnecting to #{name} #{host}..."
@@ -511,8 +513,79 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
           ui.info "Ctrl + C to abort"
           sleep 1.3
         end
-        system Escape.shell_command((ssh_cmd + ["#{environment.username}@#{host}"] + [cmd]).compact)
-        $?.exitstatus
+        sshcmd = Escape.shell_command((ssh_cmd + ["#{user}@#{host}"] + [cmd]).compact)
+        ui.debug "$ #{sshcmd}"
+        system sshcmd
+        exits << $?.exitstatus
+      end
+
+      exit exits.detect {|status| status != 0 } || 0
+    end
+
+    desc "scp [FROM_PATH] [TO_PATH] [--all] [--environment ENVIRONMENT]", "scp a file to/from multiple servers in an environment"
+    long_desc <<-DESC
+      Use the system `scp` command to copy files to some or all of the servers.
+
+      If `HOST:` is found in the FROM_PATH or TO_PATH, the server name will be
+      substituted in place of `HOST:` when scp is run. This allows you to scp in
+      either direction by putting `HOST:` in the FROM_PATH or TO_PATH, as follows:
+
+      $ #{banner_base} scp example.json HOST:/data/app_name/current/config/ -e env --app-servers
+
+      $ #{banner_base} scp HOST:/data/app_name/current/config/example.json ./ -e env --app-servers
+
+      If `HOST:` is not specified, TO_PATH will be used as the remote path.
+      Be sure to escape shell words so they don't expand locally (e.g. '~').
+
+      Note: this command is a bit picky about its ordering. FROM_PATH TO_PATH
+      must follow immediately after `ey scp` with no flags in between.
+    DESC
+    method_option :environment, :type => :string, :aliases => %w(-e),
+      :required => true, :default => '',
+      :desc => "Name of the destination environment"
+    method_option :account, :type => :string, :aliases => %w(-c),
+      :required => true, :default => '',
+      :desc => "Name of the account in which the environment can be found"
+    method_option :all, :type => :boolean, :aliases => %(-A),
+      :desc => "scp to all servers"
+    method_option :app_servers, :type => :boolean,
+      :desc => "scp to all application servers"
+    method_option :db_servers, :type => :boolean,
+      :desc => "scp to database servers"
+    method_option :db_master, :type => :boolean,
+      :desc => "scp to the master database server"
+    method_option :db_slaves, :type => :boolean,
+      :desc => "scp to the slave database servers"
+    method_option :utilities, :type => :array, :lazy_default => true,
+      :desc => "scp to all utility servers or only those with the given names"
+
+    def scp(from_path, to_path)
+      environment = fetch_environment(options[:environment], options[:account])
+      instances   = filter_servers(environment, options, default: {app_master: true})
+      user        = environment.username
+
+      ui.info "Copying '#{from_path}' to '#{to_path}' on #{instances.count} server#{instances.count == 1 ? '' : 's'} serially..."
+
+      # default to `scp FROM_PATH HOST:TO_PATH`
+      unless [from_path, to_path].detect { |path| path =~ /HOST:/ }
+        to_path = "HOST:#{to_path}"
+      end
+
+      exits = []
+      instances.each do |instance|
+        host = instance.public_hostname
+        authority = "#{user}@#{host}:"
+
+        name = instance.name ? "#{instance.role} (#{instance.name})" : instance.role
+        ui.info "# #{name} #{host}"
+
+        from = from_path.sub(/^HOST:/, authority)
+        to   =   to_path.sub(/^HOST:/, authority)
+
+        cmd  = Escape.shell_command(["scp", from, to])
+        ui.debug "$ #{cmd}"
+        system cmd
+        exits << $?.exitstatus
       end
 
       exit exits.detect {|status| status != 0 } || 0
