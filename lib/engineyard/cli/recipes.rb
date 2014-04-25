@@ -80,7 +80,11 @@ module EY
           end
 
           recipes_file = Tempfile.new("recipes")
+
           cmd = "tar czf '#{recipes_file.path}' cookbooks/"
+          if FileTest.exist?("data_bags")
+            cmd = cmd + " data_bags/"
+          end
 
           unless system(cmd)
             raise EY::Error, "Could not archive recipes.\nCommand `#{cmd}` exited with an error."
