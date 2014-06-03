@@ -144,6 +144,9 @@ Authentication Failed. Things to fix:
             channel.on_request("exit-signal") do |_, data|
               exit_code = 255
             end
+
+            # sending eof declares no more data coming from this end (close stdin)
+            channel.eof!
           end
         end
 
