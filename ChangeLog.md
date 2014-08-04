@@ -2,8 +2,17 @@
 
 ## NEXT
 
+  * **This gem now must be run on ruby 1.9.3 or newer. This will not impact your deployment, but may impact your local environment.**
+    Don't worry, Engine Yard environments will continue to use the version of ruby you specify in the environment.
+    To use rvm to run the `ey` command, use `alias ey="rvm 1.9.3 do ey"`.
   * Adds new command `ey scp` for copying files to or from servers in the environment.
   * Increases the filtering capabilities for servers in the `ey servers` command.
+  * Uses newest version of engineyard-serverside 2.4.2
+    * "Maintenance page still up" notices will be shown as status messages in the deploy log to prevent sticky notices on the dashboard that are not relevant.
+    * Fixes release cleanup for `before_deploy` hook failures. Previously, hook failures would not trigger the cleanup of the release directory.
+    * Supports `ey.yml` option `keep_releases` and `keep_failed_releases` for how many releases to keep in the `releases` dir (default: 3)
+    * Warn when a file that looks like an executable deploy hook is skipped because it is not executable.
+    * Vendor `json_pure` to avoid warnings from MultiJson.
 
 ## v2.3.3 (2014-04-01)
 
