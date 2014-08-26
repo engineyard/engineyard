@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v3.0.0 (2014-08-26)
+
   * **This gem now must be run on ruby 1.9.3 or newer. This will not impact your deployment, but may impact your local environment.**
     Don't worry, Engine Yard environments will continue to use the version of ruby you specify in the environment.
     To use rvm to run the `ey` command, use `alias ey="rvm 1.9.3 do ey"`.
