@@ -2,7 +2,7 @@
 
 ## NEXT
 
-  *
+  * Bump version of engineyard-cloud-client to 2.1.1 to use newer RestClient with better ssl version detection.
 
 ## v3.0.0 (2014-08-26)
 

@@ -24,11 +24,11 @@ Gem::Specification.new do |s|
 
   s.test_files = Dir.glob("spec/**/*")
 
-  s.add_dependency('rest-client', '~>1.6.0')
+  s.add_dependency('rest-client', '~>1.7')
   s.add_dependency('highline', '~>1.6.1')
   s.add_dependency('escape', '~>0.0.4')
   s.add_dependency('engineyard-serverside-adapter', '=2.2.0')   # This line maintained by rake; edits may be stomped on
-  s.add_dependency('engineyard-cloud-client', '~>2.1.0')
+  s.add_dependency('engineyard-cloud-client', '~>2.1.1')
   s.add_dependency('net-ssh', '~>2.7')
   s.add_dependency('launchy', '~>2.1')
 
