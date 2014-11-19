@@ -3,6 +3,7 @@
 ## NEXT
 
   * Bump version of engineyard-cloud-client to 2.1.1 to use newer RestClient with better ssl version detection.
+  * Remove direct dependency on rest-client, which breaks gem version requirements for existing engineyard gem and the already released engineyard-cloud-client.
 
 ## v3.0.0 (2014-08-26)
 

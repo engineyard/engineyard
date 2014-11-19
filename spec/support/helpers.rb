@@ -1,7 +1,6 @@
 require 'engineyard/cli'
 
 require 'realweb'
-require 'rest_client'
 require 'open4'
 require 'stringio'
 
