@@ -2,7 +2,22 @@
 
 ## NEXT
 
-  *
+  * Uses newest version of engineyard-serverside 2.6.0
+    * Supports `config.ref` in deploy hooks.
+      Synonymous with `config.branch` but more technically correct since the value is usually a resolved SHA rather than a branch.
+    * Supports new ey.yml option `precompile_assets_command`
+      Setting `precompile_assets_command` overrides the asset precompile rake command. (default: `rake assets:precompile RAILS_GROUPS=assets`)
+      Bundler binstubs are in PATH so gem binaries will load through bundler.
+    * Internal: Supports the optional execution of a server defined configure script.
+      If found, the script will modify or load app settings to customize the server before deploy and abort if problems are encountered.
+      If the script does not exist, this step will be skipped and deploy will continue as usual.
+    * Asset speed improvements:
+    * In order to speed up asset compilation in Rails, the directory `/data/app/current/tmp` is now preserved between deploys to maintain assets cache.
+      To disable this feature, set `shared_tmp: false` in `ey.yml`.
+    * Supports new ey.yml option `experimental_sync_assets`
+      Setting to `true` will cause assets to be compiled once and rsync'd to other servers.
+      This feature will be moved out of experimental in a coming release if testing proves it solid.
+      Please try a few deploys on a staging environment and report back if you see any problems.
 
 ## v3.0.1 (2014-11-19)
 
