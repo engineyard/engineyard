@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v3.1.0 (2014-12-16)
+
   * Uses newest version of engineyard-serverside 2.6.0
     * Supports `config.ref` in deploy hooks.
       Synonymous with `config.branch` but more technically correct since the value is usually a resolved SHA rather than a branch.
