@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v3.1.1 (2014-12-18)
+
   * Uses newest version of engineyard-serverside 2.6.0
     * Fixes a problem where integrate would not use the existing release path, thus breaking rollback and other deploy coordination that relies on having the same path between servers.
 
