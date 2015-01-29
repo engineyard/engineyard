@@ -13,8 +13,6 @@ matrix:
 notifications:
   recipients:
     - memde@engineyard.com
-    - srosenfeld@engineyard.com
-    - jallen@engineyard.com
   webhooks:
     urls:
       - https://ensemble.engineyard.com/travis
