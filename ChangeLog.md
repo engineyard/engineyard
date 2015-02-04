@@ -2,7 +2,8 @@
 
 ## NEXT
 
-  *
+  * Uses newest version of engineyard-serverside 2.6.2
+    * Fixes a typo when a child process exits abnormally.
 
 ## v3.1.1 (2014-12-18)
 
