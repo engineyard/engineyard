@@ -2,7 +2,8 @@
 
 ## NEXT
 
-  *
+  * Uses newest version of engineyard-serverside 2.6.3
+    * Export `GIT_SSH` explicitly for dependency manager install steps for npm and composer. This allows accessing private repositories during dependency install.
 
 ## v3.1.2 (2015-02-03)
 
