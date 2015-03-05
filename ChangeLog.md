@@ -6,6 +6,7 @@
 
 ## v3.1.3 (2015-03-04)
 
+  * Loose gem deps on gems owned by Engine Yard.
   * Uses newest version of engineyard-serverside 2.6.3
     * Export `GIT_SSH` explicitly for dependency manager install steps for npm and composer. This allows accessing private repositories during dependency install.
 
