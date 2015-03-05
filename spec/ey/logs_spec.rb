@@ -6,15 +6,15 @@ describe "ey logs" do
   it "prints logs returned by awsm" do
     login_scenario "one app, one environment"
     fast_ey %w[logs -e giblets]
-    @out.should match(/MAIN LOG OUTPUT/)
-    @out.should match(/CUSTOM LOG OUTPUT/)
-    @err.should == ''
+    expect(@out).to match(/MAIN LOG OUTPUT/)
+    expect(@out).to match(/CUSTOM LOG OUTPUT/)
+    expect(@err).to eq('')
   end
 
   it "complains when it can't infer the environment" do
     login_scenario "one app, many environments"
     fast_failing_ey %w[logs]
-    @err.should =~ /Multiple environments possible, please be more specific/i
+    expect(@err).to match(/Multiple environments possible, please be more specific/i)
   end
 end
 
@@ -29,7 +29,7 @@ describe "ey logs" do
   end
 
   def verify_ran(scenario)
-    @out.should match(/Main logs for #{scenario[:environment]}/)
+    expect(@out).to match(/Main logs for #{scenario[:environment]}/)
   end
 
   include_examples "it takes an environment name and an account name"

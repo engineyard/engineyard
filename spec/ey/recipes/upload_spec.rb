@@ -13,7 +13,7 @@ describe "ey recipes upload" do
   end
 
   def verify_ran(scenario)
-    @out.should =~ %r|Recipes in cookbooks/ uploaded successfully for #{scenario[:environment]}|
+    expect(@out).to match(%r|Recipes in cookbooks/ uploaded successfully for #{scenario[:environment]}|)
   end
 
   include_examples "it takes an environment name and an account name"
@@ -33,7 +33,7 @@ describe "ey recipes upload -f recipes.tgz" do
   end
 
   def verify_ran(scenario)
-    @out.should =~ %r|Recipes file recipes.tgz uploaded successfully for #{scenario[:environment]}|
+    expect(@out).to match(%r|Recipes file recipes.tgz uploaded successfully for #{scenario[:environment]}|)
   end
 
   include_examples "it takes an environment name and an account name"
@@ -52,7 +52,7 @@ describe "ey recipes upload -f with a missing filenamen" do
   it "errors with file not found" do
     login_scenario "one app, one environment"
     fast_failing_ey(%w[recipes upload --environment giblets -f recipes.tgz])
-    @err.should match(/Recipes file not found: recipes.tgz/i)
+    expect(@err).to match(/Recipes file not found: recipes.tgz/i)
   end
 end
 
@@ -72,16 +72,16 @@ describe "ey recipes upload from a separate cookbooks directory" do
       login_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets]
-      @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|
-      @out.should_not =~ /Uploaded recipes started for giblets/
+      expect(@out).to match(%r|Recipes in cookbooks/ uploaded successfully|)
+      expect(@out).not_to match(/Uploaded recipes started for giblets/)
     end
 
     it "applies the recipes with --apply" do
       login_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets --apply]
-      @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|
-      @out.should =~ /Uploaded recipes started for giblets/
+      expect(@out).to match(%r|Recipes in cookbooks/ uploaded successfully|)
+      expect(@out).to match(/Uploaded recipes started for giblets/)
     end
   end
 
@@ -92,7 +92,7 @@ describe "ey recipes upload from a separate cookbooks directory" do
       login_scenario "one app, one environment"
 
       ey %w[recipes upload -e giblets]
-      @out.should =~ %r|Recipes in cookbooks/ uploaded successfully|
+      expect(@out).to match(%r|Recipes in cookbooks/ uploaded successfully|)
     end
 
   end

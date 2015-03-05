@@ -7,12 +7,12 @@ describe EY::Config do
 
     it "get loaded from the config file" do
       write_yaml({"environments" => {"production" => {"default" => true}}}, 'ey.yml')
-      EY::Config.new.environments["production"]["default"].should be_true
+      expect(EY::Config.new.environments["production"]["default"]).to be_truthy
     end
 
     it "are present when the config file has no environments key" do
       write_yaml({}, 'ey.yml')
-      EY::Config.new.environments.should == {}
+      expect(EY::Config.new.environments).to eq({})
     end
 
     it "rases an error when yaml produces an unexpected result" do
@@ -22,18 +22,18 @@ describe EY::Config do
 
     it "doesnt crash on nil environment" do
       write_yaml({"environments" => {"production" => nil}}, 'ey.yml')
-      EY::Config.new.default_environment.should be_nil
+      expect(EY::Config.new.default_environment).to be_nil
     end
   end
 
   describe "endpoint" do
     it "defaults to production Engine Yard Cloud" do
-      EY::Config.new.endpoint.should == EY::Config.new.default_endpoint
+      expect(EY::Config.new.endpoint).to eq(EY::Config.new.default_endpoint)
     end
 
     it "loads the endpoint from $CLOUD_URL" do
       ENV['CLOUD_URL'] = "http://fake.local/"
-      EY::Config.new.endpoint.should == 'http://fake.local/'
+      expect(EY::Config.new.endpoint).to eq('http://fake.local/')
       ENV.delete('CLOUD_URL')
     end
   end
@@ -44,7 +44,7 @@ describe EY::Config do
 
       write_yaml({"environments" => {"staging"    => {"default" => true}}}, "ey.yml")
       write_yaml({"environments" => {"production" => {"default" => true}}}, "config/ey.yml")
-      EY::Config.new.default_environment.should == "production"
+      expect(EY::Config.new.default_environment).to eq("production")
 
       File.unlink('config/ey.yml') if File.exist?('config/ey.yml')
       File.unlink('ey.yml') if File.exist?('ey.yml')
@@ -53,7 +53,7 @@ describe EY::Config do
     it "looks for ey.yml" do
       write_yaml({"environments" => {"staging" => {"default" => true}}}, "ey.yml")
 
-      EY::Config.new.default_environment.should == "staging"
+      expect(EY::Config.new.default_environment).to eq("staging")
 
       File.unlink('ey.yml') if File.exist?('ey.yml')
     end

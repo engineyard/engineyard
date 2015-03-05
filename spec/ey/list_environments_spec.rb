@@ -15,8 +15,8 @@ describe "ey environments" do
   end
 
   def verify_ran(scenario)
-    @out.should match(/#{scenario[:environment]}/) if scenario[:environment]
-    @out.should match(/#{scenario[:application]}/) if scenario[:application]
+    expect(@out).to match(/#{scenario[:environment]}/) if scenario[:environment]
+    expect(@out).to match(/#{scenario[:application]}/) if scenario[:application]
   end
 
   include_examples "it takes an environment name and an app name and an account name"
@@ -28,7 +28,7 @@ describe "ey environments" do
 
     it "suggests that you use environments --all" do
       fast_failing_ey %w[environments]
-      @err.should =~ /Use ey environments --all to see all environments./
+      expect(@err).to match(/Use ey environments --all to see all environments./)
     end
   end
 
@@ -39,71 +39,71 @@ describe "ey environments" do
 
     it "lists the environments your app is in" do
       fast_ey %w[environments]
-      @out.should include('main/rails232app')
-      @out.should =~ /giblets/
-      @out.should =~ /bakon/
+      expect(@out).to include('main/rails232app')
+      expect(@out).to match(/giblets/)
+      expect(@out).to match(/bakon/)
     end
 
     it "lists the environments with specified app" do
       fast_ey %w[environments --app rails232app]
-      @out.should include('main/rails232app')
-      @out.should =~ /giblets/
-      @out.should =~ /bakon/
+      expect(@out).to include('main/rails232app')
+      expect(@out).to match(/giblets/)
+      expect(@out).to match(/bakon/)
     end
 
     it "finds no environments with gibberish app" do
       fast_failing_ey %w[environments --account main --app gibberish]
-      @err.should =~ /Use ey environments --all to see all environments./
+      expect(@err).to match(/Use ey environments --all to see all environments./)
     end
 
     it "finds no environments with gibberish account" do
       fast_failing_ey %w[environments --account gibberish --app rails232]
-      @err.should =~ /Use ey environments --all to see all environments./
+      expect(@err).to match(/Use ey environments --all to see all environments./)
     end
 
     it "lists the environments that the app is in" do
       fast_ey %w[environments --app rails232app]
-      @out.should include('main/rails232app')
-      @out.should =~ /giblets/
-      @out.should =~ /bakon/
+      expect(@out).to include('main/rails232app')
+      expect(@out).to match(/giblets/)
+      expect(@out).to match(/bakon/)
     end
 
     it "lists the environments that the app is in" do
       fast_ey %w[environments --account main]
-      @out.should include('main/rails232app')
-      @out.should =~ /giblets/
-      @out.should =~ /bakon/
+      expect(@out).to include('main/rails232app')
+      expect(@out).to match(/giblets/)
+      expect(@out).to match(/bakon/)
     end
 
     it "lists the environments matching --environment" do
       fast_ey %w[environments -e gib]
-      @out.should include('main/rails232app')
-      @out.should =~ /giblets/
-      @out.should_not =~ /bakon/
+      expect(@out).to include('main/rails232app')
+      expect(@out).to match(/giblets/)
+      expect(@out).not_to match(/bakon/)
     end
 
     it "reports failure to find a git repo when not in one" do
       Dir.chdir(Dir.tmpdir) do
         fast_failing_ey %w[environments]
-        @err.should =~ /fatal: Not a git repository \(or any of the parent directories\): .*#{Regexp.escape(Dir.tmpdir)}/
-        @out.should_not =~ /no application configured/
+        expect(@err).to match(/fatal: Not a git repository \(or any of the parent directories\): .*#{Regexp.escape(Dir.tmpdir)}/)
+        expect(@out).not_to match(/no application configured/)
       end
     end
 
     it "lists all environments that have apps with -A" do
       fast_ey %w[environments -A]
-      @out.should include("bakon")
-      @out.should include("giblets")
+      expect(@out).to include("bakon")
+      expect(@out).to include("giblets")
     end
 
     it "outputs simply with -s" do
       fast_ey %w[environments -s], :debug => false
-      @out.split(/\n/).sort.should == ["bakon", "giblets"]
+      expect(@out.split(/\n/).sort).to eq(["bakon", "giblets"])
     end
 
     it "outputs all environments (including ones with no apps) simply with -A and -s" do
       fast_ey %w[environments -A -s], :debug => false
-      @out.split(/\n/).sort.should == ["bakon", "beef", "giblets"]
+      expect(@out.split(/\n/).sort).to eq(["bakon", "beef", "giblets"])
     end
   end
 end
@@ -114,7 +114,7 @@ describe "ey environments with an ambiguous git repo" do
 
   it "lists environments from all apps using the git repo" do
     fast_ey %w[environments]
-    @out.should include("giblets")
-    @out.should include("keycollector_production")
+    expect(@out).to include("giblets")
+    expect(@out).to include("keycollector_production")
   end
 end

@@ -7,7 +7,7 @@ describe "ey whoami" do
     before { login_scenario 'empty' }
     it "outputs the currently logged in user" do
       ey %w[whoami]
-      @out.should include("User Name (#{scenario_email})")
+      expect(@out).to include("User Name (#{scenario_email})")
     end
   end
 
@@ -20,11 +20,11 @@ describe "ey whoami" do
         input.puts(scenario_password)
       end
 
-      @out.should include("We need to fetch your API token; please log in.")
-      @out.should include("Email:")
-      @out.should include("Password:")
+      expect(@out).to include("We need to fetch your API token; please log in.")
+      expect(@out).to include("Email:")
+      expect(@out).to include("Password:")
 
-      @out.should include("User Name (#{scenario_email})")
+      expect(@out).to include("User Name (#{scenario_email})")
     end
   end
 end

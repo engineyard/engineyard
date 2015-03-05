@@ -13,9 +13,9 @@ shared_examples_for "it requires an unambiguous git repo" do
 
   it "lists disambiguating environments to choose from" do
     run_ey({}, {:expect_failure => true})
-    @err.should include('Multiple environments possible, please be more specific')
-    @err.should =~ /giblets/
-    @err.should =~ /keycollector_production/
+    expect(@err).to include('Multiple environments possible, please be more specific')
+    expect(@err).to match(/giblets/)
+    expect(@err).to match(/keycollector_production/)
   end
 end
 
@@ -26,9 +26,9 @@ shared_examples_for "it takes an environment name and an app name and an account
   it "complains when you send --account without a value" do
     login_scenario "empty"
     fast_failing_ey command_to_run({}) << '--account'
-    @err.should include("No value provided for option '--account'")
+    expect(@err).to include("No value provided for option '--account'")
     fast_failing_ey command_to_run({}) << '-c'
-    @err.should include("No value provided for option '--account'")
+    expect(@err).to include("No value provided for option '--account'")
   end
 
   context "when multiple accounts with collaboration" do
@@ -39,11 +39,11 @@ shared_examples_for "it takes an environment name and an app name and an account
     it "fails when the app and environment are ambiguous across accounts" do
       run_ey({:environment => "giblets", :app => "rails232app", :ref => 'master'}, {:expect_failure => !@succeeds_on_multiple_matches})
       if @succeeds_on_multiple_matches
-        @err.should_not match(/multiple/i)
+        expect(@err).not_to match(/multiple/i)
       else
-        @err.should match(/Multiple application environments possible/i)
-        @err.should match(/ey \S+ --account='account_2' --app='rails232app' --environment='giblets'/i)
-        @err.should match(/ey \S+ --account='main' --app='rails232app' --environment='giblets'/i)
+        expect(@err).to match(/Multiple application environments possible/i)
+        expect(@err).to match(/ey \S+ --account='account_2' --app='rails232app' --environment='giblets'/i)
+        expect(@err).to match(/ey \S+ --account='main' --app='rails232app' --environment='giblets'/i)
       end
     end
 
@@ -65,9 +65,9 @@ shared_examples_for "it takes an environment name and an account name" do
   it "complains when you send --account without a value" do
     login_scenario "empty"
     fast_failing_ey command_to_run({}) << '--account'
-    @err.should include("No value provided for option '--account'")
+    expect(@err).to include("No value provided for option '--account'")
     fast_failing_ey command_to_run({}) << '-c'
-    @err.should include("No value provided for option '--account'")
+    expect(@err).to include("No value provided for option '--account'")
   end
 
   context "when multiple accounts with collaboration" do
@@ -77,9 +77,9 @@ shared_examples_for "it takes an environment name and an account name" do
 
     it "fails when the app and environment are ambiguous across accounts" do
       run_ey({:environment => "giblets"}, {:expect_failure => true})
-      @err.should match(/multiple environments possible/i)
-      @err.should match(/ey \S+ --environment='giblets' --account='account_2'/i)
-      @err.should match(/ey \S+ --environment='giblets' --account='main'/i)
+      expect(@err).to match(/multiple environments possible/i)
+      expect(@err).to match(/ey \S+ --environment='giblets' --account='account_2'/i)
+      expect(@err).to match(/ey \S+ --environment='giblets' --account='main'/i)
     end
 
     it "runs when specifying the account disambiguates the app to deploy" do
@@ -96,12 +96,12 @@ shared_examples_for "it takes an environment name and an account name" do
     context "when the backend raises an error" do
       before do
         # FIXME, cloud-client needs to provide an API for making responses raise
-        EY::CLI::API.stub(:new).and_raise(EY::CloudClient::RequestFailed.new("Error: Important infos"))
+        allow(EY::CLI::API).to receive(:new).and_raise(EY::CloudClient::RequestFailed.new("Error: Important infos"))
       end
 
       it "returns the error message to the user" do
         fast_failing_ey(command_to_run({:environment => "giblets", :account => "main"}))
-        @err.should match(/Important infos/)
+        expect(@err).to match(/Important infos/)
       end
     end
 
@@ -125,15 +125,15 @@ shared_examples_for "it takes an environment name" do
     login_scenario "one app, one environment"
     # This test must shell out (not sure why, plz FIXME)
     ey command_to_run(:environment => 'typo-happens-here'), {:expect_failure => true}
-    @err.should match(/No environment found matching .*typo-happens-here/i)
+    expect(@err).to match(/No environment found matching .*typo-happens-here/i)
   end
 
   it "complains when you send --environment without a value" do
     login_scenario "empty"
     fast_failing_ey command_to_run({}) << '--environment'
-    @err.should include("No value provided for option '--environment'")
+    expect(@err).to include("No value provided for option '--environment'")
     fast_failing_ey command_to_run({}) << '-e'
-    @err.should include("No value provided for option '--environment'")
+    expect(@err).to include("No value provided for option '--environment'")
   end
 
   context "outside a git repo" do
@@ -158,12 +158,12 @@ shared_examples_for "it takes an environment name" do
       run_ey({:environment => 'staging'}, {:expect_failure => !@succeeds_on_multiple_matches})
 
       if @succeeds_on_multiple_matches
-        @err.should_not match(/multiple .* possible/i)
+        expect(@err).not_to match(/multiple .* possible/i)
       else
         if @takes_app_name
-          @err.should match(/multiple application environments possible/i)
+          expect(@err).to match(/multiple application environments possible/i)
         else
-          @err.should match(/multiple environments possible/i)
+          expect(@err).to match(/multiple environments possible/i)
         end
       end
     end
@@ -184,7 +184,7 @@ shared_examples_for "it takes an environment name" do
   it "complains when it can't guess the environment and its name isn't specified" do
     login_scenario "one app without environment"
     run_ey({:environment => nil}, {:expect_failure => true})
-    @err.should match(/No environment found for applications matching remotes:/i)
+    expect(@err).to match(/No environment found for applications matching remotes:/i)
   end
 end
 
@@ -194,9 +194,9 @@ shared_examples_for "it takes an app name" do
   it "complains when you send --app without a value" do
     login_scenario "empty"
     fast_failing_ey command_to_run({}) << '--app'
-    @err.should include("No value provided for option '--app'")
+    expect(@err).to include("No value provided for option '--app'")
     fast_failing_ey command_to_run({}) << '-a'
-    @err.should include("No value provided for option '--app'")
+    expect(@err).to include("No value provided for option '--app'")
   end
 
   it "allows you to specify a valid app" do
@@ -229,7 +229,7 @@ shared_examples_for "it takes an app name" do
     login_scenario "one app, one environment"
     run_ey({:environment => 'giblets', :app => 'P-time-SAT-solver', :ref => 'master'},
       {:expect_failure => true})
-    @err.should =~ /No app.*P-time-SAT-solver/i
+    expect(@err).to match(/No app.*P-time-SAT-solver/i)
   end
 
 end
@@ -242,7 +242,7 @@ shared_examples_for "it invokes engineyard-serverside" do
     end
 
     it "passes --verbose to engineyard-serverside" do
-      @ssh_commands.should have_command_like(/engineyard-serverside.*--verbose/)
+      expect(@ssh_commands).to have_command_like(/engineyard-serverside.*--verbose/)
     end
 
     it "passes along instance information to engineyard-serverside" do
@@ -256,11 +256,11 @@ shared_examples_for "it invokes engineyard-serverside" do
 
       # apps + utilities are all mentioned
       instance_args.each do |i|
-        @ssh_commands.last.should =~ /#{i}/
+        expect(@ssh_commands.last).to match(/#{i}/)
       end
 
       # but not database instances
-      @ssh_commands.last.should_not =~ /#{db_instance}/
+      expect(@ssh_commands.last).not_to match(/#{db_instance}/)
     end
 
   end
@@ -272,7 +272,7 @@ shared_examples_for "it invokes engineyard-serverside" do
     end
 
     it "omits the --instance-names parameter" do
-      @ssh_commands.last.should_not include("--instance-names")
+      expect(@ssh_commands.last).not_to include("--instance-names")
     end
   end
 end

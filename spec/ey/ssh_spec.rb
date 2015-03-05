@@ -36,39 +36,39 @@ shared_examples_for "running ey ssh for select role" do
     login_scenario "one app, one environment"
     ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :verbose => true)
     @hosts.each do |host|
-      @raw_ssh_commands.select do |command|
+      expect(@raw_ssh_commands.select do |command|
         command =~ /^ssh turkey@#{host}.+ ls$/
-      end.should_not be_empty
+      end).not_to be_empty
     end
-    @raw_ssh_commands.select do |command|
+    expect(@raw_ssh_commands.select do |command|
       command =~ /^ssh turkey.+ ls$/
-    end.count.should == @hosts.count
+    end.count).to eq(@hosts.count)
   end
 
   it "is quiet" do
     login_scenario "one app, one environment"
     ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :quiet => true)
-    @out.should =~ /ssh.*ls/
-    @out.should_not =~ /Loading application data/
+    expect(@out).to match(/ssh.*ls/)
+    expect(@out).not_to match(/Loading application data/)
   end
 
   it "runs in bash by default" do
     login_scenario "one app, one environment"
     ey command_to_run(:ssh_command => "ls", :environment => 'giblets')
-    @out.should =~ /ssh.*bash -lc ls/
+    expect(@out).to match(/ssh.*bash -lc ls/)
   end
 
   it "excludes shell with --no-shell" do
     login_scenario "one app, one environment"
     ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :no_shell => true)
-    @out.should_not =~ /bash/
-    @out.should =~ /ssh.*ls/
+    expect(@out).not_to match(/bash/)
+    expect(@out).to match(/ssh.*ls/)
   end
 
   it "accepts an alternate shell" do
     login_scenario "one app, one environment"
     ey command_to_run(:ssh_command => "ls", :environment => 'giblets', :shell => 'zsh')
-    @out.should =~ /ssh.*zsh -lc ls/
+    expect(@out).to match(/ssh.*zsh -lc ls/)
   end
 
   it "raises an error when there are no matching hosts" do
@@ -93,7 +93,7 @@ describe "ey ssh" do
 
   it "complains if it has no app master" do
     ey %w[ssh -e bakon], :expect_failure => true
-    @err.should =~ /'bakon' does not have any matching instances/
+    expect(@err).to match(/'bakon' does not have any matching instances/)
   end
 
 end
@@ -116,7 +116,7 @@ describe "ey ssh without a command" do
 
   def verify_ran(scenario)
     ssh_target = scenario[:ssh_username] + '@' + scenario[:master_hostname]
-    @raw_ssh_commands.should == ["ssh #{ssh_target}"]
+    expect(@raw_ssh_commands).to eq(["ssh #{ssh_target}"])
   end
 
   include_examples "it takes an environment name and an account name"
@@ -136,7 +136,7 @@ describe "ey ssh with a command" do
 
   def verify_ran(scenario)
     ssh_target = scenario[:ssh_username] + '@' + scenario[:master_hostname]
-    @raw_ssh_commands.should == ["ssh #{ssh_target} 'bash -lc ls'"]
+    expect(@raw_ssh_commands).to eq(["ssh #{ssh_target} 'bash -lc ls'"])
   end
 
   include_examples "it takes an environment name and an account name"
@@ -179,7 +179,7 @@ describe "ey ssh with a multi-part command" do
 
   def verify_ran(scenario)
     ssh_target = scenario[:ssh_username] + '@' + scenario[:master_hostname]
-    @raw_ssh_commands.should == ["ssh #{ssh_target} 'bash -lc '\\''echo \"echo\"'\\'"]
+    expect(@raw_ssh_commands).to eq(["ssh #{ssh_target} 'bash -lc '\\''echo \"echo\"'\\'"])
   end
 
   include_examples "it takes an environment name and an account name"

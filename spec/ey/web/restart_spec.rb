@@ -13,7 +13,7 @@ describe "ey web restart" do
   end
 
   def verify_ran(scenario)
-    @ssh_commands.should have_command_like(/engineyard-serverside.*restart.*--app #{scenario[:application]}/)
+    expect(@ssh_commands).to have_command_like(/engineyard-serverside.*restart.*--app #{scenario[:application]}/)
   end
 
   include_examples "it takes an environment name and an app name and an account name"

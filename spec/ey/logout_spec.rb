@@ -8,17 +8,17 @@ describe "ey logout" do
 
     it "logs you out" do
       ey %w[logout]
-      @out.should include("API token removed: #{ENV['EYRC']}")
-      @out.should include("Run any other command to login again.")
+      expect(@out).to include("API token removed: #{ENV['EYRC']}")
+      expect(@out).to include("Run any other command to login again.")
     end
   end
 
   context "not logged in" do
     it "doesn't prompt for login before logging out" do
       ey %w[logout]
-      @out.should_not include("API token removed:")
-      @out.should include("Already logged out.")
-      @out.should include("Run any other command to login again.")
+      expect(@out).not_to include("API token removed:")
+      expect(@out).to include("Already logged out.")
+      expect(@out).to include("Run any other command to login again.")
     end
   end
 end

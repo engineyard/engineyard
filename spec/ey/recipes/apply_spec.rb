@@ -11,14 +11,14 @@ describe "ey recipes apply" do
   end
 
   def verify_ran(scenario)
-    @out.should =~ /Uploaded recipes started for #{scenario[:environment]}/
+    expect(@out).to match(/Uploaded recipes started for #{scenario[:environment]}/)
   end
 
   include_examples "it takes an environment name and an account name"
 
   it "fails when given a bad option" do
     fast_failing_ey %w[web enable --lots --of --bogus --options]
-    @err.should include("Unknown switches")
+    expect(@err).to include("Unknown switches")
   end
 end
 

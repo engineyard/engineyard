@@ -23,34 +23,34 @@ describe EY::Repo do
 
   describe ".new" do
     it "creates a working repo object in a repo" do
-      EY::Repo.new.remotes.should be_empty
+      expect(EY::Repo.new.remotes).to be_empty
     end
 
     it "doesn't raise if created outside a repository until trying to do something" do
       ENV['GIT_DIR'] = nil
       Dir.chdir('/tmp') do
         repo = EY::Repo.new
-        lambda { repo.remotes }.should raise_error(EY::Repo::NotAGitRepository)
+        expect { repo.remotes }.to raise_error(EY::Repo::NotAGitRepository)
       end
     end
   end
 
   describe ".exist?" do
     it "is true when env vars are set to a repo" do
-      EY::Repo.should be_exist
+      expect(EY::Repo).to be_exist
     end
 
     it "is true when pwd is a repo" do
       Dir.chdir(File.dirname(ENV['GIT_DIR'])) do
         ENV['GIT_DIR'] = nil
-        EY::Repo.should be_exist
+        expect(EY::Repo).to be_exist
       end
     end
 
     it "is false when outside of any repo" do
       ENV['GIT_DIR'] = nil
       Dir.chdir('/tmp') do
-        EY::Repo.should_not be_exist
+        expect(EY::Repo).not_to be_exist
       end
     end
   end
@@ -64,18 +64,18 @@ describe EY::Repo do
     describe "current_branch method" do
       it "returns the name of the current branch" do
         set_head "ref: refs/heads/master"
-        @repo.current_branch.should == "master"
+        expect(@repo.current_branch).to eq("master")
       end
 
       it "returns nil if there is no current branch" do
         set_head "20bf478ab6a91ec5771130aa4c8cfd3d150c4146"
-        @repo.current_branch.should be_nil
+        expect(@repo.current_branch).to be_nil
       end
     end # current_branch
 
     describe "#fail_on_no_remotes!" do
       it "raises when there are no remotes" do
-        lambda { @repo.fail_on_no_remotes! }.should raise_error(EY::Repo::NoRemotesError)
+        expect { @repo.fail_on_no_remotes! }.to raise_error(EY::Repo::NoRemotesError)
       end
     end
 

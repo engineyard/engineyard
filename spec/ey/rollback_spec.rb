@@ -13,9 +13,9 @@ describe "ey rollback" do
   end
 
   def verify_ran(scenario)
-    @out.should match(/Rolling back.*#{scenario[:application]}.*#{scenario[:environment]}/)
-    @err.should == ''
-    @ssh_commands.last.should match(/engineyard-serverside.*deploy rollback.*--app #{scenario[:application]}/)
+    expect(@out).to match(/Rolling back.*#{scenario[:application]}.*#{scenario[:environment]}/)
+    expect(@err).to eq('')
+    expect(@ssh_commands.last).to match(/engineyard-serverside.*deploy rollback.*--app #{scenario[:application]}/)
   end
 
   include_examples "it takes an environment name and an app name and an account name"
@@ -24,7 +24,7 @@ describe "ey rollback" do
   it "passes along the web server stack to engineyard-serverside" do
     login_scenario "one app, one environment"
     ey %w[rollback]
-    @ssh_commands.last.should =~ /--stack nginx_mongrel/
+    expect(@ssh_commands.last).to match(/--stack nginx_mongrel/)
   end
 
   context "--config (--extra-deploy-hook-options)" do
@@ -42,18 +42,18 @@ describe "ey rollback" do
 
     it "passes --config to engineyard-serverside" do
       ey %w[rollback --config some:stuff more:crap]
-      config_options.should_not be_nil
-      config_options['some'].should == 'stuff'
-      config_options['more'].should == 'crap'
-      config_options['input_ref'].should_not be_nil
-      config_options['deployed_by'].should_not be_nil
+      expect(config_options).not_to be_nil
+      expect(config_options['some']).to eq('stuff')
+      expect(config_options['more']).to eq('crap')
+      expect(config_options['input_ref']).not_to be_nil
+      expect(config_options['deployed_by']).not_to be_nil
     end
 
     it "supports legacy --extra-deploy-hook-options" do
       ey %w[rollback --extra-deploy-hook-options some:stuff more:crap]
-      config_options.should_not be_nil
-      config_options['some'].should == 'stuff'
-      config_options['more'].should == 'crap'
+      expect(config_options).not_to be_nil
+      expect(config_options['some']).to eq('stuff')
+      expect(config_options['more']).to eq('crap')
     end
 
     context "when ey.yml is present" do
@@ -65,7 +65,7 @@ describe "ey rollback" do
 
       it "overrides what's in ey.yml" do
         ey %w[rollback --config beer:esb]
-        config_options['beer'].should == 'esb'
+        expect(config_options['beer']).to eq('esb')
       end
     end
   end

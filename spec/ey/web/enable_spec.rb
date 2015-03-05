@@ -13,7 +13,7 @@ describe "ey web enable" do
   end
 
   def verify_ran(scenario)
-    @ssh_commands.should have_command_like(/engineyard-serverside.*disable_maintenance.*--app #{scenario[:application]}/)
+    expect(@ssh_commands).to have_command_like(/engineyard-serverside.*disable_maintenance.*--app #{scenario[:application]}/)
   end
 
   include_examples "it takes an environment name and an app name and an account name"
@@ -21,6 +21,6 @@ describe "ey web enable" do
 
   it "fails when given a bad option" do
     ey %w[web enable --lots --of --bogus --options], :expect_failure => true
-    @err.should include("Unknown switches")
+    expect(@err).to include("Unknown switches")
   end
 end

@@ -22,8 +22,8 @@ describe "ey recipes download" do
   end
 
   def verify_ran(scenario)
-    @out.should =~ /Recipes downloaded successfully for #{scenario[:environment]}/
-    File.read('cookbooks/README').should == "Remove this file to clone an upstream git repository of cookbooks\n"
+    expect(@out).to match(/Recipes downloaded successfully for #{scenario[:environment]}/)
+    expect(File.read('cookbooks/README')).to eq("Remove this file to clone an upstream git repository of cookbooks\n")
   end
 
   include_examples "it takes an environment name and an account name"
@@ -32,7 +32,7 @@ describe "ey recipes download" do
     login_scenario "one app, one environment"
     Dir.mkdir("cookbooks")
     ey %w[recipes download], :expect_failure => true
-    @err.should match(/cookbooks.*already exists/i)
+    expect(@err).to match(/cookbooks.*already exists/i)
   end
 end
 

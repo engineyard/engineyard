@@ -6,27 +6,27 @@ describe EY::EYRC do
 
   describe ".load" do
     it "looks for .eyrc in $EYRC if set" do
-      EY::EYRC.load.path.should == Pathname.new(ENV['EYRC'])
+      expect(EY::EYRC.load.path).to eq(Pathname.new(ENV['EYRC']))
     end
 
     it "looks for .eyrc in $HOME/.eyrc by default" do
       ENV.delete('EYRC')
-      EY::EYRC.load.path.should == Pathname.new("#{ENV['HOME']}/.eyrc")
+      expect(EY::EYRC.load.path).to eq(Pathname.new("#{ENV['HOME']}/.eyrc"))
     end
   end
 
   describe ".new" do
     it "looks for eyrc in any passed file location" do
-      EY::EYRC.new('/tmp/neweyrc').path.should == Pathname.new('/tmp/neweyrc')
+      expect(EY::EYRC.new('/tmp/neweyrc').path).to eq(Pathname.new('/tmp/neweyrc'))
     end
   end
 
   context "with a non-existing .eyrc file" do
     it "has nil api_token" do
-      File.exists?("/tmp/nonexistant").should be_false
+      expect(File.exists?("/tmp/nonexistant")).to be_falsey
       eyrc = EY::EYRC.new('/tmp/nonexistant')
-      eyrc.exist?.should be_false
-      eyrc.api_token.should be_nil
+      expect(eyrc.exist?).to be_falsey
+      expect(eyrc.api_token).to be_nil
     end
   end
 
@@ -36,20 +36,20 @@ describe EY::EYRC do
     end
 
     it "exists" do
-      EY::EYRC.load.exist?.should be_true
+      expect(EY::EYRC.load.exist?).to be_truthy
     end
 
     it "recalls the api_token" do
-      EY::EYRC.load.api_token.should == 'abcd'
+      expect(EY::EYRC.load.api_token).to eq('abcd')
     end
 
     it "deletes the api_token" do
       EY::EYRC.load.delete_api_token
-      EY::EYRC.load.api_token.should be_nil
+      expect(EY::EYRC.load.api_token).to be_nil
     end
 
     it "writes the api_token to api_token: .eyrc" do
-      read_yaml(ENV['EYRC']).should == {"api_token" => "abcd"}
+      expect(read_yaml(ENV['EYRC'])).to eq({"api_token" => "abcd"})
     end
   end
 
@@ -61,16 +61,16 @@ describe EY::EYRC do
     end
 
     it "recalls the api_token" do
-      EY::EYRC.load.api_token.should == 'abcd'
+      expect(EY::EYRC.load.api_token).to eq('abcd')
     end
 
     it "deletes the api token safely on logout" do
       EY::EYRC.load.delete_api_token
-      read_yaml(ENV['EYRC']).should == {"http://localhost/" => {"api_token" => "5678"}}
+      expect(read_yaml(ENV['EYRC'])).to eq({"http://localhost/" => {"api_token" => "5678"}})
     end
 
     it "maintains other random info in the file" do
-      read_yaml(ENV['EYRC']).should == {"api_token" => "abcd", "http://localhost/" => {"api_token" => "5678"}}
+      expect(read_yaml(ENV['EYRC'])).to eq({"api_token" => "abcd", "http://localhost/" => {"api_token" => "5678"}})
     end
   end
 end

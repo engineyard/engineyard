@@ -8,9 +8,9 @@ describe EY::CLI do
       EY::CLI.start(["help"])
     end
 
-    out.should include("ey deploy")
-    out.should include("ey ssh")
-    out.should include("ey web enable")
+    expect(out).to include("ey deploy")
+    expect(out).to include("ey ssh")
+    expect(out).to include("ey web enable")
   end
 
   it "delegates help" do
@@ -18,11 +18,11 @@ describe EY::CLI do
       EY::CLI.start(%w[help web enable])
     end
 
-    out.should match(/remove the maintenance page/i)
+    expect(out).to match(/remove the maintenance page/i)
   end
 
   it "provides error classes" do
-    EY::DeployArgumentError.should be
+    expect(EY::DeployArgumentError).to be
   end
 
 end # EY::CLI

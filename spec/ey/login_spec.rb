@@ -10,7 +10,7 @@ describe "ey login" do
 
     it "returns the logged in user name" do
       ey %w[login]
-      @out.should include("User Name (#{scenario_email})")
+      expect(@out).to include("User Name (#{scenario_email})")
     end
   end
 
@@ -23,11 +23,11 @@ describe "ey login" do
         input.puts(scenario_password)
       end
 
-      @out.should include("We need to fetch your API token; please log in.")
-      @out.should include("Email:")
-      @out.should include("Password:")
+      expect(@out).to include("We need to fetch your API token; please log in.")
+      expect(@out).to include("Email:")
+      expect(@out).to include("Password:")
 
-      @out.should include("User Name (#{scenario_email})")
+      expect(@out).to include("User Name (#{scenario_email})")
     end
   end
 end

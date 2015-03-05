@@ -4,19 +4,19 @@ require 'engineyard/cli'
 describe EY::CLI::API do
   it "gets the api token from ~/.eyrc if possible" do
     write_eyrc({"api_token" => "asdf"})
-    EY::CLI::API.new('http://fake.local', EY::CLI::UI.new).token.should == "asdf"
+    expect(EY::CLI::API.new('http://fake.local', EY::CLI::UI.new).token).to eq("asdf")
     clean_eyrc
   end
 
   it "uses the token specified token over the ENV token if passed" do
     ENV['ENGINEYARD_API_TOKEN'] = 'envtoken'
-    EY::CLI::API.new('http://fake.local', EY::CLI::UI.new, 'specifiedtoken').token.should == 'specifiedtoken'
+    expect(EY::CLI::API.new('http://fake.local', EY::CLI::UI.new, 'specifiedtoken').token).to eq('specifiedtoken')
     ENV.delete('ENGINEYARD_API_TOKEN')
   end
 
   it "uses the token from $ENGINEYARD_API_TOKEN if set" do
     ENV['ENGINEYARD_API_TOKEN'] = 'envtoken'
-    EY::CLI::API.new('http://fake.local', EY::CLI::UI.new).token.should == 'envtoken'
+    expect(EY::CLI::API.new('http://fake.local', EY::CLI::UI.new).token).to eq('envtoken')
     ENV.delete('ENGINEYARD_API_TOKEN')
   end
 
@@ -35,15 +35,15 @@ describe EY::CLI::API do
     end
 
     it "asks you for your credentials" do
-      EY::CLI::UI::Prompter.questions.should == ["Email: ","Password: "]
+      expect(EY::CLI::UI::Prompter.questions).to eq(["Email: ","Password: "])
     end
 
     it "gets the api token" do
-      @api.token.should == "asdf"
+      expect(@api.token).to eq("asdf")
     end
 
     it "saves the api token to ~/.eyrc" do
-      read_eyrc.should == {"api_token" => "asdf"}
+      expect(read_eyrc).to eq({"api_token" => "asdf"})
     end
   end
 

@@ -11,18 +11,18 @@ describe "ey deploy without an eyrc file" do
       input.puts(scenario_password)
     end
 
-    @out.should include("We need to fetch your API token; please log in.")
-    @out.should include("Email:")
-    @out.should include("Password:")
-    @ssh_commands.should_not be_empty
+    expect(@out).to include("We need to fetch your API token; please log in.")
+    expect(@out).to include("Email:")
+    expect(@out).to include("Password:")
+    expect(@ssh_commands).not_to be_empty
 
-    read_eyrc.should == {"api_token" => scenario_api_token}
+    expect(read_eyrc).to eq({"api_token" => scenario_api_token})
   end
 
   it "uses the token on the command line" do
     api_scenario "one app, one environment"
     ey(%w[deploy --no-migrate --api-token] + [scenario_api_token])
-    @ssh_commands.should_not be_empty
+    expect(@ssh_commands).not_to be_empty
   end
 end
 
@@ -44,11 +44,11 @@ describe "ey deploy" do
   end
 
   def verify_ran(scenario)
-    @out.should match(/Beginning deploy.../)
-    @out.should match(/Application:\s+#{scenario[:application]}/)
-    @out.should match(/Environment:\s+#{scenario[:environment]}/)
-    @out.should match(/deployment recorded/i)
-    @ssh_commands.should have_command_like(/engineyard-serverside.*deploy.*--app #{scenario[:application]}/)
+    expect(@out).to match(/Beginning deploy.../)
+    expect(@out).to match(/Application:\s+#{scenario[:application]}/)
+    expect(@out).to match(/Environment:\s+#{scenario[:environment]}/)
+    expect(@out).to match(/deployment recorded/i)
+    expect(@ssh_commands).to have_command_like(/engineyard-serverside.*deploy.*--app #{scenario[:application]}/)
   end
 
   # common behavior
@@ -62,7 +62,7 @@ describe "ey deploy" do
   context "without ssh keys (with ssh enabled)" do
     before do
       ENV.delete('NO_SSH')
-      Net::SSH.stub(:start).and_raise(Net::SSH::AuthenticationFailed.new("no key"))
+      allow(Net::SSH).to receive(:start).and_raise(Net::SSH::AuthenticationFailed.new("no key"))
     end
 
     after do
@@ -72,7 +72,7 @@ describe "ey deploy" do
     it "tells you that you need to add an appropriate ssh key (even with --quiet)" do
       login_scenario "one app, one environment"
       fast_failing_ey %w[deploy --no-migrate --quiet]
-      @err.should include("Authentication Failed")
+      expect(@err).to include("Authentication Failed")
     end
   end
 
@@ -80,26 +80,26 @@ describe "ey deploy" do
     it "complains when there is no app" do
       login_scenario "empty"
       fast_failing_ey ["deploy"]
-      @err.should include(%|No application found|)
+      expect(@err).to include(%|No application found|)
     end
 
     it "complains when the specified environment does not contain the app" do
       login_scenario "one app, one environment, not linked"
       fast_failing_ey %w[deploy -e giblets -r master]
-      @err.should match(/Application "rails232app" and environment "giblets" are not associated./)
+      expect(@err).to match(/Application "rails232app" and environment "giblets" are not associated./)
     end
 
     it "complains when environment is not specified and app is in >1 environment" do
       login_scenario "one app, many environments"
       fast_failing_ey %w[deploy --ref master --no-migrate]
-      @err.should match(/Multiple application environments possible/i)
+      expect(@err).to match(/Multiple application environments possible/i)
     end
 
     it "complains when the app master is in a non-running state" do
       login_scenario "one app, one environment, app master red"
       fast_failing_ey %w[deploy --environment giblets --ref master --no-migrate]
-      @err.should_not match(/No running instances/i)
-      @err.should match(/running.*\(green\)/)
+      expect(@err).not_to match(/No running instances/i)
+      expect(@err).to match(/running.*\(green\)/)
     end
   end
 
@@ -119,26 +119,26 @@ describe "ey deploy" do
 
       it "tells you to run ey init" do
         fast_failing_ey %w[deploy]
-        @err.should match(/ey init/)
-        @ssh_commands.should be_empty
+        expect(@err).to match(/ey init/)
+        expect(@ssh_commands).to be_empty
       end
 
       it "tells you to run ey init" do
         fast_failing_ey %w[deploy --migrate]
-        @err.should match(/ey init/)
-        @ssh_commands.should be_empty
+        expect(@err).to match(/ey init/)
+        expect(@ssh_commands).to be_empty
       end
     end
 
     it "can be disabled with --no-migrate" do
       fast_ey %w[deploy --no-migrate]
-      @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
-      @ssh_commands.last.should_not =~ /--migrate/
+      expect(@ssh_commands.last).to match(/engineyard-serverside.*deploy/)
+      expect(@ssh_commands.last).not_to match(/--migrate/)
     end
 
     it "runs the migrate command when one is given" do
       fast_ey ['deploy', '--migrate', 'thor fancy:migrate']
-      @ssh_commands.last.should match(/--migrate 'thor fancy:migrate'/)
+      expect(@ssh_commands.last).to match(/--migrate 'thor fancy:migrate'/)
     end
 
     context "ey.yml migrate only" do
@@ -147,7 +147,7 @@ describe "ey deploy" do
 
       it "tells you to run ey init" do
         fast_failing_ey %w[deploy]
-        @err.should match(/ey init/)
+        expect(@err).to match(/ey init/)
       end
     end
 
@@ -157,7 +157,7 @@ describe "ey deploy" do
 
       it "tells you to run ey init" do
         fast_failing_ey %w[deploy]
-        @err.should match(/ey init/)
+        expect(@err).to match(/ey init/)
       end
     end
 
@@ -172,7 +172,7 @@ describe "ey deploy" do
 
       it "migrates with the custom command" do
         fast_ey %w[deploy]
-        @ssh_commands.last.should =~ /--migrate 'thor fancy:migrate'/
+        expect(@ssh_commands.last).to match(/--migrate 'thor fancy:migrate'/)
       end
     end
 
@@ -182,18 +182,18 @@ describe "ey deploy" do
 
       it "does not migrate by default" do
         fast_ey %w[deploy]
-        @ssh_commands.last.should =~ /engineyard-serverside.*deploy/
-        @ssh_commands.last.should_not =~ /--migrate/
+        expect(@ssh_commands.last).to match(/engineyard-serverside.*deploy/)
+        expect(@ssh_commands.last).not_to match(/--migrate/)
       end
 
       it "can be turned back on with --migrate" do
         fast_ey ["deploy", "--migrate", "rake fancy:migrate"]
-        @ssh_commands.last.should =~ /--migrate 'rake fancy:migrate'/
+        expect(@ssh_commands.last).to match(/--migrate 'rake fancy:migrate'/)
       end
 
       it "tells you to initialize ey.yml when --migrate is specified with no value" do
         fast_failing_ey %w[deploy --migrate]
-        @err.should match(/ey init/)
+        expect(@err).to match(/ey init/)
       end
     end
 
@@ -203,12 +203,12 @@ describe "ey deploy" do
 
       it "does not migrate by default" do
         fast_ey %w[deploy]
-        @ssh_commands.last.should_not match(/--migrate/)
+        expect(@ssh_commands.last).not_to match(/--migrate/)
       end
 
       it "migrates with the custom command when --migrate is specified with no value" do
         fast_ey %w[deploy --migrate]
-        @ssh_commands.last.should match(/--migrate 'thor fancy:migrate'/)
+        expect(@ssh_commands.last).to match(/--migrate 'thor fancy:migrate'/)
       end
     end
   end
@@ -220,7 +220,7 @@ describe "ey deploy" do
 
     it "passes the framework environment" do
       fast_ey %w[deploy --no-migrate]
-      @ssh_commands.last.should match(/--framework-env production/)
+      expect(@ssh_commands.last).to match(/--framework-env production/)
     end
   end
 
@@ -234,27 +234,27 @@ describe "ey deploy" do
     context "without a configured default branch" do
       it "defaults to the checked-out local branch" do
         fast_ey %w[deploy --no-migrate]
-        @ssh_commands.last.should =~ /--ref resolved-current-branch/
+        expect(@ssh_commands.last).to match(/--ref resolved-current-branch/)
       end
 
       it "deploys another branch if given" do
         fast_ey %w[deploy --ref master --no-migrate]
-        @ssh_commands.last.should =~ /--ref resolved-master/
+        expect(@ssh_commands.last).to match(/--ref resolved-master/)
       end
 
       it "deploys a tag if given" do
         fast_ey %w[deploy --ref v1 --no-migrate]
-        @ssh_commands.last.should =~ /--ref resolved-v1/
+        expect(@ssh_commands.last).to match(/--ref resolved-v1/)
       end
 
       it "allows using --branch to specify a branch" do
         fast_ey %w[deploy --branch master --no-migrate]
-        @ssh_commands.last.should match(/--ref resolved-master/)
+        expect(@ssh_commands.last).to match(/--ref resolved-master/)
       end
 
       it "allows using --tag to specify the tag" do
         fast_ey %w[deploy --tag v1 --no-migrate]
-        @ssh_commands.last.should match(/--ref resolved-v1/)
+        expect(@ssh_commands.last).to match(/--ref resolved-v1/)
       end
     end
 
@@ -269,22 +269,22 @@ describe "ey deploy" do
 
       it "deploys the default branch by default" do
         fast_ey %w[deploy]
-        @ssh_commands.last.should =~ /--ref resolved-master/
+        expect(@ssh_commands.last).to match(/--ref resolved-master/)
       end
 
       it "complains about a non-default branch without --ignore-default-branch" do
         fast_failing_ey %w[deploy -r current-branch]
-        @err.should =~ /default branch is set to "master"/
+        expect(@err).to match(/default branch is set to "master"/)
       end
 
       it "deploys a non-default branch with --ignore-default-branch" do
         fast_ey %w[deploy -r current-branch --ignore-default-branch]
-        @ssh_commands.last.should =~ /--ref resolved-current-branch/
+        expect(@ssh_commands.last).to match(/--ref resolved-current-branch/)
       end
 
       it "deploys a non-default branch with --R ref" do
         fast_ey %w[deploy -R current-branch]
-        @ssh_commands.last.should =~ /--ref resolved-current-branch/
+        expect(@ssh_commands.last).to match(/--ref resolved-current-branch/)
       end
     end
   end
@@ -300,7 +300,7 @@ describe "ey deploy" do
 
     it "no longer gets passed along to engineyard-serverside (since serverside will read it on its own)" do
       fast_ey %w[deploy --no-migrate]
-      @ssh_commands.last.should_not =~ /"bert":"ernie"/
+      expect(@ssh_commands.last).not_to match(/"bert":"ernie"/)
     end
   end
 
@@ -311,9 +311,9 @@ describe "ey deploy" do
 
     it "lets you choose by complete name even if the complete name is ambiguous" do
       fast_ey %w[deploy --environment railsapp_staging --no-migrate]
-      @out.should match(/Beginning deploy.../)
-      @out.should match(/Ref:\s+master/)
-      @out.should match(/Environment:\s+railsapp_staging/)
+      expect(@out).to match(/Beginning deploy.../)
+      expect(@out).to match(/Ref:\s+master/)
+      expect(@out).to match(/Environment:\s+railsapp_staging/)
     end
   end
 
@@ -332,16 +332,16 @@ describe "ey deploy" do
 
     it "passes --config to engineyard-serverside" do
       ey %w[deploy --config some:stuff more:crap --no-migrate]
-      config_options.should_not be_nil
-      config_options['some'].should == 'stuff'
-      config_options['more'].should == 'crap'
+      expect(config_options).not_to be_nil
+      expect(config_options['some']).to eq('stuff')
+      expect(config_options['more']).to eq('crap')
     end
 
     it "supports legacy --extra-deploy-hook-options" do
       ey %w[deploy --extra-deploy-hook-options some:stuff more:crap --no-migrate]
-      config_options.should_not be_nil
-      config_options['some'].should == 'stuff'
-      config_options['more'].should == 'crap'
+      expect(config_options).not_to be_nil
+      expect(config_options['some']).to eq('stuff')
+      expect(config_options['more']).to eq('crap')
     end
 
     context "when ey.yml is present" do
@@ -353,7 +353,7 @@ describe "ey deploy" do
 
       it "overrides what's in ey.yml" do
         fast_ey %w[deploy --config beer:esb]
-        config_options['beer'].should == 'esb'
+        expect(config_options['beer']).to eq('esb')
       end
     end
   end
@@ -374,22 +374,22 @@ describe "ey deploy" do
 
     it "allows you to specify an app when not in a directory" do
       fast_ey %w[deploy --app rails232app --ref master --migrate]
-      @ssh_commands.last.should match(/--app rails232app/)
-      @ssh_commands.last.should match(/--ref resolved-master/)
-      @ssh_commands.last.should match(/--migrate 'rake db:migrate --trace'/)
+      expect(@ssh_commands.last).to match(/--app rails232app/)
+      expect(@ssh_commands.last).to match(/--ref resolved-master/)
+      expect(@ssh_commands.last).to match(/--migrate 'rake db:migrate --trace'/)
     end
 
     it "requires that you specify a ref when specifying the application" do
       Dir.chdir(File.expand_path("~")) do
         fast_failing_ey %w[deploy --app rails232app --no-migrate]
-        @err.should match(/you must also specify the --ref/)
+        expect(@err).to match(/you must also specify the --ref/)
       end
     end
 
     it "requires that you specify a migrate option when specifying the application" do
       Dir.chdir(File.expand_path("~")) do
         fast_failing_ey %w[deploy --app rails232app --ref master]
-        @err.should match(/you must also specify .* --migrate or --no-migrate/)
+        expect(@err).to match(/you must also specify .* --migrate or --no-migrate/)
       end
     end
   end
@@ -404,13 +404,13 @@ describe "ey deploy" do
     it "should send the correct serverside version when specified" do
       fast_ey %w[deploy --no-migrate --serverside-version 1.6.4]
       deploy_command = @ssh_commands.find {|c| c =~ /engineyard-serverside.*deploy/ }
-      deploy_command.should =~ /engineyard-serverside _1.6.4_ deploy/
+      expect(deploy_command).to match(/engineyard-serverside _1.6.4_ deploy/)
     end
 
     it "should send the default serverside version when unspecified" do
       fast_ey %w[deploy --no-migrate]
       deploy_command = @ssh_commands.find {|c| c =~ /engineyard-serverside.*deploy/ }
-      deploy_command.should =~ /engineyard-serverside _#{EY::ENGINEYARD_SERVERSIDE_VERSION}_ deploy/
+      expect(deploy_command).to match(/engineyard-serverside _#{EY::ENGINEYARD_SERVERSIDE_VERSION}_ deploy/)
     end
   end
 
@@ -424,11 +424,11 @@ describe "ey deploy" do
     end
 
     it "passes along the repository URL to engineyard-serverside" do
-      @deploy_command.should =~ /--git user@git.host:path\/to\/repo.git/
+      expect(@deploy_command).to match(/--git user@git.host:path\/to\/repo.git/)
     end
 
     it "passes along the web server stack to engineyard-serverside" do
-      @deploy_command.should =~ /--stack nginx_mongrel/
+      expect(@deploy_command).to match(/--stack nginx_mongrel/)
     end
   end
 

@@ -26,16 +26,16 @@ shared_examples_for "running ey scp for select role" do
     login_scenario "one app, one environment"
     ey command_to_run(from: "from", to: "to", environment: 'giblets', verbose: true)
     @hosts.each do |host_prefix|
-      @raw_ssh_commands.grep(/^scp from turkey@#{host_prefix}.+:to$/).should_not be_empty
+      expect(@raw_ssh_commands.grep(/^scp from turkey@#{host_prefix}.+:to$/)).not_to be_empty
     end
-    @raw_ssh_commands.grep(/^scp from turkey@.+:to$/).count.should == @hosts.count
+    expect(@raw_ssh_commands.grep(/^scp from turkey@.+:to$/).count).to eq(@hosts.count)
   end
 
   it "is quiet" do
     login_scenario "one app, one environment"
     ey command_to_run(from: "from", to: "to", environment: 'giblets', quiet: true)
-    @out.should =~ /scp.*from.*to/
-    @out.should_not =~ /Loading application data/
+    expect(@out).to match(/scp.*from.*to/)
+    expect(@out).not_to match(/Loading application data/)
   end
 
   it "raises an error when there are no matching hosts" do
@@ -59,7 +59,7 @@ describe "ey scp" do
 
   it "complains if it has no app master" do
     ey %w[scp from to -e bakon], :expect_failure => true
-    @err.should =~ /'bakon' does not have any matching instances/
+    expect(@err).to match(/'bakon' does not have any matching instances/)
   end
 
 end
@@ -82,7 +82,7 @@ describe "ey scp" do
 
   def verify_ran(scenario)
     scp_target = scenario[:ssh_username] + '@' + scenario[:master_hostname]
-    @raw_ssh_commands.should == ["scp #{scp_target}:from to"]
+    expect(@raw_ssh_commands).to eq(["scp #{scp_target}:from to"])
   end
 
   include_examples "it takes an environment name and an account name"
