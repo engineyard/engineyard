@@ -522,6 +522,47 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       exit exits.detect {|status| status != 0 } || 0
     end
 
+    desc "console [--environment ENVIRONMENT", "Open a Rails console session to the master app server."
+    long_desc <<-DESC
+      Opens a Rails console session on app master.
+    DESC
+    method_option :environment, type: :string, aliases: %w(-e),
+      required: true, default: '',
+      desc: "Environment to console into"
+    method_option :account, type: :string, aliases: %w(-c),
+      required: true, default: '',
+      desc: "Name of the account in which the environment can be found"
+
+    def console
+      app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
+      instances = filter_servers(app_env.environment, options, default: {app_master: true})
+      user = app_env.environment.username
+      cmd = "cd /data/#{app_env.app.name}/current && bundle exec rails console"
+      cmd = Escape.shell_command(['bash','-lc',cmd])
+
+      ssh_cmd = ["ssh"]
+      ssh_cmd += ["-t"]
+
+      trap(:INT) { abort "Aborting..." }
+
+      exits = []
+      instances.each do |instance|
+        host = instance.public_hostname
+        name = instance.name ? "#{instance.role} (#{instance.name})" : instance.role
+        ui.info "\nConnecting to #{name} #{host}..."
+        unless cmd
+          ui.info "Ctrl + C to abort"
+          sleep 1.3
+        end
+        sshcmd = Escape.shell_command((ssh_cmd + ["#{user}@#{host}"] + [cmd]).compact)
+        ui.debug "$ #{sshcmd}"
+        system sshcmd
+        exits << $?.exitstatus
+      end
+
+      exit exits.detect {|status| status != 0 } || 0
+    end
+
     desc "scp [FROM_PATH] [TO_PATH] [--all] [--environment ENVIRONMENT]", "scp a file to/from multiple servers in an environment"
     long_desc <<-DESC
       Use the system `scp` command to copy files to some or all of the servers.
