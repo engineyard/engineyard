@@ -522,13 +522,16 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       exit exits.detect {|status| status != 0 } || 0
     end
 
-    desc "console [--environment ENVIRONMENT", "Open a Rails console session to the master app server."
+    desc "console [--app APP] [--environment ENVIRONMENT] [--account ACCOUNT]", "Open a Rails console session to the master app server."
     long_desc <<-DESC
       Opens a Rails console session on app master.
     DESC
     method_option :environment, type: :string, aliases: %w(-e),
       required: true, default: '',
       desc: "Environment to console into"
+    method_option :app, type: :string, aliases: %w(-a),
+      required: true, default: '',
+      desc: "Name of the application"
     method_option :account, type: :string, aliases: %w(-c),
       required: true, default: '',
       desc: "Name of the account in which the environment can be found"
