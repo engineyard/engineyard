@@ -4,7 +4,7 @@
 
   * 
 
-## v3.2.0 ()
+##
 
   * New command `ey console` opens a Rails console session on the master app server.
 
