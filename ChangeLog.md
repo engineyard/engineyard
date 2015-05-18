@@ -4,6 +4,10 @@
 
   * 
 
+##
+
+  * New command `ey console` opens a Rails console session on the master app server.
+
 ## v3.1.3 (2015-03-04)
 
   * Loose gem deps on gems owned by Engine Yard.
