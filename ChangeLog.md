@@ -6,10 +6,6 @@
 
 ## v3.2.0 (2015-05-18)
 
-  * 
-
-##
-
   * New command `ey console` opens a Rails console session on the master app server.
 
 ## v3.1.3 (2015-03-04)
