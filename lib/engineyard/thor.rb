@@ -29,7 +29,7 @@ module EY
       respond_to?(:options) && options[:serverside_version] || EY::ENGINEYARD_SERVERSIDE_VERSION
     end
 
-    def serverside_runner(app_env, verbose, serverside_version = serverside_version, ignore_bad_bridge = false)
+    def serverside_runner(app_env, verbose, serverside_version = serverside_version(), ignore_bad_bridge = false)
       ServersideRunner.new({
         bridge:             app_env.environment.bridge!(ignore_bad_bridge).hostname,
         app:                app_env.app,
