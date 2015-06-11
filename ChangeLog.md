@@ -2,6 +2,10 @@
 
 ## NEXT
 
+  *
+
+## v3.2.1 (2015-06-10)
+
   * Fix ruby 2.2 warning for circular reference that will probably become an error in future versions. Thanks to @radamanthus.
 
 ## v3.2.0 (2015-05-18)
