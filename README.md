@@ -70,7 +70,8 @@ A typical application will not need most of these options.
       bundle_without: GROUP1 GROUP2             # exclude groups on bundle install (default: test development)
       bundle_options: --OPTION                  # extra bundle install options (--local, --quiet, etc; does not override bundle_without)
       copy_exclude:                             # don't rsync the following dirs (some people like to skip .git)
-      - SOME_LARGE_DIR 
+      - SOME_LARGE_DIR
+      keep_releases: 3                          # number of releases to keep in /data/APP_NAME/releases. Older releases are removed. Default: 3
       maintenance_on_restart: false             # show maintenance page during app restart (default: false except for glassfish and mongrel)
       maintenance_on_migrate: true              # show maintenance page during migrations (default: true)
       precompile_assets: true                   # enables rails assets precompilation (default: inferred using app/assets and config/application.rb)
