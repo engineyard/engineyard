@@ -152,7 +152,8 @@ Please specify --app=app_name or add this application at #{config.endpoint}"
               subcommands = self.class.printable_tasks.sort_by{|s| s[0] }
               subcommands.reject!{|t| t[0] =~ /#{cmd} help$/}
               ui.print_help(subcommands)
-              ui.say self.class.send(:class_options_help, ui)
+              ui.say
+              self.class.send(:class_options_help, ui)
               ui.say "See #{banner_base} #{cmd} help COMMAND" +
                 " for more information on a specific subcommand." if args.empty?
             else
