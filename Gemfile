@@ -8,6 +8,7 @@ group 'engineyard-cloud-client-test' do
   gem 'dm-aggregates'
   gem 'dm-timestamps'
   gem 'dm-sqlite-adapter'
+  gem 'addressable', '= 2.3.8'
   gem 'ey_resolver', '~>0.2.1'
   gem 'rabl'
   gem 'activesupport', '< 4.0.0'
