@@ -41,4 +41,15 @@ Gem::Specification.new do |s|
   s.add_development_dependency('open4', '~> 1.0.1')
   s.add_development_dependency('multi_json', '~> 1.11')
   s.add_development_dependency('oj', '~> 2.14')
+
+  s.add_development_dependency('dm-core', '~> 1.2')
+  s.add_development_dependency('dm-migrations', '~> 1.2')
+  s.add_development_dependency('dm-aggregates', '~> 1.2')
+  s.add_development_dependency('dm-timestamps', '~> 1.2')
+  s.add_development_dependency('dm-sqlite-adapter', '~> 1.2')
+  s.add_development_dependency('addressable', '= 2.3.8')
+  s.add_development_dependency('ey_resolver', '~> 0.2.1')
+  s.add_development_dependency('rabl', '~> 0.11')
+  s.add_development_dependency('activesupport', '< 4.0.0')
+  s.add_development_dependency('simplecov', '~> 0.11')
 end
