@@ -1,7 +1,0 @@
-#!/usr/bin/env ruby
-
-require 'rubygems'
-require 'bundler/setup'
-
-$LOAD_PATH.unshift File.expand_path("../../../lib", __FILE__)
-load File.expand_path('../../../bin/ey', __FILE__)

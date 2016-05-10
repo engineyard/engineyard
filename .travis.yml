@@ -5,19 +5,13 @@ rvm:
   - 2.0.0
   - 2.1.0
   - ruby-head
-  - jruby-head
-matrix:
-  allow_failures:
-    - rvm: jruby-head
-    - rvm: ruby-head
 notifications:
-  recipients:
-    - memde@engineyard.com
-    - srosenfeld@engineyard.com
-    - jallen@engineyard.com
+  email: false
   webhooks:
     urls:
       - https://ensemble.engineyard.com/travis
     on_success: always
     on_failure: always
     on_start: true
+
+script: bundle exec rake

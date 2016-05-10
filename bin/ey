@@ -1,9 +1,6 @@
 #!/usr/bin/env ruby
-$:.unshift(File.expand_path('../../lib', __FILE__))
-require 'engineyard/cli'
 
-begin
-  EY::CLI.start
-rescue
-  exit(1)
-end
+require 'ey-core/cli'
+
+puts "DEPRECATION WARNING: The engineyard gem is deprecated.  Please install the ey-core gem".yellow
+Ey::Core::Cli.new(ARGV).execute!
