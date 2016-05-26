@@ -18,15 +18,9 @@ The Engine Yard command line utility.
 is only regarding the local development Ruby version for running this gem. An
 environment can continue using a chosen Ruby version regardless of this change.**
 
-The `2.x` series of `engineyard` gem will be the last major version to
-support Ruby 1.8.7 and 1.9.2. If you cannot run Ruby `>= 1.9.3` in your
-development environment, you may continue using engineyard `~> 2.3.2`. This
-version will continue to exist but will not receive regular updates or features.
-
-*As of version 3.0.0, `engineyard` gem will require Ruby 1.9.3. Your application
-may still use `1.8.7` while running engineyard in `1.9.3` via `rvm` or similar.
-Deployment will not be affected. This does not affect your Engine Yard Cloud
-environment. More details will be available when 3.0.0 is released.*
+This gem now wraps the [ey-core](https://github.com/engineyard/core-client-rb) gem by default.
+If you wish to access the old gem behavior, call the binary as `ey legacy` and then append
+the rest of the command as normal.  This legacy behavior will be phased out over time.
 
 ### Install
 

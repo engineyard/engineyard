@@ -1,9 +1,15 @@
 #!/usr/bin/env ruby
 $:.unshift(File.expand_path('../../lib', __FILE__))
 require 'engineyard/cli'
+require 'ey-core/cli'
 
 begin
-  EY::CLI.start
+  if ARGV[0] == 'legacy'
+    ARGV.shift
+    EY::CLI.start
+  else
+    Ey::Core::Cli.new(ARGV).execute!
+  end
 rescue
   exit(1)
 end

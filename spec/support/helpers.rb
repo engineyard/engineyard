@@ -155,7 +155,7 @@ module SpecHelpers
       ey_env['PATH'] = "#{tempdir}:#{ENV['PATH']}"
     end
 
-    eybin = File.expand_path('../bundled_ey', __FILE__)
+    eybin = File.expand_path('../bundled_ey legacy', __FILE__)
 
     with_env(ey_env) do
       exit_status = Open4::open4("#{eybin} #{Escape.shell_command(args)}") do |pid, stdin, stdout, stderr|
