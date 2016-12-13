@@ -2,11 +2,6 @@ if self.class.const_defined?(:EY_ROOT)
   raise "don't require the spec helper twice!"
 end
 
-if ENV['COVERAGE']
-  require 'simplecov'
-  SimpleCov.start
-end
-
 EY_ROOT = File.expand_path("../..", __FILE__)
 require 'rubygems'
 require 'bundler/setup'

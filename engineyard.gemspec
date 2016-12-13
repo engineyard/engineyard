@@ -51,5 +51,4 @@ Gem::Specification.new do |s|
   s.add_development_dependency('ey_resolver', '~> 0.2.1')
   s.add_development_dependency('rabl', '~> 0.11')
   s.add_development_dependency('activesupport', '< 4.0.0')
-  s.add_development_dependency('simplecov', '~> 0.11')
 end
