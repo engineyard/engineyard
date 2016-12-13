@@ -1,3 +1,3 @@
 class Thor
-  VERSION = "0.18.1"
+  VERSION = "3.2.3"
 end
