@@ -252,8 +252,7 @@ Options:
 
 #### ey recipes apply
 
-This is similar to `ey rebuild` except Engine Yard's main configuration step is
-skipped.
+This is similar to `ey rebuild` except Engine Yard's main configuration step is skipped. This command only works on stacks older than stable v5. You will want to use `ey rebuild` for stable v5 cookbooks to run.
 
 Options:
 
