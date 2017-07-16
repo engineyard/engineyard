@@ -397,6 +397,7 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
 
     desc "rollback [--environment ENVIRONMENT]", "Rollback to the previous deploy."
     long_desc <<-DESC
+      This feature is unstable.  Use it at your own peril.
       Uses code from previous deploy in the "/data/APP_NAME/releases" directory on
       remote server(s) to restart application servers.
     DESC

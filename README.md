@@ -240,6 +240,9 @@ Options:
 
 #### ey rollback
 
+** This feature is unstable.  Use it at your own peril **
+** If need to rollback, recommended method is to deploy a previous commit. **
+
 Uses code from previous deploy in the `/data/APP_NAME/releases` directory on
 remote server(s) to restart application servers.
 
