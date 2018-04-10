@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.post_install_message = File.read("PostInstall.txt")
   s.license = 'MIT'
 
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.1'
 
   s.files = Dir.glob("{bin,lib}/**/*") + %w(LICENSE README.md)
   s.executables = ["ey"]
