@@ -14,7 +14,7 @@ require 'escape'
 require 'net/ssh'
 
 # Bundled gems
-require 'fakeweb'
+require 'webmock/rspec'
 
 require 'multi_json'
 
@@ -57,7 +57,7 @@ RSpec.configure do |config|
 
   config.before(:all) do
     clean_eyrc
-    FakeWeb.allow_net_connect = false
+    WebMock.disable_net_connect!
     ENV["CLOUD_URL"] = nil
     ENV["NO_SSH"] = "true"
   end
@@ -72,12 +72,12 @@ shared_examples_for "integration" do
   use_git_repo('default')
 
   before(:all) do
-    FakeWeb.allow_net_connect = true
+    WebMock.allow_net_connect!
     ENV['CLOUD_URL'] = EY::CloudClient::Test::FakeAwsm.uri
   end
 
   after(:all) do
     ENV.delete('CLOUD_URL')
-    FakeWeb.allow_net_connect = false
+    WebMock.disable_net_connect!
   end
 end

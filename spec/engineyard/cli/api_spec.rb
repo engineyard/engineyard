@@ -23,8 +23,7 @@ describe EY::CLI::API do
   context "without saved api token" do
     before(:each) do
       clean_eyrc
-      FakeWeb.register_uri(:post, "http://fake.local/api/v2/authenticate", :body => %|{"api_token": "asdf"}|, :content_type => 'application/json')
-
+      stub_request(:post, "http://fake.local/api/v2/authenticate").to_return(body: %|{"api_token": "asdf"}|, headers: { content_type: 'application/json' })
       EY::CLI::UI::Prompter.enable_mock!
       EY::CLI::UI::Prompter.add_answer "my@email.example.com"
       EY::CLI::UI::Prompter.add_answer "secret"
