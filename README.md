@@ -12,7 +12,7 @@
 
 The Engine Yard command line utility.
 
-### Installing on Ruby 1.8.7 or 1.9.2
+### Installing on Ruby 2.1 or greater
 
 **NOTE: This has *no effect* on your Engine Yard environment ruby version. This
 is only regarding the local development Ruby version for running this gem. An
