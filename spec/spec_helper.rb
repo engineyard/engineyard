@@ -15,7 +15,6 @@ require 'net/ssh'
 
 # Bundled gems
 require 'fakeweb'
-require 'fakeweb_matcher'
 
 require 'multi_json'
 
