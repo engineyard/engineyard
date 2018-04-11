@@ -24,15 +24,15 @@ Gem::Specification.new do |s|
 
   s.test_files = Dir.glob("spec/**/*")
 
-  s.add_dependency('highline', '~> 1.6.1')
+  s.add_dependency('highline', '~> 1.7')
   s.add_dependency('escape', '~> 0.0.4')
   s.add_dependency('engineyard-serverside-adapter', '~> 2.2')
   s.add_dependency('engineyard-cloud-client', '~> 3.0')
-  s.add_dependency('net-ssh', '~>2.7')
+  s.add_dependency('net-ssh', '~>4.2')
   s.add_dependency('launchy', '~>2.1')
   s.add_dependency('ey-core', '~>3.1.4')
 
-  s.add_development_dependency('rspec', '~> 2.0')
+  s.add_development_dependency('rspec', '~> 3.7')
   s.add_development_dependency('rake', '~> 10.4')
   s.add_development_dependency('rdoc', '~> 4.2')
   s.add_development_dependency('webmock', '~> 3.3')
