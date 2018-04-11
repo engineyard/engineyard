@@ -15,7 +15,7 @@ Gem::Specification.new do |s|
   s.post_install_message = File.read("PostInstall.txt")
   s.license = 'MIT'
 
-  s.required_ruby_version = '>= 2.1'
+  s.required_ruby_version = '>= 2.2'
 
   s.files = Dir.glob("{bin,lib}/**/*") + %w(LICENSE README.md)
   s.executables = ["ey"]
@@ -30,7 +30,7 @@ Gem::Specification.new do |s|
   s.add_dependency('engineyard-cloud-client', '~> 3.0')
   s.add_dependency('net-ssh', '~>4.2')
   s.add_dependency('launchy', '~>2.1')
-  s.add_dependency('ey-core', '~>3.1.4')
+  s.add_dependency('ey-core', '~>3.5')
 
   s.add_development_dependency('rspec', '~> 3.7')
   s.add_development_dependency('rake', '~> 10.4')
