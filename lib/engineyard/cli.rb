@@ -540,7 +540,7 @@ WARNING: Interrupting again may prevent Engine Yard Cloud from recording this
       app_env = fetch_app_environment(options[:app], options[:environment], options[:account])
       instances = filter_servers(app_env.environment, options, default: {app_master: true})
       user = app_env.environment.username
-      cmd = "cd /data/#{app_env.app.name}/current && bundle exec rails console"
+      cmd = "cd /data/#{app_env.app.name}/current && current_user=#{api.current_user.name} bundle exec rails console"
       cmd = Escape.shell_command(['bash','-lc',cmd])
 
       ssh_cmd = ["ssh"]
