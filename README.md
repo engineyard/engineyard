@@ -1,4 +1,4 @@
-# The EngineYard gem (EY) is no longer maintained. Please switch to `ey-core` which can be found on [rubygems.org](https://rubygems.org/gems/ey-core) and the [repo here](https://github.com/engineyard/core-client-rb) 
+# The EngineYard gem (EY) is no longer maintained. Please switch to `ey-core` which can be found on [rubygems.org](https://rubygems.org/gems/ey-core) and the repo can be found [here](https://github.com/engineyard/core-client-rb) 
 
 # `ey` engineyard Command Line Interface
 
