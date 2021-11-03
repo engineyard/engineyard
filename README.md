@@ -1,3 +1,5 @@
+# The EngineYard gem (EY) is no longer maintained. Please switch to `ey-core` which can be found on [rubygems.org](https://rubygems.org/gems/ey-core) and the [repo here](https://github.com/engineyard/core-client-rb) 
+
 # `ey` engineyard Command Line Interface
 
 [![Gem Version](https://badge.fury.io/rb/engineyard.png)][gem]
